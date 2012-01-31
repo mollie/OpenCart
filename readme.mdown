@@ -4,15 +4,17 @@
 + ``` git clone git://github.com/mollienl/OpenCart.git ~/.opencart```
 + Kopieër de structuur van de repository naar uw webshop
 + Ga naar uw ‘OpenCart’ Database (bijv. PhpMyAdmin)
-+ Voer de volgende query uit (Mocht u een database prefix hebben zet deze er handmatig bij):
++ Voer de volgende query uit
 
-```CREATE TABLE IF NOT EXISTS `mollie_payments` (  
-	`order_id` int(11) NOT NULL,  
-	`entity_id` int(11) NOT NULL,  
-	`transaction_id` varchar(32) NOT NULL,  
-	`bank_account` varchar(15) NOT NULL,  
-	`bank_status` varchar(20) NOT NULL  
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;```
+(Mocht u een database prefix hebben zet deze er handmatig bij):
+
+	CREATE TABLE IF NOT EXISTS `mollie_payments` (  
+		`order_id` int(11) NOT NULL,  
+		`entity_id` int(11) NOT NULL,  
+		`transaction_id` varchar(32) NOT NULL,  
+		`bank_account` varchar(15) NOT NULL,  
+		`bank_status` varchar(20) NOT NULL  
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 + Als u de bovenstaande query succesvol heeft uitgevoerd, ga dan naar uw OpenCart AdminPanel (Beheerderspagina)
 + Ga in het menu naar ‘Extentions’ en selecteer ‘Payments’
