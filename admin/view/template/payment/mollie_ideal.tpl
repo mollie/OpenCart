@@ -45,8 +45,8 @@ function clean_echo ($string)
 						<td><?php clean_echo($entry_testmode); ?></td>
 						<td>
 							<select name="mollie_ideal_testmode">
-								<option value="true" <?php if ($mollie_ideal_testmode == 'true') { echo 'selected="selected"'; } ?>><?php clean_echo($test_yes); ?></option>
-								<option value="false" <?php if ($mollie_ideal_testmode == 'false') { echo 'selected="selected"'; } ?>><?php clean_echo($test_no); ?></option>
+								<option value="1" <?php if ($mollie_ideal_testmode == 1) { echo 'selected="selected"'; } ?>><?php clean_echo($text_enabled); ?></option>
+								<option value="0" <?php if ($mollie_ideal_testmode == 0) { echo 'selected="selected"'; } ?>><?php clean_echo($text_disabled); ?></option>
 							</select>
 						</td>
 					</tr>

@@ -1,0 +1,37 @@
+<center>![Mollie](http://www.mollie.nl/files/Mollie-Logo-Style-Small.png)</center>
+
+# Installatie #
++ ``` git clone git://github.com/mollienl/OpenCart.git ~/.opencart```
++ Kopieër de structuur van de repository naar uw webshop
++ Ga naar uw ‘OpenCart’ Database (bijv. PhpMyAdmin)
++ Voer de volgende query uit (Mocht u een database prefix hebben zet deze er handmatig bij):
+	```CREATE TABLE IF NOT EXISTS `mollie_payments` (
+		`order_id` int(11) NOT NULL,
+		`entity_id` int(11) NOT NULL,
+		`transaction_id` varchar(32) NOT NULL,
+		`bank_account` varchar(15) NOT NULL,
+		`bank_status` varchar(20) NOT NULL
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8;```
++ Als u de bovenstaande query succesvol heeft uitgevoerd, ga dan naar uw OpenCart AdminPanel (Beheerderspagina)
++ Ga in het menu naar ‘Extentions’ en selecteer ‘Payments’
++ Na een correcte afhandeling zou onze Betaalmethode zichtbaar moeten zijn in het ‘Payments’ overzicht
++ Klik vervolgens op ‘Install’ en daarna op ‘Edit’
++ Vul uw accountgegevens in en sla de gegevens op
+
+# Ondersteunende betaalmethodes #
+### iDEAL ###
+Met iDEAL kunt u vertrouwd, veilig en gemakkelijk uw online aankopen afrekenen. iDEAL is het systeem dat u direct koppelt aan uw internetbankierprogramma bij een online aankoop.
+Via [Mollie](http://www.mollie.nl/) is iDEAL gemakkelijk aan te sluiten zonder de gebruikelijke technische en administratieve rompslomp. Mollie geeft u op ieder moment toegang tot uw transactieoverzichten en andere statistieken. Tevens is het mogelijk per e-mail of SMS een notificatie te ontvangen bij elke gelukte betaling. [Mollie](http://www.mollie.nl/) is hierdoor dus een perfecte partner op het gebied van iDEAL en is het dan ook niet verbazingwekkend dat [Mollie](http://www.mollie.nl/) ondertussen op meer dan 10.000 websites iDEAL-betalingen mag verzorgen.
+
+# Licentie #
+Wij maken gebruik van de [BSD (Berkeley Software Distribution) License](http://www.opensource.org/licenses/bsd-license.php).
+Copyright (c) 2012, Mollie B.V.
+
+# Support #
+W: http://mollie.nl/
+E: info@mollie.nl
+T: +31 20 - 612 88 55
+
+[Meer informatie over iDEAL via Mollie](https://www.mollie.nl/betaaldiensten/ideal/)
+
+<center>![Powerd By Mollie](http://www.mollie.nl/images/badge-betaling-medium.png)</center>
