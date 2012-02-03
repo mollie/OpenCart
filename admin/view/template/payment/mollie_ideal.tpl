@@ -26,13 +26,13 @@ function clean_echo ($string)
 		</div>
 
 		<div class="content">
-			<form action="<?php clean_echo($action); ?>" method="post" enctype="multipart/form-data" id="form">
+			<form action="<?php echo($action); ?>" method="post" enctype="multipart/form-data" id="form">
 				<input type="hidden" name="mollie_ideal_returnurl" value="<?php clean_echo($mollie_ideal_returnurl); ?>" />
 				<input type="hidden" name="mollie_ideal_reporturl" value="<?php clean_echo($mollie_ideal_reporturl); ?>" />
 
 				<table class="form">
 					<tr>
-						<td><?php clean_echo($entry_status); ?></td>
+						<td><?php echo($entry_status); ?></td>
 						<td>
 							<select name="mollie_ideal_status">
 								<option value="1" <?php if ($mollie_ideal_status == 1) { echo 'selected="selected"'; } ?>><?php clean_echo($text_enabled); ?></option>
@@ -42,7 +42,7 @@ function clean_echo ($string)
 					</tr>
 
 					<tr>
-						<td><?php clean_echo($entry_testmode); ?></td>
+						<td><?php echo($entry_testmode); ?></td>
 						<td>
 							<select name="mollie_ideal_testmode">
 								<option value="1" <?php if ($mollie_ideal_testmode == 1) { echo 'selected="selected"'; } ?>><?php clean_echo($text_enabled); ?></option>
@@ -52,17 +52,17 @@ function clean_echo ($string)
 					</tr>
 
 					<tr>
-						<td><span class="required">*</span> <?php clean_echo($entry_partnerid); ?><br /></td>
+						<td><span class="required">*</span> <?php echo($entry_partnerid); ?><br /></td>
 						<td><input type="text" name="mollie_ideal_partnerid" value="<?php clean_echo($mollie_ideal_partnerid); ?>" />
 							<br />
 							<?php if (!empty($error_partnerid)): ?>
-								<span class="error"><?php clean_echo($error_partnerid); ?></span>
+								<span class="error"><?php echo($error_partnerid); ?></span>
 							<?php endif; ?>
 						</td>
 					</tr>
 
 					<tr>
-						<td><span class="required">*</span> <?php clean_echo($entry_profilekey); ?></td>
+						<td><span class="required">*</span> <?php echo($entry_profilekey); ?></td>
 						<td><input type="text" name="mollie_ideal_profilekey" value="<?php clean_echo($mollie_ideal_profilekey); ?>" />
 							<br/>
 							<?php if (!empty($error_profilekey)): ?>
@@ -72,7 +72,7 @@ function clean_echo ($string)
 					</tr>
 
 					<tr>
-						<td><span class="required">*</span> <?php clean_echo($entry_description); ?></td>
+						<td><span class="required">*</span> <?php echo($entry_description); ?></td>
 						<td><input style="width:240px;" maxlength="29" type="text" name="mollie_ideal_description" value="<?php clean_echo($mollie_ideal_description); ?>" />
 							<br/>
 							<?php if (!empty($error_description)): ?>
@@ -92,10 +92,10 @@ function clean_echo ($string)
 					</tr>
 					<tr>
 						<td style="vertical-align: middle;"><?php clean_echo($entry_module); ?></td>
-						<td style="vertical-align: middle;"><?php clean_echo($entry_version); ?></td>
+						<td style="vertical-align: middle;"><?php echo($entry_version); ?></td>
 					</tr>
 					<tr>
-						<td><?php clean_echo($entry_support); ?></td>
+						<td><?php echo($entry_support); ?></td>
 						<td>Mollie B.V.<br />
 							<a href="https://www.mollie.nl/bedrijf/contact" target="new">https://www.mollie.nl/bedrijf/contact</a><br />
 						</td>
@@ -115,4 +115,4 @@ function clean_echo ($string)
 	</div>
 </div>
 
-<?php clean_echo($footer); ?>
+<?php echo($footer); ?>
