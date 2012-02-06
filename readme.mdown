@@ -10,7 +10,7 @@
 
 	CREATE TABLE IF NOT EXISTS `mollie_payments` (  
 		`order_id` int(11) NOT NULL,  
-		`entity_id` int(11) NOT NULL,  
+		`method` varchar(3) NOT NULL,  
 		`transaction_id` varchar(32) NOT NULL,  
 		`bank_account` varchar(15) NOT NULL,  
 		`bank_status` varchar(20) NOT NULL  
