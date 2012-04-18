@@ -65,7 +65,7 @@ class ControllerPaymentMollieIdeal extends Controller
 		}
 		else
 		{
-			$this->template = 'default/template/payment/mollie_ideal.tpl';
+			$this->template = 'default/template/payment/mollie_ideal_banks.tpl';
 		}
 
 		// Render HTML output
@@ -89,9 +89,9 @@ class ControllerPaymentMollieIdeal extends Controller
 
 		$order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
 
-		// Assign required vars for createPayment();
+		// Assign required vars for createPayment
 		$bank_id = $this->request->post['bank_id'];
-		$amount = round($this->currency->format($order_info['total'], "EUR", $order_info['currency_value'], false) * 100);
+		$amount = intval($this->currency->format($order_info['total'], "EUR", 100, false));
 		$description = str_replace('%', $order_info['order_id'], html_entity_decode($this->config->get('mollie_ideal_description'), ENT_QUOTES, 'UTF-8'));
 		$return_url = $this->url->link('payment/mollie_ideal/returnurl');
 		$report_url = $this->url->link('payment/mollie_ideal/report');
@@ -112,7 +112,9 @@ class ControllerPaymentMollieIdeal extends Controller
 		}
 		catch (Exception $e)
 		{
-			echo $e->getMessage();
+			echo("Kon geen betaling aanmaken, neem contact op met de beheerder.<br /><br/>
+				Error melding voor de beheerder: " . $e->getMessage()
+			);
 		}
 	}
 
