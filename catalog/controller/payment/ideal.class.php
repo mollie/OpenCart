@@ -345,6 +345,12 @@ class iDEAL_Payment
             }
         }
 
+        if (isset($xml->order->error) && (string) $xml->order->error == "true") {
+            $this->error_message = $xml->order->message;
+            $this->error_code = -1;
+            return true;
+        }
+
         return false;
     }
 
