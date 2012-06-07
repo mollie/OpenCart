@@ -53,6 +53,7 @@ $_['entry_sort_order']      = "Sorteervolgorde:";
 
 // Info
 $_['entry_module']          = "Module:";
+$_['entry_status']          = "Module Status:";
 $_['entry_version']         = "<a href='https://www.mollie.nl/support/documentatie/betaaldiensten/ideal/' target='_new'>iDEAL</a> versie 4.0";
 $_['entry_support']         = "Support:";
 

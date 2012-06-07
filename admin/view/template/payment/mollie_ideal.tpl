@@ -27,9 +27,6 @@ function clean_echo ($string)
 
 		<div class="content">
 			<form action="<?php echo($action); ?>" method="post" enctype="multipart/form-data" id="form">
-				<input type="hidden" name="mollie_ideal_returnurl" value="<?php clean_echo($mollie_ideal_returnurl); ?>" />
-				<input type="hidden" name="mollie_ideal_reporturl" value="<?php clean_echo($mollie_ideal_reporturl); ?>" />
-
 				<table class="form">
 					<tr>
 						<td><?php echo($entry_status); ?></td>
@@ -93,6 +90,20 @@ function clean_echo ($string)
 					<tr>
 						<td style="vertical-align: middle;"><?php clean_echo($entry_module); ?></td>
 						<td style="vertical-align: middle;"><?php echo($entry_version); ?></td>
+					</tr>
+					<tr>
+						<td><?php clean_echo($entry_status); ?></td>
+						<td>
+							<?php
+								if (is_array($entry_mstatus)) {
+									foreach ($entry_mstatus as $file) {
+										echo "Bestand bestaat niet: '$file'<br/>";
+									}
+								} else {
+									echo $entry_mstatus;
+								}
+							?>
+						</td>
 					</tr>
 					<tr>
 						<td><?php echo($entry_support); ?></td>

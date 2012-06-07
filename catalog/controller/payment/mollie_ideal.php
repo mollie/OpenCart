@@ -90,11 +90,12 @@ class ControllerPaymentMollieIdeal extends Controller
 		$order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
 
 		// Assign required vars for createPayment
-		$bank_id = $this->request->post['bank_id'];
-		$amount = intval($this->currency->format($order_info['total'], "EUR", 100, false));
+		$bank_id     = $this->request->post['bank_id'];
+		$amount      = intval(round($order_info['total'] * 100));
+
 		$description = str_replace('%', $order_info['order_id'], html_entity_decode($this->config->get('mollie_ideal_description'), ENT_QUOTES, 'UTF-8'));
-		$return_url = $this->url->link('payment/mollie_ideal/returnurl');
-		$report_url = $this->url->link('payment/mollie_ideal/report');
+		$return_url  = $this->url->link('payment/mollie_ideal/returnurl');
+		$report_url  = $this->url->link('payment/mollie_ideal/report');
 
 		try
 		{
@@ -146,10 +147,10 @@ class ControllerPaymentMollieIdeal extends Controller
 				$order_info = $this->model_checkout_order->getOrder($order['order_id']);
 				if($order_info['order_status_id'] == 2)
 				{
-					$amount = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false) * 100;
+					$amount = intval(round($order_info['total'] * 100));
 
 					// Check if the order amount is the same as paid amount
-					if (intval($ideal->getAmount()) == intval($amount))
+					if ($ideal->getAmount() == $amount)
 					{
 						switch ($ideal->getBankStatus())
 						{

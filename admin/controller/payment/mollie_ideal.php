@@ -80,6 +80,8 @@ class ControllerPaymentMollieIdeal extends Controller
 		$this->data['entry_support'] 		= $this->language->get('entry_support');
 		$this->data['entry_module'] 		= $this->language->get('entry_module');
 		$this->data['entry_version'] 		= $this->language->get('entry_version');
+		$this->data['entry_status'] 		= $this->language->get('entry_status');
+		$this->data['entry_mstatus'] 		= $this->_checkModuleStatus();
 
 		$this->data['button_save'] 			= $this->language->get('button_save');
 		$this->data['button_cancel'] 		= $this->language->get('button_cancel');
@@ -261,6 +263,36 @@ class ControllerPaymentMollieIdeal extends Controller
 		{
 			return FALSE;
 		}
+	}
+
+	protected function _checkModuleStatus()
+	{
+		$needFiles = array();
+		$modFiles  = array(
+			DIR_APPLICATION.'controller/payment/mollie_ideal.php',
+			DIR_APPLICATION.'language/english/payment/mollie_ideal.php',
+			DIR_TEMPLATE.'payment/mollie_ideal.tpl',
+			DIR_CATALOG.'controller/payment/mollie_ideal.php',
+			DIR_CATALOG.'language/english/payment/mollie_ideal.php',
+			DIR_CATALOG.'model/payment/mollie_ideal.php',
+			DIR_CATALOG.'view/theme/default/template/payment/mollie_ideal_banks.tpl',
+			DIR_CATALOG.'view/theme/default/template/payment/mollie_ideal_fail.tpl',
+		);
+
+		foreach ($modFiles as $file)
+		{
+			if(!file_exists($file)) {
+				$needFiles[] = '<span style="color:red">'.$file.'</span>';
+			}
+		}
+
+		if (count($needFiles) > 0) {
+			return $needFiles;
+		} else {
+			return '<span style="color:green">Ok!</span>';
+		}
+
+		return NULL;
 	}
 
 }
