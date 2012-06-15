@@ -63,3 +63,11 @@ $_['error_partnerid']       = "Mollie partner ID is required!";
 $_['error_profilekey']      = "Profilekey is required!";
 $_['error_description']     = "Description is required!";
 $_['error_total']           = "Please enter a minimal amount. TIP: Use 118, because that is the minimum of iDEAL";
+
+// Status
+$_['entry_failed_status']    = 'Failed Status:';
+$_['entry_canceled_status']  = 'Canceled Status:';
+$_['entry_expired_status']   = 'Expired Status:';
+$_['entry_pending_status']   = 'Pending Status:';
+$_['entry_processing_status']= 'Processing Status:';
+$_['entry_processed_status'] = 'Processed Status:';

@@ -5,6 +5,7 @@ function clean_echo ($string)
 	echo htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
 }
 ?>
+
 <div id="content">
 	<div class="breadcrumb">
 		<?php foreach ($breadcrumbs as $breadcrumb): ?>
@@ -15,7 +16,7 @@ function clean_echo ($string)
 	<?php if ($error_warning): ?>
 		<div class="warning"><?php clean_echo($error_warning); ?></div>
 	<?php endif; ?>
-	
+
 	<div class="box"> 
 		<div class="left"></div> 
 		<div class="right"></div> 
@@ -75,6 +76,93 @@ function clean_echo ($string)
 							<?php if (!empty($error_description)): ?>
 								<span class="error"><?php clean_echo($error_description); ?></span>
 							<?php endif; ?>
+						</td>
+					</tr>
+
+					<tr>
+						<td><?php echo $entry_failed_status; ?></td>
+						<td>
+							<select name="mollie_ideal_failed_status_id">
+							<?php foreach ($order_statuses as $order_status): ?>
+								<?php if ($order_status['order_status_id'] == $mollie_ideal_failed_status_id): ?>
+									<option value="<?php echo $order_status['order_status_id']; ?>" selected="selected"><?php echo $order_status['name']; ?></option>
+								<?php else: ?>
+									<option value="<?php echo $order_status['order_status_id']; ?>"><?php echo $order_status['name']; ?></option>
+								<?php endif ?>
+							<?php endforeach ?>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td><?php echo $entry_canceled_status; ?></td>
+						<td>
+							<select name="mollie_ideal_canceled_status_id">
+							<?php foreach ($order_statuses as $order_status): ?>
+								<?php if ($order_status['order_status_id'] == $mollie_ideal_canceled_status_id): ?>
+									<option value="<?php echo $order_status['order_status_id']; ?>" selected="selected"><?php echo $order_status['name']; ?></option>
+								<?php else: ?>
+									<option value="<?php echo $order_status['order_status_id']; ?>"><?php echo $order_status['name']; ?></option>
+								<?php endif ?>
+							<?php endforeach ?>
+							</select>
+						</td>
+					</tr>
+					
+					<tr>
+						<td><?php echo $entry_expired_status; ?></td>
+						<td>
+							<select name="mollie_ideal_expired_status_id">
+							<?php foreach ($order_statuses as $order_status): ?>
+								<?php if ($order_status['order_status_id'] == $mollie_ideal_expired_status_id): ?>
+									<option value="<?php echo $order_status['order_status_id']; ?>" selected="selected"><?php echo $order_status['name']; ?></option>
+								<?php else: ?>
+									<option value="<?php echo $order_status['order_status_id']; ?>"><?php echo $order_status['name']; ?></option>
+								<?php endif ?>
+							<?php endforeach ?>
+							</select>
+						</td>
+					</tr>
+					
+					<tr>
+						<td><?php echo $entry_pending_status; ?></td>
+						<td>
+							<select name="mollie_ideal_pending_status_id">
+							<?php foreach ($order_statuses as $order_status): ?>
+								<?php if ($order_status['order_status_id'] == $mollie_ideal_pending_status_id): ?>
+									<option value="<?php echo $order_status['order_status_id']; ?>" selected="selected"><?php echo $order_status['name']; ?></option>
+								<?php else: ?>
+									<option value="<?php echo $order_status['order_status_id']; ?>"><?php echo $order_status['name']; ?></option>
+								<?php endif ?>
+							<?php endforeach ?>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td><?php echo $entry_processing_status; ?></td>
+						<td>
+							<select name="mollie_ideal_processing_status_id">
+							<?php foreach ($order_statuses as $order_status): ?>
+								<?php if ($order_status['order_status_id'] == $mollie_ideal_processing_status_id): ?>
+									<option value="<?php echo $order_status['order_status_id']; ?>" selected="selected"><?php echo $order_status['name']; ?></option>
+								<?php else: ?>
+									<option value="<?php echo $order_status['order_status_id']; ?>"><?php echo $order_status['name']; ?></option>
+								<?php endif ?>
+							<?php endforeach ?>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td><?php echo $entry_processed_status; ?></td>
+						<td>
+							<select name="mollie_ideal_processed_status_id">
+							<?php foreach ($order_statuses as $order_status): ?>
+								<?php if ($order_status['order_status_id'] == $mollie_ideal_processed_status_id): ?>
+									<option value="<?php echo $order_status['order_status_id']; ?>" selected="selected"><?php echo $order_status['name']; ?></option>
+								<?php else: ?>
+									<option value="<?php echo $order_status['order_status_id']; ?>"><?php echo $order_status['name']; ?></option>
+								<?php endif ?>
+							<?php endforeach ?>
+							</select>
 						</td>
 					</tr>
 

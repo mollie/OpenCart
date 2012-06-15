@@ -102,7 +102,7 @@ class ControllerPaymentMollieIdeal extends Controller
 			// Create the payment, if succeeded confirm the order and redirect the customer to the bank
 			if ($ideal->createPayment($bank_id, $amount, $description, $return_url, $report_url))
 			{
-				$this->model_checkout_order->confirm($order_info['order_id'], "2", $this->language->get('text_redirected'));
+				$this->model_checkout_order->confirm($order_info['order_id'], $this->config->get('mollie_ideal_processing_status_id'), $this->language->get('text_redirected'));
 				$this->model_payment_mollie_ideal->setOrder($order_info['order_id'], $ideal->getTransactionId());
 				$this->redirect($ideal->getBankURL());
 			}
@@ -155,22 +155,19 @@ class ControllerPaymentMollieIdeal extends Controller
 						switch ($ideal->getBankStatus())
 						{
 							case "Success":
-								$this->model_checkout_order->update($order['order_id'], "15", $this->language->get('response_success'), true); // Processed
+								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_processed_status_id'), $this->language->get('response_success'), true); // Processed
 								break;
 							case "Cancelled":
-								$this->model_checkout_order->update($order['order_id'], "7", $this->language->get('response_cancelled'), true); // Canceled
+								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_canceled_status_id'), $this->language->get('response_cancelled'), true); // Canceled
 								break;
 							case "Failure":
-								$this->model_checkout_order->update($order['order_id'], "10", $this->language->get('response_failed'), true); // Fail
+								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_failed_status_id'), $this->language->get('response_failed'), true); // Fail
 								break;
 							case "Expired":
-								$this->model_checkout_order->update($order['order_id'], "14", $this->language->get('response_expired'), true); // Expired
-								break;
-							case "CheckedBefore":
-								$this->model_checkout_order->update($order['order_id'], "", $this->language->get('response_checked'), false); // Already Checked
+								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_expired_status_id'), $this->language->get('response_expired'), true); // Expired
 								break;
 							default:
-								$this->model_checkout_order->update($order['order_id'], "10", $this->language->get('response_unkown'), false); // Fail
+								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_failed_status_id'), $this->language->get('response_unkown'), false); // Fail
 								break;
 						}
 						$consumer = $ideal->getConsumerInfo();
@@ -201,6 +198,7 @@ class ControllerPaymentMollieIdeal extends Controller
 
 			if ($order['bank_status'] == "Success")
 			{
+				$this->cart->clear();
 				$this->redirect($this->url->link('checkout/success'));
 			}
 			else
@@ -259,6 +257,7 @@ class ControllerPaymentMollieIdeal extends Controller
 		// Render HTML output
 		$this->response->setOutput($this->render());
 	}
+
 }
 
 ?>

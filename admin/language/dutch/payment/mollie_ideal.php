@@ -63,3 +63,11 @@ $_['error_partnerid']       = "Het Mollie partner ID is vereist";
 $_['error_profilekey']      = "Een Profilekey is vereist";
 $_['error_description']     = "Een omschrijving is vereist";
 $_['error_total']           = "Een minimaal bestelbedrag is verplicht. TIP: Vul hier 118 in, standaard werkt iDEAL voor u niet onder dit bedrag.";
+
+// Status
+$_['entry_failed_status']    = 'Mislukte Status:';
+$_['entry_canceled_status']  = 'Geannuleerde Status:';
+$_['entry_expired_status']   = 'Verlopen Status:';
+$_['entry_pending_status']   = 'Afwachting Status:';
+$_['entry_processing_status']= 'Verwerking Status:';
+$_['entry_processed_status'] = 'Verwerkt Status:';

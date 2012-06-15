@@ -49,6 +49,8 @@ class ControllerPaymentMollieIdeal extends Controller
 		$this->load->language('payment/mollie_ideal');
 		$this->load->model('setting/setting');
 		$this->load->model('setting/store');
+		$this->load->model('localisation/order_status');
+
 		$this->document->setTitle($this->language->get('heading_title'));
 
 		// Call validate method on POST
@@ -61,76 +63,65 @@ class ControllerPaymentMollieIdeal extends Controller
 		}
 
 		// Set data for template
-		$this->data['heading_title'] 		= $this->language->get('heading_title');
+		$this->data['heading_title']          = $this->language->get('heading_title');
 
-		$this->data['text_enabled'] 		= $this->language->get('text_enabled');
-		$this->data['text_disabled'] 		= $this->language->get('text_disabled');
-		$this->data['text_yes'] 			= $this->language->get('text_yes');
-		$this->data['text_no'] 				= $this->language->get('text_no');
-		$this->data['text_none'] 			= $this->language->get('text_none');
+		$this->data['text_enabled']           = $this->language->get('text_enabled');
+		$this->data['text_disabled']          = $this->language->get('text_disabled');
+		$this->data['text_yes']               = $this->language->get('text_yes');
+		$this->data['text_no']                = $this->language->get('text_no');
+		$this->data['text_none']              = $this->language->get('text_none');
 
-		$this->data['entry_status'] 		= $this->language->get('entry_status');
-		$this->data['entry_testmode'] 		= $this->language->get('entry_testmode');
-		$this->data['entry_partnerid'] 		= $this->language->get('entry_partnerid');
-		$this->data['entry_profilekey'] 	= $this->language->get('entry_profilekey');
-		$this->data['entry_description'] 	= $this->language->get('entry_description');
-		$this->data['entry_total'] 			= $this->language->get('entry_total');
+		$this->data['entry_status']           = $this->language->get('entry_status');
+		$this->data['entry_testmode']         = $this->language->get('entry_testmode');
+		$this->data['entry_partnerid']        = $this->language->get('entry_partnerid');
+		$this->data['entry_profilekey']       = $this->language->get('entry_profilekey');
+		$this->data['entry_description']      = $this->language->get('entry_description');
+		$this->data['entry_total']            = $this->language->get('entry_total');
 
-		$this->data['entry_sort_order'] 	= $this->language->get('entry_sort_order');
-		$this->data['entry_support'] 		= $this->language->get('entry_support');
-		$this->data['entry_module'] 		= $this->language->get('entry_module');
-		$this->data['entry_version'] 		= $this->language->get('entry_version');
-		$this->data['entry_status'] 		= $this->language->get('entry_status');
-		$this->data['entry_mstatus'] 		= $this->_checkModuleStatus();
+		$this->data['order_statuses']         = $this->model_localisation_order_status->getOrderStatuses();
+		$this->data['entry_failed_status']    = $this->language->get('entry_failed_status');
+		$this->data['entry_canceled_status']  = $this->language->get('entry_canceled_status');
+		$this->data['entry_pending_status']   = $this->language->get('entry_pending_status');
+		$this->data['entry_expired_status']   = $this->language->get('entry_expired_status');
+		$this->data['entry_processing_status']= $this->language->get('entry_processing_status');
+		$this->data['entry_processed_status'] = $this->language->get('entry_processed_status');
 
-		$this->data['button_save'] 			= $this->language->get('button_save');
-		$this->data['button_cancel'] 		= $this->language->get('button_cancel');
+		$this->data['entry_sort_order']       = $this->language->get('entry_sort_order');
+		$this->data['entry_support']          = $this->language->get('entry_support');
+		$this->data['entry_status']           = $this->language->get('entry_status');
+		$this->data['entry_mstatus']          = $this->_checkModuleStatus();
+		$this->data['entry_module']           = $this->language->get('entry_module');
+		$this->data['entry_version']          = $this->language->get('entry_version');
 
-		$this->data['tab_general'] 			= $this->language->get('tab_general');
+		$this->data['button_save']            = $this->language->get('button_save');
+		$this->data['button_cancel']          = $this->language->get('button_cancel');
+
+		$this->data['tab_general']            = $this->language->get('tab2_general');
 
 		// If errors show the error
-		if (isset($this->error['warning']))
-		{
+		if (isset($this->error['warning'])) {
 			$this->data['error_warning'] = $this->error['warning'];
-		}
-		else
-		{
+		} else {
 			$this->data['error_warning'] = '';
 		}
-
-		if (isset($this->error['partnerid']))
-		{
+		if (isset($this->error['partnerid'])) {
 			$this->data['error_partnerid'] = $this->error['partnerid'];
-		}
-		else
-		{
+		} else {
 			$this->data['error_partnerid'] = '';
 		}
-
-		if (isset($this->error['profilekey']))
-		{
+		if (isset($this->error['profilekey'])) {
 			$this->data['error_profilekey'] = $this->error['profilekey'];
-		}
-		else
-		{
+		} else {
 			$this->data['error_profilekey'] = '';
 		}
-
-		if (isset($this->error['description']))
-		{
+		if (isset($this->error['description'])) {
 			$this->data['error_description'] = $this->error['description'];
-		}
-		else
-		{
+		} else {
 			$this->data['error_description'] = '';
 		}
-
-		if (isset($this->error['total']))
-		{
+		if (isset($this->error['total'])) {
 			$this->data['error_total'] = $this->error['total'];
-		}
-		else
-		{
+		} else {
 			$this->data['error_total'] = '';
 		}
 
@@ -160,57 +151,64 @@ class ControllerPaymentMollieIdeal extends Controller
 		$this->data['cancel'] = $this->url->link('extension/payment', 'token=' . $this->session->data['token'], 'SSL');
 
 		// Post data
-		if (isset($this->request->post['mollie_ideal_status']))
-		{
+		if (isset($this->request->post['mollie_ideal_status'])) {
 			$this->data['mollie_ideal_status'] = $this->request->post['mollie_ideal_status'];
-		}
-		else
-		{
+		} else {
 			$this->data['mollie_ideal_status'] = $this->config->get('mollie_ideal_status');
 		}
-
-		if (isset($this->request->post['mollie_ideal_testmode']))
-		{
+		if (isset($this->request->post['mollie_ideal_testmode'])) {
 			$this->data['mollie_ideal_testmode'] = $this->request->post['mollie_ideal_testmode'];
-		}
-		else
-		{
+		} else {
 			$this->data['mollie_ideal_testmode'] = $this->config->get('mollie_ideal_testmode');
 		}
-
-		if (isset($this->request->post['mollie_ideal_partnerid']))
-		{
+		if (isset($this->request->post['mollie_ideal_partnerid'])) {
 			$this->data['mollie_ideal_partnerid'] = $this->request->post['mollie_ideal_partnerid'];
-		}
-		else
-		{
+		} else {
 			$this->data['mollie_ideal_partnerid'] = $this->config->get('mollie_ideal_partnerid');
 		}
-
-		if (isset($this->request->post['mollie_ideal_profilekey']))
-		{
+		if (isset($this->request->post['mollie_ideal_profilekey'])) {
 			$this->data['mollie_ideal_profilekey'] = $this->request->post['mollie_ideal_profilekey'];
-		}
-		else
-		{
+		} else {
 			$this->data['mollie_ideal_profilekey'] = $this->config->get('mollie_ideal_profilekey');
 		}
-
-		if (isset($this->request->post['mollie_ideal_description']))
-		{
+		if (isset($this->request->post['mollie_ideal_description'])) {
 			$this->data['mollie_ideal_description'] = $this->request->post['mollie_ideal_description'];
-		}
-		else
-		{
+		} else {
 			$this->data['mollie_ideal_description'] = $this->config->get('mollie_ideal_description');
 		}
-
-		if (isset($this->request->post['mollie_ideal_sort_order']))
-		{
-			$this->data['mollie_ideal_sort_order'] = $this->request->post['mollie_ideal_sort_order'];
+		if (isset($this->request->post['mollie_ideal_failed_status_id'])) {
+			$this->data['mollie_ideal_failed_status_id'] = $this->request->post['mollie_ideal_failed_status_id'];
+		} else {
+			$this->data['mollie_ideal_failed_status_id'] = $this->config->get('mollie_ideal_failed_status_id');
 		}
-		else
-		{
+		if (isset($this->request->post['mollie_ideal_canceled_status_id'])) {
+			$this->data['mollie_ideal_canceled_status_id'] = $this->request->post['mollie_ideal_canceled_status_id'];
+		} else {
+			$this->data['mollie_ideal_canceled_status_id'] = $this->config->get('mollie_ideal_canceled_status_id');
+		}
+		if (isset($this->request->post['mollie_ideal_expired_status_id'])) {
+			$this->data['mollie_ideal_expired_status_id'] = $this->request->post['mollie_ideal_expired_status_id'];
+		} else {
+			$this->data['mollie_ideal_expired_status_id'] = $this->config->get('mollie_ideal_expired_status_id');
+		}
+		if (isset($this->request->post['mollie_ideal_pending_status_id'])) {
+			$this->data['mollie_ideal_pending_status_id'] = $this->request->post['mollie_ideal_pending_status_id'];
+		} else {
+			$this->data['mollie_ideal_pending_status_id'] = $this->config->get('mollie_ideal_pending_status_id');
+		}
+		if (isset($this->request->post['mollie_ideal_processing_status_id'])) {
+			$this->data['mollie_ideal_processing_status_id'] = $this->request->post['mollie_ideal_processing_status_id'];
+		} else {
+			$this->data['mollie_ideal_processing_status_id'] = $this->config->get('mollie_ideal_processing_status_id');
+		}
+		if (isset($this->request->post['mollie_ideal_processed_status_id'])) {
+			$this->data['mollie_ideal_processed_status_id'] = $this->request->post['mollie_ideal_processed_status_id'];
+		} else {
+			$this->data['mollie_ideal_processed_status_id'] = $this->config->get('mollie_ideal_processed_status_id');
+		}
+		if (isset($this->request->post['mollie_ideal_sort_order'])) {
+			$this->data['mollie_ideal_sort_order'] = $this->request->post['mollie_ideal_sort_order'];
+		} else {
 			$this->data['mollie_ideal_sort_order'] = $this->config->get('mollie_ideal_sort_order');
 		}
 
@@ -235,32 +233,22 @@ class ControllerPaymentMollieIdeal extends Controller
 	 */
 	private function validate()
 	{
-		if (!$this->user->hasPermission('modify', 'payment/mollie_ideal'))
-		{
+		if (!$this->user->hasPermission('modify', 'payment/mollie_ideal')) {
 			$this->error['warning'] = $this->language->get('error_permission');
 		}
-
-		if (!$this->request->post['mollie_ideal_partnerid'])
-		{
+		if (!$this->request->post['mollie_ideal_partnerid']) {
 			$this->error['partnerid'] = $this->language->get('error_partnerid');
 		}
-
-		if (!$this->request->post['mollie_ideal_profilekey'])
-		{
+		if (!$this->request->post['mollie_ideal_profilekey']) {
 			$this->error['profilekey'] = $this->language->get('error_profilekey');
 		}
-
-		if (!$this->request->post['mollie_ideal_description'])
-		{
+		if (!$this->request->post['mollie_ideal_description']) {
 			$this->error['description'] = $this->language->get('error_description');
 		}
 
-		if (!$this->error)
-		{
+		if (!$this->error) {
 			return TRUE;
-		}
-		else
-		{
+		} else {
 			return FALSE;
 		}
 	}
