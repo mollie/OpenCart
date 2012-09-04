@@ -28,13 +28,13 @@
  * @category    Mollie
  * @package     Mollie_Ideal
  * @author      Mollie B.V. (info@mollie.nl)
- * @version     v4.0.0
+ * @version     v4.1.1
  * @copyright   Copyright (c) 2012 Mollie B.V. (http://www.mollie.nl)
  * @license     http://www.opensource.org/licenses/bsd-license.php  Berkeley Software Distribution License (BSD-License 2)
  * 
  **/
 
-/*
+/**
  * English language file for iDEAL by Mollie
  */
 
@@ -45,15 +45,16 @@ $_['text_title'] 			= 'iDEAL';
 $_['text_redirect_message'] = 'Please click the link below to go to your bank';
 $_['text_declined'] 		= 'Payment was declined by iDEAL';
 $_['text_redirected']		= 'The client has been referred to the bank';
+$_['text_retry']			= 'The client is retrying a new payment';
 $_['msg_failed'] 			= 'Unfortunately your iDEAL payment has failed.';
 
 // Response
 $_['response_success'] 		= 'The payment is received';
+$_['response_none'] 		= 'The payment is not received yet';
 $_['response_cancelled'] 	= 'The client has canceled the payment';
-$_['response_failed'] 		= 'The payment did not succeed';
+$_['response_failed'] 		= 'Unfortunately the payment has failed. Please try the payment again with the amount of &euro;%s';
 $_['response_expired'] 		= 'The payment has expired';
-$_['response_checked'] 		= 'Payment status has already been requested';
-$_['response_unkown'] 		= 'An unknown error occurred';
 $_['response_fraud']		= 'The payment is fraud';
+$_['response_unknown'] 		= 'An unknown error occurred';
 
 ?>

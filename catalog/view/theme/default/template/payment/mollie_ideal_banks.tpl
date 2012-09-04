@@ -11,7 +11,7 @@ function clean_echo ($string)
 		<div class="right">
 			<select name="bank_id" id="bank_id">
 				<option value='0'>Kies uw bank</option>
-				<?php foreach ($arr_banks as $bank_id => $bank_name): ?>
+				<?php foreach ($banks as $bank_id => $bank_name): ?>
 					<option value="<?php clean_echo($bank_id); ?>"><?php clean_echo($bank_name); ?></option>
 				<?php endforeach; ?>
 			</select>

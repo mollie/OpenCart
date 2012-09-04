@@ -28,7 +28,7 @@
  * @category    Mollie
  * @package     Mollie_Ideal
  * @author      Mollie B.V. (info@mollie.nl)
- * @version     v4.0.0
+ * @version     v4.1.1
  * @copyright   Copyright (c) 2012 Mollie B.V. (http://www.mollie.nl)
  * @license     http://www.opensource.org/licenses/bsd-license.php  Berkeley Software Distribution License (BSD-License 2)
  *
@@ -37,19 +37,26 @@
 class ModelPaymentMollieIdeal extends Model
 {
 
+	// The possible bank return states
+	const BANK_STATUS_SUCCESS       = 'Success';
+	const BANK_STATUS_CANCELLED     = 'Cancelled';
+	const BANK_STATUS_FAILURE       = 'Failure';
+	const BANK_STATUS_EXPIRED       = 'Expired';
+	const BANK_STATUS_CHECKEDBEFORE = 'CheckedBefore';
+
 	/**
 	 * On the checkout page this method gets called to get information about the payment method
 	 * 
 	 * @return array
 	 */
-	public function getMethod()
+	public function getMethod ()
 	{
 		// Load language file
 		$this->load->language('payment/mollie_ideal');
 
 		$method_data = array(
-			'code' => 'mollie_ideal',
-			'title' => $this->language->get('text_title'),
+			'code'       => 'mollie_ideal',
+			'title'      => $this->language->get('text_title'),
 			'sort_order' => $this->config->get('mollie_sort_order')
 		);
 
@@ -57,29 +64,43 @@ class ModelPaymentMollieIdeal extends Model
 		return $method_data;
 	}
 
+	public function getOrderById ($order_id)
+	{
+		if (!empty($order_id))
+		{
+			$this->load->model('checkout/order');
+
+			return $this->model_checkout_order->getOrder($order_id);
+		}
+
+		return FALSE;
+	}
+
 	/**
 	 * Get the orderId matching the transaction_id
 	 * 
 	 * @return int|bool
 	 */
-	public function getOrderById($transaction_id)
+	public function getPaymentById ($transaction_id)
 	{
-		$q = $this->db->query(
-			sprintf(
-				"SELECT `order_id`, `bank_status`, `bank_account` 
-				FROM `%smollie_payments` 
-				WHERE `transaction_id` = '%s';",
-				DB_PREFIX,
-				mysql_real_escape_string($transaction_id)
-			)
-		);
-
-		if ($q->num_rows > 0)
+		if (!empty($transaction_id))
 		{
-			return $q->row;
+			$q = $this->db->query(
+				sprintf(
+					"SELECT *
+					 FROM `%smollie_payments`
+					 WHERE `transaction_id` = '%s';",
+					 DB_PREFIX,
+					 $this->db->escape($transaction_id)
+				)
+			);
+
+			if ($q->num_rows > 0) {
+				return $q->row;
+			}
 		}
 
-		return false;
+		return FALSE;
 	}
 
 	/**
@@ -87,29 +108,26 @@ class ModelPaymentMollieIdeal extends Model
 	 *
 	 * @return bool
 	 */
-	public function setOrder($order_id, $transaction_id)
+	public function setPayment ($order_id, $transaction_id)
 	{
 		if (!empty($order_id) && !empty($transaction_id))
 		{
-			$q = $this->db->query(
+			$this->db->query(
 				sprintf(
 					"REPLACE INTO `%smollie_payments` (`order_id` ,`transaction_id`, `method`) 
-					VALUES ('%s', '%s', 'idl')",
-					DB_PREFIX,
-					mysql_real_escape_string($order_id),
-					mysql_real_escape_string($transaction_id)
+					 VALUES ('%s', '%s', 'idl')",
+					 DB_PREFIX,
+					$this->db->escape($order_id),
+					$this->db->escape($transaction_id)
 				)
 			);
 
-			if ($this->db->countAffected() > 0)
-			{
-				return true;
+			if ($this->db->countAffected() > 0) {
+				return TRUE;
 			}
-
-			return false;
 		}
 
-		return false;
+		return FALSE;
 	}
 
 	/**
@@ -117,31 +135,28 @@ class ModelPaymentMollieIdeal extends Model
 	 *
 	 * @return bool
 	 */
-	public function updateOrder($order_id, $bank_status, $bank_account = NULL)
+	public function updatePayment ($transaction_id, $bank_status, $consumer = NULL)
 	{
-		if (!empty($order_id) && !empty($bank_status))
+		if (!empty($transaction_id) && !empty($bank_status))
 		{
-			$q = $this->db->query(
+			$this->db->query(
 				sprintf(
 					"UPDATE `%smollie_payments` 
-					SET `bank_status` = '%s', `bank_account` = '%s'
-					WHERE `order_id` = '%s';",
-					DB_PREFIX,
-					mysql_real_escape_string($bank_status),
-					mysql_real_escape_string($bank_account),
-					mysql_real_escape_string($order_id)
+					 SET `bank_status` = '%s', `bank_account` = '%s'
+					 WHERE `transaction_id` = '%s';",
+					 DB_PREFIX,
+					$this->db->escape($bank_status),
+					$this->db->escape($consumer['consumerAccount']),
+					$this->db->escape($transaction_id)
 				)
 			);
 
-			if ($this->db->countAffected() > 0)
-			{
-				return true;
+			if ($this->db->countAffected() > 0) {
+				return TRUE;
 			}
-
-			return false;
 		}
 
-		return false;
+		return FALSE;
 	}
 
 }

@@ -28,7 +28,7 @@
  * @category    Mollie
  * @package     Mollie_Ideal
  * @author      Mollie B.V. (info@mollie.nl)
- * @version     v4.0.0
+ * @version     v4.1.1
  * @copyright   Copyright (c) 2012 Mollie B.V. (http://www.mollie.nl)
  * @license     http://www.opensource.org/licenses/bsd-license.php  Berkeley Software Distribution License (BSD-License 2)
  * 
@@ -42,7 +42,7 @@ class ControllerPaymentMollieIdeal extends Controller
 	/**
 	 * This gets called by OpenCart at the checkout page and generates the paymentmethod
 	 */
-	protected function index()
+	protected function index ()
 	{
 		// Load essential settings
 		$this->load->model('checkout/order');
@@ -55,16 +55,13 @@ class ControllerPaymentMollieIdeal extends Controller
 
 		// Set template data
 		$this->data['button_confirm'] = $this->language->get('button_confirm');
-		$this->data['arr_banks'] = $ideal->getBanks();
-		$this->data['action'] = $this->url->link('payment/mollie_ideal/payment');
+		$this->data['banks']          = $ideal->getBanks();
+		$this->data['action']         = $this->url->link('payment/mollie_ideal/payment', '', 'SSL');
 
 		// Check if view is at default template else use modified template path
-		if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/mollie_ideal_banks.tpl'))
-		{
+		if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/mollie_ideal_banks.tpl')) {
 			$this->template = $this->config->get('config_template') . '/template/payment/mollie_ideal_banks.tpl';
-		}
-		else
-		{
+		} else {
 			$this->template = 'default/template/payment/mollie_ideal_banks.tpl';
 		}
 
@@ -75,108 +72,139 @@ class ControllerPaymentMollieIdeal extends Controller
 	/**
 	 * The payment action creates the iDEAL payment and redirects the customer to the selected bank
 	 */
-	public function payment()
+	public function payment ()
 	{
-		// Load essential settings
-		$this->load->model('checkout/order');
-		$this->load->model('payment/mollie_ideal');
-		$this->load->language('payment/mollie_ideal');
-
-		// Create iDEAL object
-		$ideal = new iDEAL_Payment($this->config->get('mollie_ideal_partnerid'));
-		$ideal->setProfileKey($this->config->get('mollie_ideal_profilekey'));
-		$ideal->setTestmode($this->config->get('mollie_ideal_testmode'));
-
-		$order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
-
-		// Assign required vars for createPayment
-		$bank_id     = $this->request->post['bank_id'];
-		$amount      = intval(round($order_info['total'] * 100));
-
-		$description = str_replace('%', $order_info['order_id'], html_entity_decode($this->config->get('mollie_ideal_description'), ENT_QUOTES, 'UTF-8'));
-		$return_url  = $this->url->link('payment/mollie_ideal/returnurl');
-		$report_url  = $this->url->link('payment/mollie_ideal/report');
-
-		try
+		if ($this->request->server['REQUEST_METHOD'] == 'POST')
 		{
-			// Create the payment, if succeeded confirm the order and redirect the customer to the bank
-			if ($ideal->createPayment($bank_id, $amount, $description, $return_url, $report_url))
+			// Load essentials
+			$this->load->model('checkout/order');
+			$this->load->model('payment/mollie_ideal');
+			$this->load->language('payment/mollie_ideal');
+
+			// Create iDEAL object
+			$ideal = new iDEAL_Payment($this->config->get('mollie_ideal_partnerid'));
+			$ideal->setProfileKey($this->config->get('mollie_ideal_profilekey'));
+			$ideal->setTestmode($this->config->get('mollie_ideal_testmode'));
+
+			if (isset($this->request->post['transaction_id']))
 			{
-				$this->model_checkout_order->confirm($order_info['order_id'], $this->config->get('mollie_ideal_processing_status_id'), $this->language->get('text_redirected'));
-				$this->model_payment_mollie_ideal->setOrder($order_info['order_id'], $ideal->getTransactionId());
-				$this->redirect($ideal->getBankURL());
+				// Load failed order and payment
+				$payment = $this->model_payment_mollie_ideal->getPaymentById($this->request->post['transaction_id']);
+				$order   = $this->model_payment_mollie_ideal->getOrderById($payment['order_id']);
+			} else {
+				// Load last order from session
+				$order = $this->model_payment_mollie_ideal->getOrderById($this->session->data['order_id']);
 			}
-			else
+
+			// Assign required vars for createPayment
+			$bank_id     = $this->request->post['bank_id'];
+			$amount      = intval(round($order['total'] * 100));
+			$description = str_replace('%', $order['order_id'], html_entity_decode($this->config->get('mollie_ideal_description'), ENT_QUOTES, 'UTF-8'));
+			$return_url  = $this->url->link('payment/mollie_ideal/status', '', 'SSL');
+			$report_url  = $this->url->link('payment/mollie_ideal/report', '', 'SSL');
+
+			try
 			{
-				throw new Exception($ideal->getErrorMessage());
+				// Create the payment, if succeeded confirm the order and redirect the customer to the bank
+				if ($ideal->createPayment($bank_id, $amount, $description, $return_url, $report_url))
+				{
+					if (isset($this->request->post['transaction_id'])) {
+						$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_processing_status_id'), $this->language->get('text_redirected'), TRUE);
+					} else {
+						$this->model_checkout_order->confirm($order['order_id'], $this->config->get('mollie_ideal_processing_status_id'), $this->language->get('text_redirected'), TRUE);
+					}
+
+					$this->model_payment_mollie_ideal->setPayment($order['order_id'], $ideal->getTransactionId());
+					$this->redirect($ideal->getBankURL());
+				}
+				else
+				{
+					throw new Exception($ideal->getErrorMessage());
+				}
 			}
-		}
-		catch (Exception $e)
-		{
-			echo("Kon geen betaling aanmaken, neem contact op met de beheerder.<br /><br/>
-				Error melding voor de beheerder: " . $e->getMessage()
-			);
+			catch (Exception $e)
+			{
+				echo("Kon geen betaling aanmaken, neem contact op met de beheerder.<br /><br/>
+					Error melding voor de beheerder: " . $e->getMessage()
+				);
+
+				global $log;
+
+				if ($this->config->get('config_error_log')) {
+					$log->write('PHP ' . $e->getCode() . ':  ' . $e->getMessage() . ' in ' . __FILE__ . ' on line ' . __LINE__);
+				}
+			}
 		}
 	}
 
 	/**
 	 * This action is getting called by Mollie to report the payment status
 	 */
-	public function report()
+	public function report ()
 	{
 		if (!empty($this->request->get['transaction_id']))
 		{
-			// Get transaction_id from URL
-			$transactionId = $this->request->get['transaction_id'];
-
 			// Create iDEAL object
 			$ideal = new iDEAL_Payment($this->config->get('mollie_ideal_partnerid'));
 			$ideal->setProfileKey($this->config->get('mollie_ideal_profilekey'));
-			$ideal->checkPayment($transactionId);
 
-			// Load essential settings
+			// Get transaction_id from URL
+			$transaction_id = $this->request->get['transaction_id'];
+
+			// Check payment
+			$ideal->checkPayment($transaction_id);
+
+			// Load essentials
 			$this->load->model('checkout/order');
 			$this->load->model('payment/mollie_ideal');
 			$this->load->language('payment/mollie_ideal');
 
 			//Get order_id of this transaction from db
-			$order = $this->model_payment_mollie_ideal->getOrderById($transactionId);
+			$payment  = $this->model_payment_mollie_ideal->getPaymentById($transaction_id);
+			$order    = $this->model_payment_mollie_ideal->getOrderById($payment['order_id']);
+			$consumer = NULL;
 
 			if (!empty($order))
 			{
-				$order_info = $this->model_checkout_order->getOrder($order['order_id']);
-				if($order_info['order_status_id'] == 2)
+				// Only if the transaction is in 'processing' status
+				if ($order['order_status_id'] == $this->config->get('mollie_ideal_processing_status_id') && $ideal->getBankStatus() != ModelPaymentMollieIdeal::BANK_STATUS_CHECKEDBEFORE)
 				{
-					$amount = intval(round($order_info['total'] * 100));
+					$amount = intval(round($order['total'] * 100));
 
 					// Check if the order amount is the same as paid amount
-					if ($ideal->getAmount() == $amount)
+					if ($amount == $ideal->getAmount())
 					{
 						switch ($ideal->getBankStatus())
 						{
-							case "Success":
-								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_processed_status_id'), $this->language->get('response_success'), true); // Processed
+							case ModelPaymentMollieIdeal::BANK_STATUS_SUCCESS:
+								$this->cart->clear();
+								$consumer = $ideal->getConsumerInfo();
+								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_processed_status_id'), $this->language->get('response_success'), TRUE); // Processed
 								break;
-							case "Cancelled":
-								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_canceled_status_id'), $this->language->get('response_cancelled'), true); // Canceled
+							case ModelPaymentMollieIdeal::BANK_STATUS_CANCELLED:
+								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_canceled_status_id'), $this->language->get('response_cancelled'), TRUE); // Canceled
 								break;
-							case "Failure":
-								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_failed_status_id'), $this->language->get('response_failed'), true); // Fail
+							case ModelPaymentMollieIdeal::BANK_STATUS_FAILURE:
+								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_failed_status_id'), $this->language->get('response_failed'), TRUE); // Fail
 								break;
-							case "Expired":
-								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_expired_status_id'), $this->language->get('response_expired'), true); // Expired
+							case ModelPaymentMollieIdeal::BANK_STATUS_EXPIRED:
+								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_expired_status_id'), $this->language->get('response_expired'), TRUE); // Expired
 								break;
 							default:
-								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_failed_status_id'), $this->language->get('response_unkown'), false); // Fail
+								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_failed_status_id'), $this->language->get('response_unkown'), FALSE); // Fail
 								break;
 						}
-						$consumer = $ideal->getConsumerInfo();
-						$this->model_payment_mollie_ideal->updateOrder($order['order_id'], $ideal->getBankStatus(), $consumer['consumerAccount']);
 					}
 					else
 					{
-						$this->model_checkout_order->update($order['order_id'], "10", $this->language->get('response_fraud'), false); // Fraude
+						$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_failed_status_id'), $this->language->get('response_fraud'), FALSE); // Fraude
 					}
+
+					$this->model_payment_mollie_ideal->updatePayment($payment['transaction_id'], $ideal->getBankStatus(), $consumer);
+				}
+				else
+				{
+					$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_failed_status_id'), $this->language->get('response_failed'), TRUE); // Fail
 				}
 			}
 		}
@@ -186,76 +214,60 @@ class ControllerPaymentMollieIdeal extends Controller
 	 * Customer returning from the bank with an transaction_id
 	 * Depending on what the state of the payment is they get redirected to the corresponding page
 	 */
-	public function returnurl()
+	public function status ()
 	{
-		$transactionId = $this->request->get['transaction_id'];
-
-		if (!empty($transactionId))
+		if (!empty($this->request->get['transaction_id']))
 		{
+			// transaction id
+			$transaction_id = $this->request->get['transaction_id'];
+
+			// Create iDEAL object
+			$ideal = new iDEAL_Payment($this->config->get('mollie_ideal_partnerid'));
+			$ideal->setProfileKey($this->config->get('mollie_ideal_profilekey'));
+			$ideal->setTestmode($this->config->get('mollie_ideal_testmode'));
+
+			// Load essential settings
 			$this->load->model('payment/mollie_ideal');
+			$this->load->language('payment/mollie_ideal');
 
-			$order = $this->model_payment_mollie_ideal->getOrderById($transactionId);
+			$payment = $this->model_payment_mollie_ideal->getPaymentById($transaction_id);
+			$order   = $this->model_payment_mollie_ideal->getOrderById($payment['order_id']);
 
-			if ($order['bank_status'] == "Success")
-			{
-				$this->cart->clear();
-				$this->redirect($this->url->link('checkout/success'));
+			// Set template data
+			$this->document->setTitle($this->language->get('ideal_title'));
+			$this->data['payment'] = $payment;
+			$this->data['order']   = $order;
+			$this->data['message'] = $this->language;
+			$this->data['banks']   = $ideal->getBanks();
+			$this->data['action']  = $this->url->link('payment/mollie_ideal/payment', '', 'SSL');
+
+			// Breadcrumbs
+			$this->data['breadcrumbs']   = array();
+			$this->data['breadcrumbs'][] = array(
+				'href'      => $this->url->link('common/home', (isset($this->session->data['token'])) ? 'token=' . $this->session->data['token'] : '', 'SSL'),
+				'text'      => $this->language->get('text_home'),
+				'separator' => FALSE
+			);
+
+			// check if template exists
+			if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/mollie_ideal_return.tpl')) {
+				$this->template = $this->config->get('config_template') . '/template/payment/mollie_ideal_return.tpl';
+			} else {
+				$this->template = 'default/template/payment/mollie_ideal_return.tpl';
 			}
-			else
-			{
-				$this->redirect($this->url->link('payment/mollie_ideal/fail'));
-			}
+
+			$this->children = array(
+				'common/column_left',
+				'common/column_right',
+				'common/content_top',
+				'common/content_bottom',
+				'common/footer',
+				'common/header'
+			);
+
+			// Render HTML output
+			$this->response->setOutput($this->render());
 		}
-		else
-		{
-			$this->redirect($this->url->link('payment/mollie_ideal/fail'));
-		}
-	}
-
-	/**
-	 * The fail page gets generated if an payment has failed
-	 */
-	public function fail()
-	{
-		// Load essential settings
-		$this->load->model('payment/mollie_ideal');
-		$this->load->model('checkout/order');
-		$this->load->language('payment/mollie_ideal');
-
-		// Set template data
-		$this->document->setTitle($this->language->get('ideal_title'));
-		$this->data['heading_title'] = $this->language->get('ideal_title');
-		$this->data['msg_failed'] = $this->language->get('msg_failed');
-
-		// Breadcrumbs
-		$this->data['breadcrumbs'] = array();
-		$this->data['breadcrumbs'][] = array(
-			'href' => $this->url->link('common/home', (isset($this->session->data['token'])) ? 'token=' . $this->session->data['token'] : '', 'SSL'),
-			'text' => $this->language->get('text_home'),
-			'separator' => FALSE
-		);
-
-		// check if template exists
-		if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/mollie_ideal_fail.tpl'))
-		{
-			$this->template = $this->config->get('config_template') . '/template/payment/mollie_ideal_fail.tpl';
-		}
-		else
-		{
-			$this->template = 'default/template/payment/mollie_ideal_fail.tpl';
-		}
-
-		$this->children = array(
-			'common/column_left',
-			'common/column_right',
-			'common/content_top',
-			'common/content_bottom',
-			'common/footer',
-			'common/header'
-		);
-
-		// Render HTML output
-		$this->response->setOutput($this->render());
 	}
 
 }

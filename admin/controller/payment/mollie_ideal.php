@@ -28,7 +28,7 @@
  * @category    Mollie
  * @package     Mollie_Ideal
  * @author      Mollie B.V. (info@mollie.nl)
- * @version     v4.0.0
+ * @version     v4.1.1
  * @copyright   Copyright (c) 2012 Mollie B.V. (http://www.mollie.nl)
  * @license     http://www.opensource.org/licenses/bsd-license.php  Berkeley Software Distribution License (BSD-License 2)
  * 
@@ -264,7 +264,7 @@ class ControllerPaymentMollieIdeal extends Controller
 			DIR_CATALOG.'language/english/payment/mollie_ideal.php',
 			DIR_CATALOG.'model/payment/mollie_ideal.php',
 			DIR_CATALOG.'view/theme/default/template/payment/mollie_ideal_banks.tpl',
-			DIR_CATALOG.'view/theme/default/template/payment/mollie_ideal_fail.tpl',
+			DIR_CATALOG.'view/theme/default/template/payment/mollie_ideal_return.tpl',
 		);
 
 		foreach ($modFiles as $file)
