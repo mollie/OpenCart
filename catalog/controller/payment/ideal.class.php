@@ -69,7 +69,7 @@ class iDEAL_Payment
 
     public function __construct($partner_id, $api_host = 'ssl://secure.mollie.nl', $api_port = 443)
     {
-        $this->partner_id = $partner_id;
+        $this->setPartnerId($partner_id);
         $this->api_host = $api_host;
         $this->api_port = $api_port;
     }
@@ -136,8 +136,8 @@ class iDEAL_Payment
             'returnurl' => $this->getReturnURL(),
         );
 
-        if ($this->profile_key)
-            $query_variables['profile_key'] = $this->profile_key;
+        if ($this->getProfileKey())
+            $query_variables['profile_key'] = $this->getProfileKey();
 
         $create_xml = $this->_sendRequest(
                 $this->api_host, $this->api_port, '/xml/ideal/', http_build_query($query_variables, '', '&')
@@ -314,19 +314,14 @@ class iDEAL_Payment
     {
         try
         {
-            $xml_object = new SimpleXMLElement($xml);
-            if ($xml_object == false)
-            {
-                $this->error_message = "Kon XML resultaat niet verwerken";
-                return false;
-            }
+            return new SimpleXMLElement($xml);
         }
         catch (Exception $e)
         {
+			$this->error_message = "Kon XML resultaat niet verwerken";
+			$this->error_code = -2;
             return false;
         }
-
-        return $xml_object;
     }
 
     protected function _XMLisError($xml)

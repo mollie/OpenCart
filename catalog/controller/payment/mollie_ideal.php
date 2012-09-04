@@ -38,18 +38,23 @@ require_once('ideal.class.php');
 
 class ControllerPaymentMollieIdeal extends Controller
 {
+	/**
+	 * @param $mollie_ideal_partnerid
+	 * @codeCoverageIgnore
+	 * @return iDEAL_Payment
+	 */
+	protected function getIdealPaymentObject($mollie_ideal_partnerid)
+	{
+		return new iDEAL_Payment($mollie_ideal_partnerid);
+	}
 
 	/**
 	 * This gets called by OpenCart at the checkout page and generates the paymentmethod
 	 */
-	protected function index ()
+	public function index ()
 	{
-		// Load essential settings
-		$this->load->model('checkout/order');
-		$oinfo = $this->model_checkout_order->getOrder($this->session->data['order_id']);
-
 		// Create iDEAL object
-		$ideal = new iDEAL_Payment($this->config->get('mollie_ideal_partnerid'));
+		$ideal = $this->getIdealPaymentObject($this->config->get('mollie_ideal_partnerid'));
 		$ideal->setProfileKey($this->config->get('mollie_ideal_profilekey'));
 		$ideal->setTestmode($this->config->get('mollie_ideal_testmode'));
 

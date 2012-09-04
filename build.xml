@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="magento-ideal" default="build">
+
+    <target name="build" depends="build-parallel"/>
+
+    <target name="build-parallel" depends="prepare,tools-parallel"/>
+
+    <target name="tools-parallel" description="Run tools in parallel">
+        <parallel threadCount="4">
+            <antcall target="lint"/>
+            <antcall target="phpunit-unittests"/>
+            <antcall target="phploc"/>
+        </parallel>
+    </target>
+
+    <target name="clean" description="Cleanup build artifacts">
+        <delete dir="${basedir}/build/api"/>
+        <delete dir="${basedir}/build/clover"/>
+        <delete dir="${basedir}/build/coverage"/>
+        <delete dir="${basedir}/build/logs"/>
+    </target>
+
+    <target name="prepare" depends="clean"
+            description="Prepare for build">
+        <mkdir dir="${basedir}/build/api"/>
+        <mkdir dir="${basedir}/build/clover"/>
+        <mkdir dir="${basedir}/build/coverage"/>
+        <mkdir dir="${basedir}/build/logs"/>
+    </target>
+
+    <target name="lint">
+        <apply executable="php" failonerror="true">
+            <arg value="-l" />
+            <fileset dir="${basedir}">
+                <include name="**/*.php" />
+                <modified />
+            </fileset>
+        </apply>
+    </target>
+
+    <target name="phploc" description="Measure project size using PHPLOC">
+        <exec executable="phploc">
+            <arg value="--count-tests" />
+            <arg value="--log-csv" />
+            <arg value="${basedir}/build/logs/phploc.csv" />
+            <arg path="${basedir}" />
+        </exec>
+    </target>
+
+    <target name="phpunit-unittests" description="Run unit tests with PHPUnit">
+        <!-- run the unit tests -->
+        <exec executable="phpunit">
+            <arg value="--configuration" />
+            <arg file="${basedir}/tests/phpunit.xml" />
+        </exec>
+    </target>
+
+</project>
