@@ -118,40 +118,40 @@ class ControllerPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
 
 	public function testReportHappyPath()
 	{
-		$this->testReport($amounts_correct = TRUE, $bank_status = ModelPaymentMollieIdeal::BANK_STATUS_SUCCESS);
+		$this->reportActionTester($amounts_correct = TRUE, $bank_status = ModelPaymentMollieIdeal::BANK_STATUS_SUCCESS);
 	}
 
 	public function testReportAmountsMisMatch()
 	{
-		$this->testReport($amounts_correct = FALSE, $bank_status = ModelPaymentMollieIdeal::BANK_STATUS_SUCCESS);
+		$this->reportActionTester($amounts_correct = FALSE, $bank_status = ModelPaymentMollieIdeal::BANK_STATUS_SUCCESS);
 	}
 
 	public function testReportCustomerCanceled()
 	{
-		$this->testReport($amounts_correct = TRUE, $bank_status = ModelPaymentMollieIdeal::BANK_STATUS_CANCELLED);
+		$this->reportActionTester($amounts_correct = TRUE, $bank_status = ModelPaymentMollieIdeal::BANK_STATUS_CANCELLED);
 	}
 
 	public function testBankFailure()
 	{
-		$this->testReport($amounts_correct = TRUE, $bank_status = ModelPaymentMollieIdeal::BANK_STATUS_FAILURE);
+		$this->reportActionTester($amounts_correct = TRUE, $bank_status = ModelPaymentMollieIdeal::BANK_STATUS_FAILURE);
 	}
 
 	public function testPaymentExpired()
 	{
-		$this->testReport($amounts_correct = TRUE, $bank_status = ModelPaymentMollieIdeal::BANK_STATUS_EXPIRED);
+		$this->reportActionTester($amounts_correct = TRUE, $bank_status = ModelPaymentMollieIdeal::BANK_STATUS_EXPIRED);
 	}
 
 	public function testUnknownBankStatus()
 	{
-		$this->testReport($amounts_correct = TRUE, $bank_status = "unknown");
+		$this->reportActionTester($amounts_correct = TRUE, $bank_status = "unknown");
 	}
 
 	public function testStatusCheckedBefore()
 	{
-		$this->testReport($amounts_correct = TRUE, $bank_status = ModelPaymentMollieIdeal::BANK_STATUS_CHECKEDBEFORE);
+		$this->reportActionTester($amounts_correct = TRUE, $bank_status = ModelPaymentMollieIdeal::BANK_STATUS_CHECKEDBEFORE);
 	}
 
-	protected function testReport($amounts_correct, $bank_status)
+	protected function reportActionTester($amounts_correct, $bank_status)
 	{
 		$this->controller->request->get['transaction_id'] = self::TRANSACTION_ID;
 
