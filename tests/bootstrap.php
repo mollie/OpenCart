@@ -9,6 +9,7 @@ spl_autoload_register(function($className)
 	$map = array(
 		"iDEAL_Payment" => "$project_dir/catalog/controller/payment/ideal.class.php",
 		"ControllerPaymentMollieIdeal" => "$project_dir/catalog/controller/payment/mollie_ideal.php",
+		"ModelPaymentMollieIdeal" => "$project_dir/catalog/model/payment/mollie_ideal.php",
 	);
 
 	if (isset($map[$className]))
@@ -29,6 +30,18 @@ class Mollie_OpenCart_TestCase extends PHPUnit_Framework_TestCase
 	const CONFIG_TESTMODE = TRUE;
 
 	const URL_PAYMENT = "https://opencart.local/url/payment";
+
+	const TRANSACTION_ID = "1bba1d8fdbd8103b46151634bdbe0a60";
+
+	const ORDER_STATUS_SUCCESS_ID = 1;
+	const ORDER_STATUS_FAILED_ID = 2;
+	const ORDER_STATUS_PROCESSING_ID = 3;
+	const ORDER_STATUS_CANCELED_ID = 4;
+	const ORDER_STATUS_EXPIRED_ID = 5;
+
+	const ORDER_ID = 1337;
+
+	const BANK_ID = "0999";
 
 	protected static $banks = array(
 		'1234' => 'Test bank 1',

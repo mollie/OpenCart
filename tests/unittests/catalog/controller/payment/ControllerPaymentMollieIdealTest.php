@@ -30,8 +30,13 @@ class ControllerPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
 	public function setUp()
 	{
 		$this->controller = $this->getMock("ControllerPaymentMollieIdeal", array("getIdealPaymentObject", "render"));
+		$this->controller->get = new stdClass();
+		$this->controller->post = new stdClass();
+		$this->controller->server = new stdClass();
 
-		$this->ideal = $this->getMock("iDEAL_Payment", array("setPartnerId", "setProfileKey", "setTestmode", "getBanks"), array(self::CONFIG_PARTNER_ID));
+		$this->controller->cart = $this->getMock("stub", array("clear"));
+
+		$this->ideal = $this->getMock("iDEAL_Payment", array("setPartnerId", "setProfileKey", "setTestmode", "getBanks", "checkPayment", "getBankStatus", "getAmount"), array(self::CONFIG_PARTNER_ID));
 
 		$this->controller->expects($this->any())
 			->method("getIdealPaymentObject")
@@ -39,6 +44,18 @@ class ControllerPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
 			->will($this->returnValue($this->ideal));
 
 		$this->config = $this->getMock("stdClass", array("get"));
+		$this->config->expects($this->any())
+			->method("get")
+			->will($this->returnValueMap(array(
+			array("mollie_ideal_partnerid", self::CONFIG_PARTNER_ID),
+			array("mollie_ideal_profilekey", self::CONFIG_PROFILE_KEY),
+			array("mollie_ideal_testmode", self::CONFIG_TESTMODE),
+			array("mollie_ideal_processed_status_id", self::ORDER_STATUS_SUCCESS_ID),
+			array("mollie_ideal_processing_status_id", self::ORDER_STATUS_PROCESSING_ID),
+			array("mollie_ideal_failed_status_id", self::ORDER_STATUS_FAILED_ID),
+			array("mollie_ideal_canceled_status_id", self::ORDER_STATUS_CANCELED_ID),
+			array("mollie_ideal_expired_status_id", self::ORDER_STATUS_EXPIRED_ID),
+		)));
 
 		$this->controller->config = $this->config;
 
@@ -50,18 +67,12 @@ class ControllerPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
 
 		$this->url = $this->getMock("stub", array("link"));
 		$this->controller->url = $this->url;
+
+		$this->controller->load = $this->getMock("stdClass", array("model", "language"));
 	}
 
 	public function testIndex()
 	{
-		$this->config->expects($this->any())
-			->method("get")
-			->will($this->returnValueMap(array(
-				array("mollie_ideal_partnerid", self::CONFIG_PARTNER_ID),
-				array("mollie_ideal_profilekey", self::CONFIG_PROFILE_KEY),
-				array("mollie_ideal_testmode", self::CONFIG_TESTMODE),
-		)));
-
 		$this->ideal->expects($this->any())
 			->method("setPartnerId")
 			->with(self::CONFIG_PARTNER_ID);
@@ -95,5 +106,155 @@ class ControllerPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
 		), $this->controller->data);
 
 		$this->assertEquals("default/template/payment/mollie_ideal_banks.tpl", $this->controller->template);
+	}
+
+	public function testReportNothingHappensIncaseOfNoTransactionId()
+	{
+		$this->controller->request->get['transaction_id'] = NULL;
+		$this->controller->expects($this->never())
+			->method("getIdealPaymentObject");
+		$this->controller->report();
+	}
+
+	public function testReportHappyPath()
+	{
+		$this->testReport($amounts_correct = TRUE, $bank_status = ModelPaymentMollieIdeal::BANK_STATUS_SUCCESS);
+	}
+
+	public function testReportAmountsMisMatch()
+	{
+		$this->testReport($amounts_correct = FALSE, $bank_status = ModelPaymentMollieIdeal::BANK_STATUS_SUCCESS);
+	}
+
+	public function testReportCustomerCanceled()
+	{
+		$this->testReport($amounts_correct = TRUE, $bank_status = ModelPaymentMollieIdeal::BANK_STATUS_CANCELLED);
+	}
+
+	public function testBankFailure()
+	{
+		$this->testReport($amounts_correct = TRUE, $bank_status = ModelPaymentMollieIdeal::BANK_STATUS_FAILURE);
+	}
+
+	public function testPaymentExpired()
+	{
+		$this->testReport($amounts_correct = TRUE, $bank_status = ModelPaymentMollieIdeal::BANK_STATUS_EXPIRED);
+	}
+
+	public function testUnknownBankStatus()
+	{
+		$this->testReport($amounts_correct = TRUE, $bank_status = "unknown");
+	}
+
+	public function testStatusCheckedBefore()
+	{
+		$this->testReport($amounts_correct = TRUE, $bank_status = ModelPaymentMollieIdeal::BANK_STATUS_CHECKEDBEFORE);
+	}
+
+	protected function testReport($amounts_correct, $bank_status)
+	{
+		$this->controller->request->get['transaction_id'] = self::TRANSACTION_ID;
+
+		$this->ideal->expects($this->once())
+			->method("setProfileKey")
+			->with(self::CONFIG_PROFILE_KEY);
+
+		$this->ideal->expects($this->once())
+			->method("checkPayment")
+			->with(self::TRANSACTION_ID)
+			->will($this->returnValue(TRUE));
+
+		$this->controller->load->expects($this->exactly(2))
+			->method("model")
+			->with($this->logicalOr("checkout/order", "payment/mollie_ideal"));
+
+		$this->controller->load->expects($this->once())
+			->method("language")
+			->with("payment/mollie_ideal");
+
+		$this->controller->model_payment_mollie_ideal = $this->getMock("ModelPaymentMollieIdeal", array("getPaymentById", "getOrderById", "updatePayment"));
+
+		$this->controller->model_payment_mollie_ideal->expects($this->once())
+			->method("getPaymentById")
+			->with(self::TRANSACTION_ID)
+			->will($this->returnValue(array(
+				"order_id" => self::ORDER_ID,
+				"transaction_id" => self::TRANSACTION_ID,
+		)));
+
+		$this->controller->model_payment_mollie_ideal->expects($this->once())
+			->method("getOrderById")
+			->with(self::ORDER_ID)
+			->will($this->returnValue(array(
+				"order_id" => self::ORDER_ID,
+				"order_status_id" => self::ORDER_STATUS_PROCESSING_ID,
+				"total" => 15.99,
+
+		)));
+
+		$this->controller->model_checkout_order = $this->getMock("stub", array("update"));
+
+		$this->ideal->expects($this->atLeastOnce())
+			->method("getBankStatus")
+			->will($this->returnValue($bank_status));
+
+		$this->ideal->expects($bank_status != ModelPaymentMollieIdeal::BANK_STATUS_CHECKEDBEFORE ? $this->atLeastOnce() : $this->never())
+			->method("getAmount")
+			->will($this->returnValue($amounts_correct ? 1599 : 1699));
+
+		$this->controller->cart->expects($amounts_correct && $bank_status === ModelPaymentMollieIdeal::BANK_STATUS_SUCCESS ? $this->once() : $this->never())
+			->method("clear");
+
+		if ($amounts_correct && $bank_status === ModelPaymentMollieIdeal::BANK_STATUS_SUCCESS)
+		{
+			$this->controller->model_checkout_order->expects($this->once())
+				->method("update")
+				->with(self::ORDER_ID, self::ORDER_STATUS_SUCCESS_ID, "response_success", TRUE);
+		}
+
+		if ($bank_status === ModelPaymentMollieIdeal::BANK_STATUS_CANCELLED)
+		{
+			$this->controller->model_checkout_order->expects($this->once())
+				->method("update")
+				->with(self::ORDER_ID, self::ORDER_STATUS_CANCELED_ID, "response_cancelled", TRUE);
+		}
+
+		if ($bank_status === ModelPaymentMollieIdeal::BANK_STATUS_FAILURE)
+		{
+			$this->controller->model_checkout_order->expects($this->once())
+				->method("update")
+				->with(self::ORDER_ID, self::ORDER_STATUS_FAILED_ID, "response_failed", TRUE);
+		}
+
+		if ($bank_status === ModelPaymentMollieIdeal::BANK_STATUS_EXPIRED)
+		{
+			$this->controller->model_checkout_order->expects($this->once())
+				->method("update")
+				->with(self::ORDER_ID, self::ORDER_STATUS_EXPIRED_ID, "response_expired", TRUE);
+		}
+
+		if ($bank_status === "unknown")
+		{
+			$this->controller->model_checkout_order->expects($this->once())
+				->method("update")
+				->with(self::ORDER_ID, self::ORDER_STATUS_FAILED_ID, "response_unkown", FALSE);
+		}
+
+		if ($bank_status === ModelPaymentMollieIdeal::BANK_STATUS_CHECKEDBEFORE)
+		{
+			$this->controller->model_checkout_order->expects($this->once())
+				->method("update")
+				->with(self::ORDER_ID, self::ORDER_STATUS_FAILED_ID, "response_failed", TRUE);
+		}
+
+		if (!$amounts_correct)
+		{
+			$this->controller->model_checkout_order->expects($this->once())
+				->method("update")
+				->with(self::ORDER_ID, self::ORDER_STATUS_FAILED_ID, "response_fraud", FALSE);
+		}
+
+
+		$this->controller->report();
 	}
 }
