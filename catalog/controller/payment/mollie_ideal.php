@@ -227,7 +227,7 @@ class ControllerPaymentMollieIdeal extends Controller
 			$transaction_id = $this->request->get['transaction_id'];
 
 			// Create iDEAL object
-			$ideal = new iDEAL_Payment($this->config->get('mollie_ideal_partnerid'));
+			$ideal = $this->getIdealPaymentObject($this->config->get('mollie_ideal_partnerid'));
 			$ideal->setProfileKey($this->config->get('mollie_ideal_profilekey'));
 			$ideal->setTestmode($this->config->get('mollie_ideal_testmode'));
 

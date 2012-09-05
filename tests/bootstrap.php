@@ -23,6 +23,8 @@ spl_autoload_register(function($className)
 
 class stub {}
 
+define("DB_PREFIX", "prefix_");
+
 class Mollie_OpenCart_TestCase extends PHPUnit_Framework_TestCase
 {
 	const CONFIG_PARTNER_ID = 1001;
@@ -30,6 +32,7 @@ class Mollie_OpenCart_TestCase extends PHPUnit_Framework_TestCase
 	const CONFIG_TESTMODE = TRUE;
 	const CONFIG_DESCRIPTION = "Uw order %";
 	const CONFIG_DESCRIPTION_FINAL = "Uw order 1337";
+	const CONFIG_SORT_ORDER = 995;
 
 	const URL_PAYMENT = "https://opencart.local/url/payment";
 

@@ -49,7 +49,7 @@ class ModelPaymentMollieIdeal extends Model
 	 * 
 	 * @return array
 	 */
-	public function getMethod ()
+	public function getMethod ($address, $total)
 	{
 		// Load language file
 		$this->load->language('payment/mollie_ideal');
@@ -89,7 +89,7 @@ class ModelPaymentMollieIdeal extends Model
 				sprintf(
 					"SELECT *
 					 FROM `%smollie_payments`
-					 WHERE `transaction_id` = '%s';",
+					 WHERE `transaction_id` = '%s'",
 					 DB_PREFIX,
 					 $this->db->escape($transaction_id)
 				)
@@ -114,7 +114,7 @@ class ModelPaymentMollieIdeal extends Model
 		{
 			$this->db->query(
 				sprintf(
-					"REPLACE INTO `%smollie_payments` (`order_id` ,`transaction_id`, `method`) 
+					"REPLACE INTO `%smollie_payments` (`order_id` ,`transaction_id`, `method`)
 					 VALUES ('%s', '%s', 'idl')",
 					 DB_PREFIX,
 					$this->db->escape($order_id),
