@@ -16,6 +16,12 @@
         <blacklist>
             <directory>/usr/share/php</directory>
             <directory>.</directory>
+            <directory>../admin/language</directory>
+            <directory>../catalog/language</directory>
         </blacklist>
+        <whitelist addUncoveredFilesFromWhitelist="true">
+            <directory>../admin</directory>
+            <directory>../catalog</directory>
+        </whitelist>
     </filter>
 </phpunit>

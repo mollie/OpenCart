@@ -28,8 +28,12 @@ class Mollie_OpenCart_TestCase extends PHPUnit_Framework_TestCase
 	const CONFIG_PARTNER_ID = 1001;
 	const CONFIG_PROFILE_KEY = "decafbad";
 	const CONFIG_TESTMODE = TRUE;
+	const CONFIG_DESCRIPTION = "Uw order %";
+	const CONFIG_DESCRIPTION_FINAL = "Uw order 1337";
 
 	const URL_PAYMENT = "https://opencart.local/url/payment";
+
+	const BANK_URL = "https://bankieren.mijnbank.example";
 
 	const TRANSACTION_ID = "1bba1d8fdbd8103b46151634bdbe0a60";
 

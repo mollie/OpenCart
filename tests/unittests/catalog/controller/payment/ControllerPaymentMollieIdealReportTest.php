@@ -1,6 +1,6 @@
 <?php
 
-class ControllerPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
+class ControllerPaymentMollieIdealReportTest extends Mollie_OpenCart_TestCase
 {
 	/**
 	 * @var ControllerPaymentMollieIdeal|PHPUnit_Framework_MockObject_MockObject
@@ -30,9 +30,10 @@ class ControllerPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
 	public function setUp()
 	{
 		$this->controller = $this->getMock("ControllerPaymentMollieIdeal", array("getIdealPaymentObject", "render"));
-		$this->controller->get = new stdClass();
-		$this->controller->post = new stdClass();
-		$this->controller->server = new stdClass();
+		$this->controller->request = new stdClass();
+		$this->controller->request->get = array();
+		$this->controller->request->post = array();
+		$this->controller->request->server = array();
 
 		$this->controller->cart = $this->getMock("stub", array("clear"));
 
@@ -69,43 +70,6 @@ class ControllerPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
 		$this->controller->url = $this->url;
 
 		$this->controller->load = $this->getMock("stdClass", array("model", "language"));
-	}
-
-	public function testIndex()
-	{
-		$this->ideal->expects($this->any())
-			->method("setPartnerId")
-			->with(self::CONFIG_PARTNER_ID);
-
-		$this->ideal->expects($this->once())
-			->method("setProfileKey")
-			->with(self::CONFIG_PROFILE_KEY);
-
-		$this->ideal->expects($this->once())
-			->method("setTestmode")
-			->with(self::CONFIG_TESTMODE);
-
-		$this->ideal->expects($this->once())
-			->method("getBanks")
-			->will($this->returnValue(self::$banks));
-
-		$this->controller->expects($this->once())
-			->method("render");
-
-		$this->url->expects($this->once())
-			->method("link")
-			->with("payment/mollie_ideal/payment", "", "SSL")
-			->will($this->returnValue(self::URL_PAYMENT));
-
-		$this->controller->index();
-
-		$this->assertEquals(array(
-			"button_confirm" => "button_confirm",
-			"banks" => self::$banks,
-			"action" => self::URL_PAYMENT,
-		), $this->controller->data);
-
-		$this->assertEquals("default/template/payment/mollie_ideal_banks.tpl", $this->controller->template);
 	}
 
 	public function testReportNothingHappensIncaseOfNoTransactionId()
