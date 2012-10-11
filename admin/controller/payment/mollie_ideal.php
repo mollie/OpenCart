@@ -36,9 +36,44 @@
 
 class ControllerPaymentMollieIdeal extends Controller
 {
-
 	// Initialize var(s)
 	private $error = array();
+
+	/**
+	 * This method is executed by OpenCart when the Payment module is installed from the admin. It will create the
+	 * required tables.
+	 *
+	 * @return void
+	 */
+	public function install ()
+	{
+		$this->db->query(
+			sprintf(
+				"CREATE TABLE IF NOT EXISTS `%smollie_payments` (
+					`order_id` int(11) unsigned NOT NULL,
+					`method` enum('idl') NOT NULL DEFAULT 'idl',
+					`transaction_id` varchar(32) NOT NULL,
+					`bank_account` varchar(15) NOT NULL,
+					`bank_status` varchar(20) NOT NULL,
+					PRIMARY KEY (`order_id`),
+					UNIQUE KEY `transaction_id` (`transaction_id`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8",
+				DB_PREFIX
+			));
+	}
+
+	/**
+	 * The method is executed by OpenCart when the Payment module is uninstalled from the admin. It will drop any Mollie
+	 * tables.
+	 *
+	 * @return void
+	 */
+	public function uninstall ()
+	{
+		$this->db->query(sprintf(
+			"DROP TABLE IF EXISTS `%smollie_payments`",
+			DB_PREFIX));
+	}
 
 	/**
 	 * The backend for iDEAL

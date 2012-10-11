@@ -3,22 +3,7 @@
 # Installatie #
 + ``` git clone git://github.com/mollienl/OpenCart.git ~/opencart```
 + Kopieër de structuur van de repository naar uw webshop
-+ Ga naar uw ‘OpenCart’ Database (bijv. PhpMyAdmin)
-+ Voer de volgende query uit
-
-Heeft uw database een tabelnaam-prefix zoals ```oc_```? Vergeet dan niet de tabelnaam hieronder aan te passen:
-
-	CREATE TABLE IF NOT EXISTS `mollie_payments` (
-		`order_id` int(11) unsigned NOT NULL,
-		`method` enum('idl') NOT NULL DEFAULT 'idl',
-		`transaction_id` varchar(32) NOT NULL,
-		`bank_account` varchar(15) NOT NULL,
-		`bank_status` varchar(20) NOT NULL,
-		PRIMARY KEY (`order_id`),
-		UNIQUE KEY `transaction_id` (`transaction_id`)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-+ Als u de bovenstaande query succesvol heeft uitgevoerd, ga dan naar uw OpenCart AdminPanel (Beheerpagina)
++ Ga naar uw OpenCart AdminPanel (Beheerpagina)
 + Ga in het menu naar ‘Extentions’ en selecteer ‘Payments’
 + Na een correcte afhandeling zou onze Betaalmethode zichtbaar moeten zijn in het ‘Payments’ overzicht
 + Klik vervolgens op ‘Install’ en daarna op ‘Edit’
