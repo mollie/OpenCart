@@ -114,9 +114,9 @@ class ControllerPaymentMollieIdeal extends Controller
 				if ($ideal->createPayment($bank_id, $amount, $description, $return_url, $report_url))
 				{
 					if (isset($this->request->post['transaction_id'])) {
-						$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_processing_status_id'), $this->language->get('text_redirected'), TRUE);
+						$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_processing_status_id'), $this->language->get('text_redirected'), FALSE);
 					} else {
-						$this->model_checkout_order->confirm($order['order_id'], $this->config->get('mollie_ideal_processing_status_id'), $this->language->get('text_redirected'), TRUE);
+						$this->model_checkout_order->confirm($order['order_id'], $this->config->get('mollie_ideal_processing_status_id'), $this->language->get('text_redirected'), FALSE);
 					}
 
 					$this->model_payment_mollie_ideal->setPayment($order['order_id'], $ideal->getTransactionId());
