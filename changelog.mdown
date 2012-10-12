@@ -1,0 +1,12 @@
+![Mollie](https://www.mollie.nl/files/Mollie-Logo-Style-Small.png)
+
+# Changelog #
+
+## Wijzigingen in versie 4.3 ##
++ De module verstuurt niet langer emails vóórdat de betaling is afgerond, klanten ontvangen een email wanneer de
+betaling is ontvangen.
++ De module werkt nu direct op servers met een incorrect geconfigureerde OpenSSL installatie.
++ Minimumbedrag voor transacties aangepast in verband met de BTW verhoging van 1 oktober 2012.
+
+## Wijzigingen in versie 4.2 ##
++ Het is niet langer nodig om handmatig tabellen in de database aan te maken, de module regelt dit zelf.
