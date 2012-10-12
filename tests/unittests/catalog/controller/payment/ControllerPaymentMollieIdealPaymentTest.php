@@ -155,13 +155,13 @@ class ControllerPaymentMollieIdealPaymentTest extends Mollie_OpenCart_TestCase
 			{
 				$this->controller->model_checkout_order->expects($this->once())
 					->method("update")
-					->with(self::ORDER_ID, self::ORDER_STATUS_PROCESSING_ID, "text_redirected", TRUE);
+					->with(self::ORDER_ID, self::ORDER_STATUS_PROCESSING_ID, "text_redirected", FALSE);
 			}
 			else
 			{
 				$this->controller->model_checkout_order->expects($this->once())
 					->method("confirm")
-					->with(self::ORDER_ID, self::ORDER_STATUS_PROCESSING_ID, "text_redirected", TRUE);
+					->with(self::ORDER_ID, self::ORDER_STATUS_PROCESSING_ID, "text_redirected", FALSE);
 			}
 
 			$this->ideal->expects($this->once())

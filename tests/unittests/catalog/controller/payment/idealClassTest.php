@@ -261,8 +261,8 @@ EOX;
 		$this->assertFalse($iDEAL->setAmount(117));
 		$this->assertEmpty($iDEAL->getAmount());
 
-		$this->assertEquals(118, $iDEAL->setAmount(118));
-		$this->assertEquals(118, $iDEAL->getAmount());
+		$this->assertEquals(120, $iDEAL->setAmount(120));
+		$this->assertEquals(120, $iDEAL->getAmount());
 	}
 
 	public function testCannotSetPartnerIdToProfileKey()
