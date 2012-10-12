@@ -47,7 +47,7 @@
     
 class iDEAL_Payment
 {
-    const MIN_TRANS_AMOUNT = 118;
+    const MIN_TRANS_AMOUNT = 120;
 
     protected $partner_id = null;
     protected $profile_key = null;
