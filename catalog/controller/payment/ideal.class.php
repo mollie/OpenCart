@@ -293,22 +293,33 @@ class iDEAL_Payment
     {
         $host = str_replace('ssl://', 'https://', $host);
 
-        $ch = curl_init();
+		$ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, $host . $path);
         curl_setopt($ch, CURLOPT_PORT, $port);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-        curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+		curl_setopt($ch, CURLOPT_HEADER, false);
+		curl_setopt($ch, CURLOPT_POST, true);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+		curl_setopt($ch, CURLOPT_ENCODING, ""); // Tell server which Encodings (gzip, deflate) we support.
 
-        $body = curl_exec($ch);
+		$body = curl_exec($ch);
 
-        curl_close($ch);
+		if (strpos(curl_error($ch), "error setting certificate verify locations") === 0)
+		{
+			/*
+			 * On some servers, the ca-bundle.crt is not installed correctly. This check detects that error, and then
+			 * retries the request.
+			 */
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+			$body = curl_exec($ch);
+		}
 
-        return $body;
-    }
+		curl_close($ch);
+
+		return $body;
+	}
 
     protected function _XMLtoObject($xml)
     {
