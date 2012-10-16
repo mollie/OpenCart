@@ -306,13 +306,23 @@ class iDEAL_Payment
 
 		$body = curl_exec($ch);
 
-		if (strpos(curl_error($ch), "error setting certificate verify locations") === 0)
+		if (strpos(curl_error($ch), "error setting certificate verify locations") !== FALSE)
 		{
 			/*
 			 * On some servers, the ca-bundle.crt is not installed correctly. This check detects that error, and then
 			 * retries the request.
 			 */
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+			$body = curl_exec($ch);
+		}
+
+		if (strpos(curl_error($ch), "certificate subject name 'mollie.nl' does not match target host") !== FALSE)
+		{
+			/*
+			 * On some servers, the wildcard SSL certificate is not processed correctly. This happens with OpenSSL 0.9.7
+			 * from 2003.
+			 */
+			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 			$body = curl_exec($ch);
 		}
 
