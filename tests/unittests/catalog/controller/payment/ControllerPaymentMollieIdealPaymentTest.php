@@ -126,6 +126,7 @@ class ControllerPaymentMollieIdealPaymentTest extends Mollie_OpenCart_TestCase
 
 		}
 		else{
+			$this->controller->session = new stdClass();
 			$this->controller->session->data = array("order_id" => self::ORDER_ID);
 		}
 
