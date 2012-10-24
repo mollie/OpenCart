@@ -187,13 +187,13 @@ class ControllerPaymentMollieIdeal extends Controller
 								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_processed_status_id'), $this->language->get('response_success'), TRUE); // Processed
 								break;
 							case ModelPaymentMollieIdeal::BANK_STATUS_CANCELLED:
-								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_canceled_status_id'), $this->language->get('response_cancelled'), TRUE); // Canceled
+								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_canceled_status_id'), $this->language->get('response_cancelled'), FALSE); // Canceled
 								break;
 							case ModelPaymentMollieIdeal::BANK_STATUS_FAILURE:
 								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_failed_status_id'), $this->language->get('response_failed'), TRUE); // Fail
 								break;
 							case ModelPaymentMollieIdeal::BANK_STATUS_EXPIRED:
-								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_expired_status_id'), $this->language->get('response_expired'), TRUE); // Expired
+								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_expired_status_id'), $this->language->get('response_expired'), FALSE); // Expired
 								break;
 							default:
 								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_failed_status_id'), $this->language->get('response_unkown'), FALSE); // Fail

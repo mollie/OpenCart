@@ -180,7 +180,7 @@ class ControllerPaymentMollieIdealReportTest extends Mollie_OpenCart_TestCase
 		{
 			$this->controller->model_checkout_order->expects($this->once())
 				->method("update")
-				->with(self::ORDER_ID, self::ORDER_STATUS_CANCELED_ID, "response_cancelled", TRUE);
+				->with(self::ORDER_ID, self::ORDER_STATUS_CANCELED_ID, "response_cancelled", FALSE);
 		}
 
 		if ($bank_status === ModelPaymentMollieIdeal::BANK_STATUS_FAILURE)
@@ -194,7 +194,7 @@ class ControllerPaymentMollieIdealReportTest extends Mollie_OpenCart_TestCase
 		{
 			$this->controller->model_checkout_order->expects($this->once())
 				->method("update")
-				->with(self::ORDER_ID, self::ORDER_STATUS_EXPIRED_ID, "response_expired", TRUE);
+				->with(self::ORDER_ID, self::ORDER_STATUS_EXPIRED_ID, "response_expired", FALSE);
 		}
 
 		if ($bank_status === "unknown")
