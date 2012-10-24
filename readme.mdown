@@ -19,6 +19,12 @@ Via [Mollie](http://www.mollie.nl/) is iDEAL gemakkelijk aan te sluiten zonder d
 
 Het is niet nodig een return- of report-URL in te stellen, de module stelt dit automatisch in.
 
++ Waarom bevat de module een lijst van rootcertificaten?
+
+Op sommige servers is de lijst met rootcertificaten niet aanwezig of gedateerd. Hierdoor werkt SSL communicatie met
+Mollie soms niet. De module bevat daarom de rootcertificaten die nodig zijn om veilig met Mollie te communiceren. Deze
+worden alleen gebruikt wanneer het communiceren met de al geïnstalleerde certificaten niet mogelijk is.
+
 # Licentie #
 Gelicenseerd onder de [BSD (Berkeley Software Distribution) License](http://www.opensource.org/licenses/bsd-license.php).  
 Copyright (c) 2012, Mollie B.V.

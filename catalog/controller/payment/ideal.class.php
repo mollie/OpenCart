@@ -297,22 +297,22 @@ class iDEAL_Payment
 
         curl_setopt($ch, CURLOPT_URL, $host . $path);
         curl_setopt($ch, CURLOPT_PORT, $port);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-		curl_setopt($ch, CURLOPT_HEADER, false);
-		curl_setopt($ch, CURLOPT_POST, true);
+		curl_setopt($ch, CURLOPT_HEADER, FALSE);
+		curl_setopt($ch, CURLOPT_POST, TRUE);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 		curl_setopt($ch, CURLOPT_ENCODING, ""); // Tell server which Encodings (gzip, deflate) we support.
 
 		$body = curl_exec($ch);
 
-		if (strpos(curl_error($ch), "error setting certificate verify locations") !== FALSE)
+		if (curl_errno($ch) == CURLE_SSL_CACERT)
 		{
 			/*
-			 * On some servers, the ca-bundle.crt is not installed correctly. This check detects that error, and then
-			 * retries the request.
+			 * On some servers, the list of installed certificates is outdated or not present at all (the ca-bundle.crt
+			 * is not installed). So we tell cURL which certificates we trust. Then we retry the requests.
 			 */
-			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+			curl_setopt($ch, CURLOPT_CAINFO, dirname(__FILE__) . DIRECTORY_SEPARATOR . "cacert.pem");
 			$body = curl_exec($ch);
 		}
 
@@ -322,7 +322,7 @@ class iDEAL_Payment
 			 * On some servers, the wildcard SSL certificate is not processed correctly. This happens with OpenSSL 0.9.7
 			 * from 2003.
 			 */
-			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
 			$body = curl_exec($ch);
 		}
 
