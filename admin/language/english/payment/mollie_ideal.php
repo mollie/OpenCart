@@ -28,7 +28,7 @@
  * @category    Mollie
  * @package     Mollie_Ideal
  * @author      Mollie B.V. (info@mollie.nl)
- * @version     v4.3
+ * @version     v4.4
  * @copyright   Copyright (c) 2012 Mollie B.V. (http://www.mollie.nl)
  * @license     http://www.opensource.org/licenses/bsd-license.php  Berkeley Software Distribution License (BSD-License 2)
  * 
@@ -46,7 +46,7 @@ $_['text_mollie_ideal']     = '<a onclick="window.open(\'https://www.mollie.nl\'
 $_['entry_status']          = "Status: <br/><span class='help'>Activate the module</span>";
 $_['entry_testmode']        = "Testmode: <br/><span class='help'>Set 'true' for testing purposes</span>";
 $_['entry_partnerid']       = "Mollie partner ID: <br/><span class='help'>Mollie partner ID. For example 123456. This partner ID will be used to register the payments and can be found [<a target='new' href='https://www.mollie.nl/beheer/account/'>here</a>]</span>";
-$_['entry_profilekey']      = "Profilekey: <br/><span class='help'>Enter here the profilekey of the payment profile you want to use. [<a href='https://www.mollie.nl/beheer/betaaldiensten/profielen/' target='_new'>view available profiles</a>]</span>";
+$_['entry_profilekey']      = "Profilekey: <br/><span class='help'>Enter here the profilekey of the payment profile you want to use. [<a href='https://www.mollie.nl/beheer/account/profielen/' target='_blank'>view available profiles</a>]</span>";
 $_['entry_description']     = "Description: <br/><span class='help'>This description will appear on the bank statement of your customer. You may use a maximum of 29 characters. TIP: Use '%', this will be replaced by the order id of the payment. Don't forget % can be multiple characters long!</span>";
 $_['entry_total']           = "Minimal order amount: <br/><span class='help'>Minimal amount before we show iDEAL as payment method in your webshop (TYPE IN AS CENTS!)</span>";
 $_['entry_sort_order']      = "Sort Order:";
@@ -54,7 +54,7 @@ $_['entry_sort_order']      = "Sort Order:";
 // Info
 $_['entry_module']          = "Module:";
 $_['entry_status']          = "Module Status:";
-$_['entry_version']         = "<a href='https://www.mollie.nl/support/documentatie/betaaldiensten/ideal/' target='_new'>iDEAL</a> version 4.3";
+$_['entry_version']         = "<a href='https://www.mollie.nl/support/documentatie/betaaldiensten/ideal/' target='_blank'>iDEAL</a> version 4.4";
 $_['entry_support']	    	= "Support:";
 
 // Error

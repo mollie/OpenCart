@@ -28,7 +28,7 @@
  * @category    Mollie
  * @package     Mollie_Ideal
  * @author      Mollie B.V. (info@mollie.nl)
- * @version     v4.3
+ * @version     v4.4
  * @copyright   Copyright (c) 2012 Mollie B.V. (http://www.mollie.nl)
  * @license     http://www.opensource.org/licenses/bsd-license.php  Berkeley Software Distribution License (BSD-License 2)
  * 
@@ -46,7 +46,7 @@ $_['text_mollie_ideal']     = '<a onclick="window.open(\'https://www.mollie.nl\'
 $_['entry_status']          = "Status: <br/><span class='help'>De betaalmodule activeren</span>";
 $_['entry_testmode']        = "Testmode: <br/><span class='help'>Gebruik de testmode om betalingen te testen zonder een echte betaling te doen</span>";
 $_['entry_partnerid']       = "Mollie partner ID: <br/><span class='help'>Uw Mollie partner ID. Op dit account wordt de betaling toegevoegd. U kunt uw Mollie partner ID [<a target='new' href='https://www.mollie.nl/beheer/account/'>hier</a>] vinden</span>";
-$_['entry_profilekey']      = "Profilekey: <br/><span class='help'>Vul het betaalprofiel in die u wilt gebruiken<br/>[ <a href='https://www.mollie.nl/beheer/betaaldiensten/profielen/' target='_new'>Bekijk uw profielen</a> ]</span>";
+$_['entry_profilekey']      = "Profilekey: <br/><span class='help'>Vul het websiteprofiel in die u wilt gebruiken<br/>[ <a href='https://www.mollie.nl/beheer/account/profielen/' target='_blank'>Bekijk uw profielen</a> ]</span>";
 $_['entry_description']     = "Beschrijving: <br/><span class='help'>Hiermee kunt u in maximaal 29 karakters een beschrijving meegegeven aan de betaling die op het dagafschrift van uw klant wordt weergeven. Zorg dus dat hier iets staat dat de lading dekt, zoals een ordernummer. TIP: Gebruik '%' voor het tonen van het ordernummer (Denk er wel aan dat % meerdere karakters kan bevatten, naargelang de lengte van het ordernummer in uw systeem)</span>";
 $_['entry_total']           = "Minimaal bestelbedrag: <br/><span class='help'>Minimale bedrag voor iDEAL wordt weergeven bij een bestelling (MEEGEGEVEN IN CENTEN!)</span>";
 $_['entry_sort_order']      = "Sorteervolgorde:";
@@ -54,7 +54,7 @@ $_['entry_sort_order']      = "Sorteervolgorde:";
 // Info
 $_['entry_module']          = "Module:";
 $_['entry_status']          = "Module Status:";
-$_['entry_version']         = "<a href='https://www.mollie.nl/support/documentatie/betaaldiensten/ideal/' target='_new'>iDEAL</a> versie 4.3";
+$_['entry_version']         = "<a href='https://www.mollie.nl/support/documentatie/betaaldiensten/ideal/' target='_blank'>iDEAL</a> versie 4.4";
 $_['entry_support']         = "Support:";
 
 // Error

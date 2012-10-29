@@ -2,6 +2,12 @@
 
 # Changelog #
 
+## Wijzigingen in versie 4.4 ##
++ De module werkt nu op servers met gedateerde root certificaten.
++ Automatische tests werken nu ook op PHP 5.4.
++ Stuur geen email naar de klant wanneer de klant de betalingsomgeving bij de bank verlaat zonder te betalen.
++ Voorkom mixed-content waarschuwingen in de admin.
+
 ## Wijzigingen in versie 4.3 ##
 + De module verstuurt niet langer emails vóórdat de betaling is afgerond, klanten ontvangen een email wanneer de
 betaling is ontvangen.
