@@ -137,7 +137,6 @@ class ControllerPaymentMollieIdealReportTest extends Mollie_OpenCart_TestCase
 			->with("payment/mollie_ideal");
 
 		$this->controller->model_payment_mollie_ideal = $this->getMock("ModelPaymentMollieIdeal", array("getPaymentById", "getOrderById", "updatePayment"));
-
 		$this->controller->model_payment_mollie_ideal->expects($this->once())
 			->method("getPaymentById")
 			->with(self::TRANSACTION_ID)
@@ -166,8 +165,10 @@ class ControllerPaymentMollieIdealReportTest extends Mollie_OpenCart_TestCase
 			->method("getAmount")
 			->will($this->returnValue($amounts_correct ? 1599 : 1699));
 
-		$this->controller->cart->expects($amounts_correct && $bank_status === ModelPaymentMollieIdeal::BANK_STATUS_SUCCESS ? $this->once() : $this->never())
-			->method("clear");
+		/*
+		 * You are not allowed to clear the cart in this thread (cart has session state, so not available here).
+		 */
+		$this->controller->cart->expects($this->never())->method("clear");
 
 		if ($amounts_correct && $bank_status === ModelPaymentMollieIdeal::BANK_STATUS_SUCCESS)
 		{

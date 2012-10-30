@@ -182,7 +182,6 @@ class ControllerPaymentMollieIdeal extends Controller
 						switch ($ideal->getBankStatus())
 						{
 							case ModelPaymentMollieIdeal::BANK_STATUS_SUCCESS:
-								$this->cart->clear();
 								$consumer = $ideal->getConsumerInfo();
 								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_processed_status_id'), $this->language->get('response_success'), TRUE); // Processed
 								break;
@@ -236,6 +235,17 @@ class ControllerPaymentMollieIdeal extends Controller
 			$this->load->language('payment/mollie_ideal');
 
 			$payment = $this->model_payment_mollie_ideal->getPaymentById($transaction_id);
+
+			/*
+			 * Now that the customer has returned to our web site, check if we already know if the payment has
+			 * succeeded. It the payment is all good, we need to clear the cart.
+			 */
+			if (isset($payment['bank_status']) && $payment['bank_status'] == ModelPaymentMollieIdeal::BANK_STATUS_SUCCESS)
+			{
+				/** @var $this->cart Cart */
+				$this->cart->clear();
+			}
+
 			$order   = $this->model_payment_mollie_ideal->getOrderById($payment['order_id']);
 
 			// Set template data
