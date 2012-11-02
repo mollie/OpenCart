@@ -2,6 +2,9 @@
 
 # Changelog #
 
+## Wijzigingen in versie 4.5 ##
++ Probleem opgelost waardoor het winkelmandje na een succesvolle betaling niet leeggemaakt werd.
+
 ## Wijzigingen in versie 4.4 ##
 + De module werkt nu op servers met gedateerde root certificaten.
 + Automatische tests werken nu ook op PHP 5.4.
