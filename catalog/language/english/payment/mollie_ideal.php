@@ -42,7 +42,7 @@
 $_['heading_title'] 		= 'iDEAL by Mollie';
 $_['ideal_title'] 			= 'Your iDEAL payment';
 $_['text_title'] 			= 'iDEAL';
-$_['text_redirect_message'] = 'Please click the link below to go to your bank';
+$_['text_redirect']			= 'Please click the link below to go to your bank';
 $_['text_declined'] 		= 'Payment was declined by iDEAL';
 $_['text_redirected']		= 'The client has been referred to the bank';
 $_['text_retry']			= 'The client is retrying a new payment';
@@ -54,7 +54,6 @@ $_['response_none'] 		= 'The payment is not received yet';
 $_['response_cancelled'] 	= 'The client has canceled the payment';
 $_['response_failed'] 		= 'Unfortunately the payment has failed. Please try the payment again with the amount of &euro;%s';
 $_['response_expired'] 		= 'The payment has expired';
-$_['response_fraud']		= 'The payment is fraud';
+$_['response_checked'] 		= 'The payment status has already been retrieved';
 $_['response_unknown'] 		= 'An unknown error occurred';
-
-?>
+$_['response_fraud']		= 'The payment is fraud';

@@ -50,11 +50,10 @@ $_['msg_failed'] 			= 'Helaas is uw iDEAL betaling is mislukt';
 
 // Response
 $_['response_success'] 		= 'De betaling is ontvangen';
+$_['response_none'] 		= 'De bank heeft nog niet aan ons doorgegeven of de betaling gelukt is. U krijgt een email zodra de status van uw betaling bij ons bekend is.';
 $_['response_cancelled'] 	= 'De klant heeft de betaling geannuleerd';
 $_['response_failed'] 		= 'De betaling is helaas mislukt. Probeer het bedrag van &euro;%s nogmaals af te rekenen met iDEAL.';
 $_['response_expired'] 		= 'De betaling is verlopen';
 $_['response_checked'] 		= 'Betalingstatus is al een keer opgevraagd';
 $_['response_unknown'] 		= 'Er is een onbekende fout opgetreden';
 $_['response_fraud']		= 'De betaling is fraude';
-
-?>
