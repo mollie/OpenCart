@@ -2,6 +2,9 @@
 
 # Changelog #
 
+## Wijzigingen in versie 4.6 ##
++ Sommige vertalingen ontbraken / waren incorrect.
+
 ## Wijzigingen in versie 4.5 ##
 + Probleem opgelost waardoor het winkelmandje na een succesvolle betaling niet leeggemaakt werd.
 
