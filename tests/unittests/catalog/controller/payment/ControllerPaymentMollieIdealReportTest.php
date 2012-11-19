@@ -202,7 +202,7 @@ class ControllerPaymentMollieIdealReportTest extends Mollie_OpenCart_TestCase
 		{
 			$this->controller->model_checkout_order->expects($this->once())
 				->method("update")
-				->with(self::ORDER_ID, self::ORDER_STATUS_FAILED_ID, "response_unkown", FALSE);
+				->with(self::ORDER_ID, self::ORDER_STATUS_FAILED_ID, "response_unknown", FALSE);
 		}
 
 		if ($bank_status === ModelPaymentMollieIdeal::BANK_STATUS_CHECKEDBEFORE)

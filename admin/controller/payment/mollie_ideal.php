@@ -131,7 +131,7 @@ class ControllerPaymentMollieIdeal extends Controller
 		$this->data['button_save']            = $this->language->get('button_save');
 		$this->data['button_cancel']          = $this->language->get('button_cancel');
 
-		$this->data['tab_general']            = $this->language->get('tab2_general');
+		$this->data['tab_general']            = $this->language->get('tab_general');
 
 		// If errors show the error
 		if (isset($this->error['warning'])) {

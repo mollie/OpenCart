@@ -195,7 +195,7 @@ class ControllerPaymentMollieIdeal extends Controller
 								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_expired_status_id'), $this->language->get('response_expired'), FALSE); // Expired
 								break;
 							default:
-								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_failed_status_id'), $this->language->get('response_unkown'), FALSE); // Fail
+								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_failed_status_id'), $this->language->get('response_unknown'), FALSE); // Fail
 								break;
 						}
 					}
