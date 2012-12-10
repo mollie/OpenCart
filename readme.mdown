@@ -1,8 +1,8 @@
 ![Mollie](http://www.mollie.nl/files/Mollie-Logo-Style-Small.png)
 
 # Installatie #
-+ ``` git clone git://github.com/mollienl/OpenCart.git ~/opencart```
-+ Kopieër de structuur van de repository naar uw webshop
++ Download op de [Tags](/mollienl/OpenCart/tags)-pagina de nieuwste release (Of ```git clone git://github.com/mollienl/opencart.git```)
++ Kopieër de gedownloade mappen 'admin' en 'catalog' naar de bestaande OpenCart-installatie op uw server
 + Ga naar uw OpenCart AdminPanel (Beheerpagina)
 + Ga in het menu naar ‘Extentions’ en selecteer ‘Payments’
 + Na een correcte afhandeling zou onze Betaalmethode zichtbaar moeten zijn in het ‘Payments’ overzicht
