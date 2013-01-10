@@ -116,13 +116,33 @@ class iDEAL_Payment
     // Zet een betaling klaar bij de bank en maak de betalings URL beschikbaar
     public function createPayment($bank_id, $amount, $description, $return_url, $report_url)
     {
-        if (!$this->setBankId($bank_id) or
-                !$this->setDescription($description) or
-                !$this->setAmount($amount) or
-                !$this->setReturnUrl($return_url) or
-                !$this->setReportUrl($report_url))
+        if (!$this->setBankId($bank_id))
         {
-            $this->error_message = "De opgegeven betalings gegevens zijn onjuist of incompleet.";
+            $this->error_message = "De opgegeven bank \"$bank_id\" is onjuist of incompleet";
+            return false;
+        }
+
+        if (!$this->setDescription($description))
+        {
+            $this->error_message = "De opgegeven omschrijving \"$description\" is incompleet";
+            return false;
+        }
+
+        if (!$this->setAmount($amount))
+        {
+            $this->error_message = "Het opgegeven bedrag \"$amount\" is onjuist of te laag";
+            return false;
+        }
+
+        if (!$this->setReturnURL($return_url))
+        {
+            $this->error_message = "De opgegeven return URL \"$return_url\" is onjuist";
+            return false;
+        }
+
+        if (!$this->setReportURL($report_url))
+        {
+            $this->error_message = "De opgegeven report URL \"$report_url\" is onjuist";
             return false;
         }
 
