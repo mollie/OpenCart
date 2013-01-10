@@ -53,6 +53,7 @@ class iDEAL_Payment
     protected $profile_key = null;
     protected $testmode = false;
     protected $bank_id = null;
+	protected $status;
     protected $amount = 0;
     protected $description = null;
     protected $return_url = null;
