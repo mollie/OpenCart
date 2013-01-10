@@ -28,23 +28,11 @@
  * @category    Mollie
  * @package     Mollie_Ideal
  * @author      Mollie B.V. (info@mollie.nl)
- * @version     v4.6
+ * @version     v4.7
  * @copyright   Copyright (c) 2012 Mollie B.V. (http://www.mollie.nl)
  * @license     http://www.opensource.org/licenses/bsd-license.php  Berkeley Software Distribution License (BSD-License 2)
  * 
  **/
-
- /*-----------------------------------------------------------------------
-  Start              : 24 februari 2009
-  Door               : Mollie B.V. (RDF) © 2009
-
-  Versie             : 1.13 (gebaseerd op de Mollie iDEAL class van
-                       Concepto IT Solution - http://www.concepto.nl/)
-  Laatste aanpassing : 18-04-2011
-  Aard v. aanpassing : Ondersteuning voor het nieuwe 'status' veld
-  Door               : MK
-    -----------------------------------------------------------------------*/
-    
 class iDEAL_Payment
 {
     const MIN_TRANS_AMOUNT = 120;
@@ -314,43 +302,43 @@ class iDEAL_Payment
     {
         $host = str_replace('ssl://', 'https://', $host);
 
-		$ch = curl_init();
+        $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, $host . $path);
         curl_setopt($ch, CURLOPT_PORT, $port);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-		curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-		curl_setopt($ch, CURLOPT_HEADER, FALSE);
-		curl_setopt($ch, CURLOPT_POST, TRUE);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-		curl_setopt($ch, CURLOPT_ENCODING, ""); // Tell server which Encodings (gzip, deflate) we support.
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_HEADER, FALSE);
+        curl_setopt($ch, CURLOPT_POST, TRUE);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_ENCODING, ""); // Tell server which Encodings (gzip, deflate) we support.
 
-		$body = curl_exec($ch);
+        $body = curl_exec($ch);
 
-		if (curl_errno($ch) == CURLE_SSL_CACERT)
-		{
-			/*
-			 * On some servers, the list of installed certificates is outdated or not present at all (the ca-bundle.crt
-			 * is not installed). So we tell cURL which certificates we trust. Then we retry the requests.
-			 */
-			curl_setopt($ch, CURLOPT_CAINFO, dirname(__FILE__) . DIRECTORY_SEPARATOR . "cacert.pem");
-			$body = curl_exec($ch);
-		}
+        if (curl_errno($ch) == CURLE_SSL_CACERT)
+        {
+            /*
+             * On some servers, the list of installed certificates is outdated or not present at all (the ca-bundle.crt
+             * is not installed). So we tell cURL which certificates we trust. Then we retry the requests.
+             */
+            curl_setopt($ch, CURLOPT_CAINFO, dirname(__FILE__) . DIRECTORY_SEPARATOR . "cacert.pem");
+            $body = curl_exec($ch);
+        }
 
-		if (strpos(curl_error($ch), "certificate subject name 'mollie.nl' does not match target host") !== FALSE)
-		{
-			/*
-			 * On some servers, the wildcard SSL certificate is not processed correctly. This happens with OpenSSL 0.9.7
-			 * from 2003.
-			 */
-			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
-			$body = curl_exec($ch);
-		}
+        if (strpos(curl_error($ch), "certificate subject name 'mollie.nl' does not match target host") !== FALSE)
+        {
+            /*
+             * On some servers, the wildcard SSL certificate is not processed correctly. This happens with OpenSSL 0.9.7
+             * from 2003.
+             */
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+            $body = curl_exec($ch);
+        }
 
-		curl_close($ch);
+        curl_close($ch);
 
-		return $body;
-	}
+        return $body;
+    }
 
     protected function _XMLtoObject($xml)
     {
@@ -360,8 +348,8 @@ class iDEAL_Payment
         }
         catch (Exception $e)
         {
-			$this->error_message = "Kon XML resultaat niet verwerken";
-			$this->error_code = -2;
+            $this->error_message = "Kon XML resultaat niet verwerken";
+            $this->error_code = -2;
             return false;
         }
     }

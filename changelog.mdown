@@ -2,6 +2,10 @@
 
 # Changelog #
 
+## Wijzigingen in versie 4.7 ##
++ Geef duidelijkere foutmeldingen indien er iets misgaat bij het opzetten van de betaling
++ Los een probleem op waardoor de sorteervolgorde niet werkte en iDEAL altijd als bovenste module verscheen
+
 ## Wijzigingen in versie 4.6 ##
 + Sommige vertalingen ontbraken / waren incorrect.
 
