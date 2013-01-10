@@ -31,7 +31,7 @@ class ModelPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
 		$this->model->config->expects($this->any())
 			->method("get")
 			->will($this->returnValueMap(array(
-			array("mollie_sort_order", self::CONFIG_SORT_ORDER),
+			array("mollie_ideal_sort_order", self::CONFIG_SORT_ORDER),
 		)));
 	}
 

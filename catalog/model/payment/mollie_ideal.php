@@ -57,7 +57,7 @@ class ModelPaymentMollieIdeal extends Model
 		$method_data = array(
 			'code'       => 'mollie_ideal',
 			'title'      => $this->language->get('text_title'),
-			'sort_order' => $this->config->get('mollie_sort_order')
+			'sort_order' => $this->config->get('mollie_ideal_sort_order')
 		);
 
 		// return the method information
