@@ -1,6 +1,6 @@
 ![Mollie](http://www.mollie.nl/files/Mollie-Logo-Style-Small.png)
 
-# Installatie #
+# Installatie [![Build Status](https://travis-ci.org/mollienl/OpenCart.png)](https://travis-ci.org/mollienl/OpenCart) #
 + Download op de [Tags](/mollienl/OpenCart/tags)-pagina de nieuwste release (Of ```git clone git://github.com/mollienl/opencart.git```)
 + Kopieër de gedownloade mappen 'admin' en 'catalog' naar de bestaande OpenCart-installatie op uw server
 + Ga naar uw OpenCart AdminPanel (Beheerpagina)
