@@ -142,12 +142,12 @@ class ControllerPaymentMollieIdealPaymentTest extends Mollie_OpenCart_TestCase
 
 		$this->controller->url->expects($this->exactly(2))
 			->method("link")
-			->with($this->logicalOr("payment/mollie_ideal/status", "payment/mollie_ideal/report"), "", "SSL")
+			->with($this->logicalOr("payment/mollie_ideal/callback", "payment/mollie_ideal/report"), "", "SSL")
 			->will($this->returnArgument(0));
 
 		$this->ideal->expects($this->once())
 			->method("createPayment")
-			->with(self::BANK_ID, 1599, self::CONFIG_DESCRIPTION_FINAL, "payment/mollie_ideal/status", "payment/mollie_ideal/report")
+			->with(self::BANK_ID, 1599, self::CONFIG_DESCRIPTION_FINAL, "payment/mollie_ideal/callback", "payment/mollie_ideal/report")
 			->will($this->returnValue($create_payment_succeeds));
 
 		if ($create_payment_succeeds)
