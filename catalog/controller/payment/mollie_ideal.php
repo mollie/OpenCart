@@ -105,7 +105,7 @@ class ControllerPaymentMollieIdeal extends Controller
 			$bank_id     = $this->request->post['bank_id'];
 			$amount      = intval(round($order['total'] * 100));
 			$description = str_replace('%', $order['order_id'], html_entity_decode($this->config->get('mollie_ideal_description'), ENT_QUOTES, 'UTF-8'));
-			$return_url  = $this->url->link('payment/mollie_ideal/status', '', 'SSL');
+			$return_url  = $this->url->link('payment/mollie_ideal/callback', '', 'SSL');
 			$report_url  = $this->url->link('payment/mollie_ideal/report', '', 'SSL');
 
 			try
@@ -218,7 +218,7 @@ class ControllerPaymentMollieIdeal extends Controller
 	 * Customer returning from the bank with an transaction_id
 	 * Depending on what the state of the payment is they get redirected to the corresponding page
 	 */
-	public function status ()
+	public function callback ()
 	{
 		if (!empty($this->request->get['transaction_id']))
 		{
@@ -242,49 +242,50 @@ class ControllerPaymentMollieIdeal extends Controller
 			 */
 			if (isset($payment['bank_status']) && $payment['bank_status'] == ModelPaymentMollieIdeal::BANK_STATUS_SUCCESS)
 			{
-				/** @var $this->cart Cart */
-				$this->cart->clear();
+				$this->redirect($this->url->link('checkout/success', '', 'SSL'));
+				return;
 			}
+			else
+			{
+				$order   = $this->model_payment_mollie_ideal->getOrderById($payment['order_id']);
 
-			$order   = $this->model_payment_mollie_ideal->getOrderById($payment['order_id']);
+				// Set template data
+				$this->document->setTitle($this->language->get('ideal_title'));
+				$this->data['payment'] = $payment;
+				$this->data['order']   = $order;
+				$this->data['message'] = $this->language;
+				$this->data['banks']   = $ideal->getBanks();
+				$this->data['action']  = $this->url->link('payment/mollie_ideal/payment', '', 'SSL');
 
-			// Set template data
-			$this->document->setTitle($this->language->get('ideal_title'));
-			$this->data['payment'] = $payment;
-			$this->data['order']   = $order;
-			$this->data['message'] = $this->language;
-			$this->data['banks']   = $ideal->getBanks();
-			$this->data['action']  = $this->url->link('payment/mollie_ideal/payment', '', 'SSL');
+				// Breadcrumbs
+				$this->data['breadcrumbs']   = array();
+				$this->data['breadcrumbs'][] = array(
+					'href'      => $this->url->link('common/home', (isset($this->session->data['token'])) ? 'token=' . $this->session->data['token'] : '', 'SSL'),
+					'text'      => $this->language->get('text_home'),
+					'separator' => FALSE
+				);
 
-			// Breadcrumbs
-			$this->data['breadcrumbs']   = array();
-			$this->data['breadcrumbs'][] = array(
-				'href'      => $this->url->link('common/home', (isset($this->session->data['token'])) ? 'token=' . $this->session->data['token'] : '', 'SSL'),
-				'text'      => $this->language->get('text_home'),
-				'separator' => FALSE
-			);
+				// check if template exists
+				if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/mollie_ideal_return.tpl')) {
+					$this->template = $this->config->get('config_template') . '/template/payment/mollie_ideal_return.tpl';
+				} else {
+					$this->template = 'default/template/payment/mollie_ideal_return.tpl';
+				}
 
-			// check if template exists
-			if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/mollie_ideal_return.tpl')) {
-				$this->template = $this->config->get('config_template') . '/template/payment/mollie_ideal_return.tpl';
-			} else {
-				$this->template = 'default/template/payment/mollie_ideal_return.tpl';
+				$this->children = array(
+					'common/column_left',
+					'common/column_right',
+					'common/content_top',
+					'common/content_bottom',
+					'common/footer',
+					'common/header'
+				);
+
+				// Render HTML output
+				$this->response->setOutput($this->render());
 			}
-
-			$this->children = array(
-				'common/column_left',
-				'common/column_right',
-				'common/content_top',
-				'common/content_bottom',
-				'common/footer',
-				'common/header'
-			);
-
-			// Render HTML output
-			$this->response->setOutput($this->render());
 		}
 	}
-
 }
 
 ?>

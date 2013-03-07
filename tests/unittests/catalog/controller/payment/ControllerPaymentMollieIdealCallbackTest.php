@@ -1,6 +1,6 @@
 <?php
 
-class ControllerPaymentMollieStatusTest extends Mollie_OpenCart_TestCase
+class ControllerPaymentMollieCallbackTest extends Mollie_OpenCart_TestCase
 {
 	/**
 	 * @var ControllerPaymentMollieIdeal|PHPUnit_Framework_MockObject_MockObject
@@ -29,7 +29,7 @@ class ControllerPaymentMollieStatusTest extends Mollie_OpenCart_TestCase
 
 	public function setUp()
 	{
-		$this->controller = $this->getMock("ControllerPaymentMollieIdeal", array("getIdealPaymentObject", "render"));
+		$this->controller = $this->getMock("ControllerPaymentMollieIdeal", array("getIdealPaymentObject", "redirect", "render"));
 		$this->controller->request = new stdClass();
 		$this->controller->request->get = array();
 		$this->controller->request->post = array();
@@ -72,9 +72,6 @@ class ControllerPaymentMollieStatusTest extends Mollie_OpenCart_TestCase
 		$this->controller->load = $this->getMock("stdClass", array("model", "language"));
 	}
 
-	/**
-	 * @expectedException DomainException
-	 */
 	public function testCartClearedIfPaymentSuccessFull()
 	{
 		$this->controller->request->get['transaction_id'] = self::TRANSACTION_ID;
@@ -89,13 +86,15 @@ class ControllerPaymentMollieStatusTest extends Mollie_OpenCart_TestCase
 			"bank_status" => ModelPaymentMollieIdeal::BANK_STATUS_SUCCESS,
 		)));
 
-		// This must be asserted:
-		$this->controller->cart->expects($this->once())->method("clear");
+		$this->url->expects($this->once())
+				->method('link')
+				->with('checkout/success', '', 'SSL')
+				->will($this->returnValue('http://opencart.office/index.php?route=checkout/success'));
 
-		$this->controller->model_payment_mollie_ideal->expects($this->once())
-			->method("getOrderById")
-			->will($this->throwException(new DomainException())); // Stop execution of method.
+		$this->controller->expects($this->once())
+			->method("redirect")
+			->with('http://opencart.office/index.php?route=checkout/success');
 
-		$this->controller->status();
+		$this->controller->callback();
 	}
 }
