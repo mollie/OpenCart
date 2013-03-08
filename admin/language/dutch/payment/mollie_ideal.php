@@ -28,7 +28,7 @@
  * @category    Mollie
  * @package     Mollie_Ideal
  * @author      Mollie B.V. (info@mollie.nl)
- * @version     v4.7
+ * @version     v4.8
  * @copyright   Copyright (c) 2012 Mollie B.V. (http://www.mollie.nl)
  * @license     http://www.opensource.org/licenses/bsd-license.php  Berkeley Software Distribution License (BSD-License 2)
  * 
@@ -54,7 +54,7 @@ $_['entry_sort_order']      = "Sorteervolgorde:";
 // Info
 $_['entry_module']          = "Module:";
 $_['entry_status']          = "Module Status:";
-$_['entry_version']         = "<a href='https://www.mollie.nl/support/documentatie/betaaldiensten/ideal/' target='_blank'>iDEAL</a> versie 4.7";
+$_['entry_version']         = "<a href='https://www.mollie.nl/support/documentatie/betaaldiensten/ideal/' target='_blank'>iDEAL</a> versie 4.8";
 $_['entry_support']         = "Support:";
 
 // Error
