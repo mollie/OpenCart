@@ -88,7 +88,7 @@ class ControllerPaymentMollieCallbackTest extends Mollie_OpenCart_TestCase
 
 		$this->url->expects($this->once())
 				->method('link')
-				->with('checkout/success', '', 'SSL')
+				->with('checkout/success')
 				->will($this->returnValue('http://opencart.office/index.php?route=checkout/success'));
 
 		$this->controller->expects($this->once())

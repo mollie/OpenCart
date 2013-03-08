@@ -242,7 +242,7 @@ class ControllerPaymentMollieIdeal extends Controller
 			 */
 			if (isset($payment['bank_status']) && $payment['bank_status'] == ModelPaymentMollieIdeal::BANK_STATUS_SUCCESS)
 			{
-				$this->redirect($this->url->link('checkout/success', '', 'SSL'));
+				$this->redirect($this->url->link('checkout/success'));
 				return;
 			}
 			else
