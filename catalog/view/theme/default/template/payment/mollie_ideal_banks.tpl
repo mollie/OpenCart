@@ -25,8 +25,7 @@ function clean_echo ($string)
 		if ($('#bank_id').val() != 0) {
 			$('#cof').submit();
 		} else {
-			alert('Selecteer een bank'); 
-
+			alert('<?php clean_echo($message->get("select_your_bank")) ?>');
 		}
 	});
-</script> 
+</script>
