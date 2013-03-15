@@ -10,12 +10,12 @@ function clean_echo ($string)
 		</div>
 		<div class="right">
 			<select name="bank_id" id="bank_id">
-				<option value='0'>Kies uw bank</option>
+				<option value='0'><?php echo $message->get('select_your_bank') ?></option>
 				<?php foreach ($banks as $bank_id => $bank_name): ?>
 					<option value="<?php clean_echo($bank_id); ?>"><?php clean_echo($bank_name); ?></option>
 				<?php endforeach; ?>
 			</select>
-			<a id="button-confirm" class="button"><span><?php echo clean_echo($button_confirm); ?></span></a>
+			<a id="button-confirm" class="button"><span><?php echo $message->get('button_confirm') ?></span></a>
 		</div>
 	</form>
 </div>

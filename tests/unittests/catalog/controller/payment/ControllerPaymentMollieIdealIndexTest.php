@@ -101,9 +101,9 @@ class ControllerPaymentMollieIdealIndexTest extends Mollie_OpenCart_TestCase
 		$this->controller->index();
 
 		$this->assertEquals(array(
-			"button_confirm" => "button_confirm",
-			"banks" => self::$banks,
-			"action" => self::URL_PAYMENT,
+			"banks"   => self::$banks,
+			"action"  => self::URL_PAYMENT,
+			"message" => $this->language,
 		), $this->controller->data);
 
 		$this->assertEquals("default/template/payment/mollie_ideal_banks.tpl", $this->controller->template);

@@ -47,6 +47,7 @@ $_['text_declined'] 		= 'Payment was declined by iDEAL';
 $_['text_redirected']		= 'The client has been referred to the bank';
 $_['text_retry']			= 'The client is retrying a new payment';
 $_['msg_failed'] 			= 'Unfortunately your iDEAL payment has failed.';
+$_['select_your_bank']      = 'Select your bank';
 
 // Response
 $_['response_success'] 		= 'The payment is received';

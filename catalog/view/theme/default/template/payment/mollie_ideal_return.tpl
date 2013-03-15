@@ -28,7 +28,7 @@ function clean_echo ($string)
 					<form action="<?php clean_echo ($action); ?>" method="post" id="rty">
 						<input type="hidden" name="transaction_id" value="<?php clean_echo($payment['transaction_id']) ?>" />
 						<select name="bank_id" id="bank_id">
-							<option value='0'>Kies uw bank</option>
+							<option value='0'><?php echo $message->get('select_your_bank') ?></option>
 							<?php foreach ($banks as $bank_id => $bank_name): ?>
 								<option value="<?php clean_echo($bank_id); ?>"><?php clean_echo($bank_name); ?></option>
 							<?php endforeach; ?>
