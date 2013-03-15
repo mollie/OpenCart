@@ -36,6 +36,7 @@
 
 // Heading
 $_['heading_title']         = 'iDEAL by Mollie';
+$_['footer_text']           = 'SMS & Payment services';
 
 // Text 
 $_['text_payment']          = "Payment";
