@@ -203,7 +203,7 @@ function clean_echo ($string)
 			</form>
 			<center>
 				<a href="https://www.mollie.nl/" target="_blank"><img src="https://www.mollie.nl/images/badge-powered-medium.png" width="135" height="87" border="0" alt="Mollie" /></a><br/>
-				Copyright &copy; Mollie B.V. 2004-<?php echo date('Y'); ?> SMS & Betaaldiensten
+				Copyright &copy; Mollie B.V. 2004-<?php echo date('Y'); ?> <?php clean_echo($footer_text); ?>
 			</center>
 		</div>
 		<script type="text/javascript">

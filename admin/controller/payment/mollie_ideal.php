@@ -99,6 +99,7 @@ class ControllerPaymentMollieIdeal extends Controller
 
 		// Set data for template
 		$this->data['heading_title']          = $this->language->get('heading_title');
+		$this->data['footer_text']            = $this->language->get('footer_text');
 
 		$this->data['text_enabled']           = $this->language->get('text_enabled');
 		$this->data['text_disabled']          = $this->language->get('text_disabled');

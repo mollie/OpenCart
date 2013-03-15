@@ -58,10 +58,12 @@ class ControllerPaymentMollieIdeal extends Controller
 		$ideal->setProfileKey($this->config->get('mollie_ideal_profilekey'));
 		$ideal->setTestmode($this->config->get('mollie_ideal_testmode'));
 
+		$this->load->language('payment/mollie_ideal');
+
 		// Set template data
-		$this->data['button_confirm'] = $this->language->get('button_confirm');
 		$this->data['banks']          = $ideal->getBanks();
 		$this->data['action']         = $this->url->link('payment/mollie_ideal/payment', '', 'SSL');
+		$this->data['message']        = $this->language;
 
 		// Check if view is at default template else use modified template path
 		if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/mollie_ideal_banks.tpl')) {

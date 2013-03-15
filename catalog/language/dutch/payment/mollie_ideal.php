@@ -47,6 +47,7 @@ $_['text_declined'] 		= 'De betaling was afgewezen door iDEAL';
 $_['text_redirected']		= 'De klant is doorverwezen naar de bank';
 $_['text_retry']			= 'De klant probeert opnieuw een betaling op te zetten';
 $_['msg_failed'] 			= 'Helaas is uw iDEAL betaling is mislukt';
+$_['select_your_bank']      = 'Kies uw bank';
 
 // Response
 $_['response_success'] 		= 'De betaling is ontvangen';
