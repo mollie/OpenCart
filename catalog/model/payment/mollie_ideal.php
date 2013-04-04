@@ -121,7 +121,7 @@ class ModelPaymentMollieIdeal extends Model
 					 DB_PREFIX,
 					 $this->db->escape($order_id),
 					 $this->db->escape($transaction_id),
-					 $this->db->escape(date("Y-m-d H:i:s"))
+					 $this->db->escape($this->getCurrentDate())
 				)
 			);
 
@@ -131,6 +131,14 @@ class ModelPaymentMollieIdeal extends Model
 		}
 
 		return FALSE;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getCurrentDate ()
+	{
+		return date("Y-m-d H:i:s");
 	}
 
 	/**
@@ -150,7 +158,7 @@ class ModelPaymentMollieIdeal extends Model
 					 DB_PREFIX,
 					 $this->db->escape($bank_status),
 					 $this->db->escape($consumer['consumerAccount']),
-					 $this->db->escape(date("Y-m-d H:i:s")),
+					 $this->db->escape($this->getCurrentDate()),
 					 $this->db->escape($transaction_id)
 				)
 			);

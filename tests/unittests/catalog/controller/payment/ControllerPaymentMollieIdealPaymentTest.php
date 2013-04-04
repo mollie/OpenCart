@@ -108,11 +108,14 @@ class ControllerPaymentMollieIdealPaymentTest extends Mollie_OpenCart_TestCase
 			->with($this->logicalOr("checkout/order", "payment/mollie_ideal"));
 
 		$this->controller->model_payment_mollie_ideal = $this->getMock("ModelPaymentMollieIdeal", array("getPaymentById", "getOrderById"));
-		$this->controller->model_checkout_order = $this->getMock("stub", array("update", "confirm"));
+		$this->controller->model_checkout_order = $this->getMock("ModelCheckoutOrder", array("update", "confirm"));
 
 		$this->controller->load->expects($this->once())
 			->method("language")
 			->with("payment/mollie_ideal");
+
+		$this->controller->model_checkout_order['order_id'] = self::ORDER_ID;
+		$this->controller->model_checkout_order['total']    = 15.99;
 
 		if ($failed_order)
 		{
@@ -133,10 +136,7 @@ class ControllerPaymentMollieIdealPaymentTest extends Mollie_OpenCart_TestCase
 		$this->controller->model_payment_mollie_ideal->expects($this->once())
 			->method("getOrderById")
 			->with(self::ORDER_ID)
-			->will($this->returnValue(array(
-			"order_id" => self::ORDER_ID,
-			"total" => 15.99,
-		)));
+			->will($this->returnValue($this->controller->model_checkout_order));
 
 		$this->controller->request->post['bank_id'] = self::BANK_ID;
 

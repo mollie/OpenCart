@@ -29,7 +29,7 @@ class ControllerPaymentMollieIdealReportTest extends Mollie_OpenCart_TestCase
 
 	public function setUp()
 	{
-		$this->controller = $this->getMock("ControllerPaymentMollieIdeal", array("getIdealPaymentObject", "render"));
+		$this->controller = $this->getMock("ControllerPaymentMollieIdeal", array("getIdealPaymentObject", "render", "outputMollieInfo"));
 		$this->controller->request = new stdClass();
 		$this->controller->request->get = array();
 		$this->controller->request->post = array();
@@ -145,17 +145,16 @@ class ControllerPaymentMollieIdealReportTest extends Mollie_OpenCart_TestCase
 				"transaction_id" => self::TRANSACTION_ID,
 		)));
 
+		$this->controller->model_checkout_order = $this->getMock("ModelCheckoutOrder", array("update"));
+
 		$this->controller->model_payment_mollie_ideal->expects($this->once())
 			->method("getOrderById")
 			->with(self::ORDER_ID)
-			->will($this->returnValue(array(
-				"order_id" => self::ORDER_ID,
-				"order_status_id" => self::ORDER_STATUS_PROCESSING_ID,
-				"total" => 15.99,
+			->will($this->returnValue($this->controller->model_checkout_order));
 
-		)));
-
-		$this->controller->model_checkout_order = $this->getMock("stub", array("update"));
+		$this->controller->model_checkout_order['order_id'] = self::ORDER_ID;
+		$this->controller->model_checkout_order['order_status_id']    = self::ORDER_STATUS_PROCESSING_ID;
+		$this->controller->model_checkout_order['total']    = 15.99;
 
 		$this->ideal->expects($this->atLeastOnce())
 			->method("getBankStatus")
@@ -207,18 +206,15 @@ class ControllerPaymentMollieIdealReportTest extends Mollie_OpenCart_TestCase
 
 		if ($bank_status === ModelPaymentMollieIdeal::BANK_STATUS_CHECKEDBEFORE)
 		{
-			$this->controller->model_checkout_order->expects($this->once())
-				->method("update")
-				->with(self::ORDER_ID, self::ORDER_STATUS_FAILED_ID, "response_failed", TRUE);
+			$this->controller->model_checkout_order->expects($this->never())
+				->method("update");
 		}
 
 		if (!$amounts_correct)
 		{
-			$this->controller->model_checkout_order->expects($this->once())
-				->method("update")
-				->with(self::ORDER_ID, self::ORDER_STATUS_FAILED_ID, "response_fraud", FALSE);
+			$this->controller->model_checkout_order->expects($this->never())
+				->method("update");
 		}
-
 
 		$this->controller->report();
 	}
