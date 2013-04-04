@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright (c) 2012, Mollie B.V.
+ * Copyright (c) 2013, Mollie B.V.
  * All rights reserved. 
  * 
  * Redistribution and use in source and binary forms, with or without 
@@ -28,8 +28,8 @@
  * @category    Mollie
  * @package     Mollie_Ideal
  * @author      Mollie B.V. (info@mollie.nl)
- * @version     v4.8
- * @copyright   Copyright (c) 2012 Mollie B.V. (http://www.mollie.nl)
+ * @version     v4.9
+ * @copyright   Copyright (c) 2013 Mollie B.V. (http://www.mollie.nl)
  * @license     http://www.opensource.org/licenses/bsd-license.php  Berkeley Software Distribution License (BSD-License 2)
  * 
  **/
@@ -55,6 +55,8 @@ class ControllerPaymentMollieIdeal extends Controller
 					`transaction_id` varchar(32) NOT NULL,
 					`bank_account` varchar(15) NOT NULL,
 					`bank_status` varchar(20) NOT NULL,
+					`created_at` datetime NOT NULL,
+					`updated_at` datetime DEFAULT NULL,
 					PRIMARY KEY (`order_id`),
 					UNIQUE KEY `transaction_id` (`transaction_id`)
 				) ENGINE=InnoDB DEFAULT CHARSET=utf8",

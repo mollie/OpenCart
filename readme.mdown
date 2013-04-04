@@ -31,7 +31,7 @@ worden alleen gebruikt wanneer het communiceren met de al geïnstalleerde certif
 
 # Licentie #
 Gelicenseerd onder de [BSD (Berkeley Software Distribution) License](http://www.opensource.org/licenses/bsd-license.php).  
-Copyright (c) 2012, Mollie B.V.
+Copyright (c) 2013, Mollie B.V.
 
 # Support #
 W: www.mollie.nl  
