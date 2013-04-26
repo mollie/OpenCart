@@ -37,6 +37,8 @@
 class ModelPaymentMollieIdeal extends Model
 {
 
+	const MOD_VERSION               = '4.9';
+
 	// The possible bank return states
 	const BANK_STATUS_SUCCESS       = 'Success';
 	const BANK_STATUS_CANCELLED     = 'Cancelled';
@@ -114,11 +116,12 @@ class ModelPaymentMollieIdeal extends Model
 		{
 			$this->db->query(
 				sprintf(
-					"REPLACE INTO `%smollie_payments` (`order_id` ,`transaction_id`, `method`)
-					 VALUES ('%s', '%s', 'idl')",
+					"REPLACE INTO `%smollie_payments` (`order_id` ,`transaction_id`, `method`, `created_at`)
+					 VALUES ('%s', '%s', 'idl', '%s')",
 					 DB_PREFIX,
-					$this->db->escape($order_id),
-					$this->db->escape($transaction_id)
+					 $this->db->escape($order_id),
+					 $this->db->escape($transaction_id),
+					 $this->db->escape($this->getCurrentDate())
 				)
 			);
 
@@ -131,23 +134,32 @@ class ModelPaymentMollieIdeal extends Model
 	}
 
 	/**
+	 * @return string
+	 */
+	protected function getCurrentDate ()
+	{
+		return date("Y-m-d H:i:s");
+	}
+
+	/**
 	 * While report method is in progress this method is getting called to update the order information and status
 	 *
 	 * @return bool
 	 */
-	public function updatePayment ($transaction_id, $bank_status, $consumer = NULL)
+	public function updatePayment ($transaction_id, $bank_status, array $consumer = NULL)
 	{
 		if (!empty($transaction_id) && !empty($bank_status))
 		{
 			$this->db->query(
 				sprintf(
 					"UPDATE `%smollie_payments` 
-					 SET `bank_status` = '%s', `bank_account` = '%s'
+					 SET `bank_status` = '%s', `bank_account` = '%s', `updated_at` = '%s'
 					 WHERE `transaction_id` = '%s';",
 					 DB_PREFIX,
-					$this->db->escape($bank_status),
-					$this->db->escape($consumer['consumerAccount']),
-					$this->db->escape($transaction_id)
+					 $this->db->escape($bank_status),
+					 $this->db->escape($consumer['consumerAccount']),
+					 $this->db->escape($this->getCurrentDate()),
+					 $this->db->escape($transaction_id)
 				)
 			);
 
@@ -159,6 +171,32 @@ class ModelPaymentMollieIdeal extends Model
 		return FALSE;
 	}
 
-}
+	/**
+	 * Get the amount of the order in cents, make sure that we return the right value even if the locale is set to
+	 * something different than the default (e.g. nl_NL).
+	 *
+	 * @param ModelCheckoutOrder $order
+	 * @return int
+	 */
+	public function getAmountInCents (ModelCheckoutOrder $order)
+	{
+		$grand_total = $order['total'];
 
-?>
+		if (is_string($grand_total))
+		{
+			$locale_info = localeconv();
+
+			if ($locale_info['decimal_point'] !== '.')
+			{
+				$grand_total = strtr($grand_total, array(
+					$locale_info['thousands_sep'] => '',
+					$locale_info['decimal_point'] => '.',
+				));
+			}
+
+			$grand_total = floatval($grand_total); // Why U NO work with locales?
+		}
+
+		return intval(round(100 * $grand_total));
+	}
+}

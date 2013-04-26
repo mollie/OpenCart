@@ -1,4 +1,5 @@
 <?php
+date_default_timezone_set('CET');
 
 define("DIR_TEMPLATE", dirname(dirname(__FILE__)) . "/catalog/view/theme");
 
@@ -21,7 +22,24 @@ spl_autoload_register(function($className)
 	class_alias("stub", $className);
 });
 
-class stub {}
+class stub extends ArrayObject implements ArrayAccess {
+	public function __isset($name)
+	{
+		return $this->getIterator()->__isset($name);
+	}
+	public function __unset($name)
+	{
+		return $this->getIterator()->__unset($name);
+	}
+	public function offsetSet ($key, $value)
+	{
+		return $this->getIterator()->offsetSet($key, $value);
+	}
+	public function offsetGet ($key)
+	{
+		return $this->getIterator()->offsetGet($key);
+	}
+}
 
 define("DB_PREFIX", "prefix_");
 

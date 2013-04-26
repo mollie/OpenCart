@@ -55,6 +55,8 @@ class ControllerPaymentMollieIdeal extends Controller
 					`transaction_id` varchar(32) NOT NULL,
 					`bank_account` varchar(15) NOT NULL,
 					`bank_status` varchar(20) NOT NULL,
+					`created_at` datetime NOT NULL,
+					`updated_at` datetime DEFAULT NULL,
 					PRIMARY KEY (`order_id`),
 					UNIQUE KEY `transaction_id` (`transaction_id`)
 				) ENGINE=InnoDB DEFAULT CHARSET=utf8",

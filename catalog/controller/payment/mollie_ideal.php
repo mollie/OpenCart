@@ -105,7 +105,7 @@ class ControllerPaymentMollieIdeal extends Controller
 
 			// Assign required vars for createPayment
 			$bank_id     = $this->request->post['bank_id'];
-			$amount      = intval(round($order['total'] * 100));
+			$amount      = $this->model_payment_mollie_ideal->getAmountInCents($order);
 			$description = str_replace('%', $order['order_id'], html_entity_decode($this->config->get('mollie_ideal_description'), ENT_QUOTES, 'UTF-8'));
 			$return_url  = $this->url->link('payment/mollie_ideal/callback', '', 'SSL');
 			$report_url  = $this->url->link('payment/mollie_ideal/report', '', 'SSL');
@@ -176,41 +176,44 @@ class ControllerPaymentMollieIdeal extends Controller
 				// Only if the transaction is in 'processing' status
 				if ($order['order_status_id'] == $this->config->get('mollie_ideal_processing_status_id') && $ideal->getBankStatus() != ModelPaymentMollieIdeal::BANK_STATUS_CHECKEDBEFORE)
 				{
-					$amount = intval(round($order['total'] * 100));
+					$amount = $this->model_payment_mollie_ideal->getAmountInCents($order);
 
 					// Check if the order amount is the same as paid amount
-					if ($amount == $ideal->getAmount())
+					if ( $amount == $ideal->getAmount() )
 					{
 						switch ($ideal->getBankStatus())
 						{
 							case ModelPaymentMollieIdeal::BANK_STATUS_SUCCESS:
-								$consumer = $ideal->getConsumerInfo();
-								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_processed_status_id'), $this->language->get('response_success'), TRUE); // Processed
+								$status = $this->language->get('response_success');
+								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_processed_status_id'), $status, TRUE); // Processed
 								break;
 							case ModelPaymentMollieIdeal::BANK_STATUS_CANCELLED:
-								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_canceled_status_id'), $this->language->get('response_cancelled'), FALSE); // Canceled
+								$status = $this->language->get('response_cancelled');
+								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_canceled_status_id'), $status, FALSE); // Canceled
 								break;
 							case ModelPaymentMollieIdeal::BANK_STATUS_FAILURE:
-								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_failed_status_id'), $this->language->get('response_failed'), TRUE); // Fail
+								$status = $this->language->get('response_failed');
+								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_failed_status_id'), $status, TRUE); // Fail
 								break;
 							case ModelPaymentMollieIdeal::BANK_STATUS_EXPIRED:
-								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_expired_status_id'), $this->language->get('response_expired'), FALSE); // Expired
+								$status = $this->language->get('response_expired');
+								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_expired_status_id'), $status, FALSE); // Expired
 								break;
 							default:
-								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_failed_status_id'), $this->language->get('response_unknown'), FALSE); // Fail
+								$status = $this->language->get('response_unknown');
+								$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_failed_status_id'), $status, FALSE); // Fail
 								break;
 						}
-					}
-					else
-					{
-						$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_failed_status_id'), $this->language->get('response_fraud'), FALSE); // Fraude
-					}
 
-					$this->model_payment_mollie_ideal->updatePayment($payment['transaction_id'], $ideal->getBankStatus(), $consumer);
-				}
-				else
-				{
-					$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_failed_status_id'), $this->language->get('response_failed'), TRUE); // Fail
+						// Only if the payment succeeded we give consumerInfo
+						if (is_array($ideal->getConsumerInfo())) {
+							$consumer = $ideal->getConsumerInfo();
+						} else {
+							$consumer = array();
+						}
+
+						$this->model_payment_mollie_ideal->updatePayment($payment['transaction_id'], $ideal->getBankStatus(), $consumer);
+					}
 				}
 			}
 		}

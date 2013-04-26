@@ -11,8 +11,12 @@ class ModelPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
 	{
 		parent::setUp();
 
-		$this->model = new ModelPaymentMollieIdeal();
+		$this->model = $this->getMock("ModelPaymentMollieIdeal", array("getCurrentDate"));
 		$this->model->db = $this->getMock("stub", array("query", "escape", "countAffected"));
+
+		$this->model->expects($this->any())
+			->method("getCurrentDate")
+			->will($this->returnValue('2013-05-05 12:12:12'));
 
 		$this->model->db->expects($this->any())
 			->method("escape")
@@ -116,8 +120,8 @@ class ModelPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
 	{
 		$this->model->db->expects($this->once())
 			->method("query")
-			->with("REPLACE INTO `prefix_mollie_payments` (`order_id` ,`transaction_id`, `method`)
-					 VALUES ('1337', '1bba1d8fdbd8103b46151634bdbe0a60', 'idl')");
+			->with("REPLACE INTO `prefix_mollie_payments` (`order_id` ,`transaction_id`, `method`, `created_at`)
+					 VALUES ('1337', '1bba1d8fdbd8103b46151634bdbe0a60', 'idl', '2013-05-05 12:12:12')");
 
 		$this->model->db->expects($this->once())
 			->method("countAffected")
@@ -130,8 +134,8 @@ class ModelPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
 	{
 		$this->model->db->expects($this->once())
 			->method("query")
-			->with("REPLACE INTO `prefix_mollie_payments` (`order_id` ,`transaction_id`, `method`)
-					 VALUES ('1337', '1bba1d8fdbd8103b46151634bdbe0a60', 'idl')");
+			->with("REPLACE INTO `prefix_mollie_payments` (`order_id` ,`transaction_id`, `method`, `created_at`)
+					 VALUES ('1337', '1bba1d8fdbd8103b46151634bdbe0a60', 'idl', '2013-05-05 12:12:12')");
 
 		$this->model->db->expects($this->once())
 			->method("countAffected")
