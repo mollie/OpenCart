@@ -21,7 +21,7 @@ function clean_echo ($string)
 		<?php elseif ($payment['bank_status'] == ''): ?>
 			<?php echo $message->get('response_none') ?>
 		<?php else: ?>
-			<?php echo sprintf($message->get('response_failed'), number_format($order['total'], 2)) ?>
+			<?php echo $message->get('response_failed') ?>
 	</div>
 			<div class="buttons">
 				<div class="right">

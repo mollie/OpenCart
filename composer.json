@@ -1,0 +1,16 @@
+{
+    "name": "mollienl/opencart",
+    "description": "Mollie iDEAL for OpenCart",
+    "version": "4.8",
+    "homepage": "https://www.mollie.nl",
+    "authors": [
+        {
+            "name": "Mollie B.V.",
+            "email": "info@mollie.nl"
+        }
+    ],
+    "license": "BSD-2-Clause",
+    "require-dev": {
+        "phpunit/phpunit": "3.7.*"
+    }
+}

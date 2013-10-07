@@ -1,5 +1,8 @@
 .DS_Store
-.idea/
-build/coverage
-build/clover
-build/logs
+/.idea/
+/build/coverage
+/build/clover
+/build/logs
+/composer.lock
+/vendor
+
