@@ -25,7 +25,7 @@ Upgraden vanaf een eerdere versie is eenvoudig:
 
 ## Wijzigingen in versie 4.8 ##
 + Na een succesvolle betaling, wordt de klant doorgestuurd naar de standaard "geslaagde betaling"-pagina van OpenCart.
-+ Vanaf deze versie wordt de kwaliteit van de module bewaakt door de open source continuous integration server [Travis CI](https://travis-ci.org/mollienl/OpenCart)
++ Vanaf deze versie wordt de kwaliteit van de module bewaakt door de open source continuous integration server [Travis CI](https://travis-ci.org/mollie/OpenCart)
 
 ## Wijzigingen in versie 4.7 ##
 + Geef duidelijkere foutmeldingen indien er iets misgaat bij het opzetten van de betaling

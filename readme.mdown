@@ -1,7 +1,7 @@
 ![Mollie](https://www.mollie.nl/files/Mollie-Logo-Style-Small.png)
 
 # Installatie [![Build Status](https://travis-ci.org/mollie/OpenCart.png)](https://travis-ci.org/mollie/OpenCart) #
-+ Download op de [Tags](/mollie/OpenCart/tags)-pagina de nieuwste release (Of ```git clone --recursive git://github.com/mollie/opencart.git```)
++ Download op de [Releases](https://github.com/mollie/OpenCart/releases)-pagina de nieuwste release (Of ```git clone --recursive git://github.com/mollie/opencart.git```)
 + Kopieër de gedownloade mappen `admin` en `catalog` naar de bestaande OpenCart-installatie op uw server
 + Ga naar uw OpenCart AdminPanel (Beheerpagina)
 + Ga in het menu naar _Extentions_ en selecteer _Payments_
