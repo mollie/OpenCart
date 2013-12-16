@@ -1,7 +1,6 @@
 <?php
-
 /**
- * Copyright (c) 2012, Mollie B.V.
+ * Copyright (c) 2012-2014, Mollie B.V.
  * All rights reserved. 
  * 
  * Redistribution and use in source and binary forms, with or without 
@@ -27,27 +26,26 @@
  *
  * @category    Mollie
  * @package     Mollie_Ideal
- * @author      Mollie B.V. (info@mollie.nl)
- * @version     v4.8
- * @copyright   Copyright (c) 2012 Mollie B.V. (http://www.mollie.nl)
- * @license     http://www.opensource.org/licenses/bsd-license.php  Berkeley Software Distribution License (BSD-License 2)
- * 
- **/
+ * @version     v5.0
+ * @license     Berkeley Software Distribution License (BSD-License 2) http://www.opensource.org/licenses/bsd-license.php
+ * @author      Mollie B.V. <info@mollie.nl>
+ * @copyright   Mollie B.V.
+ * @link        https://www.mollie.nl
+ */
 
 /**
  * English language file for iDEAL by Mollie
  */
 
 // Text
-$_['heading_title'] 		= 'iDEAL by Mollie';
-$_['ideal_title'] 			= 'Your iDEAL payment';
-$_['text_title'] 			= 'iDEAL';
-$_['text_redirect']			= 'Please click the link below to go to your bank';
-$_['text_declined'] 		= 'Payment was declined by iDEAL';
-$_['text_redirected']		= 'The client has been referred to the bank';
-$_['text_retry']			= 'The client is retrying a new payment';
-$_['msg_failed'] 			= 'Unfortunately your iDEAL payment has failed.';
-$_['select_your_bank']      = 'Select your bank';
+$_['heading_title'] 		= 'Payment by Mollie';
+$_['ideal_title'] 			= 'Your payment';
+$_['text_title'] 			= 'Pay online';
+$_['text_redirected']		= 'The client has been referred to the payment screen';
+$_['msg_failed'] 			= 'Unfortunately your payment has failed. If you want, you can retry using a different payment method.';
+$_['heading_failed'] 		= 'Payment failed.';
+$_['heading_error'] 		= 'An error occurred when setting up the payment.';
+$_['text_error'] 		    = 'An erorr occurred when setting up the payment with Mollie:';
 
 // Response
 $_['response_success'] 		= 'The payment is received';
@@ -55,6 +53,4 @@ $_['response_none'] 		= 'The payment is not received yet';
 $_['response_cancelled'] 	= 'The client has canceled the payment';
 $_['response_failed'] 		= 'Unfortunately something went wrong. Please retry the payment.';
 $_['response_expired'] 		= 'The payment has expired';
-$_['response_checked'] 		= 'The payment status has already been retrieved';
 $_['response_unknown'] 		= 'An unknown error occurred';
-$_['response_fraud']		= 'The payment is fraud';

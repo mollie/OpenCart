@@ -1,7 +1,6 @@
 <?php
-
 /**
- * Copyright (c) 2012, Mollie B.V.
+ * Copyright (c) 2012-2014, Mollie B.V.
  * All rights reserved. 
  * 
  * Redistribution and use in source and binary forms, with or without 
@@ -27,34 +26,31 @@
  *
  * @category    Mollie
  * @package     Mollie_Ideal
- * @author      Mollie B.V. (info@mollie.nl)
- * @version     v4.8
- * @copyright   Copyright (c) 2012 Mollie B.V. (http://www.mollie.nl)
- * @license     http://www.opensource.org/licenses/bsd-license.php  Berkeley Software Distribution License (BSD-License 2)
- * 
- **/
+ * @version     v5.0
+ * @license     Berkeley Software Distribution License (BSD-License 2) http://www.opensource.org/licenses/bsd-license.php
+ * @author      Mollie B.V. <info@mollie.nl>
+ * @copyright   Mollie B.V.
+ * @link        https://www.mollie.nl
+ */
 
-/*
- * Nederlandse taal bestand voor iDEAL via Mollie
+/**
+ * Dutch language file for iDEAL by Mollie
  */
 
 // Text
-$_['heading_title'] 		= 'iDEAL via Mollie';
-$_['ideal_title'] 			= 'Uw iDEAL betaling';
-$_['text_title'] 			= 'iDEAL';
-$_['text_redirect'] 		= 'Klik op de onderstaande link om naar uw bank te gaan';
-$_['text_declined'] 		= 'De betaling was afgewezen door iDEAL';
-$_['text_redirected']		= 'De klant is doorverwezen naar de bank';
-$_['text_retry']			= 'De klant probeert opnieuw een betaling op te zetten';
-$_['msg_failed'] 			= 'Helaas is uw iDEAL betaling is mislukt';
-$_['select_your_bank']      = 'Kies uw bank';
+$_['heading_title'] 		= 'Betaling via Mollie';
+$_['ideal_title'] 			= 'Uw betaling';
+$_['text_title'] 			= 'Online betalen';
+$_['text_redirected']		= 'De klant is doorgestuurd naar het betaalscherm';
+$_['msg_failed'] 			= 'De betaling is mislukt. Als u wilt, kunt u het opnieuw proberen met dezelfde of een andere betaalmethode.';
+$_['heading_failed'] 		= 'Betaling mislukt.';
+$_['heading_error'] 		= 'Er is een fout opgetreden bij het opzetten van de betaling.';
+$_['text_error'] 		    = 'Er is een fout opgetreden tijdens het opzetten van de betaling bij Mollie:';
 
 // Response
-$_['response_success'] 		= 'De betaling is ontvangen';
-$_['response_none'] 		= 'De bank heeft nog niet aan ons doorgegeven of de betaling gelukt is. U krijgt een email zodra de status van uw betaling bij ons bekend is.';
-$_['response_cancelled'] 	= 'De klant heeft de betaling geannuleerd';
-$_['response_failed'] 		= 'De betaling is helaas mislukt. Probeer het alstublieft opnieuw.';
-$_['response_expired'] 		= 'De betaling is verlopen';
-$_['response_checked'] 		= 'Betalingstatus is al een keer opgevraagd';
-$_['response_unknown'] 		= 'Er is een onbekende fout opgetreden';
-$_['response_fraud']		= 'De betaling is fraude';
+$_['response_success'] 		= 'The payment is received';
+$_['response_none'] 		= 'The payment is not received yet';
+$_['response_cancelled'] 	= 'The client has canceled the payment';
+$_['response_failed'] 		= 'Unfortunately something went wrong. Please retry the payment.';
+$_['response_expired'] 		= 'The payment has expired';
+$_['response_unknown'] 		= 'An unknown error occurred';

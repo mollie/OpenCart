@@ -1,7 +1,6 @@
 <?php
-
 /**
- * Copyright (c) 2012, Mollie B.V.
+ * Copyright (c) 2012-2014, Mollie B.V.
  * All rights reserved. 
  * 
  * Redistribution and use in source and binary forms, with or without 
@@ -27,48 +26,45 @@
  *
  * @category    Mollie
  * @package     Mollie_Ideal
- * @author      Mollie B.V. (info@mollie.nl)
- * @version     v4.8
- * @copyright   Copyright (c) 2012 Mollie B.V. (http://www.mollie.nl)
- * @license     http://www.opensource.org/licenses/bsd-license.php  Berkeley Software Distribution License (BSD-License 2)
- * 
- **/
+ * @version     v5.0
+ * @license     Berkeley Software Distribution License (BSD-License 2) http://www.opensource.org/licenses/bsd-license.php
+ * @author      Mollie B.V. <info@mollie.nl>
+ * @copyright   Mollie B.V.
+ * @link        https://www.mollie.nl
+ */
 
 // Heading
-$_['heading_title']         = 'iDEAL via Mollie';
-$_['footer_text']           = 'SMS & Betaaldiensten';
+$_['heading_title']         = 'Mollie (iDEAL, Creditcard, Mister Cash & paysafecard)';
+$_['footer_text']           = 'Payment services';
 
 // Text 
 $_['text_payment']          = "Betaling";
-$_['text_success']          = "Gelukt: Je hebt de iDEAL instellingen aangepast!";
-$_['text_mollie_ideal']     = '<a onclick="window.open(\'https://www.mollie.nl\');"><img src="http://www.mollie.nl/images/badge-ideal-small.png" alt="iDEAL via Mollie" title="iDEAL via Mollie" style="border:0px" /></a>';
+$_['text_success']          = "Gelukt: de instellingen voor de module zijn aangepast!";
+$_['text_mollie_ideal']     = '<a href="https://www.mollie.nl" target="_blank"><img src="https://www.mollie.nl/images/logo.png" alt="Mollie" title="Mollie" style="border:0px" /></a>';
 
 // Entry
-$_['entry_status']          = "Status: <br/><span class='help'>De betaalmodule activeren</span>";
-$_['entry_testmode']        = "Testmode: <br/><span class='help'>Gebruik de testmode om betalingen te testen zonder een echte betaling te doen</span>";
-$_['entry_partnerid']       = "Mollie partner ID: <br/><span class='help'>Uw Mollie partner ID. Op dit account wordt de betaling toegevoegd. U kunt uw Mollie partner ID [<a target='new' href='https://www.mollie.nl/beheer/account/'>hier</a>] vinden</span>";
-$_['entry_profilekey']      = "Profilekey: <br/><span class='help'>Vul het websiteprofiel in die u wilt gebruiken<br/>[ <a href='https://www.mollie.nl/beheer/account/profielen/' target='_blank'>Bekijk uw profielen</a> ]</span>";
-$_['entry_description']     = "Beschrijving: <br/><span class='help'>Hiermee kunt u in maximaal 29 karakters een beschrijving meegegeven aan de betaling die op het dagafschrift van uw klant wordt weergeven. Zorg dus dat hier iets staat dat de lading dekt, zoals een ordernummer. TIP: Gebruik '%' voor het tonen van het ordernummer (Denk er wel aan dat % meerdere karakters kan bevatten, naargelang de lengte van het ordernummer in uw systeem)</span>";
-$_['entry_total']           = "Minimaal bestelbedrag: <br/><span class='help'>Minimale bedrag voor iDEAL wordt weergeven bij een bestelling (MEEGEGEVEN IN CENTEN!)</span>";
+$_['entry_status']          = "Status: <br/><span class='help'>Activate the module</span>";
+$_['entry_api_key']         = "API key: <br/><span class='help'>Voer hier de <code>api_key</code> van het websiteprofiel in dat u wilt gebruiken. De api_key begint met <code>test_</code> or <code>live_</code>. <br>[<a href='https://www.mollie.nl/beheer/account/profielen/' target='_blank'>bekijk uw websiteprofielen</a>]</span>";
+$_['entry_webhook']         = "Webhook:";
+$_['entry_webhook_help']    = "Kopieer deze webhook in uw profiel binnen het <a href='https://www.mollie.nl/beheer/account/profielen/' target='_blank'>Mollie Beheer</a>. U kunt dezelfde webhook als <em>Live webhook</em> en <em>Test webhook</em> gebruiken.";
+$_['entry_description']     = "Omschrijving: <br/><span class='help'>De omschrijving zal op het bankafschrift van uw klant verschijnen en kunt u terugvinden in het Mollie beheer. U kunt maximaal 29 tekens gebruikt. TIP: Gebruik <code>%'</code>, dit zal vervangen worden door het ordernummer. Het ordernummer kan zelf ook meerdere tekens lang zijn!</span>";
 $_['entry_sort_order']      = "Sorteervolgorde:";
 
 // Info
 $_['entry_module']          = "Module:";
-$_['entry_status']          = "Module Status:";
-$_['entry_version']         = "<a href='https://www.mollie.nl/support/documentatie/betaaldiensten/ideal/' target='_blank'>iDEAL</a> versie 4.8";
-$_['entry_support']         = "Support:";
+$_['entry_status']          = "Module status:";
+$_['entry_version']         = "<a href='https://www.mollie.nl/betaaldiensten/ideal/' target='_blank'>Mollie API</a> version 5.0";
+$_['entry_support']	    	= "Support:";
 
 // Error
-$_['error_permission']      = "Waarschuwing: u hebt geen rechten om de betalingsmodule iDEAL via Mollie te wijzigen!";
-$_['error_partnerid']       = "Het Mollie partner ID is vereist";
-$_['error_profilekey']      = "Een Profilekey is vereist";
-$_['error_description']     = "Een omschrijving is vereist";
-$_['error_total']           = "Een minimaal bestelbedrag is verplicht. TIP: Vul hier 118 in, standaard werkt iDEAL voor u niet onder dit bedrag.";
+$_['error_permission']      = "Waarschuwing: U heeft geen toestemming om de module aan te passen.";
+$_['error_api_key']         = "De API key is verplicht!";
+$_['error_description']     = "De omschrijving is verplicht!";
 
 // Status
-$_['entry_failed_status']    = 'Mislukte Status:';
-$_['entry_canceled_status']  = 'Geannuleerde Status:';
-$_['entry_expired_status']   = 'Verlopen Status:';
-$_['entry_pending_status']   = 'Afwachting Status:';
-$_['entry_processing_status']= 'Verwerking Status:';
-$_['entry_processed_status'] = 'Verwerkt Status:';
+$_['entry_failed_status']    = 'Mislukt status:';
+$_['entry_canceled_status']  = 'Geannuleerd status:';
+$_['entry_expired_status']   = 'Verlopen status:';
+$_['entry_pending_status']   = 'In afwachting status:';
+$_['entry_processing_status']= 'Bezig met verwerken tatus:';
+$_['entry_processed_status'] = 'Verwerkt status:';

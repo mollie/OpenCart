@@ -1,7 +1,9 @@
 <?php
 date_default_timezone_set('CET');
 
-define("DIR_TEMPLATE", dirname(dirname(__FILE__)) . "/catalog/view/theme");
+define("DIR_APPLICATION", dirname(dirname(__FILE__)));
+define("DIR_TEMPLATE", DIR_APPLICATION . "/catalog/view/theme");
+
 
 date_default_timezone_set("Europe/Amsterdam");
 
@@ -10,7 +12,6 @@ spl_autoload_register(function($className)
 	$project_dir = dirname(dirname(__FILE__));
 
 	$map = array(
-		"iDEAL_Payment" => "$project_dir/catalog/controller/payment/ideal.class.php",
 		"ControllerPaymentMollieIdeal" => "$project_dir/catalog/controller/payment/mollie_ideal.php",
 		"ModelPaymentMollieIdeal" => "$project_dir/catalog/model/payment/mollie_ideal.php",
 	);

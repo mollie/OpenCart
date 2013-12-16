@@ -1,7 +1,6 @@
 <?php
-
 /**
- * Copyright (c) 2012, Mollie B.V.
+ * Copyright (c) 2012-2014, Mollie B.V.
  * All rights reserved. 
  * 
  * Redistribution and use in source and binary forms, with or without 
@@ -27,29 +26,28 @@
  *
  * @category    Mollie
  * @package     Mollie_Ideal
- * @author      Mollie B.V. (info@mollie.nl)
- * @version     v4.8
- * @copyright   Copyright (c) 2012 Mollie B.V. (http://www.mollie.nl)
- * @license     http://www.opensource.org/licenses/bsd-license.php  Berkeley Software Distribution License (BSD-License 2)
- * 
- **/
+ * @version     v5.0
+ * @license     Berkeley Software Distribution License (BSD-License 2) http://www.opensource.org/licenses/bsd-license.php
+ * @author      Mollie B.V. <info@mollie.nl>
+ * @copyright   Mollie B.V.
+ * @link        https://www.mollie.nl
+ */
 
 // Heading
-$_['heading_title']         = 'iDEAL by Mollie';
-$_['footer_text']           = 'SMS & Payment services';
+$_['heading_title']         = 'Mollie (iDEAL, Creditcard, Mister Cash & paysafecard)';
+$_['footer_text']           = 'Payment services';
 
 // Text 
 $_['text_payment']          = "Payment";
-$_['text_success']          = "Success: You have successfully modified your iDEAL settings!";
-$_['text_mollie_ideal']     = '<a onclick="window.open(\'https://www.mollie.nl\');"><img src="http://www.mollie.nl/images/badge-ideal-small.png" alt="iDEAL via Mollie" title="iDEAL via Mollie" style="border:0px" /></a>';
+$_['text_success']          = "Success: You have successfully modified your Mollie settings!";
+$_['text_mollie_ideal']     = '<a href="https://www.mollie.nl" target="_blank"><img src="https://www.mollie.nl/images/logo.png" alt="Mollie" title="Mollie" style="border:0px" /></a>';
 
 // Entry
 $_['entry_status']          = "Status: <br/><span class='help'>Activate the module</span>";
-$_['entry_testmode']        = "Testmode: <br/><span class='help'>Set 'true' for testing purposes</span>";
-$_['entry_partnerid']       = "Mollie partner ID: <br/><span class='help'>Mollie partner ID. For example 123456. This partner ID will be used to register the payments and can be found [<a target='new' href='https://www.mollie.nl/beheer/account/'>here</a>]</span>";
-$_['entry_profilekey']      = "Profilekey: <br/><span class='help'>Enter here the profilekey of the payment profile you want to use. [<a href='https://www.mollie.nl/beheer/account/profielen/' target='_blank'>view available profiles</a>]</span>";
-$_['entry_description']     = "Description: <br/><span class='help'>This description will appear on the bank statement of your customer. You may use a maximum of 29 characters. TIP: Use '%', this will be replaced by the order id of the payment. Don't forget % can be multiple characters long!</span>";
-$_['entry_total']           = "Minimal order amount: <br/><span class='help'>Minimal amount before we show iDEAL as payment method in your webshop (TYPE IN AS CENTS!)</span>";
+$_['entry_api_key']         = "API key: <br/><span class='help'>Enter here the <code>api_key</code> of the website profile you want to use. The api_key starts with <code>test_</code> or <code>live_</code>. <br>[<a href='https://www.mollie.nl/beheer/account/profielen/' target='_blank'>view available profiles</a>]</span>";
+$_['entry_webhook']         = "Webhook:";
+$_['entry_webhook_help']    = "Copy this webhook in your website profile inside the <a href='https://www.mollie.nl/beheer/account/profielen/' target='_blank'>Mollie Beheer</a>. You can use the same webhook as both test and live webhook.";
+$_['entry_description']     = "Description: <br/><span class='help'>This description will appear on the bank / card statement of your customer. You may use a maximum of 29 characters. TIP: Use '%', this will be replaced by the order id of the payment. Don't forget % can be multiple characters long!</span>";
 $_['entry_sort_order']      = "Sort Order:";
 
 // Info
@@ -59,11 +57,9 @@ $_['entry_version']         = "<a href='https://www.mollie.nl/support/documentat
 $_['entry_support']	    	= "Support:";
 
 // Error
-$_['error_permission']      = "Warning: You don't have permission to modify payment method iDEAL!";
-$_['error_partnerid']       = "Mollie partner ID is required!";
-$_['error_profilekey']      = "Profilekey is required!";
+$_['error_permission']      = "Warning: You don't have permission to modify the Mollie payment methods.";
+$_['error_api_key']         = "The API key is required!";
 $_['error_description']     = "Description is required!";
-$_['error_total']           = "Please enter a minimal amount. TIP: Use 118, because that is the minimum of iDEAL";
 
 // Status
 $_['entry_failed_status']    = 'Failed Status:';

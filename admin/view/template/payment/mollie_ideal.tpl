@@ -40,31 +40,11 @@ function clean_echo ($string)
 					</tr>
 
 					<tr>
-						<td><?php echo($entry_testmode); ?></td>
-						<td>
-							<select name="mollie_ideal_testmode">
-								<option value="1" <?php if ($mollie_ideal_testmode == 1) { echo 'selected="selected"'; } ?>><?php clean_echo($text_enabled); ?></option>
-								<option value="0" <?php if ($mollie_ideal_testmode == 0) { echo 'selected="selected"'; } ?>><?php clean_echo($text_disabled); ?></option>
-							</select>
-						</td>
-					</tr>
-
-					<tr>
-						<td><span class="required">*</span> <?php echo($entry_partnerid); ?><br /></td>
-						<td><input type="text" name="mollie_ideal_partnerid" value="<?php clean_echo($mollie_ideal_partnerid); ?>" />
-							<br />
-							<?php if (!empty($error_partnerid)): ?>
-								<span class="error"><?php echo($error_partnerid); ?></span>
-							<?php endif; ?>
-						</td>
-					</tr>
-
-					<tr>
-						<td><span class="required">*</span> <?php echo($entry_profilekey); ?></td>
-						<td><input type="text" name="mollie_ideal_profilekey" value="<?php clean_echo($mollie_ideal_profilekey); ?>" />
+						<td><span class="required">*</span> <?php echo($entry_api_key); ?></td>
+						<td><input type="text" name="mollie_api_key" value="<?php clean_echo($mollie_api_key); ?>" style="width:240px;" maxlength="35" placeholder="live_&hellip;"/>
 							<br/>
-							<?php if (!empty($error_profilekey)): ?>
-								<span class="error"><?php clean_echo($error_profilekey); ?></span>
+							<?php if (!empty($error_api_key)): ?>
+								<span class="error"><?php clean_echo($error_api_key); ?></span>
 							<?php endif; ?>
 						</td>
 					</tr>
@@ -74,8 +54,16 @@ function clean_echo ($string)
 						<td><input style="width:240px;" maxlength="29" type="text" name="mollie_ideal_description" value="<?php clean_echo($mollie_ideal_description); ?>" />
 							<br/>
 							<?php if (!empty($error_description)): ?>
-								<span class="error"><?php clean_echo($error_description); ?></span>
+							<span class="error"><?php clean_echo($error_description); ?></span>
 							<?php endif; ?>
+						</td>
+					</tr>
+
+					<tr>
+						<td valign="top"><?php echo($entry_webhook); ?></td>
+						<td>
+							<code><?php echo clean_echo($webhook_url); ?></code>
+							<br/><br/><span class="help"><?php echo ($entry_webhook_help);?></span>
 						</td>
 					</tr>
 
@@ -168,7 +156,7 @@ function clean_echo ($string)
 
 					<tr>
 						<td><?php clean_echo($entry_sort_order); ?></td>
-						<td><input type="text" name="mollie_ideal_sort_order" value="<?php clean_echo($mollie_ideal_sort_order); ?>" size="1" /></td>
+						<td><input type="text" name="mollie_ideal_sort_order" value="<?php clean_echo($mollie_ideal_sort_order ? $mollie_ideal_sort_order : 1); ?>" size="1" /></td>
 					</tr>
 
 					<tr>
@@ -191,6 +179,12 @@ function clean_echo ($string)
 									echo $entry_mstatus;
 								}
 							?>
+						</td>
+					</tr>
+					<tr>
+						<td>Communication status</td>
+						<td>
+							<?php echo $entry_cstatus; ?>
 						</td>
 					</tr>
 					<tr>

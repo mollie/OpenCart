@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Copyright (c) 2012, Mollie B.V.
+ * Copyright (c) 2012-2014, Mollie B.V.
  * All rights reserved. 
  * 
  * Redistribution and use in source and binary forms, with or without 
@@ -27,38 +27,133 @@
  *
  * @category    Mollie
  * @package     Mollie_Ideal
- * @author      Mollie B.V. (info@mollie.nl)
- * @version     v4.8
- * @copyright   Copyright (c) 2012 Mollie B.V. (http://www.mollie.nl)
- * @license     http://www.opensource.org/licenses/bsd-license.php  Berkeley Software Distribution License (BSD-License 2)
- *
- **/
-
+ * @version     v5.0
+ * @license     Berkeley Software Distribution License (BSD-License 2) http://www.opensource.org/licenses/bsd-license.php
+ * @author      Mollie B.V. <info@mollie.nl>
+ * @copyright   Mollie B.V.
+ * @link        https://www.mollie.nl
+ */
 class ModelPaymentMollieIdeal extends Model
 {
-
-	const MOD_VERSION               = '4.9';
-
-	// The possible bank return states
-	const BANK_STATUS_SUCCESS       = 'Success';
-	const BANK_STATUS_CANCELLED     = 'Cancelled';
-	const BANK_STATUS_FAILURE       = 'Failure';
-	const BANK_STATUS_EXPIRED       = 'Expired';
-	const BANK_STATUS_CHECKEDBEFORE = 'CheckedBefore';
+	/**
+	 * Version of the plugin.
+	 */
+	const PLUGIN_VERSION = "v5.0";
 
 	/**
-	 * On the checkout page this method gets called to get information about the payment method
-	 * 
+	 * @var Mollie_API_Client
+	 */
+	private $mollie_api_client;
+
+	/**
+	 * @codeCoverageIgnore
+	 * @return Mollie_API_Client
+	 */
+	protected function getApiClient()
+	{
+		if (empty($this->mollie_api_client))
+		{
+			require_once DIR_APPLICATION . "/controller/payment/mollie-api-client/src/Mollie/API/Autoloader.php";
+
+			$this->mollie_api_client = new Mollie_API_Client();
+			$this->mollie_api_client->setApiKey($this->config->get('mollie_api_key'));
+			$this->mollie_api_client->addVersionString("OpenCart/" . VERSION);
+			$this->mollie_api_client->addVersionString("MollieOpenCart/" . self::PLUGIN_VERSION);
+		}
+
+		return $this->mollie_api_client;
+	}
+
+	/**
+	 * @return Mollie_API_Object_Method[]
+	 * @param float $total
+	 */
+	public function getApplicablePaymentMethods($total)
+	{
+		$all_methods = $this->getApiClient()->methods->all();
+
+		$applicable_methods = array();
+
+		$amount = round($total, 2);
+
+		foreach ($all_methods as $payment_method)
+		{
+			if ($payment_method->getMinimumAmount() && $payment_method->getMinimumAmount() > $amount)
+			{
+				continue;
+			}
+
+			if ($payment_method->getMaximumAmount() && $payment_method->getMaximumAmount() < $amount)
+			{
+				continue;
+			}
+
+			$applicable_methods[] = $payment_method;
+		}
+
+		return $applicable_methods;
+	}
+
+	/**
+	 * On the checkout page this method gets called to get information about the payment method.
+	 *
+	 * @param $address
+	 * @param float $total
 	 * @return array
 	 */
 	public function getMethod ($address, $total)
 	{
-		// Load language file
-		$this->load->language('payment/mollie_ideal');
+		try
+		{
+			$payment_methods = $this->getApplicablePaymentMethods($total);
+		}
+		catch (Mollie_API_Exception $e)
+		{
+			$this->log->write("Error retrieving all payments methods from Mollie: {$e->getMessage()}.");
+
+			return 		$method_data = array(
+				'code'       => 'mollie_ideal',
+				'title'      => '<span style="color: red;">Mollie error: ' .$e->getMessage() . '</span>',
+				'sort_order' => $this->config->get('mollie_ideal_sort_order')
+			);
+		}
+
+		if (sizeof($payment_methods) == 1)
+		{
+			$title = $payment_methods[0]->description;
+		}
+		elseif (sizeof($payment_methods) > 1)
+		{
+			// Load language file
+			$this->load->language('payment/mollie_ideal');
+			$title = $this->language->get('text_title') . " (";
+
+			foreach ($payment_methods as $index => $payment_method)
+			{
+				if ($index +1 == sizeof($payment_methods))
+				{
+					$title .= " & ";
+				}
+				elseif ($index > 0)
+				{
+					$title .= ", ";
+				}
+
+				$title .= $payment_method->description;
+			}
+
+			$title .= ")";
+
+		}
+		else
+		{
+			// Payment not possible via Mollie.
+			return array();
+		}
 
 		$method_data = array(
 			'code'       => 'mollie_ideal',
-			'title'      => $this->language->get('text_title'),
+			'title'      => $title,
 			'sort_order' => $this->config->get('mollie_ideal_sort_order')
 		);
 
@@ -66,44 +161,29 @@ class ModelPaymentMollieIdeal extends Model
 		return $method_data;
 	}
 
-	public function getOrderById ($order_id)
-	{
-		if (!empty($order_id))
-		{
-			$this->load->model('checkout/order');
-
-			return $this->model_checkout_order->getOrder($order_id);
-		}
-
-		return FALSE;
-	}
-
 	/**
-	 * Get the orderId matching the transaction_id
-	 * 
+	 * Get the transaction id matching the order id
+	 *
 	 * @return int|bool
 	 */
-	public function getPaymentById ($transaction_id)
+	public function getTransactionIdByOrderId ($order_id)
 	{
-		if (!empty($transaction_id))
+		$q = $this->db->query(
+			sprintf(
+				"SELECT transaction_id
+				 FROM `%1\$smollie_payments`
+				 WHERE `order_id` = '%2\$d'",
+				DB_PREFIX,
+				$this->db->escape($order_id)
+			)
+		);
+
+		if ($q->num_rows > 0)
 		{
-			$q = $this->db->query(
-				sprintf(
-					"SELECT *
-					 FROM `%smollie_payments`
-					 WHERE `transaction_id` = '%s'",
-					 DB_PREFIX,
-					 $this->db->escape($transaction_id)
-				)
-			);
-
-			if ($q->num_rows > 0) {
-				return $q->row;
-			}
+			return $q->row["transaction_id"];
 		}
-
-		return FALSE;
 	}
+
 
 	/**
 	 * While createPayment is in progress this method is getting called to store the order information
@@ -116,12 +196,11 @@ class ModelPaymentMollieIdeal extends Model
 		{
 			$this->db->query(
 				sprintf(
-					"REPLACE INTO `%smollie_payments` (`order_id` ,`transaction_id`, `method`, `created_at`)
-					 VALUES ('%s', '%s', 'idl', '%s')",
+					"REPLACE INTO `%smollie_payments` (`order_id` ,`transaction_id`, `method`)
+					 VALUES ('%s', '%s', 'idl')",
 					 DB_PREFIX,
-					 $this->db->escape($order_id),
-					 $this->db->escape($transaction_id),
-					 $this->db->escape($this->getCurrentDate())
+					$this->db->escape($order_id),
+					$this->db->escape($transaction_id)
 				)
 			);
 
@@ -131,14 +210,6 @@ class ModelPaymentMollieIdeal extends Model
 		}
 
 		return FALSE;
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getCurrentDate ()
-	{
-		return date("Y-m-d H:i:s");
 	}
 
 	/**
@@ -146,57 +217,25 @@ class ModelPaymentMollieIdeal extends Model
 	 *
 	 * @return bool
 	 */
-	public function updatePayment ($transaction_id, $bank_status, array $consumer = NULL)
+	public function updatePayment ($transaction_id, $payment_status, $consumer = NULL)
 	{
-		if (!empty($transaction_id) && !empty($bank_status))
+		if (!empty($transaction_id) && !empty($payment_status))
 		{
 			$this->db->query(
 				sprintf(
 					"UPDATE `%smollie_payments` 
-					 SET `bank_status` = '%s', `bank_account` = '%s', `updated_at` = '%s'
+					 SET `bank_status` = '%s'
 					 WHERE `transaction_id` = '%s';",
 					 DB_PREFIX,
-					 $this->db->escape($bank_status),
-					 $this->db->escape($consumer['consumerAccount']),
-					 $this->db->escape($this->getCurrentDate()),
-					 $this->db->escape($transaction_id)
+					$this->db->escape($payment_status),
+					$this->db->escape($transaction_id)
 				)
 			);
 
-			if ($this->db->countAffected() > 0) {
-				return TRUE;
-			}
+			return $this->db->countAffected() > 0;
 		}
 
 		return FALSE;
 	}
 
-	/**
-	 * Get the amount of the order in cents, make sure that we return the right value even if the locale is set to
-	 * something different than the default (e.g. nl_NL).
-	 *
-	 * @param ModelCheckoutOrder $order
-	 * @return int
-	 */
-	public function getAmountInCents (ModelCheckoutOrder $order)
-	{
-		$grand_total = $order['total'];
-
-		if (is_string($grand_total))
-		{
-			$locale_info = localeconv();
-
-			if ($locale_info['decimal_point'] !== '.')
-			{
-				$grand_total = strtr($grand_total, array(
-					$locale_info['thousands_sep'] => '',
-					$locale_info['decimal_point'] => '.',
-				));
-			}
-
-			$grand_total = floatval($grand_total); // Why U NO work with locales?
-		}
-
-		return intval(round(100 * $grand_total));
-	}
 }

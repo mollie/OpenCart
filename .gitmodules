@@ -1,0 +1,3 @@
+[submodule "catalog/controller/payment/mollie-api-client"]
+	path = catalog/controller/payment/mollie-api-client
+	url = git@github.com:mollie/mollie-api-php.git

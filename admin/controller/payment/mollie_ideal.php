@@ -1,7 +1,6 @@
 <?php
-
 /**
- * Copyright (c) 2012, Mollie B.V.
+ * Copyright (c) 2012-2014, Mollie B.V.
  * All rights reserved. 
  * 
  * Redistribution and use in source and binary forms, with or without 
@@ -27,13 +26,12 @@
  *
  * @category    Mollie
  * @package     Mollie_Ideal
- * @author      Mollie B.V. (info@mollie.nl)
- * @version     v4.8
- * @copyright   Copyright (c) 2012 Mollie B.V. (http://www.mollie.nl)
- * @license     http://www.opensource.org/licenses/bsd-license.php  Berkeley Software Distribution License (BSD-License 2)
- * 
- **/
-
+ * @version     v5.0
+ * @license     Berkeley Software Distribution License (BSD-License 2) http://www.opensource.org/licenses/bsd-license.php
+ * @author      Mollie B.V. <info@mollie.nl>
+ * @copyright   Mollie B.V.
+ * @link        https://www.mollie.nl
+ */
 class ControllerPaymentMollieIdeal extends Controller
 {
 	// Initialize var(s)
@@ -55,8 +53,6 @@ class ControllerPaymentMollieIdeal extends Controller
 					`transaction_id` varchar(32) NOT NULL,
 					`bank_account` varchar(15) NOT NULL,
 					`bank_status` varchar(20) NOT NULL,
-					`created_at` datetime NOT NULL,
-					`updated_at` datetime DEFAULT NULL,
 					PRIMARY KEY (`order_id`),
 					UNIQUE KEY `transaction_id` (`transaction_id`)
 				) ENGINE=InnoDB DEFAULT CHARSET=utf8",
@@ -110,11 +106,10 @@ class ControllerPaymentMollieIdeal extends Controller
 		$this->data['text_none']              = $this->language->get('text_none');
 
 		$this->data['entry_status']           = $this->language->get('entry_status');
-		$this->data['entry_testmode']         = $this->language->get('entry_testmode');
-		$this->data['entry_partnerid']        = $this->language->get('entry_partnerid');
-		$this->data['entry_profilekey']       = $this->language->get('entry_profilekey');
+		$this->data['entry_api_key']          = $this->language->get('entry_api_key');
+		$this->data['entry_webhook']          = $this->language->get('entry_webhook');
+		$this->data['entry_webhook_help']     = $this->language->get('entry_webhook_help');
 		$this->data['entry_description']      = $this->language->get('entry_description');
-		$this->data['entry_total']            = $this->language->get('entry_total');
 
 		$this->data['order_statuses']         = $this->model_localisation_order_status->getOrderStatuses();
 		$this->data['entry_failed_status']    = $this->language->get('entry_failed_status');
@@ -128,6 +123,7 @@ class ControllerPaymentMollieIdeal extends Controller
 		$this->data['entry_support']          = $this->language->get('entry_support');
 		$this->data['entry_status']           = $this->language->get('entry_status');
 		$this->data['entry_mstatus']          = $this->_checkModuleStatus();
+		$this->data['entry_cstatus']          = $this->_checkCommunicationStatus();
 		$this->data['entry_module']           = $this->language->get('entry_module');
 		$this->data['entry_version']          = $this->language->get('entry_version');
 
@@ -142,13 +138,8 @@ class ControllerPaymentMollieIdeal extends Controller
 		} else {
 			$this->data['error_warning'] = '';
 		}
-		if (isset($this->error['partnerid'])) {
-			$this->data['error_partnerid'] = $this->error['partnerid'];
-		} else {
-			$this->data['error_partnerid'] = '';
-		}
-		if (isset($this->error['profilekey'])) {
-			$this->data['error_profilekey'] = $this->error['profilekey'];
+		if (isset($this->error['api_key'])) {
+			$this->data['error_api_key'] = $this->error['api_key'];
 		} else {
 			$this->data['error_profilekey'] = '';
 		}
@@ -162,6 +153,8 @@ class ControllerPaymentMollieIdeal extends Controller
 		} else {
 			$this->data['error_total'] = '';
 		}
+
+		$this->data['webhook_url'] = str_replace("/admin", "", $this->url->link('payment/mollie_ideal/webhook', '', 'SSL'));
 
 		// Breadcrumbs
 		$this->data['breadcrumbs'] = array();
@@ -194,65 +187,51 @@ class ControllerPaymentMollieIdeal extends Controller
 		} else {
 			$this->data['mollie_ideal_status'] = $this->config->get('mollie_ideal_status');
 		}
-		if (isset($this->request->post['mollie_ideal_testmode'])) {
-			$this->data['mollie_ideal_testmode'] = $this->request->post['mollie_ideal_testmode'];
+		if (isset($this->request->post['mollie_api_key'])) {
+			$this->data['mollie_api_key'] = $this->request->post['mollie_api_key'];
 		} else {
-			$this->data['mollie_ideal_testmode'] = $this->config->get('mollie_ideal_testmode');
-		}
-		if (isset($this->request->post['mollie_ideal_partnerid'])) {
-			$this->data['mollie_ideal_partnerid'] = $this->request->post['mollie_ideal_partnerid'];
-		} else {
-			$this->data['mollie_ideal_partnerid'] = $this->config->get('mollie_ideal_partnerid');
-		}
-		if (isset($this->request->post['mollie_ideal_profilekey'])) {
-			$this->data['mollie_ideal_profilekey'] = $this->request->post['mollie_ideal_profilekey'];
-		} else {
-			$this->data['mollie_ideal_profilekey'] = $this->config->get('mollie_ideal_profilekey');
+			$this->data['mollie_api_key'] = $this->config->get('mollie_api_key');
 		}
 		if (isset($this->request->post['mollie_ideal_description'])) {
 			$this->data['mollie_ideal_description'] = $this->request->post['mollie_ideal_description'];
 		} else {
-			$this->data['mollie_ideal_description'] = $this->config->get('mollie_ideal_description');
+			$this->data['mollie_ideal_description'] = $this->config->get('mollie_ideal_description') ? $this->config->get('mollie_ideal_description') : "Order %";
 		}
 		if (isset($this->request->post['mollie_ideal_failed_status_id'])) {
 			$this->data['mollie_ideal_failed_status_id'] = $this->request->post['mollie_ideal_failed_status_id'];
 		} else {
-			$this->data['mollie_ideal_failed_status_id'] = $this->config->get('mollie_ideal_failed_status_id');
+			$this->data['mollie_ideal_failed_status_id'] = $this->config->get('mollie_ideal_failed_status_id') ? $this->config->get('mollie_ideal_failed_status_id') : 10;
 		}
 		if (isset($this->request->post['mollie_ideal_canceled_status_id'])) {
 			$this->data['mollie_ideal_canceled_status_id'] = $this->request->post['mollie_ideal_canceled_status_id'];
 		} else {
-			$this->data['mollie_ideal_canceled_status_id'] = $this->config->get('mollie_ideal_canceled_status_id');
+			$this->data['mollie_ideal_canceled_status_id'] = $this->config->get('mollie_ideal_canceled_status_id') ? $this->config->get('mollie_ideal_canceled_status_id') : 7;
 		}
 		if (isset($this->request->post['mollie_ideal_expired_status_id'])) {
 			$this->data['mollie_ideal_expired_status_id'] = $this->request->post['mollie_ideal_expired_status_id'];
 		} else {
-			$this->data['mollie_ideal_expired_status_id'] = $this->config->get('mollie_ideal_expired_status_id');
+			$this->data['mollie_ideal_expired_status_id'] = $this->config->get('mollie_ideal_expired_status_id') ? $this->config->get('mollie_ideal_expired_status_id') : 14;
 		}
 		if (isset($this->request->post['mollie_ideal_pending_status_id'])) {
 			$this->data['mollie_ideal_pending_status_id'] = $this->request->post['mollie_ideal_pending_status_id'];
 		} else {
-			$this->data['mollie_ideal_pending_status_id'] = $this->config->get('mollie_ideal_pending_status_id');
+			$this->data['mollie_ideal_pending_status_id'] = $this->config->get('mollie_ideal_pending_status_id') ? $this->config->get('mollie_ideal_pending_status_id') : 1;
 		}
 		if (isset($this->request->post['mollie_ideal_processing_status_id'])) {
 			$this->data['mollie_ideal_processing_status_id'] = $this->request->post['mollie_ideal_processing_status_id'];
 		} else {
-			$this->data['mollie_ideal_processing_status_id'] = $this->config->get('mollie_ideal_processing_status_id');
+			$this->data['mollie_ideal_processing_status_id'] = $this->config->get('mollie_ideal_processing_status_id') ? $this->config->get('mollie_ideal_processing_status_id') : 2;
 		}
 		if (isset($this->request->post['mollie_ideal_processed_status_id'])) {
 			$this->data['mollie_ideal_processed_status_id'] = $this->request->post['mollie_ideal_processed_status_id'];
 		} else {
-			$this->data['mollie_ideal_processed_status_id'] = $this->config->get('mollie_ideal_processed_status_id');
+			$this->data['mollie_ideal_processed_status_id'] = $this->config->get('mollie_ideal_processed_status_id') ? $this->config->get('mollie_ideal_processed_status_id') : 15;
 		}
 		if (isset($this->request->post['mollie_ideal_sort_order'])) {
 			$this->data['mollie_ideal_sort_order'] = $this->request->post['mollie_ideal_sort_order'];
 		} else {
 			$this->data['mollie_ideal_sort_order'] = $this->config->get('mollie_ideal_sort_order');
 		}
-
-		// Return and Report URL are static. They must stay here else OpenCart deletes them...
-		$this->data['mollie_ideal_returnurl'] = $this->config->get('mollie_ideal_returnurl');
-		$this->data['mollie_ideal_reporturl'] = $this->config->get('mollie_ideal_reporturl');
 
 		// Set template
 		$this->template = 'payment/mollie_ideal.tpl';
@@ -271,24 +250,22 @@ class ControllerPaymentMollieIdeal extends Controller
 	 */
 	private function validate()
 	{
-		if (!$this->user->hasPermission('modify', 'payment/mollie_ideal')) {
+		if (!$this->user->hasPermission('modify', 'payment/mollie_ideal'))
+		{
 			$this->error['warning'] = $this->language->get('error_permission');
 		}
-		if (!$this->request->post['mollie_ideal_partnerid']) {
-			$this->error['partnerid'] = $this->language->get('error_partnerid');
+
+		if (!$this->request->post['mollie_api_key'])
+		{
+			$this->error['api_key'] = $this->language->get('mollie_api_key');
 		}
-		if (!$this->request->post['mollie_ideal_profilekey']) {
-			$this->error['profilekey'] = $this->language->get('error_profilekey');
-		}
-		if (!$this->request->post['mollie_ideal_description']) {
+
+		if (!$this->request->post['mollie_ideal_description'])
+		{
 			$this->error['description'] = $this->language->get('error_description');
 		}
 
-		if (!$this->error) {
-			return TRUE;
-		} else {
-			return FALSE;
-		}
+		return sizeof($this->error) == 0;
 	}
 
 	protected function _checkModuleStatus()
@@ -321,4 +298,45 @@ class ControllerPaymentMollieIdeal extends Controller
 		return NULL;
 	}
 
+	/**
+	 * Version of the plugin.
+	 */
+	const PLUGIN_VERSION = "v5.0";
+
+	/**
+	 * @var Mollie_API_Client
+	 */
+	private $mollie_api_client;
+
+	/**
+	 * @codeCoverageIgnore
+	 * @return Mollie_API_Client
+	 */
+	protected function getApiClient()
+	{
+		if (empty($this->mollie_api_client))
+		{
+			require_once dirname(DIR_APPLICATION) . "/catalog/controller/payment/mollie-api-client/src/Mollie/API/Autoloader.php";
+
+			$this->mollie_api_client = new Mollie_API_Client();
+			$this->mollie_api_client->setApiKey($this->config->get('mollie_api_key'));
+			$this->mollie_api_client->addVersionString("OpenCart/" . VERSION);
+			$this->mollie_api_client->addVersionString("MollieOpenCart/" . self::PLUGIN_VERSION);
+		}
+
+		return $this->mollie_api_client;
+	}
+
+	protected function _checkCommunicationStatus()
+	{
+		try
+		{
+			$this->getApiClient()->methods->all();
+			return '<span style="color: green;">Ok!</span>';
+		}
+		catch (Mollie_API_Exception $e)
+		{
+			return '<span style="color: red;"> ' . htmlspecialchars($e->getMessage()). '</span>';
+		}
+	}
 }

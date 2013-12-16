@@ -1,43 +1,58 @@
-![Mollie](http://www.mollie.nl/files/Mollie-Logo-Style-Small.png)
+![Mollie](https://www.mollie.nl/files/Mollie-Logo-Style-Small.png)
 
-# Installatie [![Build Status](https://travis-ci.org/mollienl/OpenCart.png)](https://travis-ci.org/mollienl/OpenCart) #
-+ Download op de [Tags](/mollienl/OpenCart/tags)-pagina de nieuwste release (Of ```git clone git://github.com/mollienl/opencart.git```)
-+ Kopieër de gedownloade mappen 'admin' en 'catalog' naar de bestaande OpenCart-installatie op uw server
+# Installatie [![Build Status](https://travis-ci.org/mollie/OpenCart.png)](https://travis-ci.org/mollie/OpenCart) #
++ Download op de [Tags](/mollie/OpenCart/tags)-pagina de nieuwste release (Of ```git clone --recursive git://github.com/mollie/opencart.git```)
++ Kopieër de gedownloade mappen `admin` en `catalog` naar de bestaande OpenCart-installatie op uw server
 + Ga naar uw OpenCart AdminPanel (Beheerpagina)
-+ Ga in het menu naar ‘Extentions’ en selecteer ‘Payments’
-+ Na een correcte afhandeling zou onze Betaalmethode zichtbaar moeten zijn in het ‘Payments’ overzicht
-+ Klik vervolgens op ‘Install’ en daarna op ‘Edit’
-+ Vul uw Mollie-accountgegevens in en bewaar de instellingen
++ Ga in het menu naar _Extentions_ en selecteer _Payments_
++ Na een correcte afhandeling zou onze Betaalmethode zichtbaar moeten zijn in het _Payments_ overzicht
++ Klik vervolgens op _Install_ en daarna op _Edit_
++ Vul uw _API key_ in en bewaar de instellingen. U vindt de _API key_ in uw Mollie beheer onder [Websiteprofielen](https://www.mollie.nl/beheer/account/profielen/)
 
 # Ondersteunde betaalmethodes #
 ### iDEAL ###
 Met iDEAL kunt u vertrouwd, veilig en gemakkelijk uw online aankopen afrekenen. iDEAL is het systeem dat u direct koppelt aan uw internetbankierprogramma bij een online aankoop.
-Via [Mollie](http://www.mollie.nl/) is iDEAL gemakkelijk aan te sluiten zonder de gebruikelijke technische en administratieve rompslomp. Mollie geeft u op ieder moment toegang tot uw transactieoverzichten en andere statistieken. Tevens is het mogelijk per e-mail of SMS een notificatie te ontvangen bij elke gelukte betaling. [Mollie](http://www.mollie.nl/) is hierdoor dus een perfecte partner op het gebied van iDEAL en is het dan ook niet verbazingwekkend dat [Mollie](http://www.mollie.nl/) ondertussen op meer dan 20.000 websites iDEAL-betalingen mag verzorgen.
+Via [Mollie](https://www.mollie.nl/) is iDEAL gemakkelijk aan te sluiten zonder de gebruikelijke technische en administratieve rompslomp. Mollie geeft u op ieder moment toegang tot uw transactieoverzichten en andere statistieken. Tevens is het mogelijk per e-mail of SMS een notificatie te ontvangen bij elke gelukte betaling. [Mollie](https://www.mollie.nl/) is hierdoor dus een perfecte partner op het gebied van iDEAL en is het dan ook niet verbazingwekkend dat [Mollie](https://www.mollie.nl/) ondertussen op meer dan 20.000 websites iDEAL-betalingen mag verzorgen.
+
+### Creditcard ###
+Creditcard is vrijwel de bekendste methode voor het ontvangen van betalingen met wereldwijde dekking. Doordat we onder andere de bekende merken Mastercard en Visa ondersteunen, zorgt dit direct voor veel potentiële kopers.
+
+### Mister Cash ###
+Mister Cash maakt gebruik van een fysieke kaart die gekoppeld is aan tegoed op een Belgische bankrekening. Betalingen via Mister Cash zijn gegarandeerd en lijkt daarmee sterk op iDEAL in Nederland. Daarom is het uitermate geschikt voor uw webwinkel.
+
+### paysafecard ###
+paysafecard is de populairste prepaidcard voor online betalingen die veel door ouders voor hun kinderen wordt gekocht.
 
 # Veelgestelde vragen #
-## Moet ik ook een return- en / of report-URL instellen? ##
 
-Het is niet nodig een return- of report-URL in te stellen, de module stelt dit automatisch in.
+## Ik kan Mollie niet kiezen bij het afrekenen! ##
+
+Als u de _Live API key_ gebruikt, en iDEAL is nog niet voor uw account geactiveerd, kan de module geen betaalmethode vinden om de bestelling mee af te ronden. De module is dan niet zichtbaar. U kunt de _test API key_ gebruiken totdat iDEAL voor uw account actief is.
+
+Het is ook mogelijk dat het bedrag van de bestelling to hoog of te laag is voor de beschikbare betaalmethodes. Het is bijvoorbeeld niet mogelijk om betalingen hoger dan € 50.000 af te rekenen met iDEAL.
+
+Als iDEAL geactiveerd is voor uw account en het bedrag klopt ook, controleer dan of de relevante betaalmethodes ingeschakeld staan bij het websiteprofiel in uw Mollie Beheer.
+
+## Moet ik ook een redirect URL of webhook instellen? ##
+
+Het is niet nodig een redirect URL in te stellen. Dat doet de module zelf automatisch bij elke order.
+
+Een unieke webhook wordt door de module gegenereerd op basis van uw domeinnaam, dus die dient u uit de module te kopiëren en in uw Mollie [Websiteprofiel](https://www.mollie.nl/beheer/account/profielen/)-configuratie te plakken.
 
 ## Ik krijg een witte pagina tijdens het afrekenen. ##
 
 Controleert u alstublieft of er fouten in het Fouten Logboek staan, u vindt dit in de OpenCart admin onder "Configuratie" en dan "Fouten Logboek". Sommige fouten, zoals het verkeerd instellen van een mailserver, stoppen het afrekenproces.
 
-## Waarom bevat de module een lijst van rootcertificaten? ##
-
-Op sommige servers is de lijst met rootcertificaten niet aanwezig of gedateerd. Hierdoor werkt SSL communicatie met
-Mollie soms niet. De module bevat daarom de rootcertificaten die nodig zijn om veilig met Mollie te communiceren. Deze
-worden alleen gebruikt wanneer het communiceren met de al geïnstalleerde certificaten niet mogelijk is.
-
 # Licentie #
-Gelicenseerd onder de [BSD (Berkeley Software Distribution) License](http://www.opensource.org/licenses/bsd-license.php).  
-Copyright (c) 2012, Mollie B.V.
+[BSD (Berkeley Software Distribution) License](http://www.opensource.org/licenses/bsd-license.php).
+Copyright (c) 2013, Mollie B.V.
 
-# Support #
-W: www.mollie.nl  
-E: info@mollie.nl  
-T: +31 20 - 612 88 55
+# Ondersteuning #
+Contact: [www.mollie.nl](https://www.mollie.nl) — info@mollie.nl — +31 20-612 88 55
 
-[Meer informatie over iDEAL via Mollie](https://www.mollie.nl/betaaldiensten/ideal/)
++ [Meer informatie over iDEAL via Mollie](https://www.mollie.nl/betaaldiensten/ideal/)
++ [Meer informatie over Creditcard via Mollie](https://www.mollie.nl/betaaldiensten/creditcard/)
++ [Meer informatie over Mister Cash via Mollie](https://www.mollie.nl/betaaldiensten/mistercash/)
++ [Meer informatie over paysafecard via Mollie](https://www.mollie.nl/betaaldiensten/paysafecard/)
 
-![Powerd By Mollie](http://www.mollie.nl/images/badge-betaling-medium.png)
+![Powered By Mollie](https://www.mollie.nl/images/badge-betaling-medium.png)

@@ -8,16 +8,14 @@
 		<?php endforeach; ?>
 	</div>
 
-	<h1><?php echo htmlspecialchars($message->get("heading_failed")); ?></h1>
+	<h1><?php echo htmlspecialchars($message->get("heading_error")); ?></h1>
 
 	<div class="content">
 
-		<p><?php echo htmlspecialchars($message->get("msg_failed")); ?></p>
+		<p><?php echo htmlspecialchars($message->get("text_error")); ?></p>
 
-		<?php include "mollie_checkout_form.tpl"; ?>
-
+		<p><code><?php echo htmlspecialchars($mollie_error) ?></code></p>
 	</div>
-
 </div>
 
 <?php echo $content_bottom; ?>
