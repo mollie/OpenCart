@@ -5,4 +5,5 @@
 /build/logs
 /composer.lock
 /vendor
+/release.zip
 
