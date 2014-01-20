@@ -144,30 +144,30 @@ class ControllerPaymentMollieIdeal extends Controller
 
 				// Create the payment, if succeeded confirm the order and redirect the customer to the bank
 				$payment = $api->payments->create(array(
-					"amount"      => $amount,
-					"description" => $description,
-					"redirectUrl" => $return_url,
-					"metadata"    => array(
-						"order_id"         => $order["order_id"],
+					"amount"            => $amount,
+					"description"       => $description,
+					"redirectUrl"       => $return_url,
+					"metadata"          => array(
+						"order_id"          => $order["order_id"],
 					),
 
-					"method" => $method,
+					"method"            => $method,
 
 					/*
 					 * This data is sent along for credit card payments / fraud checks. You can remove this but you will
 					 * have a higher conversion if you leave it here.
 					 */
 
-					"billingCity" => $order['payment_city'],
-					"billingRegion" => $order['payment_zone'],
-					"billingPostal" => $order['payment_postcode'],
-					"billingCountry" => $order['payment_iso_code_2'],
+					"billingCity"       => $order['payment_city'],
+					"billingRegion"     => $order['payment_zone'],
+					"billingPostal"     => $order['payment_postcode'],
+					"billingCountry"    => $order['payment_iso_code_2'],
 
-					"shippingAddress" => $order["shipping_address_1"]  ? $order["shipping_address_1"] : NULL,
-					"shippingCity"    => $order["shipping_city"]       ? $order["shipping_city"] : $order["payment_city"],
-					"shippingRegion"  => $order["shipping_zone"]       ? $order["shipping_zone"] : $order["payment_zone"],
-					"shippingPostal"  => $order["shipping_postcode"]   ? $order["shipping_postcode"] : $order["payment_postcode"],
-					"shippingCountry" => $order["shipping_iso_code_2"] ? $order["shipping_iso_code_2"] : $order["payment_iso_code_2"],
+					"shippingAddress"   => $order["shipping_address_1"]  ? $order["shipping_address_1"] : NULL,
+					"shippingCity"      => $order["shipping_city"]       ? $order["shipping_city"] : $order["payment_city"],
+					"shippingRegion"    => $order["shipping_zone"]       ? $order["shipping_zone"] : $order["payment_zone"],
+					"shippingPostal"    => $order["shipping_postcode"]   ? $order["shipping_postcode"] : $order["payment_postcode"],
+					"shippingCountry"   => $order["shipping_iso_code_2"] ? $order["shipping_iso_code_2"] : $order["payment_iso_code_2"],
 				));
 			}
 			catch (Mollie_Api_Exception $e)
@@ -218,12 +218,12 @@ class ControllerPaymentMollieIdeal extends Controller
 	 */
 	public function webhook ()
 	{
-		$payment_id = $this->request->post["id"];
+		$payment_id = isset($this->request->post["id"]) ? $this->request->post["id"] : 0;
 
 		if (empty($payment_id))
 		{
-			echo "No id received";
 			header("HTTP/1.0 400 Bad Request");
+			echo "No id received";
 			return;
 		}
 
