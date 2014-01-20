@@ -1,7 +1,7 @@
 {
     "name": "mollie/opencart",
     "description": "Mollie iDEAL for OpenCart",
-    "version": "4.8",
+    "version": "5.0.2",
     "homepage": "https://www.mollie.nl",
     "authors": [
         {

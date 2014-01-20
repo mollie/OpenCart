@@ -26,7 +26,7 @@
  *
  * @category    Mollie
  * @package     Mollie_Ideal
- * @version     v5.0
+ * @version     v5.0.2
  * @license     Berkeley Software Distribution License (BSD-License 2) http://www.opensource.org/licenses/bsd-license.php
  * @author      Mollie B.V. <info@mollie.nl>
  * @copyright   Mollie B.V.
