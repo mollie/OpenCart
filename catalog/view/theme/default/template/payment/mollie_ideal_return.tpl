@@ -8,14 +8,10 @@
 		<?php endforeach; ?>
 	</div>
 
-	<h1><?php echo htmlspecialchars($message->get("heading_failed")); ?></h1>
+	<h1><?php echo htmlspecialchars($message_title); ?></h1>
 
 	<div class="content">
-
-		<p><?php echo htmlspecialchars($message->get("msg_failed")); ?></p>
-
-		<?php include "mollie_checkout_form.tpl"; ?>
-
+		<p><?php echo htmlspecialchars($message_text); ?></p>
 	</div>
 
 </div>

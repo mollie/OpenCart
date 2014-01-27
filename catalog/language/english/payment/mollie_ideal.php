@@ -42,10 +42,12 @@ $_['heading_title'] 		= 'Payment by Mollie';
 $_['ideal_title'] 			= 'Your payment';
 $_['text_title'] 			= 'Pay online';
 $_['text_redirected']		= 'The client has been referred to the payment screen';
-$_['msg_failed'] 			= 'Unfortunately your payment has failed. If you want, you can retry using a different payment method.';
+$_['msg_failed'] 			= 'Unfortunately your payment has failed.';
+$_['msg_unknown']			= 'The payment is not received yet. When we have updated the payment state you will receive a confirmation email.';
 $_['heading_failed'] 		= 'Payment failed.';
+$_['heading_unknown'] 		= 'Payment unknown.';
 $_['heading_error'] 		= 'An error occurred when setting up the payment.';
-$_['text_error'] 		    = 'An erorr occurred when setting up the payment with Mollie:';
+$_['text_error'] 			= 'An erorr occurred when setting up the payment with Mollie:';
 
 // Response
 $_['response_success'] 		= 'The payment is received';

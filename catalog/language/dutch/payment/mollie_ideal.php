@@ -42,10 +42,12 @@ $_['heading_title'] 		= 'Betaling via Mollie';
 $_['ideal_title'] 			= 'Uw betaling';
 $_['text_title'] 			= 'Online betalen';
 $_['text_redirected']		= 'De klant is doorgestuurd naar het betaalscherm';
-$_['msg_failed'] 			= 'De betaling is mislukt. Als u wilt, kunt u het opnieuw proberen met dezelfde of een andere betaalmethode.';
+$_['msg_failed'] 			= 'De betaling is mislukt.';
+$_['msg_unknown']			= 'De bank heeft nog niet aan ons doorgegeven of de betaling gelukt is. U krijgt een email zodra de status van uw betaling bij ons bekend is.';
 $_['heading_failed'] 		= 'Betaling mislukt.';
+$_['heading_unknown'] 		= 'Betaling onbekend.';
 $_['heading_error'] 		= 'Er is een fout opgetreden bij het opzetten van de betaling.';
-$_['text_error'] 		    = 'Er is een fout opgetreden tijdens het opzetten van de betaling bij Mollie:';
+$_['text_error'] 			= 'Er is een fout opgetreden tijdens het opzetten van de betaling bij Mollie:';
 
 // Response
 $_['response_success'] 		= 'The payment is received';
