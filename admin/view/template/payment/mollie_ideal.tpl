@@ -63,7 +63,7 @@ function clean_echo ($string)
 						<td valign="top"><?php echo($entry_webhook); ?></td>
 						<td>
 							<code><?php echo clean_echo($webhook_url); ?></code>
-							<br/><br/><span class="help"><?php echo ($entry_webhook_help);?></span>
+							<br/><br/><span class="help" style="color: red;"><?php echo ($entry_webhook_help);?></span>
 						</td>
 					</tr>
 

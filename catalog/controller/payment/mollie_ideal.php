@@ -2,32 +2,32 @@
 
 /**
  * Copyright (c) 2012-2014, Mollie B.V.
- * All rights reserved. 
- * 
- * Redistribution and use in source and binary forms, with or without 
- * modification, are permitted provided that the following conditions are met: 
- * 
- * - Redistributions of source code must retain the above copyright notice, 
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * - Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
- * - Redistributions in binary form must reproduce the above copyright 
+ * - Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND ANY 
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
- * DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE FOR ANY 
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY 
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH 
- * DAMAGE. 
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
  *
  * @category    Mollie
  * @package     Mollie_Ideal
- * @version     v5.0.2
+ * @version     v5.0.3
  * @license     Berkeley Software Distribution License (BSD-License 2) http://www.opensource.org/licenses/bsd-license.php
  * @author      Mollie B.V. <info@mollie.nl>
  * @copyright   Mollie B.V.
@@ -48,7 +48,7 @@ class ControllerPaymentMollieIdeal extends Controller
 	/**
 	 * Version of the plugin.
 	 */
-	const PLUGIN_VERSION = "v5.0.2";
+	const PLUGIN_VERSION = "v5.0.3";
 
 	/**
 	 * @var Mollie_API_Client
@@ -218,6 +218,13 @@ class ControllerPaymentMollieIdeal extends Controller
 	 */
 	public function webhook ()
 	{
+		// Mollie called this webhook to verify if it was reachable
+		if (!empty($this->request->get['testByMollie']))
+		{
+			// returns status 200
+			return;
+		}
+
 		$payment_id = isset($this->request->post["id"]) ? $this->request->post["id"] : 0;
 
 		if (empty($payment_id))
@@ -283,6 +290,9 @@ class ControllerPaymentMollieIdeal extends Controller
 	{
 		$order = $this->getOpenCartOrder();
 
+		// Load required translations
+		$this->load->language('payment/mollie_ideal');
+
 		/*
 		 * Now that the customer has returned to our web site, check if we already know if the payment has
 		 * succeeded. It the payment is all good, we need to clear the cart.
@@ -292,22 +302,26 @@ class ControllerPaymentMollieIdeal extends Controller
 			$this->redirect($this->url->link('checkout/success'));
 			return;
 		}
-
+		/*
+		 * When no order could be found the session has probably expired
+		 * When an order could be found, check if Mollie has reported the new status. When the order status is still
+		 * processing, the report is not delivered yet.
+		 */
+		elseif (!$order || $order['order_status_id'] == $this->config->get('mollie_ideal_processing_status_id'))
+		{
+			// Set template data
+			$this->data['message_title']   = $this->language->get("heading_unknown");
+			$this->data['message_text']    = $this->language->get("msg_unknown");
+		}
 		/*
 		 * The payment has failed. We will allow the customer a retry.
 		 */
-		$this->load->language('payment/mollie_ideal');
-		$this->load->language('checkout/checkout');
-		$this->load->model('payment/mollie_ideal');
-
-		// Set template data
-		$this->data['action']          = $this->url->link('payment/mollie_ideal/payment', '', 'SSL');
-		$this->data['message']         = $this->language;
-
-		// Get the applicable payment methods.
-		$order = $this->getOpenCartOrder();
-		$payment_methods = $this->model_payment_mollie_ideal->getApplicablePaymentMethods($order['total']);
-		$this->data["payment_methods"] = $payment_methods;
+		else
+		{
+			// Set template data
+			$this->data['message_title']   = $this->language->get("heading_failed");
+			$this->data['message_text']    = $this->language->get("msg_failed");
+		}
 
 		// Set template data
 		$this->document->setTitle($this->language->get('ideal_title'));
