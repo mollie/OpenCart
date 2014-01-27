@@ -26,7 +26,7 @@
  *
  * @category    Mollie
  * @package     Mollie_Ideal
- * @version     v5.0.2
+ * @version     v5.0.3
  * @license     Berkeley Software Distribution License (BSD-License 2) http://www.opensource.org/licenses/bsd-license.php
  * @author      Mollie B.V. <info@mollie.nl>
  * @copyright   Mollie B.V.
@@ -301,7 +301,7 @@ class ControllerPaymentMollieIdeal extends Controller
 	/**
 	 * Version of the plugin.
 	 */
-	const PLUGIN_VERSION = "v5.0.2";
+	const PLUGIN_VERSION = "v5.0.3";
 
 	/**
 	 * @var Mollie_API_Client
