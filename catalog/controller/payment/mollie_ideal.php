@@ -218,6 +218,13 @@ class ControllerPaymentMollieIdeal extends Controller
 	 */
 	public function webhook ()
 	{
+		// Mollie called this webhook to verify if it was reachable
+		if (!empty($this->request->get['testByMollie']))
+		{
+			// returns status 200
+			return;
+		}
+
 		$payment_id = isset($this->request->post["id"]) ? $this->request->post["id"] : 0;
 
 		if (empty($payment_id))
