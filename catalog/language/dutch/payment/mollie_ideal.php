@@ -50,9 +50,9 @@ $_['heading_error'] 		= 'Er is een fout opgetreden bij het opzetten van de betal
 $_['text_error'] 			= 'Er is een fout opgetreden tijdens het opzetten van de betaling bij Mollie:';
 
 // Response
-$_['response_success'] 		= 'The payment is received';
-$_['response_none'] 		= 'The payment is not received yet';
-$_['response_cancelled'] 	= 'The client has canceled the payment';
-$_['response_failed'] 		= 'Unfortunately something went wrong. Please retry the payment.';
-$_['response_expired'] 		= 'The payment has expired';
-$_['response_unknown'] 		= 'An unknown error occurred';
+$_['response_success'] 		= 'De betaling is ontvangen';
+$_['response_none'] 		= 'De betali9ng is nog niet ontvangen';
+$_['response_cancelled'] 	= 'De klant heeft de betaling geannuleerd';
+$_['response_failed'] 		= 'Er is helaas iets misgegaan. Gelieve de betaling opnieuw te proberen.';
+$_['response_expired'] 		= 'De beta;ing is verlopen';
+$_['response_unknown'] 		= 'Er heeft zich een onbekende fout voorgedaan';
