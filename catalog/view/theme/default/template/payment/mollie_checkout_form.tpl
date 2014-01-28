@@ -27,10 +27,8 @@
 	<?php endif; ?>
 
 	<div class="buttons">
-		<div class="left">
-		</div>
 		<div class="right">
-			<input type="submit" value="<?php echo $message->get('button_confirm'); ?>" id="button-confirm" class="button">
+			<input type="button" value="<?php echo $message->get('button_confirm'); ?>" id="button-confirm" class="button">
 		</div>
 	</div>
 </form>
