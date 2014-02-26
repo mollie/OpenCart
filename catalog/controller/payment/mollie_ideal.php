@@ -25,9 +25,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  *
- * @category    Mollie
- * @package     Mollie_Ideal
- * @version     v5.0.3
+ * @package     Mollie
  * @license     Berkeley Software Distribution License (BSD-License 2) http://www.opensource.org/licenses/bsd-license.php
  * @author      Mollie B.V. <info@mollie.nl>
  * @copyright   Mollie B.V.
@@ -36,42 +34,47 @@
  * @property Log $log
  * @property Request $request
  * @property Response $response
+ * @property Currency $currency
  * @property Url $url
  * @property ModelCheckoutOrder $model_checkout_order
  * @property ModelPaymentMollieIdeal $model_payment_mollie_ideal
  * @property Loader $load
  * @property Config $config
  * @property Language $language
+ * @method redirect
+ * @method render
+ * @property $data
+ * @property $document
+ * @property $session
  */
 class ControllerPaymentMollieIdeal extends Controller
 {
 	/**
 	 * Version of the plugin.
 	 */
-	const PLUGIN_VERSION = "v5.0.3";
+	const PLUGIN_VERSION = "5.1.0";
 
 	/**
 	 * @var Mollie_API_Client
 	 */
-	private $mollie_api_client;
+	protected $_mollie_api_client;
 
 	/**
-	 * @codeCoverageIgnore
 	 * @return Mollie_API_Client
 	 */
-	protected function getApiClient()
+	public function getApiClient ()
 	{
-		if (empty($this->mollie_api_client))
+		if (empty($this->_mollie_api_client))
 		{
 			require_once DIR_APPLICATION . "/controller/payment/mollie-api-client/src/Mollie/API/Autoloader.php";
 
-			$this->mollie_api_client = new Mollie_API_Client();
-			$this->mollie_api_client->setApiKey($this->config->get('mollie_api_key'));
-			$this->mollie_api_client->addVersionString("OpenCart/" . VERSION);
-			$this->mollie_api_client->addVersionString("MollieOpenCart/" . self::PLUGIN_VERSION);
+			$this->_mollie_api_client = new Mollie_API_Client;
+			$this->_mollie_api_client->setApiKey($this->config->get('mollie_api_key'));
+			$this->_mollie_api_client->addVersionString("OpenCart/" . VERSION);
+			$this->_mollie_api_client->addVersionString("MollieOpenCart/" . self::PLUGIN_VERSION);
 		}
 
-		return $this->mollie_api_client;
+		return $this->_mollie_api_client;
 	}
 
 	/**
@@ -105,13 +108,13 @@ class ControllerPaymentMollieIdeal extends Controller
 		$this->data["payment_methods"] = $payment_methods;
 
 		// Check if view is at default template else use modified template path
-		if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/mollie_ideal_banks.tpl'))
+		if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/mollie_checkout_form.tpl'))
 		{
-			$this->template = $this->config->get('config_template') . '/template/payment/mollie_ideal_banks.tpl';
+			$this->template = $this->config->get('config_template') . '/template/payment/mollie_checkout_form.tpl';
 		}
 		else
 		{
-			$this->template = 'default/template/payment/mollie_ideal_banks.tpl';
+			$this->template = 'default/template/payment/mollie_checkout_form.tpl';
 		}
 
 		// Render HTML output
@@ -130,12 +133,14 @@ class ControllerPaymentMollieIdeal extends Controller
 			// Load essentials
 			$this->load->language('payment/mollie_ideal');
 
-			$order = $this->getOpenCartOrder();
+			$order  = $this->getOpenCartOrder();
+			$amount = $this->currency->convert($order['total'], $this->config->get('config_currency'), 'EUR');
 
-			$amount      = round(floatval($order['total']), 2);
+			$amount      = round($amount, 2);
 			$description = str_replace('%', $order['order_id'], html_entity_decode($this->config->get('mollie_ideal_description'), ENT_QUOTES, 'UTF-8'));
 			$return_url  = $this->url->link('payment/mollie_ideal/callback', '', 'SSL');
-			$method      = isset($this->request->post["mollie_method"]) ? $this->request->post["mollie_method"] : NULL;
+			$method      = !empty($this->request->post["mollie_method"]) ? $this->request->post["mollie_method"] : NULL;
+			$issuer      = !empty($this->session->data["mollie_issuer"]) ? $this->session->data["mollie_issuer"] : NULL;
 
 			try
 			{
@@ -150,8 +155,8 @@ class ControllerPaymentMollieIdeal extends Controller
 					"metadata"          => array(
 						"order_id"          => $order["order_id"],
 					),
-
 					"method"            => $method,
+					"issuer"            => $issuer,
 
 					/*
 					 * This data is sent along for credit card payments / fraud checks. You can remove this but you will
@@ -271,6 +276,7 @@ class ControllerPaymentMollieIdeal extends Controller
 				}
 
 				echo "The payment failed for an unknown reason, order was updated.";
+
 				$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_failed_status_id'), $this->language->get('response_unknown'), FALSE); // Fail
 			}
 			else
@@ -280,6 +286,28 @@ class ControllerPaymentMollieIdeal extends Controller
 		}
 
 		echo " Done.";
+	}
+
+	/**
+	 * From the checkout form store the selected method into the session so we can adjust it on the final checkout page.
+	 */
+	public function set_checkout_method ()
+	{
+		$id   = !empty($this->request->post["mollie_method_id"]) ? $this->request->post["mollie_method_id"] : null;
+		$desc = !empty($this->request->post["mollie_method_description"]) ? $this->request->post["mollie_method_description"] : '';
+
+		$this->session->data['mollie_method'] = $id;
+		$this->session->data['payment_methods']['mollie_ideal']['title'] = htmlspecialchars($desc);
+	}
+
+	/**
+	 * From the checkout form store the selected issuer into the session so we can adjust it on the final checkout page.
+	 */
+	public function set_checkout_issuer ()
+	{
+		$id = !empty($this->request->post["mollie_issuer_id"]) ? $this->request->post["mollie_issuer_id"] : null;
+
+		$this->session->data['mollie_issuer'] = $id;
 	}
 
 	/**
@@ -330,9 +358,12 @@ class ControllerPaymentMollieIdeal extends Controller
 		$this->setBreadcrumbs();
 
 		// check if template exists
-		if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/mollie_ideal_return.tpl')) {
+		if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/mollie_ideal_return.tpl'))
+		{
 			$this->template = $this->config->get('config_template') . '/template/payment/mollie_ideal_return.tpl';
-		} else {
+		}
+		else
+		{
 			$this->template = 'default/template/payment/mollie_ideal_return.tpl';
 		}
 
@@ -349,6 +380,9 @@ class ControllerPaymentMollieIdeal extends Controller
 		$this->response->setOutput($this->render());
 	}
 
+	/**
+	 *
+	 */
 	protected function setBreadcrumbs ()
 	{
 		$this->data['breadcrumbs']   = array();
