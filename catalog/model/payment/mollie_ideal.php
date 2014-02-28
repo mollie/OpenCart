@@ -152,45 +152,63 @@ class ModelPaymentMollieIdeal extends Model
 		// Multiple Mollie payment methods available.
 		elseif (sizeof($payment_methods) > 1)
 		{
-			// Load language file
-			$this->load->language('payment/mollie_ideal');
-			$title = $this->language->get('text_title') . " (";
-
-			// Add some javascript to make it seem as if all Mollie methods are top level.
-			$js  = '<script type="text/javascript" src="/catalog/view/javascript/mollie_methods.js"></script>';
-			$js .= '<script type="text/javascript">$(function () {';
-
-			$i = 0;
-			foreach ($payment_methods as $payment_method)
+			// FIX for extension Quick Checkout
+			if (strpos($_SERVER['REQUEST_URI'], 'quickcheckout/payment_method/validate') !== FALSE)
 			{
-				if ($i)
+				$title = '';
+
+				foreach ($payment_methods as $payment_method)
 				{
-					$title .= ", ";
-				}
-
-				++$i;
-
-				$title .= $payment_method->description;
-				$js    .= "window.mollie_method_add('{$payment_method->id}', '{$payment_method->description}', '{$payment_method->image->normal}');\n";
-
-				$issuers = $this->getIssuersForMethod($payment_method->id);
-
-				foreach ($issuers as $issuer)
-				{
-					$js .= "window.mollie_issuer_add('{$payment_method->id}', '{$issuer->id}', '{$issuer->name}');\n";
+					if ($this->session->data['mollie_method'] == $payment_method->id)
+					{
+						// Display correct payment method in admin and confirmation email
+						$title = $payment_method->description;
+						break;
+					}
 				}
 			}
+			else
+			{
+				// Load language file
+				$this->load->language('payment/mollie_ideal');
+				$title = $this->language->get('text_title') . " (";
 
-			$title .= ")";
-			$js .= '
-				window.mollie_methods_append("'.$this->url->link('payment/mollie_ideal/set_checkout_method').'", "'.$this->url->link('payment/mollie_ideal/set_checkout_issuer').'", "'.$this->language->get('text_issuer').'");
+				// Add some javascript to make it seem as if all Mollie methods are top level.
+				$js  = '<script type="text/javascript" src="/catalog/view/javascript/mollie_methods.js"></script>';
+				$js .= '<script type="text/javascript">$(function () {';
 
-				$("tr.mpm_issuer_rows").hide();
-				$("input[name=payment_method]:checked").click();
+				$i = 0;
+				foreach ($payment_methods as $payment_method)
+				{
+					if ($i)
+					{
+						$title .= ", ";
+					}
 
-				});</script>';
+					++$i;
 
-			echo $js;
+					$title .= $payment_method->description;
+					$js    .= "window.mollie_method_add('{$payment_method->id}', '{$payment_method->description}', '{$payment_method->image->normal}');\n";
+
+					$issuers = $this->getIssuersForMethod($payment_method->id);
+
+					foreach ($issuers as $issuer)
+					{
+						$js .= "window.mollie_issuer_add('{$payment_method->id}', '{$issuer->id}', '{$issuer->name}');\n";
+					}
+				}
+
+				$title .= ")";
+				$js .= '
+					window.mollie_methods_append("'.$this->url->link('payment/mollie_ideal/set_checkout_method').'", "'.$this->url->link('payment/mollie_ideal/set_checkout_issuer').'", "'.$this->language->get('text_issuer').'");
+
+					$("tr.mpm_issuer_rows").hide();
+					$("input[name=payment_method]:checked").click();
+
+					});</script>';
+
+				echo $js;
+			}
 		}
 		// No Mollie payment methods available.
 		else
