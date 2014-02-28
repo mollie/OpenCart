@@ -1,34 +1,65 @@
-<form action="<?php echo htmlspecialchars($action); ?>" method="post">
-	<?php if (sizeof($payment_methods) == 1): ?>
-	<!-- only one payment method through Mollie available -->
-	<input type="hidden" name="mollie_method" value="<?php echo htmlspecialchars($payment_methods[0]->id);?>">
+<?php
+	if (!function_exists('clean_echo'))
+	{
+		function clean_echo ($string)
+		{
+			echo htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
+		}
+	}
+?>
 
-	<?php else: ?>
-	<!-- multiple payment methods through Mollie available, customer must choose. -->
-	<p><?php echo htmlspecialchars($message->get('text_payment_method'));?></p>
+<div class="checkout-content">
+    <form action="<?php echo $action ?>" method="post" id="mollie_payment_form">
 
-	<table class="radio">
-		<tbody>
-		<?php foreach ($payment_methods as $index => $payment_method): ?>
-		<tr>
-			<td>
-				<input type="radio"<?php if ($index == 0): ?> checked="checked"<?php endif;?> name="mollie_method" value="<?php echo htmlspecialchars($payment_method->id);?>"  id="mollie_method_<?php echo htmlspecialchars($payment_method->id);?>">
-			</td>
-			<td>
-				<label for="mollie_method_<?php echo htmlspecialchars($payment_method->id);?>">
-					<?php echo htmlspecialchars($payment_method->description); ?>
-				</label>
-			</td>
-		</tr>
-		<?php endforeach; ?>
-		</tbody>
-	</table>
+        <?php if (count($payment_methods) == 1): ?>
 
-	<?php endif; ?>
+            <!-- only one payment method through Mollie available -->
+            <input type="hidden" name="mollie_method" value="<?php clean_echo(reset($payment_methods)->id) ?>">
 
-	<div class="buttons">
-		<div class="right">
-			<input type="button" value="<?php echo $message->get('button_confirm'); ?>" id="button-confirm" class="button">
-		</div>
-	</div>
-</form>
+        <?php elseif (!empty($this->session->data['mollie_method'])): ?>
+
+            <!-- Mollie method recovered from session -->
+            <input type="hidden" name="mollie_method" value="<?php clean_echo($this->session->data['mollie_method']) ?>">
+
+        <?php else: ?>
+
+            <!-- multiple payment methods through Mollie available, customer must choose. -->
+            <p><?php clean_echo($message->get('text_payment_method')) ?></p>
+
+            <table class="radio">
+                <tbody>
+                <?php foreach ($payment_methods as $index => $payment_method): ?>
+                    <tr>
+                        <td>
+                            <input type="radio"<?php if ($index == 0): ?> checked="checked"<?php endif ?> name="mollie_method" value="<?php clean_echo($payment_method->id) ?>"  id="mollie_method_<?php clean_echo($payment_method->id) ?>">
+                        </td>
+                        <td>
+                            <label for="mollie_method_<?php clean_echo($payment_method->id) ?>">
+	                            <img src="<?php clean_echo($payment_method->image->normal) ?>" height="24" align="left" style="margin-top:-5px" />
+	                            &nbsp;<?php clean_echo($payment_method->description) ?>
+                            </label>
+                        </td>
+                    </tr>
+                <?php endforeach ?>
+                </tbody>
+            </table>
+
+        <?php endif ?>
+
+        <div class="buttons">
+            <div class="right">
+                <input type="button" value="<?php echo $message->get('button_confirm') ?>" id="button-confirm" class="button">
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            $(function ()
+            {
+                $('#button-confirm').click(function()
+                {
+                    $('#mollie_payment_form').submit();
+                });
+            });
+        </script>
+    </form>
+</div>

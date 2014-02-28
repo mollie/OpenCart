@@ -24,9 +24,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH 
  * DAMAGE. 
  *
- * @category    Mollie
- * @package     Mollie_Ideal
- * @version     v5.0.3
+ * @package     Mollie
  * @license     Berkeley Software Distribution License (BSD-License 2) http://www.opensource.org/licenses/bsd-license.php
  * @author      Mollie B.V. <info@mollie.nl>
  * @copyright   Mollie B.V.
@@ -34,8 +32,8 @@
  */
 
 // Heading
-$_['heading_title']         = 'Mollie (iDEAL, Creditcard, Mister Cash & paysafecard)';
-$_['footer_text']           = 'Payment services';
+$_['heading_title']         = 'Mollie (iDEAL, Mister Cash, Creditcard, PayPal & paysafecard)';
+$_['footer_text']           = 'Betaaldiensten';
 
 // Text 
 $_['text_payment']          = "Betaling";
@@ -53,12 +51,12 @@ $_['entry_sort_order']      = "Sorteervolgorde:";
 // Info
 $_['entry_module']          = "Module:";
 $_['entry_status']          = "Module status:";
-$_['entry_version']         = "<a href='https://www.mollie.nl/betaaldiensten/ideal/' target='_blank'>Mollie API</a> version 5.0";
+$_['entry_version']         = "<a href='https://github.com/mollie/OpenCart/releases' target='_blank'>MollieOpenCart</a>";
 $_['entry_support']	    	= "Support:";
 
 // Error
 $_['error_permission']      = "Waarschuwing: U heeft geen toestemming om de module aan te passen.";
-$_['error_api_key']         = "De API key is verplicht!";
+$_['error_api_key']         = "Mollie API key is verplicht!";
 $_['error_description']     = "De omschrijving is verplicht!";
 
 // Status

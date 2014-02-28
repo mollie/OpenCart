@@ -2,6 +2,12 @@
 
 # Changelog #
 
+## Changes in release 5.1.0 ##
++ Mollie payment methods are now shown as separate options.
++ iDEAL payment method immediately shows the bank selection dropdown.
++ Payment methods are displayed with their unique logos.
++ Correct order totals are calculated for non-EURO base currencies.
+
 ## Wijzigigen in versie 5.0 ##
 + De module gebruikt nu de nieuwe betalings-API van Mollie. Dit betekent dat de module naast [iDEAL](https://www.mollie.nl/betaaldiensten/ideal/), nu
   ook [creditcard](https://www.mollie.nl/betaaldiensten/creditcard/), [Mister Cash](https://www.mollie.nl/betaaldiensten/mistercash/) en

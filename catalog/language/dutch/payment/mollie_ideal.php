@@ -24,9 +24,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH 
  * DAMAGE. 
  *
- * @category    Mollie
- * @package     Mollie_Ideal
- * @version     v5.0.3
+ * @package     Mollie
  * @license     Berkeley Software Distribution License (BSD-License 2) http://www.opensource.org/licenses/bsd-license.php
  * @author      Mollie B.V. <info@mollie.nl>
  * @copyright   Mollie B.V.
@@ -48,11 +46,12 @@ $_['heading_failed'] 		= 'Betaling mislukt.';
 $_['heading_unknown'] 		= 'Betaling onbekend.';
 $_['heading_error'] 		= 'Er is een fout opgetreden bij het opzetten van de betaling.';
 $_['text_error'] 			= 'Er is een fout opgetreden tijdens het opzetten van de betaling bij Mollie:';
+$_['text_issuer']			= 'Kies uw bank:';
 
 // Response
-$_['response_success'] 		= 'De betaling is ontvangen';
-$_['response_none'] 		= 'De betali9ng is nog niet ontvangen';
-$_['response_cancelled'] 	= 'De klant heeft de betaling geannuleerd';
-$_['response_failed'] 		= 'Er is helaas iets misgegaan. Gelieve de betaling opnieuw te proberen.';
-$_['response_expired'] 		= 'De beta;ing is verlopen';
-$_['response_unknown'] 		= 'Er heeft zich een onbekende fout voorgedaan';
+$_['response_success']   = 'De betaling is ontvangen';
+$_['response_none']      = 'We wachten nog op de betaling. U krijgt een email zodra de status van de betaling bij ons bekend is.';
+$_['response_cancelled'] = 'De klant heeft de betaling geannuleerd';
+$_['response_failed']    = 'De betaling is helaas mislukt. Probeer het alstublieft opnieuw.';
+$_['response_expired']   = 'De betaling is verlopen';
+$_['response_unknown']   = 'Er is een onbekende fout opgetreden';

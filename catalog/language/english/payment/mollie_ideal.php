@@ -24,9 +24,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH 
  * DAMAGE. 
  *
- * @category    Mollie
- * @package     Mollie_Ideal
- * @version     v5.0.3
+ * @package     Mollie
  * @license     Berkeley Software Distribution License (BSD-License 2) http://www.opensource.org/licenses/bsd-license.php
  * @author      Mollie B.V. <info@mollie.nl>
  * @copyright   Mollie B.V.
@@ -48,6 +46,7 @@ $_['heading_failed'] 		= 'Payment failed.';
 $_['heading_unknown'] 		= 'Payment unknown.';
 $_['heading_error'] 		= 'An error occurred when setting up the payment.';
 $_['text_error'] 			= 'An erorr occurred when setting up the payment with Mollie:';
+$_['text_issuer']			= 'Select your bank:';
 
 // Response
 $_['response_success'] 		= 'The payment is received';

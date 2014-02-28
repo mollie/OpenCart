@@ -24,9 +24,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH 
  * DAMAGE. 
  *
- * @category    Mollie
- * @package     Mollie_Ideal
- * @version     v5.0.3
+ * @package     Mollie
  * @license     Berkeley Software Distribution License (BSD-License 2) http://www.opensource.org/licenses/bsd-license.php
  * @author      Mollie B.V. <info@mollie.nl>
  * @copyright   Mollie B.V.
@@ -125,7 +123,7 @@ class ControllerPaymentMollieIdeal extends Controller
 		$this->data['entry_mstatus']          = $this->_checkModuleStatus();
 		$this->data['entry_cstatus']          = $this->_checkCommunicationStatus();
 		$this->data['entry_module']           = $this->language->get('entry_module');
-		$this->data['entry_version']          = $this->language->get('entry_version');
+		$this->data['entry_version']          = $this->language->get('entry_version') . " " . self::PLUGIN_VERSION;
 
 		$this->data['button_save']            = $this->language->get('button_save');
 		$this->data['button_cancel']          = $this->language->get('button_cancel');
@@ -257,7 +255,7 @@ class ControllerPaymentMollieIdeal extends Controller
 
 		if (!$this->request->post['mollie_api_key'])
 		{
-			$this->error['api_key'] = $this->language->get('mollie_api_key');
+			$this->error['api_key'] = $this->language->get('error_api_key');
 		}
 
 		if (!$this->request->post['mollie_ideal_description'])
@@ -275,68 +273,74 @@ class ControllerPaymentMollieIdeal extends Controller
 			DIR_APPLICATION.'controller/payment/mollie_ideal.php',
 			DIR_APPLICATION.'language/english/payment/mollie_ideal.php',
 			DIR_TEMPLATE.'payment/mollie_ideal.tpl',
+			DIR_CATALOG.'controller/payment/mollie-api-client/',
 			DIR_CATALOG.'controller/payment/mollie_ideal.php',
 			DIR_CATALOG.'language/english/payment/mollie_ideal.php',
 			DIR_CATALOG.'model/payment/mollie_ideal.php',
-			DIR_CATALOG.'view/theme/default/template/payment/mollie_ideal_banks.tpl',
+			DIR_CATALOG.'view/javascript/mollie_methods.js',
+			DIR_CATALOG.'view/theme/default/template/payment/mollie_checkout_form.tpl',
 			DIR_CATALOG.'view/theme/default/template/payment/mollie_ideal_return.tpl',
+			DIR_CATALOG.'view/theme/default/template/payment/mollie_payment_error.tpl',
 		);
 
 		foreach ($modFiles as $file)
 		{
-			if(!file_exists($file)) {
+			if (!file_exists($file))
+			{
 				$needFiles[] = '<span style="color:red">'.$file.'</span>';
 			}
 		}
 
-		if (count($needFiles) > 0) {
+		if (count($needFiles) > 0)
+		{
 			return $needFiles;
-		} else {
-			return '<span style="color:green">Ok!</span>';
 		}
 
-		return NULL;
+		return '<span style="color:green">OK</span>';
 	}
 
 	/**
 	 * Version of the plugin.
 	 */
-	const PLUGIN_VERSION = "v5.0.3";
+	const PLUGIN_VERSION = "5.1.0";
 
 	/**
 	 * @var Mollie_API_Client
 	 */
-	private $mollie_api_client;
+	protected $_mollie_api_client;
 
 	/**
-	 * @codeCoverageIgnore
 	 * @return Mollie_API_Client
 	 */
-	protected function getApiClient()
+	public function getApiClient ()
 	{
-		if (empty($this->mollie_api_client))
+		if (empty($this->_mollie_api_client))
 		{
 			require_once dirname(DIR_APPLICATION) . "/catalog/controller/payment/mollie-api-client/src/Mollie/API/Autoloader.php";
 
-			$this->mollie_api_client = new Mollie_API_Client();
-			$this->mollie_api_client->setApiKey($this->config->get('mollie_api_key'));
-			$this->mollie_api_client->addVersionString("OpenCart/" . VERSION);
-			$this->mollie_api_client->addVersionString("MollieOpenCart/" . self::PLUGIN_VERSION);
+			$this->_mollie_api_client = new Mollie_API_Client;
+			$this->_mollie_api_client->setApiKey($this->config->get('mollie_api_key'));
+			$this->_mollie_api_client->addVersionString("OpenCart/" . VERSION);
+			$this->_mollie_api_client->addVersionString("MollieOpenCart/" . self::PLUGIN_VERSION);
 		}
 
-		return $this->mollie_api_client;
+		return $this->_mollie_api_client;
 	}
 
-	protected function _checkCommunicationStatus()
+	/**
+	 * @return string
+	 */
+	protected function _checkCommunicationStatus ()
 	{
 		try
 		{
 			$this->getApiClient()->methods->all();
-			return '<span style="color: green;">Ok!</span>';
+			return '<span style="color: green">OK</span>';
 		}
 		catch (Mollie_API_Exception $e)
 		{
-			return '<span style="color: red;"> ' . htmlspecialchars($e->getMessage()). '</span>';
+			$message = htmlspecialchars($e->getMessage());
+			return "<span style='color:red'>$message</span>";
 		}
 	}
 }
