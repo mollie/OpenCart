@@ -52,7 +52,7 @@ class ControllerPaymentMollieIdeal extends Controller
 	/**
 	 * Version of the plugin.
 	 */
-	const PLUGIN_VERSION = "5.1.0";
+	const PLUGIN_VERSION = "5.1.1";
 
 	/**
 	 * @var Mollie_API_Client
@@ -85,6 +85,11 @@ class ControllerPaymentMollieIdeal extends Controller
 	protected function getOpenCartOrder ()
 	{
 		$this->load->model('checkout/order');
+
+		if (empty($this->session->data['order_id']))
+		{
+			return array();
+		}
 
 		// Load last order from session
 		return $this->model_checkout_order->getOrder($this->session->data['order_id']);
@@ -147,11 +152,11 @@ class ControllerPaymentMollieIdeal extends Controller
 				// Create iDEAL object
 				$api = $this->getApiClient();
 
-				// Create the payment, if succeeded confirm the order and redirect the customer to the bank
-				$payment = $api->payments->create(array(
+				$data = array(
 					"amount"            => $amount,
 					"description"       => $description,
 					"redirectUrl"       => $return_url,
+					"webhookUrl"        => $this->getWebhookUrl(),
 					"metadata"          => array(
 						"order_id"          => $order["order_id"],
 					),
@@ -173,7 +178,26 @@ class ControllerPaymentMollieIdeal extends Controller
 					"shippingRegion"    => $order["shipping_zone"]       ? $order["shipping_zone"] : $order["payment_zone"],
 					"shippingPostal"    => $order["shipping_postcode"]   ? $order["shipping_postcode"] : $order["payment_postcode"],
 					"shippingCountry"   => $order["shipping_iso_code_2"] ? $order["shipping_iso_code_2"] : $order["payment_iso_code_2"],
-				));
+				);
+
+				// Create the payment, if succeeded confirm the order and redirect the customer to the bank
+				try
+				{
+					$payment = $api->payments->create($data);
+				}
+				catch (Mollie_API_Exception $e)
+				{
+					// If it fails because of the webhookUrl then clear it and retry.
+					if ($e->getField() == "webhookUrl")
+					{
+						unset($data["webhookUrl"]);
+						$payment = $api->payments->create($data);
+					}
+					else
+					{
+						throw $e;
+					}
+				}
 			}
 			catch (Mollie_Api_Exception $e)
 			{
@@ -331,18 +355,23 @@ class ControllerPaymentMollieIdeal extends Controller
 			return;
 		}
 		/*
-		 * When no order could be found the session has probably expired
 		 * When an order could be found, check if Mollie has reported the new status. When the order status is still
 		 * processing, the report is not delivered yet.
 		 */
-		elseif (!$order || $order['order_status_id'] == $this->config->get('mollie_ideal_processing_status_id'))
+		elseif ($order && $order['order_status_id'] == $this->config->get('mollie_ideal_processing_status_id'))
 		{
 			// Set template data
 			$this->data['message_title']   = $this->language->get("heading_unknown");
 			$this->data['message_text']    = $this->language->get("msg_unknown");
+
+			if ($this->cart)
+			{
+				$this->cart->clear();
+			}
 		}
 		/*
-		 * The payment has failed. We will allow the customer a retry.
+		 * When no order could be found the session has probably expired.
+		 * The payment has failed.
 		 */
 		else
 		{
@@ -391,5 +420,13 @@ class ControllerPaymentMollieIdeal extends Controller
 			'text'      => $this->language->get('text_home'),
 			'separator' => FALSE
 		);
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getWebhookUrl ()
+	{
+		return str_replace("/admin", "", $this->url->link('payment/mollie_ideal/webhook', '', 'SSL')) ? : NULL;
 	}
 }

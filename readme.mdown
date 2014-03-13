@@ -8,7 +8,6 @@
 + Na een correcte afhandeling zou onze Betaalmethode zichtbaar moeten zijn in het _Payments_ overzicht.
 + Klik vervolgens op _Install_ en daarna op _Edit_.
 + Vul uw _Mollie API key_ in en bewaar de instellingen. U vindt de API key in uw Mollie Beheer onder [Websiteprofielen](https://www.mollie.nl/beheer/account/profielen/).
-+ Kopieer de webhook URL zoals weergegeven en plak die in uw [Websiteprofiel](https://www.mollie.nl/beheer/account/profielen/)-instellingen.
 
 # Ondersteunde betaalmethodes #
 ### iDEAL ###
@@ -39,9 +38,7 @@ Als iDEAL geactiveerd is voor uw account en het bedrag klopt ook, controleer dan
 
 ## Moet ik ook een redirect URL of webhook instellen? ##
 
-Het is niet nodig een redirect URL in te stellen. Dat doet de module zelf automatisch bij elke order.
-
-Een unieke webhook wordt door de module gegenereerd op basis van uw domeinnaam, dus die dient u uit de module te kopiëren en in uw Mollie [Websiteprofiel](https://www.mollie.nl/beheer/account/profielen/)-configuratie te plakken.
+Het is niet nodig een redirect URL of webhook in te stellen. Dat doet de module zelf automatisch bij elke order.
 
 ## Ik krijg een witte pagina tijdens het afrekenen. ##
 

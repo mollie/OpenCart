@@ -43,8 +43,6 @@ $_['text_mollie_ideal']     = '<a href="https://www.mollie.nl" target="_blank"><
 // Entry
 $_['entry_status']          = "Status: <br/><span class='help'>Activate the module</span>";
 $_['entry_api_key']         = "API key: <br/><span class='help'>Enter here the <code>api_key</code> of the website profile you want to use. The api_key starts with <code>test_</code> or <code>live_</code>. <br>[<a href='https://www.mollie.nl/beheer/account/profielen/' target='_blank'>view available profiles</a>]</span>";
-$_['entry_webhook']         = "Webhook:";
-$_['entry_webhook_help']    = "Copy this webhook in your website profile inside the <a href='https://www.mollie.nl/beheer/account/profielen/' target='_blank'>Mollie Beheer</a>. You can use the same webhook as both test and live webhook.";
 $_['entry_description']     = "Description: <br/><span class='help'>This description will appear on the bank / card statement of your customer. You may use a maximum of 29 characters. TIP: Use '%', this will be replaced by the order id of the payment. Don't forget % can be multiple characters long!</span>";
 $_['entry_sort_order']      = "Sort Order:";
 

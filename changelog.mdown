@@ -2,6 +2,10 @@
 
 # Changelog #
 
+## Changes in release 5.1.1 ##
++ Webhook URL will now be configured automatically. No need to do it manually anymore.
++ If a customer's payment is still "Pending" when returning, the cart is now cleared and a pending message is printed.
+
 ## Changes in release 5.1.0 ##
 + Mollie payment methods are now shown as separate options.
 + iDEAL payment method immediately shows the bank selection dropdown.
@@ -25,7 +29,6 @@ Upgraden vanaf een eerdere versie is eenvoudig:
 0. Download de module van [GitHub](https://github.com/mollie/OpenCart/releases).
 0. Upload de bestanden in de map `admin` en `catalog` naar uw webserver. U moet hierbij de bestanden die er al zijn met dezelfde naam overschrijven. Er zijn ook enkele nieuwe bestanden.
 0. Ga naar de instellingenpagina van de module in OpenCart. Kopieer hier uw _Test API key_ in het daarvoor bestemde veld. U vindt uw _Test API key_ in het Mollie Beheer onder "[Websiteprofielen](https://www.mollie.nl/beheer/account/profielen/)".
-0. Kopieer de _webhook_ die de module aangeeft binnen OpenCart naar uw websiteprofiel in het Mollie beheer.
 0. Voer een testbetaling uit om te verifiëren of alles werkt.
 0. Als alles goed werkt, vervang dan de _Test API key_ door de _Live API key_ in uw OpenCart omgeving.
 

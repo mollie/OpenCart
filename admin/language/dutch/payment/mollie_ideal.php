@@ -43,8 +43,6 @@ $_['text_mollie_ideal']     = '<a href="https://www.mollie.nl" target="_blank"><
 // Entry
 $_['entry_status']          = "Status: <br/><span class='help'>Activate the module</span>";
 $_['entry_api_key']         = "API key: <br/><span class='help'>Voer hier de <code>api_key</code> van het websiteprofiel in dat u wilt gebruiken. De api_key begint met <code>test_</code> or <code>live_</code>. <br>[<a href='https://www.mollie.nl/beheer/account/profielen/' target='_blank'>bekijk uw websiteprofielen</a>]</span>";
-$_['entry_webhook']         = "Webhook:";
-$_['entry_webhook_help']    = "Kopieer deze webhook in uw profiel binnen het <a href='https://www.mollie.nl/beheer/account/profielen/' target='_blank'>Mollie Beheer</a>. U kunt dezelfde webhook als <em>Live webhook</em> en <em>Test webhook</em> gebruiken.";
 $_['entry_description']     = "Omschrijving: <br/><span class='help'>De omschrijving zal op het bankafschrift van uw klant verschijnen en kunt u terugvinden in het Mollie beheer. U kunt maximaal 29 tekens gebruikt. TIP: Gebruik <code>%'</code>, dit zal vervangen worden door het ordernummer. Het ordernummer kan zelf ook meerdere tekens lang zijn!</span>";
 $_['entry_sort_order']      = "Sorteervolgorde:";
 

@@ -1,9 +1,8 @@
 .DS_Store
-/.idea/
+.idea
 /build/coverage
 /build/clover
 /build/logs
 /composer.lock
 /vendor
-/release.zip
-
+/*.zip

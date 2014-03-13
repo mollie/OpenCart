@@ -105,8 +105,6 @@ class ControllerPaymentMollieIdeal extends Controller
 
 		$this->data['entry_status']           = $this->language->get('entry_status');
 		$this->data['entry_api_key']          = $this->language->get('entry_api_key');
-		$this->data['entry_webhook']          = $this->language->get('entry_webhook');
-		$this->data['entry_webhook_help']     = $this->language->get('entry_webhook_help');
 		$this->data['entry_description']      = $this->language->get('entry_description');
 
 		$this->data['order_statuses']         = $this->model_localisation_order_status->getOrderStatuses();
@@ -151,8 +149,6 @@ class ControllerPaymentMollieIdeal extends Controller
 		} else {
 			$this->data['error_total'] = '';
 		}
-
-		$this->data['webhook_url'] = str_replace("/admin", "", $this->url->link('payment/mollie_ideal/webhook', '', 'SSL'));
 
 		// Breadcrumbs
 		$this->data['breadcrumbs'] = array();
@@ -302,7 +298,7 @@ class ControllerPaymentMollieIdeal extends Controller
 	/**
 	 * Version of the plugin.
 	 */
-	const PLUGIN_VERSION = "5.1.0";
+	const PLUGIN_VERSION = "5.1.1";
 
 	/**
 	 * @var Mollie_API_Client

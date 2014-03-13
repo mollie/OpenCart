@@ -21,12 +21,12 @@
 		<?php endforeach ?>
 	</div>
 
-	<h1><?php clean_echo($message_title) ?></h1>
-
 	<div class="content">
+		<h2><?php clean_echo($message_title) ?></h2>
+		<br/>
+
 		<p><?php clean_echo($message_text) ?></p>
 	</div>
-
 </div>
 
 <?php echo $content_bottom ?>

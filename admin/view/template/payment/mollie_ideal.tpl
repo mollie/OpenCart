@@ -64,14 +64,6 @@
 					</tr>
 
 					<tr>
-						<td valign="top"><?php clean_echo($entry_webhook) ?></td>
-						<td>
-							<code><?php clean_echo($webhook_url) ?></code>
-							<br/><br/><span class="help" style="color: red"><?php echo $entry_webhook_help ?></span>
-						</td>
-					</tr>
-
-					<tr>
 						<td><?php clean_echo($entry_failed_status) ?></td>
 						<td>
 							<select name="mollie_ideal_failed_status_id">

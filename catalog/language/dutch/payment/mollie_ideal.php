@@ -36,17 +36,17 @@
  */
 
 // Text
-$_['heading_title'] 		= 'Betaling via Mollie';
-$_['ideal_title'] 			= 'Uw betaling';
-$_['text_title'] 			= 'Online betalen';
-$_['text_redirected']		= 'De klant is doorgestuurd naar het betaalscherm';
-$_['msg_failed'] 			= 'De betaling is mislukt.';
-$_['msg_unknown']			= 'De bank heeft nog niet aan ons doorgegeven of de betaling gelukt is. U krijgt een email zodra de status van uw betaling bij ons bekend is.';
-$_['heading_failed'] 		= 'Betaling mislukt.';
-$_['heading_unknown'] 		= 'Betaling onbekend.';
-$_['heading_error'] 		= 'Er is een fout opgetreden bij het opzetten van de betaling.';
-$_['text_error'] 			= 'Er is een fout opgetreden tijdens het opzetten van de betaling bij Mollie:';
-$_['text_issuer']			= 'Kies uw bank:';
+$_['heading_title']      = 'Betaling via Mollie';
+$_['ideal_title']        = 'Uw betaling';
+$_['text_title']         = 'Online betalen';
+$_['text_redirected']    = 'De klant is doorgestuurd naar het betaalscherm';
+$_['msg_failed']         = 'De betaling is mislukt.';
+$_['msg_unknown']        = 'We hebben uw betaling nog niet ontvangen. Wij zullen een bevestigingsmail versturen op het moment dat de betaling binnen is.';
+$_['heading_failed']     = 'Uw betaling is niet voltooid';
+$_['heading_unknown']    = 'Wij wachten nog op uw betaling';
+$_['heading_error']      = 'Er is een fout opgetreden bij het opzetten van de betaling.';
+$_['text_error']         = 'Er is een fout opgetreden tijdens het opzetten van de betaling bij Mollie:';
+$_['text_issuer']        = 'Kies uw bank:';
 
 // Response
 $_['response_success']   = 'De betaling is ontvangen';

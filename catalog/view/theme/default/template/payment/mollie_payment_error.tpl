@@ -21,9 +21,9 @@
 		<?php endforeach ?>
 	</div>
 
-	<h1><?php clean_echo($message->get("heading_error")) ?></h1>
-
 	<div class="content">
+		<h2><?php clean_echo($message->get("heading_error")) ?></h2>
+		<br/>
 
 		<p><?php clean_echo($message->get("text_error")) ?></p>
 

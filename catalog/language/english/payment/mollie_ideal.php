@@ -36,22 +36,22 @@
  */
 
 // Text
-$_['heading_title'] 		= 'Payment by Mollie';
-$_['ideal_title'] 			= 'Your payment';
-$_['text_title'] 			= 'Pay online';
-$_['text_redirected']		= 'The client has been referred to the payment screen';
-$_['msg_failed'] 			= 'Unfortunately your payment has failed.';
-$_['msg_unknown']			= 'The payment is not received yet. When we have updated the payment state you will receive a confirmation email.';
-$_['heading_failed'] 		= 'Payment failed.';
-$_['heading_unknown'] 		= 'Payment unknown.';
-$_['heading_error'] 		= 'An error occurred when setting up the payment.';
-$_['text_error'] 			= 'An erorr occurred when setting up the payment with Mollie:';
-$_['text_issuer']			= 'Select your bank:';
+$_['heading_title']      = 'Payment by Mollie';
+$_['ideal_title']        = 'Your payment';
+$_['text_title']         = 'Pay online';
+$_['text_redirected']    = 'The client has been referred to the payment screen';
+$_['msg_failed']         = 'Unfortunately your payment has failed.';
+$_['msg_unknown']        = 'Your payment has not been received yet. We will send you a confirmation email the moment the payment is received.';
+$_['heading_failed']     = 'Your payment has not been completed';
+$_['heading_unknown']    = 'Your payment is pending';
+$_['heading_error']      = 'An error occurred when setting up the payment.';
+$_['text_error']         = 'An erorr occurred when setting up the payment with Mollie:';
+$_['text_issuer']        = 'Select your bank:';
 
 // Response
-$_['response_success'] 		= 'The payment is received';
-$_['response_none'] 		= 'The payment is not received yet';
-$_['response_cancelled'] 	= 'The client has canceled the payment';
-$_['response_failed'] 		= 'Unfortunately something went wrong. Please retry the payment.';
-$_['response_expired'] 		= 'The payment has expired';
-$_['response_unknown'] 		= 'An unknown error occurred';
+$_['response_success']   = 'The payment is received';
+$_['response_none']      = 'The payment is not received yet';
+$_['response_cancelled'] = 'The client has canceled the payment';
+$_['response_failed']    = 'Unfortunately something went wrong. Please retry the payment.';
+$_['response_expired']   = 'The payment has expired';
+$_['response_unknown']   = 'An unknown error occurred';
