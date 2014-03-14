@@ -2,6 +2,9 @@
 
 # Changelog #
 
+## Changes in release 5.1.2 ##
++ Support PHP version 5.2 and jQuery 1.7.
+
 ## Changes in release 5.1.1 ##
 + Webhook URL will now be configured automatically. No need to do it manually anymore.
 + If a customer's payment is still "Pending" when returning, the cart is now cleared and a pending message is printed.

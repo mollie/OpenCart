@@ -44,7 +44,7 @@ class ModelPaymentMollieIdeal extends Model
 	/**
 	 * Version of the plugin.
 	 */
-	const PLUGIN_VERSION = "5.1.1";
+	const PLUGIN_VERSION = "5.1.2";
 
 	/**
 	 * @var Mollie_API_Client
@@ -175,7 +175,7 @@ class ModelPaymentMollieIdeal extends Model
 
 				// Add some javascript to make it seem as if all Mollie methods are top level.
 				$js  = '<script type="text/javascript" src="/catalog/view/javascript/mollie_methods.js"></script>';
-				$js .= '<script type="text/javascript">$(function () {';
+				$js .= '<script type="text/javascript">(function () {';
 
 				$i = 0;
 				foreach ($payment_methods as $payment_method)
@@ -205,7 +205,7 @@ class ModelPaymentMollieIdeal extends Model
 					$("tr.mpm_issuer_rows").hide();
 					$("input[name=payment_method]:checked").click();
 
-					});</script>';
+					}) ();</script>';
 
 				echo $js;
 			}

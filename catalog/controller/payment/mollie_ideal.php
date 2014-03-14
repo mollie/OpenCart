@@ -52,7 +52,7 @@ class ControllerPaymentMollieIdeal extends Controller
 	/**
 	 * Version of the plugin.
 	 */
-	const PLUGIN_VERSION = "5.1.1";
+	const PLUGIN_VERSION = "5.1.2";
 
 	/**
 	 * @var Mollie_API_Client
@@ -427,6 +427,8 @@ class ControllerPaymentMollieIdeal extends Controller
 	 */
 	public function getWebhookUrl ()
 	{
-		return str_replace("/admin", "", $this->url->link('payment/mollie_ideal/webhook', '', 'SSL')) ? : NULL;
+		$webhook_url = str_replace("/admin", "", $this->url->link('payment/mollie_ideal/webhook', '', 'SSL'));
+
+		return $webhook_url ? $webhook_url : NULL;
 	}
 }

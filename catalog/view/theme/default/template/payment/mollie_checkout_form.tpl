@@ -53,13 +53,13 @@
         </div>
 
         <script type="text/javascript">
-            $(function ()
+            (function ()
             {
                 $('#button-confirm').click(function()
                 {
                     $('#mollie_payment_form').submit();
                 });
-            });
+            }) ();
         </script>
     </form>
 </div>
