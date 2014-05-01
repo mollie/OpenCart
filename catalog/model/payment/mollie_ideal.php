@@ -174,7 +174,7 @@ class ModelPaymentMollieIdeal extends Model
 				$title = $this->language->get('text_title') . " (";
 
 				// Add some javascript to make it seem as if all Mollie methods are top level.
-				$js  = '<script type="text/javascript" src="/catalog/view/javascript/mollie_methods.js"></script>';
+				$js  = '<script type="text/javascript" src="catalog/view/javascript/mollie_methods.js"></script>';
 				$js .= '<script type="text/javascript">(function () {';
 
 				$i = 0;
