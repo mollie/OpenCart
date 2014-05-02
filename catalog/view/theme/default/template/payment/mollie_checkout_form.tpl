@@ -1,15 +1,15 @@
 <?php
-	if (!function_exists('clean_echo'))
-	{
-		function clean_echo ($string)
-		{
-			echo htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
-		}
-	}
+    if (!function_exists('clean_echo'))
+    {
+        function clean_echo ($string)
+        {
+            echo htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
+        }
+    }
 ?>
 
 <div class="checkout-content">
-    <form action="<?php echo $action ?>" method="post" id="mollie_payment_form">
+    <form action="<?php echo clean_echo($action) ?>" method="post" id="mollie_payment_form">
 
         <?php if (count($payment_methods) == 1): ?>
 
@@ -35,8 +35,8 @@
                         </td>
                         <td>
                             <label for="mollie_method_<?php clean_echo($payment_method->id) ?>">
-	                            <img src="<?php clean_echo($payment_method->image->normal) ?>" height="24" align="left" style="margin-top:-5px" />
-	                            &nbsp;<?php clean_echo($payment_method->description) ?>
+                                <img src="<?php clean_echo($payment_method->image->normal) ?>" height="24" align="left" style="margin-top:-5px" />
+                                &nbsp;<?php clean_echo($payment_method->description) ?>
                             </label>
                         </td>
                     </tr>
@@ -48,18 +48,15 @@
 
         <div class="buttons">
             <div class="right">
-                <input type="button" value="<?php echo $message->get('button_confirm') ?>" id="button-confirm" class="button">
+                <input type="submit" value="<?php echo $message->get('button_confirm') ?>" id="button-confirm" class="button" form="mollie_payment_form">
             </div>
         </div>
 
         <script type="text/javascript">
-            (function ()
+            $(document).ready(function()
             {
-                $('#button-confirm').click(function()
-                {
-                    $('#mollie_payment_form').submit();
-                });
-            }) ();
+                $('#button-confirm').click($('#mollie_payment_form').submit);
+            });
         </script>
     </form>
 </div>
