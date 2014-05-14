@@ -53,10 +53,11 @@
         </div>
 
         <script type="text/javascript">
-            $(document).ready(function()
+	        // Don't rely on document.ready for jQuery 1.7- support.
+	        (function()
             {
                 $('#button-confirm').click($('#mollie_payment_form').submit);
-            });
+            }) ();
         </script>
     </form>
 </div>
