@@ -52,7 +52,7 @@ class ControllerPaymentMollieIdeal extends Controller
 	/**
 	 * Version of the plugin.
 	 */
-	const PLUGIN_VERSION = "5.1.2";
+	const PLUGIN_VERSION = "5.1.3";
 
 	/**
 	 * @var Mollie_API_Client
@@ -233,7 +233,7 @@ class ControllerPaymentMollieIdeal extends Controller
 				return;
 			}
 
-			$this->model_checkout_order->confirm($order['order_id'], $this->config->get('mollie_ideal_processing_status_id'), $this->language->get('text_redirected'), FALSE);
+			$this->model_checkout_order->confirm($order['order_id'], $this->config->get('mollie_ideal_pending_status_id'), $this->language->get('text_redirected'), FALSE);
 
 			$this->load->model('payment/mollie_ideal');
 			$this->model_payment_mollie_ideal->setPayment($order['order_id'], $payment->id);
@@ -275,13 +275,13 @@ class ControllerPaymentMollieIdeal extends Controller
 
 		if (!empty($order))
 		{
-			// Only if the transaction is in 'processing' status
-			if ($order['order_status_id'] == $this->config->get('mollie_ideal_processing_status_id'))
+			// Only if the transaction is in 'pending' status
+			if ($order['order_status_id'] === $this->config->get('mollie_ideal_pending_status_id') || $order['order_status_id'] === $this->config->get('mollie_ideal_processing_status_id'))
 			{
 				if ($payment->isPaid())
 				{
-					echo "The payment was received and the order was moved to the processed status.";
-					$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_processed_status_id'), $this->language->get('response_success'), TRUE); // Processed
+					echo "The payment was received and the order was moved to the processing status.";
+					$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_processing_status_id'), $this->language->get('response_success'), TRUE); // Processed
 					return;
 				}
 
@@ -347,18 +347,18 @@ class ControllerPaymentMollieIdeal extends Controller
 
 		/*
 		 * Now that the customer has returned to our web site, check if we already know if the payment has
-		 * succeeded. It the payment is all good, we need to clear the cart.
+		 * succeeded. If the payment is all good, we need to clear the cart.
 		 */
-		if ($order && $order["order_status_id"] == $this->config->get('mollie_ideal_processed_status_id'))
+		if ($order && $order["order_status_id"] == $this->config->get('mollie_ideal_processing_status_id'))
 		{
-			$this->redirect($this->url->link('checkout/success'));
+			$this->redirect($this->url->link('checkout/success', '', 'SSL'));
 			return;
 		}
 		/*
 		 * When an order could be found, check if Mollie has reported the new status. When the order status is still
-		 * processing, the report is not delivered yet.
+		 * pending, the report is not delivered yet.
 		 */
-		elseif ($order && $order['order_status_id'] == $this->config->get('mollie_ideal_processing_status_id'))
+		elseif ($order && $order['order_status_id'] == $this->config->get('mollie_ideal_pending_status_id'))
 		{
 			// Set template data
 			$this->data['message_title']   = $this->language->get("heading_unknown");

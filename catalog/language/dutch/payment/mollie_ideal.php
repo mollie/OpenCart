@@ -55,3 +55,12 @@ $_['response_cancelled'] = 'De klant heeft de betaling geannuleerd';
 $_['response_failed']    = 'De betaling is helaas mislukt. Probeer het alstublieft opnieuw.';
 $_['response_expired']   = 'De betaling is verlopen';
 $_['response_unknown']   = 'Er is een onbekende fout opgetreden';
+
+// Methods
+$_['method_ideal']            = 'iDEAL';
+$_['method_creditcard']       = 'Creditcard';
+$_['method_mistercash']       = 'Mister Cash';
+$_['method_banktransfer']     = 'Overboeking';
+$_['method_paypal']           = 'PayPal';
+$_['method_paysafecard']      = 'paysafecard';
+$_['method_minitix']          = 'MiniTix';

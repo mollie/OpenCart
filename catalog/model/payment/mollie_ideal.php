@@ -44,7 +44,7 @@ class ModelPaymentMollieIdeal extends Model
 	/**
 	 * Version of the plugin.
 	 */
-	const PLUGIN_VERSION = "5.1.2";
+	const PLUGIN_VERSION = "5.1.3";
 
 	/**
 	 * @var Mollie_API_Client
@@ -81,6 +81,9 @@ class ModelPaymentMollieIdeal extends Model
 
 		$amount = round($total, 2);
 
+		// Load language file
+		$this->load->language('payment/mollie_ideal');
+
 		foreach ($all_methods as $payment_method)
 		{
 			if ($payment_method->getMinimumAmount() && $payment_method->getMinimumAmount() > $amount)
@@ -91,6 +94,14 @@ class ModelPaymentMollieIdeal extends Model
 			if ($payment_method->getMaximumAmount() && $payment_method->getMaximumAmount() < $amount)
 			{
 				continue;
+			}
+
+			// Translate payment method (if a translation is available)
+			$key = 'method_' . $payment_method->id;
+			$val = $this->language->get($key);
+			if ($key !== $val)
+			{
+				$payment_method->description = $val;
 			}
 
 			$applicable_methods[$payment_method->id] = $payment_method;
@@ -173,9 +184,16 @@ class ModelPaymentMollieIdeal extends Model
 				$this->load->language('payment/mollie_ideal');
 				$title = $this->language->get('text_title') . " (";
 
+				$base_url = $this->config->get('config_ssl');
+
+				if (empty($base_url))
+				{
+					$base_url = $this->config->get('config_url');
+				}
+
 				// Add some javascript to make it seem as if all Mollie methods are top level.
-				$js  = '<script type="text/javascript" src="catalog/view/javascript/mollie_methods.js"></script>';
-				$js .= '<script type="text/javascript">(function () {';
+				$js  = '<script type="text/javascript" src="' . rtrim($base_url, '/') . '/catalog/view/javascript/mollie_methods.js"></script>';
+				$js .= '<script type="text/javascript">'.'(function () {';
 
 				$i = 0;
 				foreach ($payment_methods as $payment_method)
@@ -200,14 +218,18 @@ class ModelPaymentMollieIdeal extends Model
 
 				$title .= ")";
 				$js .= '
-					window.mollie_methods_append("'.$this->url->link('payment/mollie_ideal/set_checkout_method').'", "'.$this->url->link('payment/mollie_ideal/set_checkout_issuer').'", "'.$this->language->get('text_issuer').'");
+					window.mollie_methods_append("'.$this->url->link('payment/mollie_ideal/set_checkout_method', '', 'SSL').'", "'.$this->url->link('payment/mollie_ideal/set_checkout_issuer', '', 'SSL').'", "'.$this->language->get('text_issuer').'");
 
 					$("tr.mpm_issuer_rows").hide();
 					$("input[name=payment_method]:checked").click();
 
 					}) ();</script>';
 
-				echo $js;
+				if (!$this->config->get('mollie_ideal_no_js'))
+				{
+					echo $js;
+				}
+
 			}
 		}
 		// No Mollie payment methods available.

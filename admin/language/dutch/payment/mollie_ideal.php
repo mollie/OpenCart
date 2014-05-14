@@ -63,4 +63,3 @@ $_['entry_canceled_status']  = 'Geannuleerd status:';
 $_['entry_expired_status']   = 'Verlopen status:';
 $_['entry_pending_status']   = 'In afwachting status:';
 $_['entry_processing_status']= 'Bezig met verwerken status:';
-$_['entry_processed_status'] = 'Verwerkt status:';

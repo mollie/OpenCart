@@ -216,11 +216,6 @@ class ControllerPaymentMollieIdeal extends Controller
 		} else {
 			$this->data['mollie_ideal_processing_status_id'] = $this->config->get('mollie_ideal_processing_status_id') ? $this->config->get('mollie_ideal_processing_status_id') : 2;
 		}
-		if (isset($this->request->post['mollie_ideal_processed_status_id'])) {
-			$this->data['mollie_ideal_processed_status_id'] = $this->request->post['mollie_ideal_processed_status_id'];
-		} else {
-			$this->data['mollie_ideal_processed_status_id'] = $this->config->get('mollie_ideal_processed_status_id') ? $this->config->get('mollie_ideal_processed_status_id') : 15;
-		}
 		if (isset($this->request->post['mollie_ideal_sort_order'])) {
 			$this->data['mollie_ideal_sort_order'] = $this->request->post['mollie_ideal_sort_order'];
 		} else {
@@ -298,7 +293,7 @@ class ControllerPaymentMollieIdeal extends Controller
 	/**
 	 * Version of the plugin.
 	 */
-	const PLUGIN_VERSION = "5.1.2";
+	const PLUGIN_VERSION = "5.1.3";
 
 	/**
 	 * @var Mollie_API_Client

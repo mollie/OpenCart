@@ -135,20 +135,6 @@
 							</select>
 						</td>
 					</tr>
-					<tr>
-						<td><?php clean_echo($entry_processed_status) ?></td>
-						<td>
-							<select name="mollie_ideal_processed_status_id">
-							<?php foreach ($order_statuses as $order_status): ?>
-								<?php if ($order_status['order_status_id'] == $mollie_ideal_processed_status_id): ?>
-									<option value="<?php echo $order_status['order_status_id'] ?>" selected="selected"><?php echo $order_status['name'] ?></option>
-								<?php else: ?>
-									<option value="<?php echo $order_status['order_status_id'] ?>"><?php echo $order_status['name'] ?></option>
-								<?php endif ?>
-							<?php endforeach ?>
-							</select>
-						</td>
-					</tr>
 
 					<tr>
 						<td><?php clean_echo($entry_sort_order) ?></td>

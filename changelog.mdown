@@ -2,6 +2,12 @@
 
 # Changelog #
 
+## Changes in release 5.1.3 ##
++ Added support for custom catalog paths.
++ Improved order status updates before and after payments.
++ Fixed HTTP calls on HTTPS pages.
++ Added translations for payment methods. Now with French translations.
+
 ## Changes in release 5.1.2 ##
 + Support PHP version 5.2 and jQuery 1.7.
 

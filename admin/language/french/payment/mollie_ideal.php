@@ -33,33 +33,33 @@
 
 // Heading
 $_['heading_title']           = 'Mollie (iDEAL, Mister Cash, Creditcard, PayPal & paysafecard)';
-$_['footer_text']             = 'Payment services';
+$_['footer_text']             = 'Services paiement';
 
 // Text
-$_['text_payment']            = "Payment";
-$_['text_success']            = "Success: You have successfully modified your Mollie settings!";
+$_['text_payment']            = "Paiement";
+$_['text_success']            = "Succès: Vous avez réussi à modifier les paramètres Mollie!";
 $_['text_mollie_ideal']       = '<a href="https://www.mollie.nl" target="_blank"><img src="https://www.mollie.nl/images/logo.png" alt="Mollie" title="Mollie" style="border:0px" /></a>';
 
 // Entry
-$_['entry_status']            = "Status: <br/><span class='help'>Activate the module</span>";
-$_['entry_api_key']           = "API key: <br/><span class='help'>Enter here the <code>api_key</code> of the website profile you want to use. The api_key starts with <code>test_</code> or <code>live_</code>. <br>[<a href='https://www.mollie.nl/beheer/account/profielen/' target='_blank'>view available profiles</a>]</span>";
-$_['entry_description']       = "Description: <br/><span class='help'>This description will appear on the bank / card statement of your customer. You may use a maximum of 29 characters. TIP: Use '%', this will be replaced by the order id of the payment. Don't forget % can be multiple characters long!</span>";
-$_['entry_sort_order']        = "Sort Order:";
+$_['entry_status']            = "État: <br/><span class='help'>Activer le module</span>";
+$_['entry_api_key']           = "Clé API: <br/><span class='help'>Entrer ici le <code>api_key</code> du profil que vous souhaitez utiliser. Le clé API commence par <code>test_</code> ou <code>live_</code>. <br>[<a href='https://www.mollie.nl/beheer/account/profielen/' target='_blank'>voir les profiles disponibles</a>]</span>";
+$_['entry_description']       = "Description: <br/><span class='help'>Cette description apparaîtra sur le relevé bancaire de votre client. Vous pouvez utiliser un maximum de 29 caractères. ASTUCE: Utilisez le '%', il sera remplacé par l'id de la commande du paiement. N'oubliez pas que % peut devenir plusieurs caractères!</span>";
+$_['entry_sort_order']        = "Ordre de triage:";
 
 // Info
 $_['entry_module']            = "Module:";
-$_['entry_status']            = "Module Status:";
+$_['entry_status']            = "État du Module:";
 $_['entry_version']           = "<a href='https://github.com/mollie/OpenCart/releases' target='_blank'>MollieOpenCart</a>";
-$_['entry_support']	    	  = "Support:";
+$_['entry_support']	    	  = "Assistance:";
 
 // Error
-$_['error_permission']        = "Warning: You don't have permission to modify the Mollie payment methods.";
-$_['error_api_key']           = "Mollie API key is required!";
-$_['error_description']       = "Description is required!";
+$_['error_permission']        = "Attention: Vous n'avez pas l'autorisation de modifier les méthodes de paiement Mollie.";
+$_['error_api_key']           = "La clé API est nécessaire!";
+$_['error_description']       = "Description est nécessaire!";
 
 // Status
-$_['entry_failed_status']     = 'Failed Status:';
-$_['entry_canceled_status']   = 'Canceled Status:';
-$_['entry_expired_status']    = 'Expired Status:';
-$_['entry_pending_status']    = 'Pending Status:';
-$_['entry_processing_status'] = 'Processing Status:';
+$_['entry_failed_status']     = 'État echoué:';
+$_['entry_canceled_status']   = 'État annulé:';
+$_['entry_expired_status']    = 'État expiré:';
+$_['entry_pending_status']    = 'État attente:';
+$_['entry_processing_status'] = 'État traitement:';

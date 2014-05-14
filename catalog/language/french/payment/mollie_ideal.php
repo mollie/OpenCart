@@ -36,31 +36,31 @@
  */
 
 // Text
-$_['heading_title']      = 'Payment by Mollie';
-$_['ideal_title']        = 'Your payment';
-$_['text_title']         = 'Pay online';
-$_['text_redirected']    = 'The client has been referred to the payment screen';
-$_['msg_failed']         = 'Unfortunately your payment has failed.';
-$_['msg_unknown']        = 'Your payment has not been received yet. We will send you a confirmation email the moment the payment is received.';
-$_['heading_failed']     = 'Your payment has not been completed';
-$_['heading_unknown']    = 'Your payment is pending';
-$_['heading_error']      = 'An error occurred when setting up the payment.';
-$_['text_error']         = 'An error occurred when setting up the payment with Mollie:';
-$_['text_issuer']        = 'Select your bank:';
+$_['heading_title']      = 'Paiement par Mollie';
+$_['ideal_title']        = 'Votre paiement';
+$_['text_title']         = 'Payez en ligne';
+$_['text_redirected']    = 'Le client a été renvoyé à l\'écran de paiement';
+$_['msg_failed']         = 'Malheureusement, votre paiement est échoué.';
+$_['msg_unknown']        = 'Votre paiement n\'a pas encore été reçu. Nous vous enverrons un e-mail de confirmation au moment où le paiement est reçu.';
+$_['heading_failed']     = 'Votre paiement n\'a pas été achevée';
+$_['heading_unknown']    = 'Votre paiement est en attente';
+$_['heading_error']      = 'Une erreur s\'est produite lors de la mise en place du paiement.';
+$_['text_error']         = 'Une erreur s\'est produite lors de la mise en place du paiement avec Mollie:';
+$_['text_issuer']        = 'Selectionnez votre banque:';
 
 // Response
-$_['response_success']   = 'The payment is received';
-$_['response_none']      = 'The payment is not received yet';
-$_['response_cancelled'] = 'The client has canceled the payment';
-$_['response_failed']    = 'Unfortunately something went wrong. Please retry the payment.';
-$_['response_expired']   = 'The payment has expired';
-$_['response_unknown']   = 'An unknown error occurred';
+$_['response_success']   = 'Le paiement est reçu';
+$_['response_none']      = 'Le paiement n\'est pas encore reçu';
+$_['response_cancelled'] = 'Le client a annulé le paiement';
+$_['response_failed']    = 'Malheureusement une erreur s\'est produite. S\'il vous plaît réessayer le paiement.';
+$_['response_expired']   = 'Le paiement a expiré';
+$_['response_unknown']   = 'Une erreur inconnue s\'est produite';
 
 // Methods
 $_['method_ideal']            = 'iDEAL';
-$_['method_creditcard']       = 'Creditcard';
+$_['method_creditcard']       = 'Carte de crédit';
 $_['method_mistercash']       = 'Mister Cash';
-$_['method_banktransfer']     = 'Bank transfer';
+$_['method_banktransfer']     = 'Virement bancaire';
 $_['method_paypal']           = 'PayPal';
 $_['method_paysafecard']      = 'paysafecard';
 $_['method_minitix']          = 'MiniTix';
