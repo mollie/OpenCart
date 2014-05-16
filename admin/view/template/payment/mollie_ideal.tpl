@@ -27,7 +27,7 @@
 
 		<div class="heading">
 			<h1><img src="view/image/payment.png" alt="" /> <?php clean_echo($heading_title) ?></h1>
-			<div class="buttons"><a onclick="$('#form').submit()" class="button"><span><?php clean_echo($button_save) ?></span></a><a href="<?php clean_echo($cancel) ?>" class="button"><span><?php clean_echo($button_cancel) ?></span></a></div>
+			<div class="buttons"><a onclick="(window.jQuery || window.$)('#form').submit()" class="button"><span><?php clean_echo($button_save) ?></span></a><a href="<?php clean_echo($cancel) ?>" class="button"><span><?php clean_echo($button_cancel) ?></span></a></div>
 		</div>
 
 		<div class="content">

@@ -44,7 +44,7 @@ class ModelPaymentMollieIdeal extends Model
 	/**
 	 * Version of the plugin.
 	 */
-	const PLUGIN_VERSION = "5.1.3";
+	const PLUGIN_VERSION = "5.1.4";
 
 	/**
 	 * @var Mollie_API_Client
@@ -191,9 +191,17 @@ class ModelPaymentMollieIdeal extends Model
 					$base_url = $this->config->get('config_url');
 				}
 
+				/**
+				 * FIX for Joomla-based OpenCart.
+				 */
+				if (preg_match('~(/.+/com_opencart)/catalog~iu', __FILE__, $matches))
+				{
+					$base_url = $matches[1];
+				}
+
 				// Add some javascript to make it seem as if all Mollie methods are top level.
 				$js  = '<script type="text/javascript" src="' . rtrim($base_url, '/') . '/catalog/view/javascript/mollie_methods.js"></script>';
-				$js .= '<script type="text/javascript">'.'(function () {';
+				$js .= '<script type="text/javascript">'.'(function ($) {';
 
 				$i = 0;
 				foreach ($payment_methods as $payment_method)
@@ -223,7 +231,7 @@ class ModelPaymentMollieIdeal extends Model
 					$("tr.mpm_issuer_rows").hide();
 					$("input[name=payment_method]:checked").click();
 
-					}) ();</script>';
+					}) (window.jQuery || window.$);</script>';
 
 				if (!$this->config->get('mollie_ideal_no_js'))
 				{
