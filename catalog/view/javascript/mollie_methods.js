@@ -81,9 +81,8 @@ if (!window.mollie_method_add)
 				issuer_text = 'Select your bank:';
 			}
 
-			var row = mollie.parents("tr"),
-				tbody = row.parents("tbody");
-			row.remove();
+			var row = mollie.parents("tr");
+			row.empty();
 
 			for (m = 0; m < methods.length; m++)
 			{
@@ -106,7 +105,7 @@ if (!window.mollie_method_add)
 						issuers_html += '</select></td></tr>';
 					}
 
-					tbody.append(
+					row.before(
 						'<tr class="highlight">' +
 						'<td>' +
 						'<input id="mpm_' + m + '" type="radio" value="mollie_ideal" name="payment_method" onclick="window.mollie_method_select(\'' + method_report_url + '\', \'' + method.id + '\', \'' + method.description + '\', \'mpm_' + m + '_issuer_row\');" />' +
