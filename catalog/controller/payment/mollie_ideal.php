@@ -137,8 +137,32 @@ class ControllerPaymentMollieIdeal extends Controller
 		{
 			// Load essentials
 			$this->load->language('payment/mollie_ideal');
+			$this->load->model('payment/mollie_ideal');
 
 			$order  = $this->getOpenCartOrder();
+
+			// Check if a payment already exists for this order and redirect to that paymentUrl if it is still open
+			$payment_id = $this->model_payment_mollie_ideal->getTransactionIdByOrderId($order['order_id']);
+			if ($payment_id)
+			{
+				$payment = $this->getApiClient()->payments->get($payment_id);
+
+				if (!empty($payment))
+				{
+					// A payment for this order has already been created. If the status is still open, we can redirect to
+					// this paymentUrl. Otherwise an error must be thrown.
+					if ($payment->status == Mollie_API_Object_Payment::STATUS_OPEN && $order['order_status_id'] === $this->config->get('mollie_ideal_pending_status_id'))
+					{
+						$this->redirect($payment->links->paymentUrl);
+					}
+					else
+					{
+						$this->showErrorPage("A payment already exists for order id {$order['order_id']}.");
+						return;
+					}
+				}
+			}
+
 			$amount = $this->currency->convert($order['total'], $this->config->get('config_currency'), 'EUR');
 
 			$amount      = round($amount, 2);
@@ -201,41 +225,12 @@ class ControllerPaymentMollieIdeal extends Controller
 			}
 			catch (Mollie_Api_Exception $e)
 			{
-				$this->log->write("Error setting up transaction with Mollie: {$e->getMessage()}.");
-
-				$this->data['mollie_error'] = $e->getMessage();
-				$this->data['message']      = $this->language;
-
-				// check if template exists
-				if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/mollie_payment_error.tpl'))
-				{
-					$this->template = $this->config->get('config_template') . '/template/payment/mollie_payment_error.tpl';
-				}
-				else
-				{
-					$this->template = 'default/template/payment/mollie_payment_error.tpl';
-				}
-
-				$this->children = array(
-					'common/column_left',
-					'common/column_right',
-					'common/content_top',
-					'common/content_bottom',
-					'common/footer',
-					'common/header'
-				);
-
-				// Breadcrumbs
-				$this->setBreadcrumbs();
-
-				// Render HTML output
-				$this->response->setOutput($this->render());
+				$this->showErrorPage($e->getMessage());
 				return;
 			}
 
 			$this->model_checkout_order->confirm($order['order_id'], $this->config->get('mollie_ideal_pending_status_id'), $this->language->get('text_redirected'), FALSE);
 
-			$this->load->model('payment/mollie_ideal');
 			$this->model_payment_mollie_ideal->setPayment($order['order_id'], $payment->id);
 
 			$this->redirect($payment->links->paymentUrl);
@@ -420,6 +415,42 @@ class ControllerPaymentMollieIdeal extends Controller
 			'text'      => $this->language->get('text_home'),
 			'separator' => FALSE
 		);
+	}
+
+	/**
+	 * @param $message
+	 */
+	protected function showErrorPage ($message)
+	{
+		$this->log->write("Error setting up transaction with Mollie: {$message}.");
+
+		$this->data['mollie_error'] = $message;
+		$this->data['message']      = $this->language;
+
+		// check if template exists
+		if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/mollie_payment_error.tpl'))
+		{
+			$this->template = $this->config->get('config_template') . '/template/payment/mollie_payment_error.tpl';
+		}
+		else
+		{
+			$this->template = 'default/template/payment/mollie_payment_error.tpl';
+		}
+
+		$this->children = array(
+			'common/column_left',
+			'common/column_right',
+			'common/content_top',
+			'common/content_bottom',
+			'common/footer',
+			'common/header'
+		);
+
+		// Breadcrumbs
+		$this->setBreadcrumbs();
+
+		// Render HTML output
+		$this->response->setOutput($this->render());
 	}
 
 	/**
