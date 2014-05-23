@@ -271,7 +271,7 @@ class ControllerPaymentMollieIdeal extends Controller
 		if (!empty($order))
 		{
 			// Only if the transaction is in 'pending' status
-			if ($order['order_status_id'] === $this->config->get('mollie_ideal_pending_status_id') || $order['order_status_id'] === $this->config->get('mollie_ideal_processing_status_id'))
+			if ($order['order_status_id'] === $this->config->get('mollie_ideal_pending_status_id'))
 			{
 				if ($payment->isPaid())
 				{
