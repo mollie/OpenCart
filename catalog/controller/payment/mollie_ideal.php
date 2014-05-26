@@ -151,9 +151,9 @@ class ControllerPaymentMollieIdeal extends Controller
 				{
 					// A payment for this order has already been created. If the status is still open, we can redirect to
 					// this paymentUrl. Otherwise an error must be thrown.
-					if ($payment->status == Mollie_API_Object_Payment::STATUS_OPEN && $order['order_status_id'] === $this->config->get('mollie_ideal_pending_status_id'))
+					if ($payment->isOpen() && $order['order_status_id'] === $this->config->get('mollie_ideal_pending_status_id'))
 					{
-						$this->redirect($payment->links->paymentUrl);
+						$this->redirect($payment->getPaymentUrl());
 					}
 					else
 					{
