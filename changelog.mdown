@@ -2,6 +2,11 @@
 
 # Changelog #
 
+## Changes in release 5.1.5 ##
++ Resolved the problem that multiple payments could be created for one single order.
++ Fixed an issue where a successful payment can be changed to expired.
++ Show Mollie payment methods on the correct position.
+
 ## Changes in release 5.1.4 ##
 + Now with support for Joomla-based OpenCart installations.
 + Fixed old PHP 5.2- regression bug.
