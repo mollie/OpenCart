@@ -164,7 +164,10 @@ class ModelPaymentMollieIdeal extends Model
 		elseif (sizeof($payment_methods) > 1)
 		{
 			// FIX for extension Quick Checkout
-			if (strpos($_SERVER['REQUEST_URI'], 'quickcheckout/payment_method/validate') !== FALSE)
+			if (strpos($_SERVER['REQUEST_URI'], 'quickcheckout/payment_method/validate') !== FALSE
+				||
+				strpos($_SERVER['REQUEST_URI'], 'checkout/manual') !== FALSE
+			)
 			{
 				$title = '';
 
@@ -237,7 +240,6 @@ class ModelPaymentMollieIdeal extends Model
 				{
 					echo $js;
 				}
-
 			}
 		}
 		// No Mollie payment methods available.
