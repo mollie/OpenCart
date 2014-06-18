@@ -50,6 +50,10 @@ Het is niet nodig een redirect URL of webhook in te stellen. Dat doet de module 
 
 Controleert u alstublieft of er fouten in het Fouten Logboek staan, u vindt dit in de OpenCart admin onder "Configuratie" en dan "Fouten Logboek". Sommige fouten, zoals het verkeerd instellen van een mailserver, stoppen het afrekenproces.
 
+## Ik krijg een popup met de melding "Error" tijdens het afrekenen. ##
+
+De module is op dit moment niet compatible met de instelling "Gzip compressie-niveau". Schakelt u deze instelling alstublieft uit door de instelling op "0" te zetten onder het tabblad "Server" in de Opencart admin. De module zal het dan weer doen.
+
 # Licentie #
 [BSD (Berkeley Software Distribution) License](http://www.opensource.org/licenses/bsd-license.php).
 Copyright (c) 2013, Mollie B.V.
