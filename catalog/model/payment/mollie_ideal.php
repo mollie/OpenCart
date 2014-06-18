@@ -154,6 +154,8 @@ class ModelPaymentMollieIdeal extends Model
 			);
 		}
 
+		$title = '';
+
 		// Show the only Mollie payment method available.
 		if (sizeof($payment_methods) == 1)
 		{
@@ -164,16 +166,11 @@ class ModelPaymentMollieIdeal extends Model
 		elseif (sizeof($payment_methods) > 1)
 		{
 			// FIX for extension Quick Checkout
-			if (strpos($_SERVER['REQUEST_URI'], 'quickcheckout/payment_method/validate') !== FALSE
-				||
-				strpos($_SERVER['REQUEST_URI'], 'checkout/manual') !== FALSE
-			)
+			if (strpos($_SERVER['REQUEST_URI'], 'quickcheckout/payment_method/validate') !== FALSE)
 			{
-				$title = '';
-
 				foreach ($payment_methods as $payment_method)
 				{
-					if ($this->session->data['mollie_method'] == $payment_method->id)
+					if (isset($this->session->data['mollie_method']) && $this->session->data['mollie_method'] == $payment_method->id)
 					{
 						// Display correct payment method in admin and confirmation email
 						$title = $payment_method->description;
@@ -236,14 +233,15 @@ class ModelPaymentMollieIdeal extends Model
 
 					}) (window.jQuery || window.$);</script>';
 
-				if (!$this->config->get('mollie_ideal_no_js'))
+				if (!$this->config->get('mollie_ideal_no_js') && strpos($_SERVER['REQUEST_URI'], 'checkout/manual') === FALSE)
 				{
 					echo $js;
 				}
 			}
 		}
-		// No Mollie payment methods available.
-		else
+
+		// No applicable payment method found
+		if (empty($title))
 		{
 			return array();
 		}
