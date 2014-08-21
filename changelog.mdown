@@ -2,6 +2,9 @@
 
 # Changelog #
 
+## Changes in release 5.1.6 ##
++ Fixed an issue where creating orders in the backend would cause a JSON Parse error.
+
 ## Changes in release 5.1.5 ##
 + Resolved the problem that multiple payments could be created for one single order.
 + Fixed an issue where a successful payment can be changed to expired.
