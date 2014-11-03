@@ -2,6 +2,9 @@
 
 # Changelog #
 
+## Changes in release 5.1.7 ##
++ Describe payment statuses more clear in admin settings.
+
 ## Changes in release 5.1.6 ##
 + Fixed an issue where creating orders in the backend would cause a JSON Parse error.
 
