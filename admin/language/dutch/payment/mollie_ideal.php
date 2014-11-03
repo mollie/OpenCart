@@ -58,8 +58,8 @@ $_['error_api_key']         = "Mollie API key is verplicht!";
 $_['error_description']     = "De omschrijving is verplicht!";
 
 // Status
-$_['entry_failed_status']    = 'Mislukt status:';
-$_['entry_canceled_status']  = 'Geannuleerd status:';
-$_['entry_expired_status']   = 'Verlopen status:';
-$_['entry_pending_status']   = 'In afwachting status:';
-$_['entry_processing_status']= 'Bezig met verwerken status:';
+$_['entry_pending_status']   = 'Betaling aangemaakt status:';
+$_['entry_failed_status']    = 'Betaling mislukt status:';
+$_['entry_canceled_status']  = 'Betaling geannuleerd status:';
+$_['entry_expired_status']   = 'Betaling verlopen status:';
+$_['entry_processing_status']= 'Betaling succesvol status:';

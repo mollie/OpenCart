@@ -58,8 +58,8 @@ $_['error_api_key']           = "Mollie API key is required!";
 $_['error_description']       = "Description is required!";
 
 // Status
-$_['entry_failed_status']     = 'Failed Status:';
-$_['entry_canceled_status']   = 'Canceled Status:';
-$_['entry_expired_status']    = 'Expired Status:';
-$_['entry_pending_status']    = 'Pending Status:';
-$_['entry_processing_status'] = 'Processing Status:';
+$_['entry_pending_status']    = 'Payment created status:';
+$_['entry_failed_status']     = 'Payment failed status:';
+$_['entry_canceled_status']   = 'Payment canceled status:';
+$_['entry_expired_status']    = 'Payment expired status:';
+$_['entry_processing_status'] = 'Payment successful status:';
