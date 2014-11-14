@@ -32,34 +32,46 @@
  */
 
 // Heading
-$_['heading_title']         = 'Mollie (iDEAL, Mister Cash, Creditcard, PayPal & paysafecard)';
-$_['footer_text']           = 'Betaaldiensten';
+$_['heading_title']         = "Mollie (iDEAL, Mister Cash, Creditcard, PayPal & paysafecard)";
+$_['title_payment_status']  = "Betaalstatussen";
+$_['title_mod_about']       = "Over Deze Module";
+$_['footer_text']           = "Betaaldiensten";
 
 // Text 
+$_['text_edit']             = "Bewerk Mollie";
 $_['text_payment']          = "Betaling";
 $_['text_success']          = "Gelukt: de instellingen voor de module zijn aangepast!";
 $_['text_mollie_ideal']     = '<a href="https://www.mollie.nl" target="_blank"><img src="https://www.mollie.nl/images/logo.png" alt="Mollie" title="Mollie" style="border:0px" /></a>';
 
 // Entry
-$_['entry_status']          = "Status: <br/><span class='help'>Activate the module</span>";
-$_['entry_api_key']         = "API key: <br/><span class='help'>Voer hier de <code>api_key</code> van het websiteprofiel in dat u wilt gebruiken. De api_key begint met <code>test_</code> or <code>live_</code>. <br>[<a href='https://www.mollie.nl/beheer/account/profielen/' target='_blank'>bekijk uw websiteprofielen</a>]</span>";
-$_['entry_description']     = "Omschrijving: <br/><span class='help'>De omschrijving zal op het bankafschrift van uw klant verschijnen en kunt u terugvinden in het Mollie beheer. U kunt maximaal 29 tekens gebruikt. TIP: Gebruik <code>%'</code>, dit zal vervangen worden door het ordernummer. Het ordernummer kan zelf ook meerdere tekens lang zijn!</span>";
-$_['entry_sort_order']      = "Sorteervolgorde:";
+$_['entry_status']          = "Status";
+$_['entry_api_key']         = "API-sleutel";
+$_['entry_description']     = "Omschrijving";
+$_['entry_sort_order']      = "Sorteervolgorde";
+
+// Help
+$_['help_view_profile']    = 'U kunt uw API-sleutel vinden bij <a href="https://www.mollie.nl/beheer/account/profielen/" target="_blank" class="alert-link">uw Mollie-websiteprofielen</a>.';
+$_['help_status']          = "Activeer de module";
+$_['help_api_key']         = "Voer hier de <code>api_key</code> van het websiteprofiel in dat u wilt gebruiken. De API-sleutel begint met <code>test_</code> of <code>live_</code>.";
+$_['help_description']     = "De omschrijving zal op het bankafschrift van uw klant verschijnen en kunt u terugvinden in het Mollie beheer. U kunt maximaal 29 tekens gebruiken. TIP: Gebruik <code>%</code>, dit zal vervangen worden door het ordernummer. Het ordernummer kan zelf ook meerdere tekens lang zijn!";
 
 // Info
-$_['entry_module']          = "Module:";
-$_['entry_status']          = "Module status:";
-$_['entry_version']         = "<a href='https://github.com/mollie/OpenCart/releases' target='_blank'>MollieOpenCart</a>";
-$_['entry_support']	    	= "Support:";
+$_['entry_module']          = "Module";
+$_['entry_mod_status']      = "Modulestatus";
+$_['entry_comm_status']     = "Communicatiestatus";
+$_['entry_support']         = "Support";
+
+$_['entry_version']         = '<a href="https://github.com/mollie/OpenCart/releases" target="_blank">Mollie Opencart</a>';
 
 // Error
 $_['error_permission']      = "Waarschuwing: U heeft geen toestemming om de module aan te passen.";
-$_['error_api_key']         = "Mollie API key is verplicht!";
+$_['error_api_key']         = "Mollie API-sleutel is verplicht!";
 $_['error_description']     = "De omschrijving is verplicht!";
+$_['error_file_missing']    = "Bestand bestaat niet";
 
 // Status
-$_['entry_pending_status']   = 'Betaling aangemaakt status:';
-$_['entry_failed_status']    = 'Betaling mislukt status:';
-$_['entry_canceled_status']  = 'Betaling geannuleerd status:';
-$_['entry_expired_status']   = 'Betaling verlopen status:';
-$_['entry_processing_status']= 'Betaling succesvol status:';
+$_['entry_pending_status']   = "Status betaling aangemaakt";
+$_['entry_failed_status']    = "Status betaling mislukt";
+$_['entry_canceled_status']  = "Status betaling geannuleerd";
+$_['entry_expired_status']   = "Status betaling verlopen";
+$_['entry_processing_status']= "Status betaling succesvol";

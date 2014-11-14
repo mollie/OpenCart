@@ -184,11 +184,13 @@ class ModelPaymentMollieIdeal extends Model
 				$this->load->language('payment/mollie_ideal');
 				$title = $this->language->get('text_title') . " (";
 
-				$base_url = $this->config->get('config_ssl');
-
-				if (empty($base_url))
+				if (!isset($this->request->server['HTTPS']) || ($this->request->server['HTTPS'] != 'on'))
 				{
 					$base_url = $this->config->get('config_url');
+				}
+				else
+				{
+					$base_url = $this->config->get('config_ssl');
 				}
 
 				/**

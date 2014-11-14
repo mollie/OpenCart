@@ -32,34 +32,46 @@
  */
 
 // Heading
-$_['heading_title']           = 'Mollie (iDEAL, Mister Cash, Creditcard, PayPal & paysafecard)';
-$_['footer_text']             = 'Payment services';
+$_['heading_title']           = "Mollie (iDEAL, Mister Cash, Creditcard, PayPal & paysafecard)";
+$_['title_payment_status']    = "Payment Statuses";
+$_['title_mod_about']         = "About This Module";
+$_['footer_text']             = "Payment services";
 
-// Text
+// Text 
+$_['text_edit']               = "Edit Mollie";
 $_['text_payment']            = "Payment";
 $_['text_success']            = "Success: You have successfully modified your Mollie settings!";
 $_['text_mollie_ideal']       = '<a href="https://www.mollie.nl" target="_blank"><img src="https://www.mollie.nl/images/logo.png" alt="Mollie" title="Mollie" style="border:0px" /></a>';
 
 // Entry
-$_['entry_status']            = "Status: <br/><span class='help'>Activate the module</span>";
-$_['entry_api_key']           = "API key: <br/><span class='help'>Enter here the <code>api_key</code> of the website profile you want to use. The api_key starts with <code>test_</code> or <code>live_</code>. <br>[<a href='https://www.mollie.nl/beheer/account/profielen/' target='_blank'>view available profiles</a>]</span>";
-$_['entry_description']       = "Description: <br/><span class='help'>This description will appear on the bank / card statement of your customer. You may use a maximum of 29 characters. TIP: Use '%', this will be replaced by the order id of the payment. Don't forget % can be multiple characters long!</span>";
-$_['entry_sort_order']        = "Sort Order:";
+$_['entry_status']            = "Status";
+$_['entry_api_key']           = "API key";
+$_['entry_description']       = "Description";
+$_['entry_sort_order']        = "Sort order";
+
+// Help
+$_['help_view_profile']   = 'You can find your API key in <a href="https://www.mollie.nl/beheer/account/profielen/" target="_blank" class="alert-link">your Mollie website profiles</a>.';
+$_['help_status']         = "Activate the module";
+$_['help_api_key']        = 'Enter the <code>api_key</code> of the website profile you want to use. The API key starts with <code>test_</code> or <code>live_</code>.';
+$_['help_description']    = 'This description will appear on the bank / card statement of your customer. You may use a maximum of 29 characters. TIP: Use <code>%</code>, this will be replaced by the order id of the payment. Don\'t forget <code>%</code> can be multiple characters long!';
 
 // Info
-$_['entry_module']            = "Module:";
-$_['entry_status']            = "Module Status:";
-$_['entry_version']           = "<a href='https://github.com/mollie/OpenCart/releases' target='_blank'>MollieOpenCart</a>";
-$_['entry_support']	    	  = "Support:";
+$_['entry_module']            = "Module";
+$_['entry_mod_status']        = "Module status";
+$_['entry_comm_status']       = "Communication status";
+$_['entry_support']           = "Support";
+
+$_['entry_version']           = '<a href="https://github.com/mollie/OpenCart/releases" target="_blank">Mollie Opencart</a>';
 
 // Error
 $_['error_permission']        = "Warning: You don't have permission to modify the Mollie payment methods.";
 $_['error_api_key']           = "Mollie API key is required!";
 $_['error_description']       = "Description is required!";
+$_['error_file_missing']      = "File does not exist";
 
 // Status
-$_['entry_pending_status']    = 'Payment created status:';
-$_['entry_failed_status']     = 'Payment failed status:';
-$_['entry_canceled_status']   = 'Payment canceled status:';
-$_['entry_expired_status']    = 'Payment expired status:';
-$_['entry_processing_status'] = 'Payment successful status:';
+$_['entry_pending_status']    = "Payment created status";
+$_['entry_failed_status']     = "Payment failed status";
+$_['entry_canceled_status']   = "Payment canceled status";
+$_['entry_expired_status']    = "Payment expired status";
+$_['entry_processing_status'] = "Payment successful status";

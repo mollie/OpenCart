@@ -12,12 +12,12 @@
 <?php echo $column_left ?>
 <?php echo $column_right ?>
 
-<div id="content">
+<div class="container" id="content">
 	<?php echo $content_top ?>
 
 	<div class="breadcrumb">
 		<?php foreach ($breadcrumbs as $breadcrumb): ?>
-			<?php clean_echo($breadcrumb['separator']) ?><a href="<?php clean_echo($breadcrumb['href']) ?>"><?php clean_echo($breadcrumb['text']) ?></a>
+			<?php clean_echo($breadcrumb['separator']) ?><a href="<?php echo $breadcrumb['href'] ?>"><?php echo $breadcrumb['text'] ?></a>
 		<?php endforeach ?>
 	</div>
 

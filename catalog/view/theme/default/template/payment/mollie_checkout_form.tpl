@@ -16,10 +16,10 @@
             <!-- only one payment method through Mollie available -->
             <input type="hidden" name="mollie_method" value="<?php clean_echo(reset($payment_methods)->id) ?>">
 
-        <?php elseif (!empty($this->session->data['mollie_method'])): ?>
+        <?php elseif (!empty($mollie_method)): ?>
 
             <!-- Mollie method recovered from session -->
-            <input type="hidden" name="mollie_method" value="<?php clean_echo($this->session->data['mollie_method']) ?>">
+            <input type="hidden" name="mollie_method" value="<?php clean_echo($mollie_method) ?>">
 
         <?php else: ?>
 
@@ -47,8 +47,8 @@
         <?php endif ?>
 
         <div class="buttons">
-            <div class="right">
-                <input type="submit" value="<?php echo $message->get('button_confirm') ?>" id="button-confirm" class="button" form="mollie_payment_form">
+            <div class="right pull-right">
+                <input type="submit" value="<?php echo $message->get('button_confirm') ?>" id="button-confirm" class="button btn btn-primary" form="mollie_payment_form">
             </div>
         </div>
 

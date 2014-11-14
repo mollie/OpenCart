@@ -41,7 +41,6 @@
  * @property Loader $load
  * @property Config $config
  * @property Language $language
- * @method redirect
  * @method render
  * @property $data
  * @property $document
@@ -96,7 +95,7 @@ class ControllerPaymentMollieIdeal extends Controller
 	}
 
 	/**
-	 * This gets called by OpenCart at the checkout page and generates the paymentmethod
+	 * This gets called by OpenCart at the checkout page and generates the payment method.
 	 */
 	public function index ()
 	{
@@ -104,26 +103,28 @@ class ControllerPaymentMollieIdeal extends Controller
 		$this->load->model('payment/mollie_ideal');
 
 		// Set template data
-		$this->data['action']          = $this->url->link('payment/mollie_ideal/payment', '', 'SSL');
-		$this->data['message']         = $this->language;
+		$data['action']  = $this->url->link('payment/mollie_ideal/payment', '', 'SSL');
+		$data['message'] = $this->language;
 
 		// Get the applicable payment methods.
 		$order = $this->getOpenCartOrder();
 		$payment_methods = $this->model_payment_mollie_ideal->getApplicablePaymentMethods($order['total']);
-		$this->data["payment_methods"] = $payment_methods;
+
+		$data["payment_methods"] = $payment_methods;
+		$data['mollie_method']   = $this->session->data['mollie_method'];
 
 		// Check if view is at default template else use modified template path
 		if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/mollie_checkout_form.tpl'))
 		{
-			$this->template = $this->config->get('config_template') . '/template/payment/mollie_checkout_form.tpl';
+			$template = $this->config->get('config_template') . '/template/payment/mollie_checkout_form.tpl';
 		}
 		else
 		{
-			$this->template = 'default/template/payment/mollie_checkout_form.tpl';
+			$template = 'default/template/payment/mollie_checkout_form.tpl';
 		}
 
-		// Render HTML output
-		$this->render();
+		// Return HTML output - it will get appended to confirm.tpl.
+		return $this->renderTemplate($template, $data, array(), FALSE);
 	}
 
 	/**
@@ -229,7 +230,7 @@ class ControllerPaymentMollieIdeal extends Controller
 				return;
 			}
 
-			$this->model_checkout_order->confirm($order['order_id'], $this->config->get('mollie_ideal_pending_status_id'), $this->language->get('text_redirected'), FALSE);
+			$this->addOrderHistory($order['order_id'], $this->config->get('mollie_ideal_pending_status_id'), $this->language->get('text_redirected'), FALSE); // Pending
 
 			$this->model_payment_mollie_ideal->setPayment($order['order_id'], $payment->id);
 
@@ -276,27 +277,27 @@ class ControllerPaymentMollieIdeal extends Controller
 				if ($payment->isPaid())
 				{
 					echo "The payment was received and the order was moved to the processing status.";
-					$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_processing_status_id'), $this->language->get('response_success'), TRUE); // Processed
+					$this->addOrderHistory($order['order_id'], $this->config->get('mollie_ideal_processing_status_id'), $this->language->get('response_success'), TRUE); // Processed
 					return;
 				}
 
 				if ($payment->status == Mollie_API_Object_Payment::STATUS_CANCELLED)
 				{
 					echo "The payment was cancelled and the order was moved to the canceled status.";
-					$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_canceled_status_id'), $this->language->get('response_cancelled'), FALSE); // Canceled
+					$this->addOrderHistory($order['order_id'], $this->config->get('mollie_ideal_canceled_status_id'), $this->language->get('response_cancelled'), FALSE); // Canceled
 					return;
 				}
 
 				if ($payment->status == Mollie_API_Object_Payment::STATUS_EXPIRED)
 				{
 					echo "The payment was expired and the order was moved to the expired status.";
-					$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_expired_status_id'), $this->language->get('response_expired'), FALSE); // Expired
+					$this->addOrderHistory($order['order_id'], $this->config->get('mollie_ideal_expired_status_id'), $this->language->get('response_expired'), FALSE); // Expired
 					return;
 				}
 
 				echo "The payment failed for an unknown reason, order was updated.";
 
-				$this->model_checkout_order->update($order['order_id'], $this->config->get('mollie_ideal_failed_status_id'), $this->language->get('response_unknown'), FALSE); // Fail
+				$this->addOrderHistory($order['order_id'], $this->config->get('mollie_ideal_failed_status_id'), $this->language->get('response_unknown'), FALSE); // Fail
 			}
 			else
 			{
@@ -356,8 +357,8 @@ class ControllerPaymentMollieIdeal extends Controller
 		elseif ($order && $order['order_status_id'] == $this->config->get('mollie_ideal_pending_status_id'))
 		{
 			// Set template data
-			$this->data['message_title']   = $this->language->get("heading_unknown");
-			$this->data['message_text']    = $this->language->get("msg_unknown");
+			$data['message_title'] = $this->language->get("heading_unknown");
+			$data['message_text']  = $this->language->get("msg_unknown");
 
 			if ($this->cart)
 			{
@@ -371,46 +372,44 @@ class ControllerPaymentMollieIdeal extends Controller
 		else
 		{
 			// Set template data
-			$this->data['message_title']   = $this->language->get("heading_failed");
-			$this->data['message_text']    = $this->language->get("msg_failed");
+			$data['message_title'] = $this->language->get("heading_failed");
+			$data['message_text']  = $this->language->get("msg_failed");
 		}
 
 		// Set template data
 		$this->document->setTitle($this->language->get('ideal_title'));
 
 		// Breadcrumbs
-		$this->setBreadcrumbs();
+		$this->setBreadcrumbs($data);
 
 		// check if template exists
 		if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/mollie_ideal_return.tpl'))
 		{
-			$this->template = $this->config->get('config_template') . '/template/payment/mollie_ideal_return.tpl';
+			$template = $this->config->get('config_template') . '/template/payment/mollie_ideal_return.tpl';
 		}
 		else
 		{
-			$this->template = 'default/template/payment/mollie_ideal_return.tpl';
+			$template = 'default/template/payment/mollie_ideal_return.tpl';
 		}
 
-		$this->children = array(
-			'common/column_left',
-			'common/column_right',
-			'common/content_top',
-			'common/content_bottom',
-			'common/footer',
-			'common/header'
-		);
-
 		// Render HTML output
-		$this->response->setOutput($this->render());
+		$this->renderTemplate($template, $data, array(
+			"column_left",
+			"column_right",
+			"content_top",
+			"content_bottom",
+			"footer",
+			"header"
+		));
 	}
 
 	/**
-	 *
+	 * @param &$data
 	 */
-	protected function setBreadcrumbs ()
+	protected function setBreadcrumbs (&$data)
 	{
-		$this->data['breadcrumbs']   = array();
-		$this->data['breadcrumbs'][] = array(
+		$data['breadcrumbs']   = array();
+		$data['breadcrumbs'][] = array(
 			'href'      => $this->url->link('common/home', (isset($this->session->data['token'])) ? 'token=' . $this->session->data['token'] : '', 'SSL'),
 			'text'      => $this->language->get('text_home'),
 			'separator' => FALSE
@@ -424,33 +423,31 @@ class ControllerPaymentMollieIdeal extends Controller
 	{
 		$this->log->write("Error setting up transaction with Mollie: {$message}.");
 
-		$this->data['mollie_error'] = $message;
-		$this->data['message']      = $this->language;
+		$data['mollie_error'] = $message;
+		$data['message']      = $this->language;
 
 		// check if template exists
 		if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/mollie_payment_error.tpl'))
 		{
-			$this->template = $this->config->get('config_template') . '/template/payment/mollie_payment_error.tpl';
+			$template = $this->config->get('config_template') . '/template/payment/mollie_payment_error.tpl';
 		}
 		else
 		{
-			$this->template = 'default/template/payment/mollie_payment_error.tpl';
+			$template = 'default/template/payment/mollie_payment_error.tpl';
 		}
 
-		$this->children = array(
-			'common/column_left',
-			'common/column_right',
-			'common/content_top',
-			'common/content_bottom',
-			'common/footer',
-			'common/header'
-		);
-
 		// Breadcrumbs
-		$this->setBreadcrumbs();
+		$this->setBreadcrumbs($data);
 
 		// Render HTML output
-		$this->response->setOutput($this->render());
+		$this->renderTemplate($template, $data, array(
+			"column_left",
+			"column_right",
+			"content_top",
+			"content_bottom",
+			"footer",
+			"header"
+		));
 	}
 
 	/**
@@ -461,5 +458,102 @@ class ControllerPaymentMollieIdeal extends Controller
 		$webhook_url = str_replace("/admin", "", $this->url->link('payment/mollie_ideal/webhook', '', 'SSL'));
 
 		return $webhook_url ? $webhook_url : NULL;
+	}
+
+	/**
+	 * Map payment status history handling for different Opencart versions
+	 *
+	 * @param int|string $order_id
+	 * @param int|string $order_status_id
+	 * @param string     $comment
+	 * @param bool       $notify
+	 */
+	protected function addOrderHistory ($order_id, $order_status_id, $comment = "", $notify = FALSE)
+	{
+		if ($this->isOpencart2())
+		{
+			$this->model_checkout_order->addOrderHistory($order_id, $order_status_id, $comment, $notify);
+		}
+		else
+		{
+			if ($order_status_id === $this->config->get("mollie_ideal_pending_status_id"))
+			{
+				$this->model_checkout_order->confirm($order_id, $order_status_id, $comment, $notify);
+			}
+			else
+			{
+				$this->model_checkout_order->update($order_id, $order_status_id, $comment, $notify);
+			}
+		}
+	}
+
+	/**
+	 * Map template handling for different Opencart versions
+	 *
+	 * @param string $template
+	 * @param array  $data
+	 * @param array  $common_children
+	 * @param bool   $echo
+	 */
+	protected function renderTemplate ($template, $data, $common_children = array(), $echo = TRUE)
+	{
+		if ($this->isOpencart2())
+		{
+			foreach ($common_children as $child)
+			{
+				$data[$child] = $this->load->controller("common/".$child);
+			}
+
+			$html = $this->load->view($template, $data);
+		}
+		else
+		{
+			foreach ($data as $field => $value)
+			{
+				$this->data[$field] = $value;
+			}
+
+			$this->template = $template;
+
+			$this->children = array();
+
+			foreach ($common_children as $child)
+			{
+				$this->children[] = "common/".$child;
+			}
+
+			$html = $this->render();
+		}
+
+		if ($echo)
+		{
+			return $this->response->setOutput($html);
+		}
+
+		return $html;
+	}
+
+	/**
+	 * @param string $url
+	 * @param int    $status
+	 */
+	protected function redirect ($url, $status = 302)
+	{
+		if ($this->isOpencart2())
+		{
+			$this->response->redirect($url, $status);
+		}
+		else
+		{
+			parent::redirect($url, $status);
+		}
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isOpencart2 ()
+	{
+		return version_compare(VERSION, 2, ">=");
 	}
 }
