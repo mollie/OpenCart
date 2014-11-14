@@ -44,7 +44,7 @@ class ModelPaymentMollieIdeal extends Model
 	/**
 	 * Version of the plugin.
 	 */
-	const PLUGIN_VERSION = "5.1.7";
+	const PLUGIN_VERSION = "5.2.0";
 
 	/**
 	 * @var Mollie_API_Client

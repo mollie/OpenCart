@@ -2,6 +2,9 @@
 
 # Changelog #
 
+## Changes in release 5.2.0 ##
++ Support for Opencart 2.
+
 ## Changes in release 5.1.7 ##
 + Describe payment statuses more clear in admin settings.
 
