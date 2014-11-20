@@ -2,6 +2,9 @@
 
 # Changelog #
 
+## Changes in release 5.2.1 ##
++ Support for ajax ('single page') checkout modules.
+
 ## Changes in release 5.2.0 ##
 + Support for Opencart 2.
 

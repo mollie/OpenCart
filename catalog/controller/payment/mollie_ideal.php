@@ -51,7 +51,7 @@ class ControllerPaymentMollieIdeal extends Controller
 	/**
 	 * Version of the plugin.
 	 */
-	const PLUGIN_VERSION = "5.2.0";
+	const PLUGIN_VERSION = "5.2.1";
 
 	/**
 	 * @var Mollie_API_Client
