@@ -202,10 +202,12 @@ class ModelPaymentMollieIdeal extends Model
 				}
 
 				// Add some javascript to make it seem as if all Mollie methods are top level.
-				$js  = '<script type="text/javascript" src="' . rtrim($base_url, '/') . '/catalog/view/javascript/mollie_methods.js"></script>';
-				$js .= '<script type="text/javascript">'.'(function ($) {';
+				$js  = PHP_EOL.'<script type="text/javascript" src="' . rtrim($base_url, '/') . '/catalog/view/javascript/mollie_methods.js"></script>'.PHP_EOL;
+				$js .= '<script type="text/javascript">'.'(function ($) {'.PHP_EOL;
 
-				$i = 0;
+				$i       = 0;
+				$checked = NULL;
+
 				foreach ($payment_methods as $payment_method)
 				{
 					if ($i)
@@ -213,31 +215,49 @@ class ModelPaymentMollieIdeal extends Model
 						$title .= ", ";
 					}
 
+					if (isset($this->session->data['mollie_method']) && $this->session->data['mollie_method'] === $payment_method->id)
+					{
+						$checked = $i;
+					}
+
 					++$i;
 
 					$title .= $payment_method->description;
-					$js    .= "window.mollie_method_add('{$payment_method->id}', '{$payment_method->description}', '{$payment_method->image->normal}');\n";
+					$js    .= "window.mollie_method_add('{$payment_method->id}', '{$payment_method->description}', '{$payment_method->image->normal}');".PHP_EOL;
 
 					$issuers = $this->getIssuersForMethod($payment_method->id);
 
 					foreach ($issuers as $issuer)
 					{
-						$js .= "window.mollie_issuer_add('{$payment_method->id}', '{$issuer->id}', '{$issuer->name}');\n";
+						$issuer_selected = (isset($this->session->data['mollie_issuer']) && $this->session->data['mollie_issuer'] === $issuer->id) ? "true" : "false";
+
+						$js .= "window.mollie_issuer_add('{$payment_method->id}', '{$issuer->id}', '{$issuer->name}', {$issuer_selected});".PHP_EOL;
 					}
 				}
 
 				$title .= ")";
-				$js .= '
-					window.mollie_methods_append("'.$this->url->link('payment/mollie_ideal/set_checkout_method', '', 'SSL').'", "'.$this->url->link('payment/mollie_ideal/set_checkout_issuer', '', 'SSL').'", "'.$this->language->get('text_issuer').'");
 
-					$("tr.mpm_issuer_rows").hide();
-					$("input[name=payment_method]:checked").click();
+				$js .= 'window.mollie_methods_append("'.$this->url->link('payment/mollie_ideal/set_checkout_method', '', 'SSL').'", "'.$this->url->link('payment/mollie_ideal/set_checkout_issuer', '', 'SSL').'", "'.$this->language->get('text_issuer').'");'.PHP_EOL;
+				$js .= '$(".mpm_issuer_rows").hide();'.PHP_EOL;
 
-					}) (window.jQuery || window.$);</script>';
+				if ($checked !== NULL)
+				{
+					// Select the Mollie payment method (and issuer row if any) saved to session earlier.
+					$js .= '$("#mpm_'.$checked.'").prop("checked", true);'.PHP_EOL;
+					$js .= 'window.mollie_display_issuers("mpm_'.$checked.'_issuer_row");'.PHP_EOL;
+				}
+				else
+				{
+					// Select either the method set to checked in raw HTML or the first method of the list. Note .click() on a Mollie method will fire window.mollie_method_select().
+					$js .= '$(\'input[name="payment_method"]:checked, input[name="payment_method"]:first\').click();'.PHP_EOL;
+				}
 
+				$js .= "}) (window.jQuery || window.$);</script>";
+
+				// We'd prefer adding JS through Document::addScript, but it is not supported for Payment modules at this point.
 				if (!$this->config->get('mollie_ideal_no_js') && strpos($_SERVER['REQUEST_URI'], 'checkout/manual') === FALSE)
 				{
-					echo $js;
+					$title .= $js;
 				}
 			}
 		}

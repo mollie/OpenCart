@@ -22,7 +22,7 @@ if (!window.mollie_method_add)
 			return window.mollie_methods;
 		};
 
-		window.mollie_issuer_add = function (method_id, id, name)
+		window.mollie_issuer_add = function (method_id, id, name, selected)
 		{
 			if (!window.mollie_issuers)
 			{
@@ -42,11 +42,13 @@ if (!window.mollie_method_add)
 					{
 						if (window.mollie_issuers[i][j].id == id)
 						{
+							window.mollie_issuers[i][j].selected = selected;
+
 							return window.mollie_issuers[i];
 						}
 					}
 
-					window.mollie_issuers[i].push({ id: id, name: name });
+					window.mollie_issuers[i].push({ id: id, name: name, selected: selected });
 
 					return window.mollie_issuers[i];
 				}
@@ -55,14 +57,31 @@ if (!window.mollie_method_add)
 			return [];
 		};
 
+		window.mollie_get_issuers = function (method_id)
+		{
+			if (typeof window.mollie_issuers[method_id] !== "object")
+			{
+				return [];
+			}
+
+			return window.mollie_issuers[method_id];
+		};
+
 		window.mollie_methods_append = function (method_report_url, issuer_report_url, issuer_text, methods)
 		{
-			var mollie        = $('input[name="payment_method"][value="mollie_ideal"]'),
-			    is_opencart_2 = (mollie.attr("id") !== "mollie_ideal"),
-				html,
+			var mollie    = $('input[name="payment_method"][value="mollie_ideal"]'),
+				row       = mollie.closest(".radio, tr"),
+				use_table = (row.is("tr")),
+				new_row,
+				issuers_row,
+				method_input,
+				method_label,
+				method_icon,
+				method_issuers,
+				method_issuers_option,
 				issuers,
 				method,
-				row,
+				td,
 				m,
 				i;
 
@@ -88,84 +107,99 @@ if (!window.mollie_method_add)
 				issuer_text = 'Select your bank:';
 			}
 
-			if (is_opencart_2)
-			{
-				row = mollie.closest("div.radio");
-				row.empty();
-			}
-			else
-			{
-				row = mollie.closest("tr");
-				row.empty();
-			}
-
 			for (m = 0; m < methods.length; m++)
 			{
 				method = methods[m];
 
-				if (method.id && method.description)
+				if (!method.id || !method.description)
 				{
-					if (is_opencart_2)
+					continue;
+				}
+
+				issuers = mollie_get_issuers(m);
+
+				new_row = row.clone();
+				new_row.attr("id", "");
+
+				method_input = $('<input id="mpm_' + m + '" type="radio" value="mollie_ideal" name="payment_method" onclick="window.mollie_method_select(\'' + method_report_url + '\', \'' + method.id + '\', \'' + method.description + '\', \'mpm_' + m + '_issuer_row\');" />');
+				method_label = $('<label for="mpm_' + m + '"></label>');
+				method_icon  = $('<img src="' + method.image + '" height="24" align="left" />');
+
+				if (issuers.length)
+				{
+					method_issuers = $('<select id="mpm_' + m + '_issuer" onchange="mollie_issuer_select(\'' + issuer_report_url + '\', (window.jQuery || window.$)(this).val())"><option value="">' + issuer_text + '</option></select>');
+
+					for (i = 0; i < issuers.length; i++)
 					{
-						html = '<div class="radio clearfix">' +
-							'<label>' +
-							'<input id="mpm_' + m + '" type="radio" value="mollie_ideal" name="payment_method" onclick="window.mollie_method_select(\'' + method_report_url + '\', \'' + method.id + '\', \'' + method.description + '\', \'mpm_' + m + '_issuer_row\');" />' +
-							'<img src="' + method.image + '" height="24" align="left" style="margin-top:-2px" />' +
-							' &nbsp;' + method.description +
-							'</label>' +
-							'</div>';
+						method_issuers_option = '<option value="' + issuers[i].id + '"';
 
-						if (window.mollie_issuers && window.mollie_issuers[m] && window.mollie_issuers[m].length)
+						if (issuers[i].selected)
 						{
-							issuers = window.mollie_issuers[m];
-
-							html += '<div class="radio mpm_issuer_rows" id="mpm_' + m + '_issuer_row">';
-
-							html += '<select id="mpm_' + m + '_issuer" onchange="mollie_issuer_select(\'' + issuer_report_url + '\', (window.jQuery || window.$)(this).val())">';
-							html += '<option value="">' + issuer_text + '</option>';
-
-							for (i = 0; i < issuers.length; i++)
-							{
-								html += '<option value="' + issuers[i].id + '">' + issuers[i].name + '</option>';
-							}
-
-							html += '</select>';
-
-							html += '</div>';
+							method_issuers_option += ' selected';
 						}
-					}
-					else
-					{
-						html = '<tr class="highlight">' +
-							'<td>' +
-							'<input id="mpm_' + m + '" type="radio" value="mollie_ideal" name="payment_method" onclick="window.mollie_method_select(\'' + method_report_url + '\', \'' + method.id + '\', \'' + method.description + '\', \'mpm_' + m + '_issuer_row\');" />' +
-							'</td>' +
-							'<td>' +
-							'<label for="mpm_' + m + '"><img src="' + method.image + '" height="24" align="left" style="margin-top:-5px" /> &nbsp;' + method.description + '</label>' +
-							'</td>' +
-							'</tr>';
 
-						if (window.mollie_issuers && window.mollie_issuers[m] && window.mollie_issuers[m].length)
-						{
-							issuers = window.mollie_issuers[m];
+						method_issuers_option += '>' + issuers[i].name + '</option>';
 
-							html += '<tr class="mpm_issuer_rows" id="mpm_' + m + '_issuer_row"><td>&nbsp;</td><td>' +
-								'<select id="mpm_' + m + '_issuer" onchange="mollie_issuer_select(\'' + issuer_report_url + '\', (window.jQuery || window.$)(this).val())">' +
-								'<option value="">' + issuer_text + '</option>';
-
-							for (i = 0; i < issuers.length; i++)
-							{
-								html += '<option value="' + issuers[i].id + '">' + issuers[i].name + '</option>';
-							}
-
-							html += '</select>' +
-								'</td></tr>';
-						}
+						method_issuers.append(method_issuers_option);
 					}
 
-					row.before(html);
+					issuers_row = row.clone();
+
+					issuers_row
+						.attr("id", "mpm_" + m + "_issuer_row")
+						.addClass("mpm_issuer_rows");
+				}
+
+				if (use_table)
+				{
+					td = new_row.find("td");
+
+					td.eq(0).empty().append(method_input);
+
+					method_icon.css({"marginTop":-5});
+
+					method_label
+						.append(method_icon)
+						.append(" &nbsp; " + method.description);
+
+					td.eq(1).empty().append(method_label);
+
+					if (issuers.length)
+					{
+						td = issuers_row.find("td");
+
+						td.eq(0).empty().html("&nbsp;");
+						td.eq(1).empty().append(method_issuers);
+					}
+				}
+				else
+				{
+					new_row.addClass("clearfix");
+
+					method_icon.css({"marginTop":-2});
+
+					method_label
+						.append(method_input)
+						.append(method_icon)
+						.append(" &nbsp; " + method.description);
+
+					new_row.empty().append(method_label);
+
+					if (issuers.length)
+					{
+						issuers_row.empty().append(method_issuers);
+					}
+				}
+
+				row.before(new_row);
+
+				if (issuers.length)
+				{
+					row.before(issuers_row);
 				}
 			}
+
+			row.remove();
 
 			return true;
 		};
