@@ -31,13 +31,14 @@
  * @copyright   Mollie B.V.
  * @link        https://www.mollie.nl
  *
- * @property $config
- * @property $db
- * @property $language
- * @property $load
- * @property $log
- * @property $session
- * @property $url
+ * @property Config   $config
+ * @property DB       $db
+ * @property Language $language
+ * @property Loader   $load
+ * @property Log      $log
+ * @property Registry $registry
+ * @property Session  $session
+ * @property URL      $url
  */
 class ModelPaymentMollieIdeal extends Model
 {
@@ -70,7 +71,7 @@ class ModelPaymentMollieIdeal extends Model
 	}
 
 	/**
-	 * @param float $total
+	 * @param  float                      $total
 	 * @return Mollie_API_Object_Method[]
 	 */
 	public function getApplicablePaymentMethods ($total)
@@ -111,7 +112,7 @@ class ModelPaymentMollieIdeal extends Model
 	}
 
 	/**
-	 * @param string $payment_method_id
+	 * @param  string $payment_method_id
 	 * @return array
 	 */
 	public function getIssuersForMethod ($payment_method_id)
@@ -133,8 +134,8 @@ class ModelPaymentMollieIdeal extends Model
 	/**
 	 * On the checkout page this method gets called to get information about the payment method.
 	 *
-	 * @param $address
-	 * @param float $total
+	 * @param  string $address
+	 * @param  float  $total
 	 * @return array
 	 */
 	public function getMethod ($address, $total)
@@ -148,131 +149,157 @@ class ModelPaymentMollieIdeal extends Model
 			$this->log->write("Error retrieving all payments methods from Mollie: {$e->getMessage()}.");
 
 			return array(
-				'code'       => 'mollie_ideal',
-				'title'      => '<span style="color: red;">Mollie error: ' .$e->getMessage() . '</span>',
-				'sort_order' => $this->config->get('mollie_ideal_sort_order')
+				"code"       => "mollie_ideal",
+				"title"      => '<span style="color: red;">Mollie error: ' .$e->getMessage() . '</span>',
+				"sort_order" => $this->config->get("mollie_ideal_sort_order"),
+				"terms"      => NULL
 			);
 		}
 
-		$title = '';
+		// Add a piece of JavaScript to the output buffer.
+		$this->setPreOutput($this->getMethodJavaScript($payment_methods));
 
-		// Show the only Mollie payment method available.
-		if (sizeof($payment_methods) == 1)
+		$title = NULL;
+
+		// Attempt to find the saved payment method title.
+		foreach ($payment_methods as $payment_method)
 		{
-			$payment_method = reset($payment_methods);
-			$title = $payment_method->description;
-		}
-		// Multiple Mollie payment methods available.
-		elseif (sizeof($payment_methods) > 1)
-		{
-			// FIX for extension Quick Checkout
-			if (strpos($_SERVER['REQUEST_URI'], 'quickcheckout/payment_method/validate') !== FALSE)
+			if (isset($this->session->data['mollie_method']) && $this->session->data['mollie_method'] == $payment_method->id)
 			{
-				foreach ($payment_methods as $payment_method)
-				{
-					if (isset($this->session->data['mollie_method']) && $this->session->data['mollie_method'] == $payment_method->id)
-					{
-						// Display correct payment method in admin and confirmation email
-						$title = $payment_method->description;
-						break;
-					}
-				}
+				$title = $payment_method->description;
+				break;
+			}
+		}
+
+		if (!$title)
+		{
+			if (sizeof($payment_methods) === 1)
+			{
+				// If no payment method was selected earlier, use the first available payment method's title.
+				$payment_method = reset($payment_methods);
+				$title          = $payment_method->description;
 			}
 			else
 			{
-				// Load language file
-				$this->load->language('payment/mollie_ideal');
-				$title = $this->language->get('text_title') . " (";
+				// Fall back to the generic module title otherwise.
+				$this->load->language("payment/mollie_ideal");
+				$title = $this->language->get("text_title");
 
-				if (!isset($this->request->server['HTTPS']) || ($this->request->server['HTTPS'] != 'on'))
+				// As a last resort, see if we can append payment method titles to the module title.
+				if (sizeof($payment_methods) > 1)
 				{
-					$base_url = $this->config->get('config_url');
-				}
-				else
-				{
-					$base_url = $this->config->get('config_ssl');
-				}
+					$title_append = array();
 
-				/**
-				 * FIX for Joomla-based OpenCart.
-				 */
-				if (preg_match('~(/.+/com_opencart)/catalog~iu', __FILE__, $matches))
-				{
-					$base_url = $matches[1];
-				}
-
-				// Add some javascript to make it seem as if all Mollie methods are top level.
-				$js  = PHP_EOL.'<script type="text/javascript" src="' . rtrim($base_url, '/') . '/catalog/view/javascript/mollie_methods.js"></script>'.PHP_EOL;
-				$js .= '<script type="text/javascript">'.'(function ($) {'.PHP_EOL;
-
-				$i       = 0;
-				$checked = NULL;
-
-				foreach ($payment_methods as $payment_method)
-				{
-					if ($i)
+					foreach ($payment_methods as $payment_method)
 					{
-						$title .= ", ";
+						$title_append[] = $payment_method->description;
 					}
 
-					if (isset($this->session->data['mollie_method']) && $this->session->data['mollie_method'] === $payment_method->id)
-					{
-						$checked = $i;
-					}
-
-					++$i;
-
-					$title .= $payment_method->description;
-					$js    .= "window.mollie_method_add('{$payment_method->id}', '{$payment_method->description}', '{$payment_method->image->normal}');".PHP_EOL;
-
-					$issuers = $this->getIssuersForMethod($payment_method->id);
-
-					foreach ($issuers as $issuer)
-					{
-						$issuer_selected = (isset($this->session->data['mollie_issuer']) && $this->session->data['mollie_issuer'] === $issuer->id) ? "true" : "false";
-
-						$js .= "window.mollie_issuer_add('{$payment_method->id}', '{$issuer->id}', '{$issuer->name}', {$issuer_selected});".PHP_EOL;
-					}
-				}
-
-				$title .= ")";
-
-				$js .= 'window.mollie_methods_append("'.$this->url->link('payment/mollie_ideal/set_checkout_method', '', 'SSL').'", "'.$this->url->link('payment/mollie_ideal/set_checkout_issuer', '', 'SSL').'", "'.$this->language->get('text_issuer').'");'.PHP_EOL;
-				$js .= '$(".mpm_issuer_rows").hide();'.PHP_EOL;
-
-				if ($checked !== NULL)
-				{
-					// Select the Mollie payment method (and issuer row if any) saved to session earlier.
-					$js .= '$("#mpm_'.$checked.'").prop("checked", true);'.PHP_EOL;
-					$js .= 'window.mollie_display_issuers("mpm_'.$checked.'_issuer_row");'.PHP_EOL;
-				}
-				else
-				{
-					// Select either the method set to checked in raw HTML or the first method of the list. Note .click() on a Mollie method will fire window.mollie_method_select().
-					$js .= '$(\'input[name="payment_method"]:checked, input[name="payment_method"]:first\').click();'.PHP_EOL;
-				}
-
-				$js .= "}) (window.jQuery || window.$);</script>";
-
-				// We'd prefer adding JS through Document::addScript, but it is not supported for Payment modules at this point.
-				if (!$this->config->get('mollie_ideal_no_js') && strpos($_SERVER['REQUEST_URI'], 'checkout/manual') === FALSE)
-				{
-					$title .= $js;
+					$title .= " (".implode(", ", $title_append).")";
 				}
 			}
 		}
 
-		// No applicable payment method found
-		if (empty($title))
+		return array(
+			"code"       => "mollie_ideal",
+			"title"      => $title,
+			"sort_order" => $this->config->get("mollie_ideal_sort_order"),
+			"terms"      => NULL
+		);
+	}
+
+	/**
+	 * @param  array  $payment_methods
+	 * @return string
+	 */
+	protected function getMethodJavaScript ($payment_methods)
+	{
+		if (!isset($this->request->server['HTTPS']) || ($this->request->server['HTTPS'] != "on"))
 		{
-			return array();
+			$base_url = $this->config->get("config_url");
+		}
+		else
+		{
+			$base_url = $this->config->get("config_ssl");
 		}
 
-		return array(
-			'code'       => 'mollie_ideal',
-			'title'      => $title,
-			'sort_order' => $this->config->get('mollie_ideal_sort_order')
-		);
+		// Fix for Joomla-based Opencart.
+		if (preg_match('~(/.+/com_opencart)/catalog~iu', __FILE__, $matches))
+		{
+			$base_url = $matches[1];
+		}
+
+		// Add some javascript to make it seem like all Mollie methods are top level.
+		$js  = '<script type="text/javascript" src="'.rtrim($base_url, "/").'/catalog/view/javascript/mollie_methods.js"></script>'.PHP_EOL;
+		$js .= '<script type="text/javascript">(function ($) {'.PHP_EOL;
+
+		$i       = 0;
+		$checked = NULL;
+
+		foreach ($payment_methods as $payment_method)
+		{
+			if (isset($this->session->data['mollie_method']) && $this->session->data['mollie_method'] === $payment_method->id)
+			{
+				$checked = $i;
+			}
+
+			$i++;
+
+			$js .= "window.mollie_method_add('{$payment_method->id}', '{$payment_method->description}', '{$payment_method->image->normal}');".PHP_EOL;
+
+			$issuers = $this->getIssuersForMethod($payment_method->id);
+
+			foreach ($issuers as $issuer)
+			{
+				if (isset($this->session->data['mollie_issuer']) && $this->session->data['mollie_issuer'] === $issuer->id)
+				{
+					$issuer_selected = "true";
+				}
+				else
+				{
+					$issuer_selected = "false";
+				}
+
+				$js .= "window.mollie_issuer_add('{$payment_method->id}', '{$issuer->id}', '{$issuer->name}', {$issuer_selected});".PHP_EOL;
+			}
+		}
+
+		$js .= 'window.mollie_methods_append("'.$this->url->link("payment/mollie_ideal/set_checkout_method", "", "SSL").'", "'.$this->url->link("payment/mollie_ideal/set_checkout_issuer", "", "SSL").'", "'.$this->language->get("text_issuer").'");'.PHP_EOL;
+		$js .= '$(".mpm_issuer_rows").hide();'.PHP_EOL;
+
+		if ($checked !== NULL)
+		{
+			// Select the Mollie payment method (and issuer row if any) saved to session earlier.
+			$js .= '$("#mpm_'.$checked.'").prop("checked", true);'.PHP_EOL;
+			$js .= 'window.mollie_display_issuers("mpm_'.$checked.'_issuer_row");'.PHP_EOL;
+		}
+		else
+		{
+			// Select either the method set to checked in raw HTML or the first method of the list. Note .click() on a Mollie method will fire window.mollie_method_select().
+			$js .= '$(\'input[name="payment_method"]:checked, input[name="payment_method"]:first\').click();'.PHP_EOL;
+		}
+
+		$js .= "}) (window.jQuery || window.$);</script>";
+
+		return $js;
+	}
+
+	/**
+	 * Overwrite the Response object in order to prepend a JS file to the output buffer. Really hacky, but Opencart won't allow us to load scripts yet.
+	 *
+	 * @param string $prepend
+	 */
+	protected function setPreOutput ($prepend)
+	{
+		global $response;
+
+		$response = new ModelPaymentMollieIdealResponse;
+
+		$response->addHeader("Content-Type: text/html; charset=utf-8");
+		$response->setCompression($this->config->get("config_compression"));
+		$response->setPreOutput($prepend);
+
+		$this->registry->set("response", $response);
 	}
 
 	/**
@@ -357,5 +384,51 @@ class ModelPaymentMollieIdeal extends Model
 
 		return FALSE;
 	}
+}
 
+
+/**
+ * Hacky Response extension to ensure prepending HTML to output buffer. See ModelPaymentMollieIdeal::setPreOutput().
+ */
+class ModelPaymentMollieIdealResponse extends Response
+{
+	private $prepend;
+
+	public function setPreOutput ($prepend)
+	{
+		$this->prepend = $prepend;
+	}
+
+	public function setOutput ($output)
+	{
+		if ($this->prepend)
+		{
+			// Test for JSON objects.
+			$json = json_decode($output);
+
+			if ($json !== NULL)
+			{
+				// Support for Onecheckout module.
+				if(is_object($json) && isset($json->output))
+				{
+					$json->output = $this->prepend . $json->output;
+				}
+				elseif(is_array($json) && isset($json['output']))
+				{
+					$json['output'] = $this->prepend . $json['output'];
+				}
+
+				$output = json_encode($json);
+			}
+			else
+			{
+				$output = $this->prepend . $output;
+			}
+
+			// Use the prepended output only once.
+			$this->prepend = NULL;
+		}
+
+		parent::setOutput($output);
+	}
 }
