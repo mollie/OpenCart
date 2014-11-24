@@ -52,12 +52,14 @@
             </div>
         </div>
 
-        <script type="text/javascript">
-	        // Don't rely on document.ready for jQuery 1.7- support.
-	        (function ($)
-            {
-                $('#button-confirm').click($('#mollie_payment_form').submit);
-            }) (window.jQuery || window.$);
-        </script>
+		<script type="text/javascript">
+			(function ($)
+			{
+				$("#button-confirm").click(function()
+				{
+					$("#mollie_payment_form").submit();
+				});
+			}) (window.jQuery || window.$);
+		</script>
     </form>
 </div>
