@@ -2,6 +2,10 @@
 
 # Changelog #
 
+## Changes in release 5.2.3 ##
++ Support for OneCheckOut module.
++ Support for Dreamvention's Quick Checkout module.
+
 ## Changes in release 5.2.2 ##
 + Fixed order receipts not loading properly.
 + Fixed 'missing terms' warning on checkout page.
