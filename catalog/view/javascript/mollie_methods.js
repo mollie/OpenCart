@@ -8,9 +8,16 @@ if (!window.mollie_methods)
 		this.methodReportURL = method_report_url;
 		this.issuerReportURL = issuer_report_url;
 		this.issuerText      = (typeof issuer_text !== "undefined" && issuer_text !== "") ? issuer_text : "Select your bank:";
+		this.reloadTimeout   = null;
+		this.selectedMethod  = null;
 
-		this.addMethod = function (id, description, image)
+		this.addMethod = function (id, description, image, selected)
 		{
+			if (selected)
+			{
+				self.selectedMethod = id;
+			}
+
 			for (var i = 0; i < self.methods.length; i++)
 			{
 				if (self.methods[i].id === id)
@@ -19,12 +26,15 @@ if (!window.mollie_methods)
 				}
 			}
 
+			var index = self.methods.length;
+
 			self.methods.push({
-				index:       self.methods.length,
-				id:          id,
-				description: description,
-				image:       image,
-				issuers:     []
+				index:          index,
+				id:             id,
+				description:    description,
+				image:          image,
+				selectedIssuer: null,
+				issuers:        []
 			});
 		};
 
@@ -37,19 +47,22 @@ if (!window.mollie_methods)
 				return;
 			}
 
+			if (selected)
+			{
+				method.selectedIssuer = id;
+			}
+
 			for (var i = 0; i < method.issuers.length; i++)
 			{
 				if (method.issuers[i].id === id)
 				{
-					method.issuers[i].selected = selected;
 					return;
 				}
 			}
 
 			method.issuers.push({
-				id:       id,
-				name:     name,
-				selected: selected
+				id:   id,
+				name: name
 			});
 		};
 
@@ -138,7 +151,10 @@ if (!window.mollie_methods)
 				method_icon  = $('<img src="' + method.image + '" align="left" />');
 
 				method_input.data("mollie-method-id", method.id);
-				method_input.click(self.selectMethod);
+
+				method_input
+					.click(self.selectMethod)
+					.on("remove", self.reloadMethods);
 
 				method_icon.css({"float":"none", "height":24, "margin":"-2px 0.5em 0"});
 
@@ -152,7 +168,7 @@ if (!window.mollie_methods)
 					{
 						method_issuers_option = '<option value="' + method.issuers[j].id + '"';
 
-						if (method.issuers[j].selected)
+						if (method.selectedIssuer === method.issuers[j].id)
 						{
 							method_issuers_option += ' selected';
 						}
@@ -218,7 +234,27 @@ if (!window.mollie_methods)
 
 			row.remove();
 
+			// Click the selected or first available payment method to trigger click events.
+			if (self.selectedMethod)
+			{
+				method = self.getMethodByID(self.selectedMethod);
+
+				$("#mpm_" + method.index).click();
+			}
+			else
+			{
+				$('input[name="payment_method"]:checked, input[name="payment_method"]:first').click();
+			}
+
 			return true;
+		};
+
+		// Allow AJAX modules to reload parts of the checkout process without having to load our library again.
+		this.reloadMethods = function ()
+		{
+			clearTimeout(self.reloadTimeout);
+
+			self.reloadTimeout = setTimeout(self.appendMethods, 100);
 		};
 
 		this.selectMethod = function ()
@@ -228,6 +264,8 @@ if (!window.mollie_methods)
 
 			if (method)
 			{
+				self.selectedMethod = method.id;
+
 				$.post(self.methodReportURL, {
 					mollie_method_id: method.id,
 					mollie_method_description: method.description
@@ -240,10 +278,13 @@ if (!window.mollie_methods)
 		this.selectIssuer = function ()
 		{
 			var issuer_id = $(this).val(),
+				method    = self.getMethodByID(self.selectedMethod),
 				issuer    = self.getIssuerByID(issuer_id);
 
 			if (issuer)
 			{
+				method.selectedIssuer = issuer.id;
+
 				$.post(self.issuerReportURL, {
 					mollie_issuer_id: issuer.id
 				});

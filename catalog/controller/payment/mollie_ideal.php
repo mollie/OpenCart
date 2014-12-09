@@ -111,7 +111,12 @@ class ControllerPaymentMollieIdeal extends Controller
 		$payment_methods = $this->model_payment_mollie_ideal->getApplicablePaymentMethods($order['total']);
 
 		$data["payment_methods"] = $payment_methods;
-		$data['mollie_method']   = $this->session->data['mollie_method'];
+		$data['mollie_method']   = NULL;
+
+		if (isset($this->session->data['mollie_method']))
+		{
+			$data['mollie_method'] = $this->session->data['mollie_method'];
+		}
 
 		// Check if view is at default template else use modified template path
 		if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/mollie_checkout_form.tpl'))

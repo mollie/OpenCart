@@ -241,49 +241,23 @@ class ModelPaymentMollieIdeal extends Model
 		$js .= '$(function() {'.PHP_EOL;
 		$js .= 'var mollie = new window.mollie_methods($, "'.$method_report_url.'", "'.$issuer_report_url.'", "'.$issuer_text.'");'.PHP_EOL;
 
-		$i       = 0;
-		$checked = NULL;
-
 		foreach ($payment_methods as $payment_method)
 		{
-			if (isset($this->session->data['mollie_method']) && $this->session->data['mollie_method'] === $payment_method->id)
-			{
-				$checked = $i;
-			}
+			$method_selected = intval(isset($this->session->data['mollie_method']) && $this->session->data['mollie_method'] === $payment_method->id);
 
-			$i++;
-
-			$js .= 'mollie.addMethod("'.$payment_method->id.'", "'.$payment_method->description.'", "'.$payment_method->image->normal.'");'.PHP_EOL;
+			$js .= 'mollie.addMethod("'.$payment_method->id.'", "'.$payment_method->description.'", "'.$payment_method->image->normal.'", '.$method_selected.');'.PHP_EOL;
 
 			$issuers = $this->getIssuersForMethod($payment_method->id);
 
 			foreach ($issuers as $issuer)
 			{
-				if (isset($this->session->data['mollie_issuer']) && $this->session->data['mollie_issuer'] === $issuer->id)
-				{
-					$issuer_selected = "true";
-				}
-				else
-				{
-					$issuer_selected = "false";
-				}
+				$issuer_selected = intval(isset($this->session->data['mollie_issuer']) && $this->session->data['mollie_issuer'] === $issuer->id);
 
 				$js .= 'mollie.addIssuer("'.$payment_method->id.'", "'.$issuer->id.'", "'.$issuer->name.'", '.$issuer_selected.');'.PHP_EOL;
 			}
 		}
 
 		$js .= 'mollie.appendMethods();'.PHP_EOL;
-
-		if ($checked !== NULL)
-		{
-			// Select the Mollie payment method (and issuer row if any) saved to session earlier. Note .click() on a Mollie method will fire window.mollie_methods.selectMethod().
-			$js .= '$("#mpm_'.$checked.'").click();'.PHP_EOL;
-		}
-		else
-		{
-			// Select either the method set to checked in raw HTML or the first method of the list. Note .click() on a Mollie method will fire window.mollie_methods.selectMethod().
-			$js .= '$(\'input[name="payment_method"]:checked, input[name="payment_method"]:first\').click();'.PHP_EOL;
-		}
 
 		$js .= '});'.PHP_EOL;
 		$js .= '};'.PHP_EOL;
@@ -307,29 +281,31 @@ class ModelPaymentMollieIdeal extends Model
 	 */
 	protected function setPreOutput ($prepend)
 	{
-		// Quickcheckout makes things even worse by overwriting the entire checkout. Just echo the JS.
-		$conf = $this->config->get("quickcheckout");
-		if (!empty($conf) && intval($conf['general']['enable']) && intval($conf['general']['main_checkout']))
+		// Quickcheckout makes things worse by overwriting the entire checkout. Just echo the JS.
+		if ($this->isRoute("checkout/checkout"))
 		{
-			echo $prepend;
+			$conf = $this->config->get("quickcheckout");
+			if (!empty($conf) && intval($conf['general']['enable']) && intval($conf['general']['main_checkout']))
+			{
+				echo $prepend;
+			}
+
 			return;
 		}
 
-		// Otherwise, only take over response in checkout/payment_method.
-		if (!$this->isRoute("checkout/payment_method"))
+		// For the regular checkout and Onecheckout, hijack the response object (really ugly).
+		if ($this->isRoute("checkout/payment_method") || $this->isRoute("onecheckout/payment"))
 		{
-			return;
+			global $response;
+
+			$response = new ModelPaymentMollieIdealResponse;
+
+			$response->addHeader("Content-Type: text/html; charset=utf-8");
+			$response->setCompression($this->config->get("config_compression"));
+			$response->setPreOutput($prepend);
+
+			$this->registry->set("response", $response);
 		}
-
-		global $response;
-
-		$response = new ModelPaymentMollieIdealResponse;
-
-		$response->addHeader("Content-Type: text/html; charset=utf-8");
-		$response->setCompression($this->config->get("config_compression"));
-		$response->setPreOutput($prepend);
-
-		$this->registry->set("response", $response);
 	}
 
 	// Check if we're on the right page. Required for JavaScript hack.
