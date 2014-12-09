@@ -1,73 +1,88 @@
-if (!window.mollie_method_add)
+if (!window.mollie_methods)
 {
-	(function ($)
-	{
-		window.mollie_method_add = function (id, description, image)
-		{
-			if (!window.mollie_methods)
-			{
-				window.mollie_methods = [];
-			}
+	window.mollie_methods = function ($, method_report_url, issuer_report_url, issuer_text) {
 
-			for (var i = 0; i < window.mollie_methods.length; i++)
+		var self = this;
+
+		this.methods         = [];
+		this.methodReportURL = method_report_url;
+		this.issuerReportURL = issuer_report_url;
+		this.issuerText      = (typeof issuer_text !== "undefined" && issuer_text !== "") ? issuer_text : "Select your bank:";
+
+		this.addMethod = function (id, description, image)
+		{
+			for (var i = 0; i < self.methods.length; i++)
 			{
-				if (window.mollie_methods[i].id == id)
+				if (self.methods[i].id === id)
 				{
-					return window.mollie_methods;
+					return;
 				}
 			}
 
-			window.mollie_methods.push({ id: id, description: description, image: image });
-
-			return window.mollie_methods;
+			self.methods.push({
+				index:       self.methods.length,
+				id:          id,
+				description: description,
+				image:       image,
+				issuers:     []
+			});
 		};
 
-		window.mollie_issuer_add = function (method_id, id, name, selected)
+		this.addIssuer = function (method_id, id, name, selected)
 		{
-			if (!window.mollie_issuers)
+			var method = self.getMethodByID(method_id);
+
+			if (!method)
 			{
-				window.mollie_issuers = [];
+				return;
 			}
 
-			for (var i = 0; i < window.mollie_methods.length; i++)
+			for (var i = 0; i < method.issuers.length; i++)
 			{
-				if (window.mollie_methods[i].id == method_id)
+				if (method.issuers[i].id === id)
 				{
-					if (!window.mollie_issuers[i])
-					{
-						window.mollie_issuers[i] = [];
-					}
-
-					for (var j = 0; j < window.mollie_issuers[i].length; j++)
-					{
-						if (window.mollie_issuers[i][j].id == id)
-						{
-							window.mollie_issuers[i][j].selected = selected;
-
-							return window.mollie_issuers[i];
-						}
-					}
-
-					window.mollie_issuers[i].push({ id: id, name: name, selected: selected });
-
-					return window.mollie_issuers[i];
+					method.issuers[i].selected = selected;
+					return;
 				}
 			}
 
-			return [];
+			method.issuers.push({
+				id:       id,
+				name:     name,
+				selected: selected
+			});
 		};
 
-		window.mollie_get_issuers = function (method_id)
+		this.getMethodByID = function (method_id)
 		{
-			if (typeof window.mollie_issuers[method_id] !== "object")
+			for (var i = 0; i < self.methods.length; i++)
 			{
-				return [];
+				if (self.methods[i].id === method_id)
+				{
+					return self.methods[i];
+				}
 			}
 
-			return window.mollie_issuers[method_id];
+			return null;
 		};
 
-		window.mollie_methods_append = function (method_report_url, issuer_report_url, issuer_text, methods)
+		this.getIssuerByID = function (issuer_id)
+		{
+			for (var i = 0; i < self.methods.length; i++)
+			{
+				for (var j = 0; j < self.methods[i].issuers.length; j++)
+				{
+					if (self.methods[i].issuers[j].id === issuer_id)
+					{
+						return self.methods[i].issuers[j];
+					}
+				}
+			}
+
+			return null;
+		};
+
+		this.appendMethods = function ()
 		{
 			var mollie    = $('input[name="payment_method"][value="mollie_ideal"]'),
 				row       = mollie.closest(".radio, tr"),
@@ -79,11 +94,14 @@ if (!window.mollie_method_add)
 				method_icon,
 				method_issuers,
 				method_issuers_option,
-				issuers,
 				method,
-				td,
-				m,
-				i;
+				td;
+
+			// Quickcheckout has weird class names.
+			if (row.parent().hasClass("radio-input"))
+			{
+				row = row.parent();
+			}
 
 			if (!mollie.length)
 			{
@@ -91,54 +109,55 @@ if (!window.mollie_method_add)
 				return false;
 			}
 
-			if (typeof methods === "undefined" || !methods.length)
+			// Exit if methods already were appended.
+			if (typeof mollie.data("mollie-method-id") === "string")
 			{
-				methods = window.mollie_methods;
+				return false;
 			}
 
-			if (!methods.length)
+			if (!self.methods.length)
 			{
 				window.console && console.log('Error in mollie_methods_append: No methods found.');
 				return false;
 			}
 
-			if (typeof issuer_text === "undefined" || issuer_text == '')
+			for (var i = 0; i < self.methods.length; i++)
 			{
-				issuer_text = 'Select your bank:';
-			}
-
-			for (m = 0; m < methods.length; m++)
-			{
-				method = methods[m];
+				method = self.methods[i];
 
 				if (!method.id || !method.description)
 				{
 					continue;
 				}
 
-				issuers = mollie_get_issuers(m);
-
 				new_row = row.clone();
 				new_row.attr("id", "");
 
-				method_input = $('<input id="mpm_' + m + '" type="radio" value="mollie_ideal" name="payment_method" onclick="window.mollie_method_select(\'' + method_report_url + '\', \'' + method.id + '\', \'' + method.description + '\', \'mpm_' + m + '_issuer_row\');" />');
-				method_label = $('<label for="mpm_' + m + '"></label>');
-				method_icon  = $('<img src="' + method.image + '" height="24" align="left" />');
+				method_input = $('<input id="mpm_' + method.index + '" type="radio" value="mollie_ideal" name="payment_method" />');
+				method_label = $('<label for="mpm_' + method.index + '"></label>');
+				method_icon  = $('<img src="' + method.image + '" align="left" />');
 
-				if (issuers.length)
+				method_input.data("mollie-method-id", method.id);
+				method_input.click(self.selectMethod);
+
+				method_icon.css({"float":"none", "height":24, "margin":"-2px 0.5em 0"});
+
+				if (method.issuers.length)
 				{
-					method_issuers = $('<select id="mpm_' + m + '_issuer" onchange="mollie_issuer_select(\'' + issuer_report_url + '\', (window.jQuery || window.$)(this).val())"><option value="">' + issuer_text + '</option></select>');
+					method_issuers = $('<select id="mpm_' + method.index + '_issuer"><option value="">' + self.issuerText + '</option></select>');
 
-					for (i = 0; i < issuers.length; i++)
+					method_issuers.change(self.selectIssuer);
+
+					for (var j = 0; j < method.issuers.length; j++)
 					{
-						method_issuers_option = '<option value="' + issuers[i].id + '"';
+						method_issuers_option = '<option value="' + method.issuers[j].id + '"';
 
-						if (issuers[i].selected)
+						if (method.issuers[j].selected)
 						{
 							method_issuers_option += ' selected';
 						}
 
-						method_issuers_option += '>' + issuers[i].name + '</option>';
+						method_issuers_option += '>' + method.issuers[j].name + '</option>';
 
 						method_issuers.append(method_issuers_option);
 					}
@@ -146,7 +165,7 @@ if (!window.mollie_method_add)
 					issuers_row = row.clone();
 
 					issuers_row
-						.attr("id", "mpm_" + m + "_issuer_row")
+						.attr("id", "mpm_" + method.index + "_issuer_row")
 						.addClass("mpm_issuer_rows");
 				}
 
@@ -164,7 +183,7 @@ if (!window.mollie_method_add)
 
 					td.eq(1).empty().append(method_label);
 
-					if (issuers.length)
+					if (method.issuers.length)
 					{
 						td = issuers_row.find("td");
 
@@ -176,8 +195,6 @@ if (!window.mollie_method_add)
 				{
 					new_row.addClass("clearfix");
 
-					method_icon.css({"marginTop":-2});
-
 					method_label
 						.append(method_input)
 						.append(method_icon)
@@ -185,7 +202,7 @@ if (!window.mollie_method_add)
 
 					new_row.empty().append(method_label);
 
-					if (issuers.length)
+					if (method.issuers.length)
 					{
 						issuers_row.empty().append(method_issuers);
 					}
@@ -193,7 +210,7 @@ if (!window.mollie_method_add)
 
 				row.before(new_row);
 
-				if (issuers.length)
+				if (method.issuers.length)
 				{
 					row.before(issuers_row);
 				}
@@ -204,32 +221,40 @@ if (!window.mollie_method_add)
 			return true;
 		};
 
-		window.mollie_method_select = function (report_url, method_id, method_description, issuers_row)
+		this.selectMethod = function ()
 		{
-			$.post(report_url, {
-				mollie_method_id:          method_id,
-				mollie_method_description: method_description
-			});
+			var method_id = $(this).data("mollie-method-id"),
+				method    = self.getMethodByID(method_id);
 
-			mollie_display_issuers(issuers_row);
-		};
-
-		window.mollie_issuer_select = function (report_url, issuer_id)
-		{
-			$.post(report_url, {
-				mollie_issuer_id: issuer_id
-			});
-		};
-
-		window.mollie_display_issuers = function (active_issuers_row)
-		{
-			$('.mpm_issuer_rows').hide();
-
-			if (typeof active_issuers_row !== "undefined" && active_issuers_row !== '')
+			if (method)
 			{
-				$('#' + active_issuers_row).show();
+				$.post(self.methodReportURL, {
+					mollie_method_id: method.id,
+					mollie_method_description: method.description
+				});
+
+				self.showIssuers(method);
 			}
 		};
 
-	}) (window.jQuery || window.$);
+		this.selectIssuer = function ()
+		{
+			var issuer_id = $(this).val(),
+				issuer    = self.getIssuerByID(issuer_id);
+
+			if (issuer)
+			{
+				$.post(self.issuerReportURL, {
+					mollie_issuer_id: issuer.id
+				});
+			}
+		};
+
+		self.showIssuers = function (method)
+		{
+			$(".mpm_issuer_rows").hide();
+
+			$('#mpm_' + method.index + "_issuer_row").show();
+		};
+	};
 }

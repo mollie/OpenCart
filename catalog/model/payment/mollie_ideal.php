@@ -229,9 +229,17 @@ class ModelPaymentMollieIdeal extends Model
 			$base_url = $matches[1];
 		}
 
+		$method_report_url = $this->url->link("payment/mollie_ideal/set_checkout_method", "", "SSL");
+		$issuer_report_url = $this->url->link("payment/mollie_ideal/set_checkout_issuer", "", "SSL");
+		$issuer_text       = $this->language->get("text_issuer");
+
 		// Add some javascript to make it seem like all Mollie methods are top level.
 		$js  = '<script type="text/javascript" src="'.rtrim($base_url, "/").'/catalog/view/javascript/mollie_methods.js"></script>'.PHP_EOL;
-		$js .= '<script type="text/javascript">(function ($) {'.PHP_EOL;
+		$js .= '<script type="text/javascript">'.PHP_EOL;
+		$js .= 'init_mollie_methods = function () {'.PHP_EOL;
+		$js .= '$ = window.jQuery || window.$;'.PHP_EOL;
+		$js .= '$(function() {'.PHP_EOL;
+		$js .= 'var mollie = new window.mollie_methods($, "'.$method_report_url.'", "'.$issuer_report_url.'", "'.$issuer_text.'");'.PHP_EOL;
 
 		$i       = 0;
 		$checked = NULL;
@@ -245,7 +253,7 @@ class ModelPaymentMollieIdeal extends Model
 
 			$i++;
 
-			$js .= "window.mollie_method_add('{$payment_method->id}', '{$payment_method->description}', '{$payment_method->image->normal}');".PHP_EOL;
+			$js .= 'mollie.addMethod("'.$payment_method->id.'", "'.$payment_method->description.'", "'.$payment_method->image->normal.'");'.PHP_EOL;
 
 			$issuers = $this->getIssuersForMethod($payment_method->id);
 
@@ -260,26 +268,34 @@ class ModelPaymentMollieIdeal extends Model
 					$issuer_selected = "false";
 				}
 
-				$js .= "window.mollie_issuer_add('{$payment_method->id}', '{$issuer->id}', '{$issuer->name}', {$issuer_selected});".PHP_EOL;
+				$js .= 'mollie.addIssuer("'.$payment_method->id.'", "'.$issuer->id.'", "'.$issuer->name.'", '.$issuer_selected.');'.PHP_EOL;
 			}
 		}
 
-		$js .= 'window.mollie_methods_append("'.$this->url->link("payment/mollie_ideal/set_checkout_method", "", "SSL").'", "'.$this->url->link("payment/mollie_ideal/set_checkout_issuer", "", "SSL").'", "'.$this->language->get("text_issuer").'");'.PHP_EOL;
-		$js .= '$(".mpm_issuer_rows").hide();'.PHP_EOL;
+		$js .= 'mollie.appendMethods();'.PHP_EOL;
 
 		if ($checked !== NULL)
 		{
-			// Select the Mollie payment method (and issuer row if any) saved to session earlier.
-			$js .= '$("#mpm_'.$checked.'").prop("checked", true);'.PHP_EOL;
-			$js .= 'window.mollie_display_issuers("mpm_'.$checked.'_issuer_row");'.PHP_EOL;
+			// Select the Mollie payment method (and issuer row if any) saved to session earlier. Note .click() on a Mollie method will fire window.mollie_methods.selectMethod().
+			$js .= '$("#mpm_'.$checked.'").click();'.PHP_EOL;
 		}
 		else
 		{
-			// Select either the method set to checked in raw HTML or the first method of the list. Note .click() on a Mollie method will fire window.mollie_method_select().
+			// Select either the method set to checked in raw HTML or the first method of the list. Note .click() on a Mollie method will fire window.mollie_methods.selectMethod().
 			$js .= '$(\'input[name="payment_method"]:checked, input[name="payment_method"]:first\').click();'.PHP_EOL;
 		}
 
-		$js .= "}) (window.jQuery || window.$);</script>";
+		$js .= '});'.PHP_EOL;
+		$js .= '};'.PHP_EOL;
+
+		// Add to onload just in case jQuery isn't loaded yet. Call directly otherwise. These lines are needed because we have no idea when our JS will be called in various checkout modules.
+		$js .= 'if (document.readyState === "loading") {'.PHP_EOL;
+		$js .= 'window.onload = init_mollie_methods;'.PHP_EOL;
+		$js .= '} else {'.PHP_EOL;
+		$js .= 'init_mollie_methods();'.PHP_EOL;
+		$js .= '}'.PHP_EOL;
+
+		$js .= '</script>';
 
 		return $js;
 	}
@@ -291,6 +307,20 @@ class ModelPaymentMollieIdeal extends Model
 	 */
 	protected function setPreOutput ($prepend)
 	{
+		// Quickcheckout makes things even worse by overwriting the entire checkout. Just echo the JS.
+		$conf = $this->config->get("quickcheckout");
+		if (!empty($conf) && intval($conf['general']['enable']) && intval($conf['general']['main_checkout']))
+		{
+			echo $prepend;
+			return;
+		}
+
+		// Otherwise, only take over response in checkout/payment_method.
+		if (!$this->isRoute("checkout/payment_method"))
+		{
+			return;
+		}
+
 		global $response;
 
 		$response = new ModelPaymentMollieIdealResponse;
@@ -300,6 +330,23 @@ class ModelPaymentMollieIdeal extends Model
 		$response->setPreOutput($prepend);
 
 		$this->registry->set("response", $response);
+	}
+
+	// Check if we're on the right page. Required for JavaScript hack.
+	protected function isRoute ($route)
+	{
+		// Try to fetch the route with a SERVER global fallback.
+		if (isset($this->registry->request->get['route']) && mb_strlen($this->registry->request->get['route']))
+		{
+			return ($route === $this->registry->request->get['route']);
+		}
+
+		if (isset($_GET['route']) && mb_strlen($_GET['route']))
+		{
+			return ($route === $_GET['route']);
+		}
+
+		return FALSE;
 	}
 
 	/**
