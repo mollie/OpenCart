@@ -2,6 +2,10 @@
 
 # Changelog #
 
+## Changes in release 5.2.4 ##
++ Improved default templates for Opencart 2.
++ Fixed issue where vQmod broke Mollie's module code.
+
 ## Changes in release 5.2.3 ##
 + Support for OneCheckOut module.
 + Support for Dreamvention's Quick Checkout module.
