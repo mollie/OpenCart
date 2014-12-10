@@ -300,6 +300,7 @@ class ControllerPaymentMollieIdeal extends Controller
 			DIR_APPLICATION.'controller/payment/mollie_ideal.php',
 			DIR_APPLICATION.'language/english/payment/mollie_ideal.php',
 			DIR_TEMPLATE.'payment/mollie_ideal.tpl',
+			DIR_TEMPLATE.'payment/mollie_ideal_2.tpl',
 			DIR_CATALOG.'controller/payment/mollie-api-client/',
 			DIR_CATALOG.'controller/payment/mollie_ideal.php',
 			DIR_CATALOG.'language/english/payment/mollie_ideal.php',
@@ -307,7 +308,9 @@ class ControllerPaymentMollieIdeal extends Controller
 			DIR_CATALOG.'view/javascript/mollie_methods.js',
 			DIR_CATALOG.'view/theme/default/template/payment/mollie_checkout_form.tpl',
 			DIR_CATALOG.'view/theme/default/template/payment/mollie_ideal_return.tpl',
+			DIR_CATALOG.'view/theme/default/template/payment/mollie_ideal_return_2.tpl',
 			DIR_CATALOG.'view/theme/default/template/payment/mollie_payment_error.tpl',
+			DIR_CATALOG.'view/theme/default/template/payment/mollie_payment_error_2.tpl'
 		);
 
 		foreach ($modFiles as $file)

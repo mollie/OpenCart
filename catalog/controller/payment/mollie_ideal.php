@@ -387,18 +387,8 @@ class ControllerPaymentMollieIdeal extends Controller
 		// Breadcrumbs
 		$this->setBreadcrumbs($data);
 
-		// check if template exists
-		if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/mollie_ideal_return.tpl'))
-		{
-			$template = $this->config->get('config_template') . '/template/payment/mollie_ideal_return.tpl';
-		}
-		else
-		{
-			$template = 'default/template/payment/mollie_ideal_return.tpl';
-		}
-
 		// Render HTML output
-		$this->renderTemplate($template, $data, array(
+		$this->renderTemplate("mollie_ideal_return", $data, array(
 			"column_left",
 			"column_right",
 			"content_top",
@@ -431,21 +421,11 @@ class ControllerPaymentMollieIdeal extends Controller
 		$data['mollie_error'] = $message;
 		$data['message']      = $this->language;
 
-		// check if template exists
-		if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/mollie_payment_error.tpl'))
-		{
-			$template = $this->config->get('config_template') . '/template/payment/mollie_payment_error.tpl';
-		}
-		else
-		{
-			$template = 'default/template/payment/mollie_payment_error.tpl';
-		}
-
 		// Breadcrumbs
 		$this->setBreadcrumbs($data);
 
 		// Render HTML output
-		$this->renderTemplate($template, $data, array(
+		$this->renderTemplate("mollie_payment_error", $data, array(
 			"column_left",
 			"column_right",
 			"content_top",
@@ -502,6 +482,8 @@ class ControllerPaymentMollieIdeal extends Controller
 	 */
 	protected function renderTemplate ($template, $data, $common_children = array(), $echo = TRUE)
 	{
+		$template = $this->getTemplatePath($template);
+
 		if ($this->isOpencart2())
 		{
 			foreach ($common_children as $child)
@@ -538,6 +520,29 @@ class ControllerPaymentMollieIdeal extends Controller
 		}
 
 		return $html;
+	}
+
+	/**
+	 * @param  string $template
+	 *
+	 * @return string
+	 */
+	protected function getTemplatePath ($template)
+	{
+		$template = "template/payment/" . $template;
+
+		if ($this->isOpencart2())
+		{
+			$template .= "_2";
+		}
+
+		// Check if template exists
+		if (file_exists(DIR_TEMPLATE . $this->config->get("config_template") . "/" . $template . ".tpl"))
+		{
+			return $this->config->get("config_template") . "/" . $template . ".tpl";
+		}
+
+		return "default/" . $template . ".tpl";
 	}
 
 	/**
