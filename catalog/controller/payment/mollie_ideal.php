@@ -520,7 +520,9 @@ class ControllerPaymentMollieIdeal extends Controller
 
 			$this->template = $template;
 
-			$this->children = array();
+			$this->children = array(
+				// Leave this line empty so vQmod's search & replace doesn't break our code (see vqmod/xml/vqmod_custom_positions.xml).
+			);
 
 			foreach ($common_children as $child)
 			{
