@@ -118,18 +118,8 @@ class ControllerPaymentMollieIdeal extends Controller
 			$data['mollie_method'] = $this->session->data['mollie_method'];
 		}
 
-		// Check if view is at default template else use modified template path
-		if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/mollie_checkout_form.tpl'))
-		{
-			$template = $this->config->get('config_template') . '/template/payment/mollie_checkout_form.tpl';
-		}
-		else
-		{
-			$template = 'default/template/payment/mollie_checkout_form.tpl';
-		}
-
 		// Return HTML output - it will get appended to confirm.tpl.
-		return $this->renderTemplate($template, $data, array(), FALSE);
+		return $this->renderTemplate("mollie_checkout_form", $data, array(), FALSE);
 	}
 
 	/**
@@ -523,23 +513,31 @@ class ControllerPaymentMollieIdeal extends Controller
 	}
 
 	/**
+	 * Fetch path to a template file. Allows themes to overwrite the template. Prefers *_2.tpl for Opencart 2 specific layouts.
+	 *
 	 * @param  string $template
 	 *
 	 * @return string
 	 */
 	protected function getTemplatePath ($template)
 	{
-		$template = "template/payment/" . $template;
+		$config_template = $this->config->get("config_template");
+		$possible_paths  = [];
 
 		if ($this->isOpencart2())
 		{
-			$template .= "_2";
+			$possible_paths[] = $config_template . "/" . $template . "_2.tpl";
+			$possible_paths[] = "default/" . $template . "_2.tpl";
 		}
 
-		// Check if template exists
-		if (file_exists(DIR_TEMPLATE . $this->config->get("config_template") . "/" . $template . ".tpl"))
+		$possible_paths[] = $config_template . "/" . $template . ".tpl";
+
+		foreach ($possible_paths as $path)
 		{
-			return $this->config->get("config_template") . "/" . $template . ".tpl";
+			if (file_exists(DIR_TEMPLATE . $path))
+			{
+				return $path;
+			}
 		}
 
 		return "default/" . $template . ".tpl";
