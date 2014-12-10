@@ -522,7 +522,7 @@ class ControllerPaymentMollieIdeal extends Controller
 	protected function getTemplatePath ($template)
 	{
 		$config_template = $this->config->get("config_template");
-		$possible_paths  = [];
+		$possible_paths  = array();
 
 		if ($this->isOpencart2())
 		{
