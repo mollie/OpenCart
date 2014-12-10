@@ -163,7 +163,7 @@ class ControllerPaymentMollieIdeal extends Controller
 
 			$amount      = round($amount, 2);
 			$description = str_replace('%', $order['order_id'], html_entity_decode($this->config->get('mollie_ideal_description'), ENT_QUOTES, 'UTF-8'));
-			$return_url  = $this->url->link('payment/mollie_ideal/callback', '', 'SSL');
+			$return_url  = $this->url->link('payment/mollie_ideal/callback', 'utm_nooverride=1', 'SSL');
 			$method      = !empty($this->request->post["mollie_method"]) ? $this->request->post["mollie_method"] : NULL;
 			$issuer      = !empty($this->session->data["mollie_issuer"]) ? $this->session->data["mollie_issuer"] : NULL;
 
