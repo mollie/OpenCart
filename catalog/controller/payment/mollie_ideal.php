@@ -521,16 +521,17 @@ class ControllerPaymentMollieIdeal extends Controller
 	 */
 	protected function getTemplatePath ($template)
 	{
-		$config_template = $this->config->get("config_template");
-		$possible_paths  = array();
+		$theme_path     = $this->config->get("config_template") . "/template/payment/";
+		$default_path   = "default/template/payment/";
+		$possible_paths = array();
 
 		if ($this->isOpencart2())
 		{
-			$possible_paths[] = $config_template . "/" . $template . "_2.tpl";
-			$possible_paths[] = "default/" . $template . "_2.tpl";
+			$possible_paths[] = $theme_path . $template . "_2.tpl";
+			$possible_paths[] = $default_path . $template . "_2.tpl";
 		}
 
-		$possible_paths[] = $config_template . "/" . $template . ".tpl";
+		$possible_paths[] = $theme_path . $template . ".tpl";
 
 		foreach ($possible_paths as $path)
 		{
@@ -540,7 +541,7 @@ class ControllerPaymentMollieIdeal extends Controller
 			}
 		}
 
-		return "default/" . $template . ".tpl";
+		return $default_path . $template . ".tpl";
 	}
 
 	/**
