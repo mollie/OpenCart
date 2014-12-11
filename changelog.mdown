@@ -2,6 +2,9 @@
 
 # Changelog #
 
+## Changes in release 5.2.5 ##
++ Stop Google Analytics from listing payment provider as referrer.
+
 ## Changes in release 5.2.4 ##
 + Improved default templates for Opencart 2.
 + Fixed issue where vQmod broke Mollie's module code.
