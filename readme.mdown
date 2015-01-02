@@ -2,17 +2,19 @@
 
 # Installatie [![Build Status](https://travis-ci.org/mollie/OpenCart.png)](https://travis-ci.org/mollie/OpenCart) #
 + Download op de [OpenCart Releases](https://github.com/mollie/OpenCart/releases)-pagina de nieuwste release.
-+ Kopieër de gedownloade mappen `admin` en `catalog` naar de bestaande OpenCart-installatie op uw server.
++ Kopieër de gedownloade mappen `admin` en `catalog` naar de bestaande OpenCart-installatie op je server.
 + Ga naar uw OpenCart AdminPanel (Beheerpagina).
 + Ga in het menu naar _Extentions_ en selecteer _Payments_.
 + Na een correcte afhandeling zou onze Betaalmethode zichtbaar moeten zijn in het _Payments_ overzicht.
 + Klik vervolgens op _Install_ en daarna op _Edit_.
-+ Vul uw _Mollie API key_ in en bewaar de instellingen. U vindt de API key in uw Mollie Beheer onder [Websiteprofielen](https://www.mollie.nl/beheer/account/profielen/).
++ Vul uw _Mollie API key_ in en bewaar de instellingen. Je vindt de API key in uw Mollie Beheer onder [Websiteprofielen](https://www.mollie.nl/beheer/account/profielen/).
+
+# Over Mollie #
+Via [Mollie](https://www.mollie.nl/) is gemakkelijk wereldwijd online betaalmethodes aan te sluiten zonder de gebruikelijke technische en administratieve rompslomp. Mollie geeft op ieder moment toegang tot je transactieoverzichten en andere statistieken. [Mollie](https://www.mollie.nl/) is gestart door developers en verwerkt voor meer dan 20.000 websites de online betalingen.
 
 # Ondersteunde betaalmethodes #
 ### iDEAL ###
-Met iDEAL kunt u vertrouwd, veilig en gemakkelijk uw online aankopen afrekenen. iDEAL is het systeem dat u direct koppelt aan uw internetbankierprogramma bij een online aankoop.
-Via [Mollie](https://www.mollie.nl/) is iDEAL gemakkelijk aan te sluiten zonder de gebruikelijke technische en administratieve rompslomp. Mollie geeft u op ieder moment toegang tot uw transactieoverzichten en andere statistieken. Tevens is het mogelijk per e-mail of SMS een notificatie te ontvangen bij elke gelukte betaling. [Mollie](https://www.mollie.nl/) is hierdoor dus een perfecte partner op het gebied van iDEAL en is het dan ook niet verbazingwekkend dat [Mollie](https://www.mollie.nl/) ondertussen op meer dan 20.000 websites iDEAL-betalingen mag verzorgen.
+Met iDEAL kun je vertrouwd, veilig en gemakkelijk uw online aankopen afrekenen. iDEAL is het systeem dat direct is gekoppelt aan je internetbankieren.
 
 ### Creditcard ###
 [Creditcard](https://www.mollie.nl/betaaldiensten/creditcard/) is vrijwel de bekendste methode voor het ontvangen van betalingen met wereldwijde dekking. Doordat we onder andere de bekende merken Mastercard en Visa ondersteunen, zorgt dit direct voor veel potentiële kopers.
@@ -24,7 +26,7 @@ Via [Mollie](https://www.mollie.nl/) is iDEAL gemakkelijk aan te sluiten zonder 
 [Overboekingen](https://www.mollie.nl/betaaldiensten/overboeking/) binnen de SEPA zone ontvangen via Mollie. Hiermee kun je betalingen ontvangen van zowel particulieren als zakelijke klanten in meer dan 35 Europese landen.
 
 ### PayPal ###
-[PayPal](https://www.mollie.nl/betaaldiensten/paypal/) is wereldwijd een zeer populaire betaalmethode. In enkele klikken kunt u betalingen ontvangen via een bankoverschrijving, creditcard of het PayPal-saldo.
+[PayPal](https://www.mollie.nl/betaaldiensten/paypal/) is wereldwijd een zeer populaire betaalmethode. In enkele klikken kun je betalingen ontvangen via een bankoverschrijving, creditcard of het PayPal-saldo.
 
 ### Bitcoin ###
 [Bitcoin](https://www.mollie.nl/betaaldiensten/bitcoin/) is een vorm van elektronisch geld. De bitcoin-euro wisselkoers wordt vastgesteld op het moment van de transactie waardoor het bedrag en de uitbetaling zijn gegarandeerd.
@@ -36,7 +38,7 @@ Via [Mollie](https://www.mollie.nl/) is iDEAL gemakkelijk aan te sluiten zonder 
 
 ## Ik kan Mollie niet kiezen bij het afrekenen! ##
 
-Als u de _Live API key_ gebruikt, en iDEAL is nog niet voor uw account geactiveerd, kan de module geen betaalmethode vinden om de bestelling mee af te ronden. De module is dan niet zichtbaar. U kunt de _test API key_ gebruiken totdat iDEAL voor uw account actief is.
+Als je de _Live API key_ gebruikt, en iDEAL is nog niet voor je account geactiveerd, kan de module geen betaalmethode vinden om de bestelling mee af te ronden. De module is dan niet zichtbaar. Je kunt de _test API key_ gebruiken totdat iDEAL voor je account actief is.
 
 Het is ook mogelijk dat het bedrag van de bestelling to hoog of te laag is voor de beschikbare betaalmethodes. Het is bijvoorbeeld niet mogelijk om betalingen hoger dan € 50.000 af te rekenen met iDEAL.
 
@@ -48,28 +50,28 @@ Het is niet nodig een redirect URL of webhook in te stellen. Dat doet de module 
 
 ## Ik krijg een witte pagina tijdens het afrekenen. ##
 
-Controleert u alstublieft of er fouten in het Fouten Logboek staan, u vindt dit in de OpenCart admin onder "Configuratie" en dan "Fouten Logboek". Sommige fouten, zoals het verkeerd instellen van een mailserver, stoppen het afrekenproces.
+Controleert of er fouten in het Fouten Logboek staan, je vindt dit in de OpenCart admin onder "Configuratie" en dan "Fouten Logboek". Sommige fouten, zoals het verkeerd instellen van een mailserver, stoppen het afrekenproces.
 
 ## Ik krijg de melding "The redirect location is invalid" tijdens het afrekenen. ##
 
-Als u meerdere webwinkels heeft ingesteld op één OpenCart installatie, controleert u dan of u de instellingen "Winkel URL" en "Gebruik SSL" goed heeft ingesteld onder het tabblad "Algemeen" in de OpenCart admin. Als u de instelling "Gebruik SSL" leeg laat, controleer dan ook of de instelling "Gebruik SSL" onder het tabblad "Server" uit staat.
+Als e meerdere webwinkels hebt ingesteld op één OpenCart installatie, controleert dan of de instellingen "Winkel URL" en "Gebruik SSL" goed zijn ingesteld onder het tabblad "Algemeen" in de OpenCart admin. Als de instelling "Gebruik SSL" leeg laat, controleer dan ook of de instelling "Gebruik SSL" onder het tabblad "Server" uit staat.
 
 ## Ik krijg een popup met de melding "Error" tijdens het afrekenen. ##
 
-De module is op dit moment niet compatible met de instelling "Gzip compressie-niveau". Schakelt u deze instelling alstublieft uit door de instelling op "0" te zetten onder het tabblad "Server" in de Opencart admin. De module zal het dan weer doen.
+De module is op dit moment niet compatible met de instelling "Gzip compressie-niveau". Schakel deze instelling  uit door de instelling op "0" te zetten onder het tabblad "Server" in de Opencart admin. De module zal het dan weer doen.
 
 # Licentie #
 [BSD (Berkeley Software Distribution) License](http://www.opensource.org/licenses/bsd-license.php).
 Copyright (c) 2013, Mollie B.V.
 
 # Ondersteuning #
-Contact: [www.mollie.nl](https://www.mollie.nl) — info@mollie.nl — +31 20-612 88 55
+Contact: [www.mollie.com/nl/](https://www.mollie.com/) — info@mollie.com — +31 20-612 88 55
 
-+ [Meer informatie over iDEAL via Mollie](https://www.mollie.nl/betaaldiensten/ideal/)
-+ [Meer informatie over Creditcard via Mollie](https://www.mollie.nl/betaaldiensten/creditcard/)
-+ [Meer informatie over Mister Cash via Mollie](https://www.mollie.nl/betaaldiensten/mistercash/)
-+ [Meer informatie over Overboeking via Mollie](https://www.mollie.nl/betaaldiensten/overboeking/)
-+ [Meer informatie over PayPal via Mollie](https://www.mollie.nl/betaaldiensten/paypal/)
-+ [Meer informatie over paysafecard via Mollie](https://www.mollie.nl/betaaldiensten/paysafecard/)
++ [Meer informatie over iDEAL via Mollie](https://www.mollie.com/ideal/)
++ [Meer informatie over Creditcard via Mollie](https://www.mollie.com/creditcard/)
++ [Meer informatie over Mister Cash via Mollie](https://www.mollie.com/mistercash/)
++ [Meer informatie over Overboeking via Mollie](https://www.mollie.com/banktransfer/)
++ [Meer informatie over PayPal via Mollie](https://www.mollie.com/paypal/)
++ [Meer informatie over paysafecard via Mollie](https://www.mollie.com/paysafecard/)
 
 ![Powered By Mollie](https://www.mollie.nl/images/badge-betaling-medium.png)
