@@ -10,7 +10,7 @@
 + Vul je _Mollie API key_ in en bewaar de instellingen. Je vindt de API key in uw Mollie Beheer onder [Websiteprofielen](https://www.mollie.nl/beheer/account/profielen/).
 
 # Over Mollie #
-Via [Mollie](https://www.mollie.nl/) is gemakkelijk wereldwijd online betaalmethodes aan te sluiten zonder de gebruikelijke technische en administratieve rompslomp. Mollie geeft op ieder moment toegang tot je transactieoverzichten en andere statistieken. [Mollie](https://www.mollie.nl/) is gestart door developers en verwerkt voor meer dan 20.000 websites de online betalingen.
+Via [Mollie](https://www.mollie.com/) is gemakkelijk wereldwijd online betaalmethodes aan te sluiten zonder de gebruikelijke technische en administratieve rompslomp. Mollie geeft op ieder moment toegang tot je transactieoverzichten en andere statistieken. [Mollie](https://www.mollie.com/) is gestart door developers en verwerkt voor meer dan 20.000 websites de online betalingen.
 
 # Ondersteunde betaalmethodes #
 ### iDEAL ###
@@ -65,7 +65,7 @@ De module is op dit moment niet compatible met de instelling "Gzip compressie-ni
 Copyright (c) 2013, Mollie B.V.
 
 # Ondersteuning #
-Contact: [www.mollie.com/nl/](https://www.mollie.com/) — info@mollie.com — +31 20-612 88 55
+Contact: [www.mollie.com/nl/about](https://www.mollie.com/nl/about) — info@mollie.com — +31 20-612 88 55
 
 + [Meer informatie over iDEAL via Mollie](https://www.mollie.com/ideal/)
 + [Meer informatie over Creditcard via Mollie](https://www.mollie.com/creditcard/)
