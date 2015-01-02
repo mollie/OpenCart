@@ -7,7 +7,7 @@
 + Ga in het menu naar _Extentions_ en selecteer _Payments_.
 + Na een correcte afhandeling zou onze Betaalmethode zichtbaar moeten zijn in het _Payments_ overzicht.
 + Klik vervolgens op _Install_ en daarna op _Edit_.
-+ Vul uw _Mollie API key_ in en bewaar de instellingen. Je vindt de API key in uw Mollie Beheer onder [Websiteprofielen](https://www.mollie.nl/beheer/account/profielen/).
++ Vul je _Mollie API key_ in en bewaar de instellingen. Je vindt de API key in uw Mollie Beheer onder [Websiteprofielen](https://www.mollie.nl/beheer/account/profielen/).
 
 # Over Mollie #
 Via [Mollie](https://www.mollie.nl/) is gemakkelijk wereldwijd online betaalmethodes aan te sluiten zonder de gebruikelijke technische en administratieve rompslomp. Mollie geeft op ieder moment toegang tot je transactieoverzichten en andere statistieken. [Mollie](https://www.mollie.nl/) is gestart door developers en verwerkt voor meer dan 20.000 websites de online betalingen.
