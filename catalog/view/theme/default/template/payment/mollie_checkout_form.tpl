@@ -55,6 +55,11 @@
 		<script type="text/javascript">
 			(function ($)
 			{
+				/* Fix order button invisible.
+				   If button IS visible, this does not break anything
+				*/
+				$(".checkout-content").show();
+				
 				$("#button-confirm").click(function()
 				{
 					$("#mollie_payment_form").submit();
