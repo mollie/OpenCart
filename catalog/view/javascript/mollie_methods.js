@@ -156,7 +156,7 @@ if (!window.mollie_methods)
 					.click(self.selectMethod)
 					.on("remove", self.reloadMethods);
 
-				method_icon.css({"float":"none", "height":24, "margin":"-2px 0.5em 0"});
+				method_icon.css({"float":"none", "height":24, "margin":"-2px 0.5em 0", "display":"inline"});
 
 				if (method.issuers.length)
 				{
