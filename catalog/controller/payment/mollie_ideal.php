@@ -434,11 +434,11 @@ class ControllerPaymentMollieIdeal extends Controller
 	{
 		$system_webhook_url = $this->url->link('payment/mollie_ideal/webhook', '', 'SSL');
 
-	        if (strpos($system_webhook_url, $this->getAdminDirectory()) !== FALSE)
-	        {
-	            return str_replace($this->getAdminDirectory(), '', $system_webhook_url);
-	        }
-	        
+		if (strpos($system_webhook_url, $this->getAdminDirectory()) !== FALSE)
+		{
+			return str_replace($this->getAdminDirectory(), '', $system_webhook_url);
+		}
+
 		return $system_webhook_url ? $system_webhook_url : NULL;
 	}
 
