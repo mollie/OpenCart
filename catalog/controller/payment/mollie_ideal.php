@@ -426,13 +426,30 @@ class ControllerPaymentMollieIdeal extends Controller
 	}
 
 	/**
+	 * We check for and remove the admin url in the webhook link.
+	 *
 	 * @return string|null
 	 */
 	public function getWebhookUrl ()
 	{
-		$webhook_url = str_replace("/admin", "", $this->url->link('payment/mollie_ideal/webhook', '', 'SSL'));
+		$system_webhook_url = $this->url->link('payment/mollie_ideal/webhook', '', 'SSL');
 
-		return $webhook_url ? $webhook_url : NULL;
+        if (strpos($system_webhook_url, $this->getAdminDirectory()) !== FALSE)
+        {
+            return str_replace($this->getAdminDirectory(), '', $system_webhook_url);
+        }
+
+		return $system_webhook_url ? $system_webhook_url : NULL;
+	}
+
+	/**
+	 * Retrieves the admin directoryname from the catalog and admin urls.
+	 *
+	 * @return string
+	 */
+	protected function getAdminDirectory()
+	{
+		return str_replace(HTTP_SERVER, '', HTTP_ADMIN);
 	}
 
 	/**
