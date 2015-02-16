@@ -294,7 +294,7 @@ class ModelPaymentMollieIdeal extends Model
 		}
 
 		// For the regular checkout and Onecheckout, hijack the response object (really ugly).
-		if ($this->isRoute("checkout/payment_method") || $this->isRoute("onecheckout/payment"))
+		if ($this->isRoute("checkout/payment_method") || $this->isRoute("onecheckout/payment") || $this->isRoute("quickcheckout/payment_method"))
 		{
 			global $response;
 
