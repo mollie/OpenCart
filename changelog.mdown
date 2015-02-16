@@ -2,6 +2,9 @@
 
 # Changelog #
 
+## Changes in release 5.2.6 ##
++ Fix support for Dreamvention's Quick Checkout module plugin.
+
 ## Changes in release 5.2.5 ##
 + Stop Google Analytics from listing payment provider as referrer.
 
