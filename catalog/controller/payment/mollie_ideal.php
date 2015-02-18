@@ -449,6 +449,12 @@ class ControllerPaymentMollieIdeal extends Controller
 	 */
 	protected function getAdminDirectory()
 	{
+		// if no default admin url defined in the config, use the default admin directory.
+		if (!defined('HTTP_ADMIN'))
+		{
+			return 'admin/';
+		}
+
 		return str_replace(HTTP_SERVER, '', HTTP_ADMIN);
 	}
 
