@@ -2,6 +2,10 @@
 
 # Changelog #
 
+## Changes in release 5.2.7 ##
++ Prevent single page checkout modules from overwriting payment method selection.
++ Fixed issue with the latest vQmod release.
+
 ## Changes in release 5.2.6 ##
 + Fix support for Dreamvention's Quick Checkout module plugin.
 
