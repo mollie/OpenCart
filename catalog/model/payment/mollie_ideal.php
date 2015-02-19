@@ -426,11 +426,19 @@ class ModelPaymentMollieIdeal extends Model
 
 
 /**
- * Hacky Response extension to ensure prepending HTML to output buffer. See ModelPaymentMollieIdeal::setPreOutput().
+ * Hacky Response delegate to ensure prepending HTML to output buffer. See ModelPaymentMollieIdeal::setPreOutput().
  */
-class ModelPaymentMollieIdealResponse extends Response
+class ModelPaymentMollieIdealResponse
 {
+	/** @var Response */
+	private $response;
+
 	private $prepend;
+
+	public function __construct ()
+	{
+		$this->response = new Response;
+	}
 
 	public function setPreOutput ($prepend)
 	{
@@ -467,6 +475,11 @@ class ModelPaymentMollieIdealResponse extends Response
 			$this->prepend = NULL;
 		}
 
-		parent::setOutput($output);
+		$this->response->setOutput($output);
+	}
+
+	public function __call ($name, array $arguments)
+	{
+		return call_user_func_array(array($this->response, $name), $arguments);
 	}
 }
