@@ -281,7 +281,7 @@ class ModelPaymentMollieIdeal extends Model
 	 */
 	protected function setPreOutput ($prepend)
 	{
-		// Quickcheckout makes things worse by overwriting the entire checkout. Just echo the JS.
+		// Older versions of Quickcheckout overwrite the entire checkout. Just echo the JS.
 		if ($this->isRoute("checkout/checkout"))
 		{
 			$conf = $this->config->get("quickcheckout");
@@ -293,8 +293,8 @@ class ModelPaymentMollieIdeal extends Model
 			return;
 		}
 
-		// For the regular checkout and Onecheckout, hijack the response object (really ugly).
-		if ($this->isRoute("checkout/payment_method") || $this->isRoute("onecheckout/payment") || $this->isRoute("quickcheckout/payment_method"))
+		// For the regular checkout, Onecheckout and newer versions of Quickcheckout, hijack the response object (really ugly).
+		if ($this->isRoute(array("checkout/payment", "checkout/payment_method", "onecheckout/payment", "quickcheckout/payment_method")))
 		{
 			global $response;
 
@@ -308,21 +308,36 @@ class ModelPaymentMollieIdeal extends Model
 		}
 	}
 
-	// Check if we're on the right page. Required for JavaScript hack.
-	protected function isRoute ($route)
+	/**
+	 * Check if we're on the right page. Required for JavaScript hack.
+	 *
+	 * @param array|string $routes Either a single string or an array of strings of possible routes.
+	 *
+	 * @return bool                TRUE if the specified route, or one of the specified routes, is the current route.
+	 */
+	public function isRoute ($routes)
 	{
-		// Try to fetch the route with a SERVER global fallback.
+		if (!is_array($routes))
+		{
+			$routes = array($routes);
+		}
+
+		// Try to fetch the current route.
 		if (isset($this->registry->request->get['route']) && mb_strlen($this->registry->request->get['route']))
 		{
-			return ($route === $this->registry->request->get['route']);
+			$current_route = $this->registry->request->get['route'];
 		}
-
-		if (isset($_GET['route']) && mb_strlen($_GET['route']))
+		elseif (isset($_GET['route']) && mb_strlen($_GET['route']))
 		{
-			return ($route === $_GET['route']);
+			$current_route = $_GET['route'];
+		}
+		else
+		{
+			return FALSE;
 		}
 
-		return FALSE;
+		// Compare given routes with current route.
+		return in_array($current_route, $routes);
 	}
 
 	/**

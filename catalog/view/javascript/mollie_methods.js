@@ -95,6 +95,7 @@ if (!window.mollie_methods)
 			return null;
 		};
 
+		// Runs after methods and issuers have been loaded through addMethod / addIssuer. Called in catalog/model/payment/mollie_ideal.php.
 		this.appendMethods = function ()
 		{
 			var mollie    = $('input[name="payment_method"][value="mollie_ideal"]'),
@@ -154,7 +155,7 @@ if (!window.mollie_methods)
 
 				method_input
 					.click(self.selectMethod)
-					.on("remove", self.reloadMethods);
+					.bind("remove", self.reloadMethods); // Use 'bind' for compatibility with jQuery 1.6 and lower.
 
 				method_icon.css({"float":"none", "height":24, "margin":"-2px 0.5em 0", "display":"inline"});
 
@@ -232,9 +233,14 @@ if (!window.mollie_methods)
 				}
 			}
 
+			// All dynamic payment methods have been added -- remove the original Mollie payment method row.
 			row.remove();
 
-			// Click the selected or first available payment method to trigger click events.
+			// A one page checkout module might have already loaded our safety net from mollie_checkout_form.tpl, which can cause issues when submitting the form. Replace it with a hidden input field that reflects the
+			// customer's method of choice (see self.selectMethod() as well).
+			$("#mollie_payment_form_input").replaceWith('<input type="hidden" id="mollie_payment_form_input" name="mollie_method" />');
+
+			// Click the selected or first available payment method to trigger self.selectMethod().
 			if (self.selectedMethod)
 			{
 				method = self.getMethodByID(self.selectedMethod);
@@ -271,6 +277,9 @@ if (!window.mollie_methods)
 					mollie_method_description: method.description
 				});
 
+				// Update the hidden field created at self.appendMethods().
+				$("#mollie_payment_form_input").val(method.id);
+
 				self.showIssuers(method);
 			}
 		};
@@ -291,7 +300,7 @@ if (!window.mollie_methods)
 			}
 		};
 
-		self.showIssuers = function (method)
+		this.showIssuers = function (method)
 		{
 			$(".mpm_issuer_rows").hide();
 
