@@ -57,10 +57,12 @@ $_['response_expired']   = 'Le paiement a expiré';
 $_['response_unknown']   = 'Une erreur inconnue s\'est produite';
 
 // Methods
-$_['method_ideal']            = 'iDEAL';
-$_['method_creditcard']       = 'Carte de crédit';
-$_['method_mistercash']       = 'Mister Cash';
 $_['method_banktransfer']     = 'Virement bancaire';
+$_['method_bitcoin']          = 'Bitcoin';
+$_['method_creditcard']       = 'Carte de crédit';
+$_['method_ideal']            = 'iDEAL';
+$_['method_minitix']          = 'MiniTix';
+$_['method_mistercash']       = 'Mister Cash';
 $_['method_paypal']           = 'PayPal';
 $_['method_paysafecard']      = 'paysafecard';
-$_['method_minitix']          = 'MiniTix';
+$_['method_sofort']           = 'SOFORT Banking';
