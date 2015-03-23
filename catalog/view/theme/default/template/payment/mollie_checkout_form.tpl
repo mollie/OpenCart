@@ -11,45 +11,22 @@
 <div class="checkout-content">
     <form action="<?php echo clean_echo($action) ?>" method="post" id="mollie_payment_form">
 
-        <!-- wrap the actual input in a div for JS purposes -->
-        <div id="mollie_payment_form_input">
-            <?php if (count($payment_methods) == 1): ?>
-
-                <!-- only one payment method through Mollie available -->
-                <input type="hidden" name="mollie_method" value="<?php clean_echo(reset($payment_methods)->id) ?>">
-
-            <?php elseif (!empty($mollie_method)): ?>
-
-                <!-- Mollie method recovered from session -->
-                <input type="hidden" name="mollie_method" value="<?php clean_echo($mollie_method) ?>">
-
-            <?php else: ?>
-
-                <!-- multiple payment methods through Mollie available, customer must choose. -->
-                <p><?php clean_echo($message->get('text_payment_method')) ?></p>
-
-                <table class="radio">
-                    <tbody>
-                    <?php foreach ($payment_methods as $index => $payment_method): ?>
-                        <tr>
-                            <td>
-                                <input type="radio"<?php if ($index == 0): ?> checked="checked"<?php endif ?> name="mollie_method" value="<?php clean_echo($payment_method->id) ?>"  id="mollie_method_<?php clean_echo($payment_method->id) ?>">
-                            </td>
-                            <td>
-                                <label for="mollie_method_<?php clean_echo($payment_method->id) ?>">
-                                    <img src="<?php clean_echo($payment_method->image->normal) ?>" height="24" align="left" style="margin-top:-5px" />
-                                    &nbsp;<?php clean_echo($payment_method->description) ?>
-                                </label>
-                            </td>
-                        </tr>
-                    <?php endforeach ?>
-                    </tbody>
-                </table>
-
-            <?php endif ?>
-        </div>
-
         <div class="buttons">
+			<?php if (!empty($issuers)) { ?>
+			<div class="left pull-left">
+				<label style="width:auto !important">
+					<img src="https://www.mollie.com/images/payscreen/methods/ideal.png" width="20" style="float:left; margin-right:0.5em; margin-top:-3px" />
+					<strong><?php clean_echo($text_issuer) ?>:</strong>
+
+					<select name="mollie_issuer" style="margin-left:1em" id="mollie_issuers">
+						<option value="">&mdash;</option>
+						<?php foreach ($issuers as $issuer) { ?>
+						<option value="<?php clean_echo($issuer->id) ?>"><?php clean_echo($issuer->name) ?></option>
+						<?php } ?>
+					</select>
+				</label>
+			</div>
+			<?php } ?>
             <div class="right pull-right">
                 <input type="submit" value="<?php echo $message->get('button_confirm') ?>" id="button-confirm" class="button btn btn-primary" form="mollie_payment_form">
             </div>
@@ -61,11 +38,32 @@
 				// Run after pageload.
 				$(function ()
 				{
-					// Try to find an order confirmation button. If we can't find one, make our own button visible.
-					if ($("#qc_confirm_order").length == 0)
+					var issuers               = $("#mollie_issuers"),
+						confirm_button_exists = ($("#qc_confirm_order").length > 0);
+
+					if (issuers.find("option").length == 1)
 					{
-						$(".checkout-content, #button-confirm").show();
+						$.post("<?php clean_echo ($set_issuer_url) ?>", {mollie_issuer_id:issuers.val()});
 					}
+
+					issuers.bind("change", function() {
+						$.post("<?php clean_echo ($set_issuer_url) ?>", {mollie_issuer_id:$(this).val()});
+					});
+
+					// See if we can find a a confirmation button on the page (i.e. ajax checkouts).
+					if (confirm_button_exists)
+					{
+						// If we have issuers, show the form.
+						if (issuers.length)
+						{
+							$("#mollie_payment_form").parent().show();
+						}
+
+						return;
+					}
+
+					// No confirmation button found. Show our own confirmation button.
+					$("#button-confirm").show();
 
 					$("#button-confirm").click(function ()
 					{

@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2012-2014, Mollie B.V.
+ * Copyright (c) 2012-2015, Mollie B.V.
  * All rights reserved. 
  * 
  * Redistribution and use in source and binary forms, with or without 
@@ -26,9 +26,9 @@
  *
  * @package     Mollie
  * @license     Berkeley Software Distribution License (BSD-License 2) http://www.opensource.org/licenses/bsd-license.php
- * @author      Mollie B.V. <info@mollie.nl>
+ * @author      Mollie B.V. <info@mollie.com>
  * @copyright   Mollie B.V.
- * @link        https://www.mollie.nl
+ * @link        https://www.mollie.com
  */
 
 /**
@@ -46,7 +46,7 @@ $_['heading_failed']     = 'Uw betaling is niet voltooid';
 $_['heading_unknown']    = 'Wij wachten nog op uw betaling';
 $_['heading_error']      = 'Er is een fout opgetreden bij het opzetten van de betaling.';
 $_['text_error']         = 'Er is een fout opgetreden tijdens het opzetten van de betaling bij Mollie:';
-$_['text_issuer']        = 'Kies uw bank:';
+$_['text_issuer']        = 'Kies uw bank';
 
 // Response
 $_['response_success']   = 'De betaling is ontvangen';
@@ -57,12 +57,10 @@ $_['response_expired']   = 'De betaling is verlopen';
 $_['response_unknown']   = 'Er is een onbekende fout opgetreden';
 
 // Methods
-$_['method_banktransfer']     = 'Overboeking';
-$_['method_bitcoin']          = 'Bitcoin';
-$_['method_creditcard']       = 'Creditcard';
 $_['method_ideal']            = 'iDEAL';
-$_['method_minitix']          = 'MiniTix';
-$_['method_mistercash']       = 'Bancontact/Mister Cash';
+$_['method_creditcard']       = 'Creditcard';
+$_['method_mistercash']       = 'Mister Cash';
+$_['method_banktransfer']     = 'Overboeking';
 $_['method_paypal']           = 'PayPal';
 $_['method_paysafecard']      = 'paysafecard';
-$_['method_sofort']           = 'SOFORT Banking';
+$_['method_minitix']          = 'MiniTix';

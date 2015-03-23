@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2012-2014, Mollie B.V.
+ * Copyright (c) 2012-2015, Mollie B.V.
  * All rights reserved. 
  * 
  * Redistribution and use in source and binary forms, with or without 
@@ -26,9 +26,9 @@
  *
  * @package     Mollie
  * @license     Berkeley Software Distribution License (BSD-License 2) http://www.opensource.org/licenses/bsd-license.php
- * @author      Mollie B.V. <info@mollie.nl>
+ * @author      Mollie B.V. <info@mollie.com>
  * @copyright   Mollie B.V.
- * @link        https://www.mollie.nl
+ * @link        https://www.mollie.com
  */
 
 /**
@@ -57,12 +57,10 @@ $_['response_expired']   = 'Le paiement a expiré';
 $_['response_unknown']   = 'Une erreur inconnue s\'est produite';
 
 // Methods
-$_['method_banktransfer']     = 'Virement bancaire';
-$_['method_bitcoin']          = 'Bitcoin';
-$_['method_creditcard']       = 'Carte de crédit';
 $_['method_ideal']            = 'iDEAL';
-$_['method_minitix']          = 'MiniTix';
+$_['method_creditcard']       = 'Carte de crédit';
 $_['method_mistercash']       = 'Mister Cash';
+$_['method_banktransfer']     = 'Virement bancaire';
 $_['method_paypal']           = 'PayPal';
 $_['method_paysafecard']      = 'paysafecard';
-$_['method_sofort']           = 'SOFORT Banking';
+$_['method_minitix']          = 'MiniTix';

@@ -8,28 +8,22 @@ class ModelPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
 	protected $model;
 
 	protected $client;
-	protected $client_methods = array();
 
 	public function setUp()
 	{
 		parent::setUp();
 
-		$this->model = $this->getMock("ModelPaymentMollieIdeal", array("getApiClient", "getIssuersForMethod", "getCurrentDate", "setPreOutput", "getMethodJavaScript"));
+		$this->model = $this->getMock("ModelPaymentMollieBase", array("getAPIClient", "getIssuers", "getCurrentDate"));
 		$this->model->db = $this->getMock("stub", array("query", "escape", "countAffected"));
 
 		// Mock API client.
-		$this->client = $this->getMock("stub");
-		$methods_stub = $this->getMock("stub", array("all"));
-
-		$this->client->methods = $methods_stub;
+		$this->client          = $this->getMock("stub");
+		$this->client_methods  = $this->getMock("stub", array("all", "get"));
+		$this->client->methods = $this->client_methods;
 
 		$this->model
-			->method("getApiClient")
+			->method("getAPIClient")
 			->willReturn($this->client);
-
-		$this->client->methods
-			->method("all")
-			->will($this->returnCallback(array($this, "getPaymentMethods")));
 
 		$this->model
 			->method("getIssuersForMethod")
@@ -92,74 +86,39 @@ class ModelPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
 		return $method;
 	}
 
-	public function getPaymentMethods ()
-	{
-		return $this->client_methods;
-	}
-
 	/**
 	 * Retrieve the correct payment methods for a specified amount.
 	 */
-	public function testGetApplicablePaymentMethods ()
+	public function testGetMethodCanReturnNULL ()
 	{
-		$method_1 = $this->addPaymentMethod("method_1", 1, 3);
-		$method_2 = $this->addPaymentMethod("method_2", 2, 4);
+		$method = $this->getMock("stub", array("getMinimumAmount", "getMaximumAmount"));
 
-		$methods = $this->model->getApplicablePaymentMethods(1);
-		$this->assertEquals(array("method_1"=>$method_1), $methods);
+		$method->id          = NULL;
+		$method->description = NULL;
 
-		$methods = $this->model->getApplicablePaymentMethods(2);
-		$this->assertEquals(array("method_1"=>$method_1, "method_2"=>$method_2), $methods);
+		$this->client_methods
+			->expects($this->exactly(3))
+			->method("get")
+			->with(NULL)
+			->willReturn($method);
 
-		$methods = $this->model->getApplicablePaymentMethods(4);
-		$this->assertEquals(array("method_2"=>$method_2), $methods);
-	}
+		$method
+			->expects($this->exactly(3))
+			->method("getMinimumAmount")
+			->willReturn(100);
 
-	/**
-	 * Add JavaScript to the output buffer when Opencart calls getMethod().
-	 */
-	public function testGetMethodAddsJavaScript ()
-	{
-		$this->addPaymentMethod();
+		$method
+			->expects($this->exactly(3))
+			->method("getMaximumAmount")
+			->willReturn(200);
 
-		$this->model
-			->expects($this->once())
-			->method("setPreOutput");
+		$return_50  = $this->model->getMethod("some address", 50);
+		$return_150 = $this->model->getMethod("some address", 150);
+		$return_250 = $this->model->getMethod("some address", 250);
 
-		$this->model
-			->expects($this->once())
-			->method("getMethodJavaScript");
-
-		$array = $this->model->getMethod("", .0);
-
-		$this->assertEquals($array['code'],  "mollie_ideal");
-		$this->assertEquals($array['title'], "method");
-		$this->assertEquals($array['terms'], NULL);
-	}
-
-	public function dataProviderIsRoute ()
-	{
-		return array(
-			array("checkout/checkout", array("checkout/checkout", "quickcheckout/checkout"), TRUE),
-			array("checkout/checkout", "checkout/checkout",                                  TRUE),
-			array("checkout/checkout", "quickcheckout/checkout",                             FALSE)
-		);
-	}
-
-	/**
-	 * @param $current_route
-	 * @param $routes
-	 * @param $expected_output
-	 *
-	 * @dataProvider dataProviderIsRoute
-	 */
-	public function testIsRoute ($current_route, $routes, $expected_output)
-	{
-		$_GET['route'] = $current_route;
-
-		$output = $this->model->isRoute($routes);
-
-		$this->assertEquals($expected_output, $output);
+		$this->assertNull($return_50);
+		$this->assertNotNull($return_150);
+		$this->assertNull($return_250);
 	}
 
 	public function testSetPaymentReturnsFalseIfArgumentsOmitted()

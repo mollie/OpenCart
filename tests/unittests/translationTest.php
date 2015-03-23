@@ -18,7 +18,7 @@ class TranslationTest extends PHPUnit_Framework_TestCase
 
 		foreach (self::$LANGUAGES as $language)
 		{
-			$lang_path = $path . DIRECTORY_SEPARATOR . $language . DIRECTORY_SEPARATOR . "payment" . DIRECTORY_SEPARATOR . "mollie_ideal.php";
+			$lang_path = $path . DIRECTORY_SEPARATOR . $language . DIRECTORY_SEPARATOR . "payment" . DIRECTORY_SEPARATOR . "mollie.php";
 			$_ = array();
 			include $lang_path;
 

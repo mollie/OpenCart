@@ -1,4 +1,4 @@
-![Mollie](https://www.mollie.nl/files/Mollie-Logo-Style-Small.png)
+![Mollie](https://www.mollie.com/files/Mollie-Logo-Style-Small.png)
 
 # Installatie [![Build Status](https://travis-ci.org/mollie/OpenCart.png)](https://travis-ci.org/mollie/OpenCart) #
 + Download op de [OpenCart Releases](https://github.com/mollie/OpenCart/releases)-pagina de nieuwste release.
@@ -7,7 +7,7 @@
 + Ga in het menu naar _Extentions_ en selecteer _Payments_.
 + Na een correcte afhandeling zou onze Betaalmethode zichtbaar moeten zijn in het _Payments_ overzicht.
 + Klik vervolgens op _Install_ en daarna op _Edit_.
-+ Vul je _Mollie API key_ in en bewaar de instellingen. Je vindt de API key in uw Mollie Beheer onder [Websiteprofielen](https://www.mollie.nl/beheer/account/profielen/).
++ Vul je _Mollie API key_ in en bewaar de instellingen. Je vindt de API key in uw Mollie Beheer onder [Websiteprofielen](https://www.mollie.com/beheer/account/profielen/).
 
 # Over Mollie #
 Via [Mollie](https://www.mollie.com/) is gemakkelijk wereldwijd online betaalmethodes aan te sluiten zonder de gebruikelijke technische en administratieve rompslomp. Mollie geeft op ieder moment toegang tot je transactieoverzichten en andere statistieken. [Mollie](https://www.mollie.com/) is gestart door developers en verwerkt voor meer dan 20.000 websites de online betalingen.
@@ -17,22 +17,22 @@ Via [Mollie](https://www.mollie.com/) is gemakkelijk wereldwijd online betaalmet
 Met iDEAL kun je vertrouwd, veilig en gemakkelijk uw online aankopen afrekenen. iDEAL is het systeem dat direct is gekoppelt aan je internetbankieren.
 
 ### Creditcard ###
-[Creditcard](https://www.mollie.nl/betaaldiensten/creditcard/) is vrijwel de bekendste methode voor het ontvangen van betalingen met wereldwijde dekking. Doordat we onder andere de bekende merken Mastercard en Visa ondersteunen, zorgt dit direct voor veel potentiële kopers.
+[Creditcard](https://www.mollie.com/creditcard/) is vrijwel de bekendste methode voor het ontvangen van betalingen met wereldwijde dekking. Doordat we onder andere de bekende merken Mastercard en Visa ondersteunen, zorgt dit direct voor veel potentiële kopers.
 
 ### Mister Cash ###
-[Mister Cash](https://www.mollie.nl/betaaldiensten/mistercash/) maakt gebruik van een fysieke kaart die gekoppeld is aan tegoed op een Belgische bankrekening. Betalingen via Mister Cash zijn gegarandeerd en lijkt daarmee sterk op iDEAL in Nederland. Daarom is het uitermate geschikt voor uw webwinkel.
+[Mister Cash](https://www.mollie.com/mistercash/) maakt gebruik van een fysieke kaart die gekoppeld is aan tegoed op een Belgische bankrekening. Betalingen via Mister Cash zijn gegarandeerd en lijkt daarmee sterk op iDEAL in Nederland. Daarom is het uitermate geschikt voor uw webwinkel.
 
 ### Overboekingen ###
-[Overboekingen](https://www.mollie.nl/betaaldiensten/overboeking/) binnen de SEPA zone ontvangen via Mollie. Hiermee kun je betalingen ontvangen van zowel particulieren als zakelijke klanten in meer dan 35 Europese landen.
+[Overboekingen](https://www.mollie.com/banktransfer/) binnen de SEPA zone ontvangen via Mollie. Hiermee kun je betalingen ontvangen van zowel particulieren als zakelijke klanten in meer dan 35 Europese landen.
 
 ### PayPal ###
-[PayPal](https://www.mollie.nl/betaaldiensten/paypal/) is wereldwijd een zeer populaire betaalmethode. In enkele klikken kun je betalingen ontvangen via een bankoverschrijving, creditcard of het PayPal-saldo.
+[PayPal](https://www.mollie.com/paypal/) is wereldwijd een zeer populaire betaalmethode. In enkele klikken kun je betalingen ontvangen via een bankoverschrijving, creditcard of het PayPal-saldo.
 
 ### Bitcoin ###
-[Bitcoin](https://www.mollie.nl/betaaldiensten/bitcoin/) is een vorm van elektronisch geld. De bitcoin-euro wisselkoers wordt vastgesteld op het moment van de transactie waardoor het bedrag en de uitbetaling zijn gegarandeerd.
+[Bitcoin](https://www.mollie.com/bitcoin/) is een vorm van elektronisch geld. De bitcoin-euro wisselkoers wordt vastgesteld op het moment van de transactie waardoor het bedrag en de uitbetaling zijn gegarandeerd.
 
 ### paysafecard ###
-[paysafecard](https://www.mollie.nl/betaaldiensten/paysafecard/) is de populairste prepaidcard voor online betalingen die veel door ouders voor hun kinderen wordt gekocht.
+[paysafecard](https://www.mollie.com/paysafecard/) is de populairste prepaidcard voor online betalingen die veel door ouders voor hun kinderen wordt gekocht.
 
 # Veelgestelde vragen #
 
@@ -74,4 +74,4 @@ Contact: [www.mollie.com/nl/about](https://www.mollie.com/nl/about) — info@mol
 + [Meer informatie over PayPal via Mollie](https://www.mollie.com/paypal/)
 + [Meer informatie over paysafecard via Mollie](https://www.mollie.com/paysafecard/)
 
-![Powered By Mollie](https://www.mollie.nl/images/badge-betaling-medium.png)
+![Powered By Mollie](https://www.mollie.com/images/badge-betaling-medium.png)

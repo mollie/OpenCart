@@ -44,50 +44,82 @@
 			<div class="panel-body">
 				<form action="<?php echo $action ?>" method="post" enctype="multipart/form-data" id="form-mollie" class="form-horizontal">
 					<div class="form-group">
-						<label class="col-sm-2 control-label" for="input-status"><span data-toggle="tooltip" title="<?php clean_echo($help_status) ?>"><?php clean_echo($entry_status) ?></span></label>
-
-						<div class="col-sm-10">
-							<select name="mollie_ideal_status" id="input-status" class="form-control">
-								<?php if ($mollie_ideal_status) { ?>
-								<option value="1" selected="selected"><?php clean_echo($text_enabled) ?></option>
-								<option value="0"><?php clean_echo($text_disabled) ?></option>
-								<?php } else { ?>
-								<option value="1"><?php clean_echo($text_enabled) ?></option>
-								<option value="0" selected="selected"><?php clean_echo($text_disabled) ?></option>
-								<?php } ?>
-							</select>
-						</div>
+						<div class="col-sm-2"></div>
+						<div class="col-sm-3"><strong><?php clean_echo($entry_payment_method) ?></strong></div>
+						<div class="col-sm-4"><strong><?php clean_echo($entry_activate) ?></strong></div>
+						<div class="col-sm-3"><strong><?php clean_echo($entry_sort_order) ?></strong></div>
 					</div>
 
-					<div class="form-group required">
-						<label class="col-sm-2 control-label" for="mollie_api_key"><span data-toggle="tooltip" title="<?php clean_echo($help_api_key) ?>"><?php clean_echo($entry_api_key) ?></span></label>
-
-						<div class="col-sm-10">
-							<input type="text" name="mollie_api_key" value="<?php clean_echo($mollie_api_key) ?>" placeholder="live_..." id="mollie_api_key" class="form-control"/>
-							<?php if ($error_api_key) { ?>
-							<div class="text-danger"><?php clean_echo($error_api_key) ?></div>
-							<?php } ?>
-						</div>
-					</div>
-
-					<div class="form-group required">
-						<label class="col-sm-2 control-label" for="mollie_ideal_description"><span data-toggle="tooltip" title="<?php clean_echo($help_description) ?>"><?php clean_echo($entry_description) ?></span></label>
-
-						<div class="col-sm-10">
-							<input type="text" name="mollie_ideal_description" value="<?php clean_echo($mollie_ideal_description) ?>" id="mollie_ideal_description" class="form-control"/>
-							<?php if ($error_description) { ?>
-							<div class="text-danger"><?php clean_echo($error_description) ?></div>
-							<?php } ?>
-						</div>
-					</div>
-
+					<?php foreach ($payment_methods as $module_id => $payment_method) { ?>
 					<div class="form-group">
-						<label class="col-sm-2 control-label" for="input-sort-order"><?php clean_echo($entry_sort_order) ?></label>
-
-						<div class="col-sm-10">
-							<input type="text" name="mollie_ideal_sort_order" value="<?php clean_echo($mollie_ideal_sort_order) ?>" placeholder="<?php clean_echo($entry_sort_order) ?>" id="input-sort-order" class="form-control"/>
+						<div class="col-sm-2"></div>
+						<div class="col-sm-3">
+							<img src="<?php clean_echo($payment_method['icon']) ?>" width="20" style="float:left; margin-right:1em; margin-top:-3px" />
+							<?php clean_echo($payment_method['name']) ?>
+						</div>
+						<div class="col-sm-4">
+							<?php
+							if (!mb_strlen($mollie_api_key) || !empty($error_api_key))
+							{
+								echo $text_missing_api_key;
+							}
+							elseif (!$payment_method['allowed'])
+							{
+								echo $text_activate_payment_method;
+							}
+							else
+							{
+							?>
+							<input type="checkbox" name="mollie_<?php echo $module_id ?>_status"<?php if ($payment_method['status']) { ?> checked<?php } ?> style="cursor:pointer" />
+							<?php } ?>
+						</div>
+						<div class="col-sm-3">
+							<input type="text" name="mollie_<?php echo $module_id ?>_sort_order" value="<?php clean_echo($payment_method['sort_order']) ?>" class="form-control" style="text-align:right; max-width:60px" />
 						</div>
 					</div>
+					<?php } ?>
+
+					<fieldset>
+						<legend><?php clean_echo($title_global_options) ?></legend>
+
+						<div class="form-group required">
+							<label class="col-sm-2 control-label" for="mollie_api_key"><span data-toggle="tooltip" title="<?php clean_echo($help_api_key) ?>"><?php clean_echo($entry_api_key) ?></span></label>
+
+							<div class="col-sm-10">
+								<input type="text" name="mollie_api_key" value="<?php clean_echo($mollie_api_key) ?>" placeholder="live_..." id="mollie_api_key" class="form-control"/>
+								<?php if ($error_api_key) { ?>
+								<div class="text-danger"><?php clean_echo($error_api_key) ?></div>
+								<?php } ?>
+							</div>
+						</div>
+
+						<div class="form-group required">
+							<label class="col-sm-2 control-label" for="mollie_ideal_description"><span data-toggle="tooltip" title="<?php clean_echo($help_description) ?>"><?php clean_echo($entry_description) ?></span></label>
+
+							<div class="col-sm-10">
+								<input type="text" name="mollie_ideal_description" value="<?php clean_echo($mollie_ideal_description) ?>" id="mollie_ideal_description" class="form-control"/>
+								<?php if ($error_description) { ?>
+								<div class="text-danger"><?php clean_echo($error_description) ?></div>
+								<?php } ?>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-2 control-label" for="input-status"><span data-toggle="tooltip" title="<?php clean_echo($help_show_icons) ?>"><?php clean_echo($entry_show_icons) ?></span></label>
+
+							<div class="col-sm-10">
+								<select name="mollie_show_icons" id="input-status" class="form-control">
+									<?php if ($mollie_show_icons) { ?>
+									<option value="1" selected="selected"><?php clean_echo($text_enabled) ?></option>
+									<option value="0"><?php clean_echo($text_disabled) ?></option>
+									<?php } else { ?>
+									<option value="1"><?php clean_echo($text_enabled) ?></option>
+									<option value="0" selected="selected"><?php clean_echo($text_disabled) ?></option>
+									<?php } ?>
+								</select>
+							</div>
+						</div>
+					</fieldset>
 
 					<fieldset>
 						<legend><?php clean_echo($title_payment_status) ?></legend>
@@ -214,13 +246,13 @@
 							<label class="col-sm-2 control-label"><?php clean_echo($entry_support) ?></label>
 
 							<div class="col-sm-10">
-								<p class="form-control-static"><a href="https://www.mollie.nl/bedrijf/contact" target="_blank">Mollie B.V.</a></p>
+								<p class="form-control-static"><a href="https://www.mollie.com/bedrijf/contact" target="_blank">Mollie B.V.</a></p>
 							</div>
 						</div>
 
 						<div class="form-group">
 							<div class="col-sm-offset-2 col-sm-10">
-								<a href="https://www.mollie.nl/" target="_blank"><img src="https://www.mollie.nl/images/badge-powered-medium.png" width="135" height="87" border="0" alt="Mollie"/></a><br/><br/>
+								<a href="https://www.mollie.com/" target="_blank"><img src="https://www.mollie.com/images/badge-powered-medium.png" width="135" height="87" border="0" alt="Mollie"/></a><br/><br/>
 								&copy; 2004-<?php echo date('Y') ?> Mollie B.V. <?php clean_echo($footer_text) ?>
 							</div>
 						</div>

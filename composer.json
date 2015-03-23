@@ -2,11 +2,11 @@
     "name": "mollie/opencart",
     "description": "Mollie module for OpenCart",
     "version": "5.2.7",
-    "homepage": "https://www.mollie.nl",
+    "homepage": "https://www.mollie.com",
     "authors": [
         {
             "name": "Mollie B.V.",
-            "email": "info@mollie.nl"
+            "email": "info@mollie.com"
         }
     ],
     "license": "BSD-2-Clause",

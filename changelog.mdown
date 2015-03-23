@@ -1,4 +1,4 @@
-![Mollie](https://www.mollie.nl/files/Mollie-Logo-Style-Small.png)
+![Mollie](https://www.mollie.com/files/Mollie-Logo-Style-Small.png)
 
 # Changelog #
 
@@ -65,11 +65,10 @@
 + Correct order totals are calculated for non-EURO base currencies.
 
 ## Wijzigigen in versie 5.0 ##
-+ De module gebruikt nu de nieuwe betalings-API van Mollie. Dit betekent dat de module naast [iDEAL](https://www.mollie.nl/betaaldiensten/ideal/), nu
-  ook [creditcard](https://www.mollie.nl/betaaldiensten/creditcard/), [Mister Cash](https://www.mollie.nl/betaaldiensten/mistercash/) en
-  [paysafecard](https://www.mollie.nl/betaaldiensten/paysafecard/) ondersteunt. Mocht een betaling om wat voor reden dan ook niet lukken, dat kan uw
-  klant het gelijk nog een keer proberen. U hoeft hiervoor niets extra's te implementeren. In de toekomst zullen ook nog nieuwe betaalmethodes
-  toegevoegd worden. Deze zijn dan direct beschikbaar in uw webshop.
++ De module gebruikt nu de nieuwe betalings-API van Mollie. Dit betekent dat de module naast [iDEAL](https://www.mollie.com/ideal/), nu
+  ook [creditcard](https://www.mollie.com/creditcard/), [Mister Cash](https://www.mollie.com/mistercash/) en [paysafecard](https://www.mollie.com/paysafecard/)
+  ondersteunt. Mocht een betaling om wat voor reden dan ook niet lukken, dat kan uw klant het gelijk nog een keer proberen. U hoeft hiervoor niets extra's
+  te implementeren. In de toekomst zullen ook nog nieuwe betaalmethodes toegevoegd worden. Deze zijn dan direct beschikbaar in uw webshop.
 + Het instellingenscherm in de admin toont nu gelijk of de module correct kan communiceren met de Mollie API. Hierdoor kunnen we u beter helpen wanneer
   er problemen zijn met de module.
 + Verbeter foutafhandeling en communicatie met Mollie.
@@ -80,7 +79,7 @@ Upgraden vanaf een eerdere versie is eenvoudig:
 
 0. Download de module van [GitHub](https://github.com/mollie/OpenCart/releases).
 0. Upload de bestanden in de map `admin` en `catalog` naar uw webserver. U moet hierbij de bestanden die er al zijn met dezelfde naam overschrijven. Er zijn ook enkele nieuwe bestanden.
-0. Ga naar de instellingenpagina van de module in OpenCart. Kopieer hier uw _Test API key_ in het daarvoor bestemde veld. U vindt uw _Test API key_ in het Mollie Beheer onder "[Websiteprofielen](https://www.mollie.nl/beheer/account/profielen/)".
+0. Ga naar de instellingenpagina van de module in OpenCart. Kopieer hier uw _Test API key_ in het daarvoor bestemde veld. U vindt uw _Test API key_ in het Mollie Beheer onder "[Websiteprofielen](https://www.mollie.com/beheer/account/profielen/)".
 0. Voer een testbetaling uit om te verifiëren of alles werkt.
 0. Als alles goed werkt, vervang dan de _Test API key_ door de _Live API key_ in uw OpenCart omgeving.
 

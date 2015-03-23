@@ -35,16 +35,45 @@
 		<div class="content">
 			<form action="<?php echo $action ?>" method="post" enctype="multipart/form-data" id="form">
 				<table class="form">
-					<tr>
-						<td><?php printf('%s:<br /><span class="help">%s</span>', $entry_status, $help_status) ?></td>
-						<td>
-							<select name="mollie_ideal_status">
-								<option value="1" <?php if ($mollie_ideal_status == 1) { echo 'selected="selected"'; } ?>><?php clean_echo($text_enabled) ?></option>
-								<option value="0" <?php if ($mollie_ideal_status == 0) { echo 'selected="selected"'; } ?>><?php clean_echo($text_disabled) ?></option>
-							</select>
-						</td>
+					<tr align="left">
+						<th style="padding-left:10px"></th>
+						<th style="padding-left:10px"><?php clean_echo($entry_payment_method) ?></th>
+						<th style="padding-left:10px"><?php clean_echo($entry_activate) ?></th>
+						<th style="padding-left:10px"><?php clean_echo($entry_sort_order) ?></th>
 					</tr>
 
+					<?php foreach ($payment_methods as $module_id => $payment_method) { ?>
+					<tr>
+						<td></td>
+						<td>
+							<img src="<?php clean_echo($payment_method['icon']) ?>" width="20" style="float:left; margin-right:1em; margin-top:-3px" />
+							<?php clean_echo($payment_method['name']) ?>
+						</td>
+						<td>
+							<?php
+							if (!mb_strlen($mollie_api_key) || !empty($error_api_key))
+							{
+								echo $text_missing_api_key;
+							}
+							elseif (!$payment_method['allowed'])
+							{
+								echo $text_activate_payment_method;
+							}
+							else
+							{
+							?>
+							<input type="checkbox" name="mollie_<?php echo $module_id ?>_status"<?php if ($payment_method['status']) { ?> checked<?php } ?> style="cursor:pointer" />
+							<?php } ?>
+						</td>
+						<td>
+							<input type="text" name="mollie_<?php echo $module_id ?>_sort_order" value="<?php clean_echo($payment_method['sort_order']) ?>" style="text-align:right; max-width:60px" />
+						</td>
+					</tr>
+					<?php } ?>
+				</table>
+
+				<h3><?php clean_echo($title_global_options) ?></h3>
+				<table class="form">
 					<tr>
 						<td><span class="required">*</span> <?php printf('%s:<br /><span class="help">%s</span>', $entry_api_key, $help_api_key) ?></td>
 						<td><input type="text" name="mollie_api_key" value="<?php clean_echo($mollie_api_key) ?>" style="width:240px" placeholder="live_..."/>
@@ -65,6 +94,19 @@
 						</td>
 					</tr>
 
+					<tr>
+						<td><?php printf('%s:<br /><span class="help">%s</span>', $entry_show_icons, $help_show_icons) ?></td>
+						<td>
+							<select name="mollie_show_icons">
+								<option value="1" <?php if ($mollie_show_icons == 1) { echo 'selected="selected"'; } ?>><?php clean_echo($text_enabled) ?></option>
+								<option value="0" <?php if ($mollie_show_icons == 0) { echo 'selected="selected"'; } ?>><?php clean_echo($text_disabled) ?></option>
+							</select>
+						</td>
+					</tr>
+				</table>
+
+				<h3><?php clean_echo($title_payment_status) ?></h3>
+				<table class="form">
 					<tr>
 						<td><?php clean_echo($entry_pending_status) ?>:</td>
 						<td>
@@ -135,16 +177,10 @@
 							</select>
 						</td>
 					</tr>
+				</table>
 
-					<tr>
-						<td><?php clean_echo($entry_sort_order) ?>:</td>
-						<td><input type="text" name="mollie_ideal_sort_order" value="<?php clean_echo($mollie_ideal_sort_order ? $mollie_ideal_sort_order : 1) ?>" size="1" /></td>
-					</tr>
-
-					<tr>
-						<td height="24"></td>
-						<td></td>
-					</tr>
+				<h3><?php clean_echo($title_mod_about) ?></h3>
+				<table class="form">
 					<tr>
 						<td style="vertical-align: middle"><?php echo $entry_module ?>:</td>
 						<td style="vertical-align: middle"><?php echo $entry_version ?></td>
@@ -155,7 +191,7 @@
 							<?php
 								if (is_array($entry_mstatus)) {
 									foreach ($entry_mstatus as $file) {
-										echo "Bestand bestaat niet: '$file'<br/>";
+										echo $error_file_missing . ": '$file'<br/>";
 									}
 								} else {
 									echo $entry_mstatus;
@@ -172,18 +208,18 @@
 					<tr>
 						<td><?php clean_echo($entry_support) ?>:</td>
 						<td>
-							<a href="https://www.mollie.nl/bedrijf/contact" target="_blank">Mollie B.V.</a>
+							<a href="https://www.mollie.com/bedrijf/contact" target="_blank">Mollie B.V.</a>
 						</td>
 					</tr>
 					<tr>
 						<td></td>
 						<td>
-
-							<a href="https://www.mollie.nl/" target="_blank"><img src="https://www.mollie.nl/images/badge-powered-medium.png" width="135" height="87" border="0" alt="Mollie" /></a><br/><br/>
+							<a href="https://www.mollie.com/" target="_blank"><img src="https://www.mollie.com/images/badge-powered-medium.png" width="135" height="87" border="0" alt="Mollie" /></a><br/><br/>
 							&copy; 2004-<?php echo date('Y') ?> Mollie B.V. <?php clean_echo($footer_text) ?>
 						</td>
 					</tr>
 				</table>
+
 			</form>
 		</div>
 		<script type="text/javascript">
