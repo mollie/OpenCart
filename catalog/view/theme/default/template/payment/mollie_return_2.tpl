@@ -26,6 +26,14 @@
 			<br/>
 
 			<p><?php clean_echo($message_text) ?></p>
+
+			<?php if (isset($mollie_error)) { ?>
+				<p><code><?php clean_echo($mollie_error) ?></code></p>
+			<?php } ?>
+
+			<?php if (isset($button_retry)) { ?>
+				<p><a href="<?php clean_echo($checkout_url) ?>" class="button btn btn-primary"><?php clean_echo($button_retry) ?></a></p>
+			<?php } ?>
 			<?php echo $content_bottom ?>
 		</div>
 		<?php echo $column_right ?>

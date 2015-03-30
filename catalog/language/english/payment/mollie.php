@@ -40,13 +40,20 @@ $_['heading_title']      = 'Payment by Mollie';
 $_['ideal_title']        = 'Your payment';
 $_['text_title']         = 'Pay online';
 $_['text_redirected']    = 'The client has been referred to the payment screen';
-$_['msg_failed']         = 'Unfortunately your payment has failed.';
-$_['msg_unknown']        = 'Your payment has not been received yet. We will send you a confirmation email the moment the payment is received.';
-$_['heading_failed']     = 'Your payment has not been completed';
-$_['heading_unknown']    = 'Your payment is pending';
-$_['heading_error']      = 'An error occurred when setting up the payment.';
-$_['text_error']         = 'An error occurred when setting up the payment with Mollie:';
 $_['text_issuer']        = 'Select your bank';
+$_['button_retry']       = 'Return to checkout page';
+
+// Status page: payment failed (e.g. cancelled).
+$_['heading_failed']     = 'Your payment has not been completed';
+$_['msg_failed']         = 'Unfortunately your payment has failed. Please click the button below to return to the checkout page and retry setting up a payment.';
+
+// Status page: payment pending.
+$_['heading_unknown']    = 'Your payment is pending';
+$_['msg_unknown']        = 'Your payment has not been received yet. We will send you a confirmation email the moment the payment is received.';
+
+// Status page: API failure.
+$_['heading_error']      = 'An error occurred when setting up the payment';
+$_['text_error']         = 'An error occurred when setting up the payment with Mollie. Click the button below to return to the checkout page.';
 
 // Response
 $_['response_success']   = 'The payment is received';

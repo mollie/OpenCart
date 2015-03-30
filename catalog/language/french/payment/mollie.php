@@ -40,13 +40,20 @@ $_['heading_title']      = 'Paiement par Mollie';
 $_['ideal_title']        = 'Votre paiement';
 $_['text_title']         = 'Payez en ligne';
 $_['text_redirected']    = 'Le client a été renvoyé à l\'écran de paiement';
-$_['msg_failed']         = 'Malheureusement, votre paiement est échoué.';
-$_['msg_unknown']        = 'Votre paiement n\'a pas encore été reçu. Nous vous enverrons un e-mail de confirmation au moment où le paiement est reçu.';
-$_['heading_failed']     = 'Votre paiement n\'a pas été achevée';
-$_['heading_unknown']    = 'Votre paiement est en attente';
-$_['heading_error']      = 'Une erreur s\'est produite lors de la mise en place du paiement.';
-$_['text_error']         = 'Une erreur s\'est produite lors de la mise en place du paiement avec Mollie:';
 $_['text_issuer']        = 'Selectionnez votre banque:';
+$_['button_retry']       = 'Retour à la page de paiement';
+
+// Status page: payment failed (e.g. cancelled).
+$_['heading_failed']     = 'Votre paiement n\'a pas été achevée';
+$_['msg_failed']         = 'Malheureusement, votre paiement est échoué.';
+
+// Status page: payment pending.
+$_['heading_unknown']    = 'Votre paiement est en attente';
+$_['msg_unknown']        = 'Votre paiement n\'a pas encore été reçu. Nous vous enverrons un e-mail de confirmation au moment où le paiement est reçu.';
+
+// Status page: API failure.
+$_['heading_error']      = 'Une erreur s\'est produite lors de la mise en place du paiement';
+$_['text_error']         = 'Une erreur s\'est produite lors de la mise en place du paiement avec Mollie:';
 
 // Response
 $_['response_success']   = 'Le paiement est reçu';

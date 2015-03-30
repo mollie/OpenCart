@@ -193,7 +193,7 @@ class ControllerPaymentMollieBase extends Controller
 
 			$amount      = round($amount, 2);
 			$description = str_replace("%", $order['order_id'], html_entity_decode($this->config->get("mollie_ideal_description"), ENT_QUOTES, "UTF-8"));
-			$return_url  = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/callback", "utm_nooverride=1", "SSL");
+			$return_url  = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/callback", "", "SSL");
 			$issuer      = $this->getIssuer();
 
 			try
@@ -379,6 +379,7 @@ class ControllerPaymentMollieBase extends Controller
 		// Now that the customer has returned to our web site, check if we already know if the payment has succeeded. If the payment is all good, we need to clear the cart.
 		if ($order && $order["order_status_id"] == $this->config->get("mollie_ideal_processing_status_id"))
 		{
+			// Redirect to 'success' page.
 			$this->redirect($this->url->link("checkout/success", "", "SSL"));
 			return;
 		}
@@ -386,35 +387,25 @@ class ControllerPaymentMollieBase extends Controller
 		// When an order could be found, check if Mollie has reported the new status. When the order status is still pending, the report is not delivered yet.
 		elseif ($order && $order['order_status_id'] == $this->config->get("mollie_ideal_pending_status_id"))
 		{
-			$data['message_title'] = $this->language->get("heading_unknown");
-			$data['message_text']  = $this->language->get("msg_unknown");
-
 			if ($this->cart)
 			{
 				$this->cart->clear();
 			}
+
+			// Show a 'transaction pending' page.
+			return $this->showReturnPage(
+				$this->language->get("heading_unknown"),
+				$this->language->get("msg_unknown"),
+				NULL,
+				FALSE
+			);
 		}
 
-		// When no order could be found the session has probably expired. The payment has failed.
-		else
-		{
-			$data['message_title'] = $this->language->get("heading_failed");
-			$data['message_text']  = $this->language->get("msg_failed");
-		}
-
-		$this->document->setTitle($this->language->get("ideal_title"));
-
-		$this->setBreadcrumbs($data);
-
-		// Render HTML output.
-		$this->renderTemplate("mollie_return", $data, array(
-			"column_left",
-			"column_right",
-			"content_top",
-			"content_bottom",
-			"footer",
-			"header",
-		));
+		// Show a 'transaction failed' page.
+		return $this->showReturnPage(
+			$this->language->get("heading_failed"),
+			$this->language->get("msg_failed")
+		);
 	}
 
 	/**
@@ -433,19 +424,55 @@ class ControllerPaymentMollieBase extends Controller
 
 	/**
 	 * @param $message
+	 *
+	 * @return string
 	 */
 	protected function showErrorPage ($message)
 	{
+		$this->load->language("payment/mollie");
+
 		$this->log->write("Error setting up transaction with Mollie: {$message}.");
 
-		$data['mollie_error'] = $message;
-		$data['message']      = $this->language;
+		return $this->showReturnPage(
+			$this->language->get("heading_error"),
+			$this->language->get("text_error"),
+			$message
+		);
+	}
 
-		// Breadcrumbs
+	/**
+	 * Render a return page.
+	 *
+	 * @param string      $title      The title of the status page.
+	 * @param string      $body       The status message.
+	 * @param string|NULL $api_error  Show an API error, if applicable.
+	 * @param bool $show_retry_button Show a retry button that redirects the customer back to the checkout page.
+	 *
+	 * @return string
+	 */
+	protected function showReturnPage ($title, $body, $api_error = NULL, $show_retry_button = TRUE)
+	{
+		$this->load->language("payment/mollie");
+
+		$data['message_title'] = $title;
+		$data['message_text']  = $body;
+
+		if ($api_error)
+		{
+			$data['mollie_error'] = $api_error;
+		}
+
+		if ($show_retry_button)
+		{
+			$data['checkout_url']  = $this->url->link("checkout/checkout", "", "SSL");
+			$data['button_retry']  = $this->language->get("button_retry");
+		}
+
+		$this->document->setTitle($this->language->get("ideal_title"));
+
 		$this->setBreadcrumbs($data);
 
-		// Render HTML output
-		return $this->renderTemplate("mollie_payment_error", $data, array(
+		return $this->renderTemplate("mollie_return", $data, array(
 			"column_left",
 			"column_right",
 			"content_top",

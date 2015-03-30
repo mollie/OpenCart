@@ -51,19 +51,21 @@
 						</td>
 						<td>
 							<?php
+							// Hide the checkbox in case of an error, but don't remove the input entirely to make sure we keep our setting.
+							$show_checkbox = TRUE;
+
 							if (!mb_strlen($mollie_api_key) || !empty($error_api_key))
 							{
+								$show_checkbox = FALSE;
 								echo $text_missing_api_key;
 							}
 							elseif (!$payment_method['allowed'])
 							{
+								$show_checkbox = FALSE;
 								echo $text_activate_payment_method;
 							}
-							else
-							{
 							?>
-							<input type="checkbox" name="mollie_<?php echo $module_id ?>_status"<?php if ($payment_method['status']) { ?> checked<?php } ?> style="cursor:pointer" />
-							<?php } ?>
+							<input type="checkbox" name="mollie_<?php echo $module_id ?>_status"<?php if ($payment_method['status']) { ?> checked<?php } ?> style="cursor:pointer<?php if (!$show_checkbox) { ?>; display:none<?php } ?>" />
 						</td>
 						<td>
 							<input type="text" name="mollie_<?php echo $module_id ?>_sort_order" value="<?php clean_echo($payment_method['sort_order']) ?>" style="text-align:right; max-width:60px" />

@@ -40,13 +40,20 @@ $_['heading_title']      = 'Betaling via Mollie';
 $_['ideal_title']        = 'Uw betaling';
 $_['text_title']         = 'Online betalen';
 $_['text_redirected']    = 'De klant is doorgestuurd naar het betaalscherm';
-$_['msg_failed']         = 'De betaling is mislukt.';
-$_['msg_unknown']        = 'We hebben uw betaling nog niet ontvangen. Wij zullen een bevestigingsmail versturen op het moment dat de betaling binnen is.';
-$_['heading_failed']     = 'Uw betaling is niet voltooid';
-$_['heading_unknown']    = 'Wij wachten nog op uw betaling';
-$_['heading_error']      = 'Er is een fout opgetreden bij het opzetten van de betaling.';
-$_['text_error']         = 'Er is een fout opgetreden tijdens het opzetten van de betaling bij Mollie:';
 $_['text_issuer']        = 'Kies uw bank';
+$_['button_retry']       = 'Opnieuw proberen af te rekenen';
+
+// Status page: payment failed (e.g. cancelled).
+$_['heading_failed']     = 'Uw betaling is niet voltooid';
+$_['msg_failed']         = 'Helaas is de betaling mislukt. Klik op onderstaande knop om terug te keren naar het afrekenscherm.';
+
+// Status page: payment pending.
+$_['heading_unknown']    = 'We wachten nog op uw betaling';
+$_['msg_unknown']        = 'We hebben uw betaling nog niet ontvangen. Wij zullen een bevestigingsmail versturen op het moment dat de betaling binnen is.';
+
+// Status page: API failure.
+$_['heading_error']      = 'Er is een fout opgetreden bij het opzetten van de betaling';
+$_['text_error']         = 'Er is een fout opgetreden bij het opzetten van de betaling bij Mollie. Klik op onderstaande knop om terug te keren naar het afrekenscherm.';
 
 // Response
 $_['response_success']   = 'De betaling is ontvangen';
