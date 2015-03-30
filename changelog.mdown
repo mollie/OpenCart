@@ -2,6 +2,9 @@
 
 # Changelog #
 
+## Changes in release 6.0.1 ##
++ Send users back to their shopping cart if a payment fails.
+
 ## Changes in release 6.0.0 ##
 + All payment methods have now been added as separate modules to improve support with other third party modules.
 
