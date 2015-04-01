@@ -449,8 +449,6 @@ class ControllerPaymentMollieBase extends Controller
 			DIR_CATALOG . "view/theme/default/template/payment/mollie_checkout_form.tpl",
 			DIR_CATALOG . "view/theme/default/template/payment/mollie_return.tpl",
 			DIR_CATALOG . "view/theme/default/template/payment/mollie_return_2.tpl",
-			DIR_CATALOG . "view/theme/default/template/payment/mollie_payment_error.tpl",
-			DIR_CATALOG . "view/theme/default/template/payment/mollie_payment_error_2.tpl",
 		);
 
 		foreach (MollieHelper::$MODULE_NAMES as $module_name)
@@ -463,6 +461,8 @@ class ControllerPaymentMollieBase extends Controller
 
 		foreach ($mod_files as $file)
 		{
+			$file = realpath($file);
+
 			if (!file_exists($file))
 			{
 				$need_files[] = '<span style="color:red">' . $file . '</span>';
