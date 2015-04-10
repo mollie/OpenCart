@@ -122,33 +122,6 @@ class ModelPaymentMollieBase extends Model
 	}
 
 	/**
-	 * Get the transaction ID matching the order ID.
-	 *
-	 * @param $order_id
-	 *
-	 * @return int|NULL
-	 */
-	public function getTransactionIDByOrderID ($order_id)
-	{
-		$q = $this->db->query(
-			sprintf(
-				"SELECT transaction_id
-				 FROM `%1\$smollie_payments`
-				 WHERE `order_id` = '%2\$d'",
-				DB_PREFIX,
-				$this->db->escape($order_id)
-			)
-		);
-
-		if ($q->num_rows > 0)
-		{
-			return $q->row['transaction_id'];
-		}
-
-		return NULL;
-	}
-
-	/**
 	 * While createPayment is in progress this method is getting called to store the order information.
 	 *
 	 * @param $order_id

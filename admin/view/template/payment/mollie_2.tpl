@@ -112,11 +112,27 @@
 							<div class="col-sm-10">
 								<select name="mollie_show_icons" id="input-status" class="form-control">
 									<?php if ($mollie_show_icons) { ?>
-									<option value="1" selected="selected"><?php clean_echo($text_enabled) ?></option>
-									<option value="0"><?php clean_echo($text_disabled) ?></option>
+									<option value="1" selected="selected"><?php clean_echo($text_yes) ?></option>
+									<option value="0"><?php clean_echo($text_no) ?></option>
 									<?php } else { ?>
-									<option value="1"><?php clean_echo($text_enabled) ?></option>
-									<option value="0" selected="selected"><?php clean_echo($text_disabled) ?></option>
+									<option value="1"><?php clean_echo($text_yes) ?></option>
+									<option value="0" selected="selected"><?php clean_echo($text_no) ?></option>
+									<?php } ?>
+								</select>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-2 control-label" for="input-status"><span data-toggle="tooltip" title="<?php clean_echo($help_show_order_canceled_page) ?>"><?php clean_echo($entry_show_order_canceled_page) ?></span></label>
+
+							<div class="col-sm-10">
+								<select name="mollie_show_order_canceled_page" id="input-status" class="form-control">
+									<?php if ($mollie_show_order_canceled_page) { ?>
+									<option value="1" selected="selected"><?php clean_echo($text_yes) ?></option>
+									<option value="0"><?php clean_echo($text_no) ?></option>
+									<?php } else { ?>
+									<option value="1"><?php clean_echo($text_yes) ?></option>
+									<option value="0" selected="selected"><?php clean_echo($text_no) ?></option>
 									<?php } ?>
 								</select>
 							</div>
@@ -127,10 +143,31 @@
 						<legend><?php clean_echo($title_payment_status) ?></legend>
 
 						<div class="form-group">
+							<label class="col-sm-2 control-label" for="mollie_ideal_pending_status_id"><?php clean_echo($entry_pending_status) ?></label>
+
+							<div class="col-sm-10">
+								<select name="mollie_ideal_pending_status_id" id="mollie_ideal_pending_status_id" class="form-control">
+									<?php foreach ($order_statuses as $order_status): ?>
+									<?php if ($order_status['order_status_id'] == $mollie_ideal_pending_status_id): ?>
+									<option value="<?php echo $order_status['order_status_id'] ?>" selected="selected"><?php echo $order_status['name'] ?></option>
+									<?php else: ?>
+									<option value="<?php echo $order_status['order_status_id'] ?>"><?php echo $order_status['name'] ?></option>
+									<?php endif ?>
+									<?php endforeach ?>
+								</select>
+							</div>
+						</div>
+
+						<div class="form-group">
 							<label class="col-sm-2 control-label" for="mollie_ideal_failed_status_id"><?php clean_echo($entry_failed_status) ?></label>
 
 							<div class="col-sm-10">
 								<select name="mollie_ideal_failed_status_id" id="mollie_ideal_failed_status_id" class="form-control">
+									<?php if (empty($mollie_ideal_failed_status_id)) { ?>
+									<option value="0" selected="selected"><?php echo $text_no_status_id ?></option>
+									<?php } else { ?>
+									<option value="0"><?php echo $text_no_status_id ?></option>
+									<?php } ?>
 									<?php foreach ($order_statuses as $order_status): ?>
 									<?php if ($order_status['order_status_id'] == $mollie_ideal_failed_status_id): ?>
 									<option value="<?php echo $order_status['order_status_id'] ?>" selected="selected"><?php echo $order_status['name'] ?></option>
@@ -147,6 +184,11 @@
 
 							<div class="col-sm-10">
 								<select name="mollie_ideal_canceled_status_id" id="mollie_ideal_canceled_status_id" class="form-control">
+									<?php if (empty($mollie_ideal_canceled_status_id)) { ?>
+									<option value="0" selected="selected"><?php echo $text_no_status_id ?></option>
+									<?php } else { ?>
+									<option value="0"><?php echo $text_no_status_id ?></option>
+									<?php } ?>
 									<?php foreach ($order_statuses as $order_status): ?>
 									<?php if ($order_status['order_status_id'] == $mollie_ideal_canceled_status_id): ?>
 									<option value="<?php echo $order_status['order_status_id'] ?>" selected="selected"><?php echo $order_status['name'] ?></option>
@@ -163,24 +205,13 @@
 
 							<div class="col-sm-10">
 								<select name="mollie_ideal_expired_status_id" id="mollie_ideal_expired_status_id" class="form-control">
+									<?php if (empty($mollie_ideal_expired_status_id)) { ?>
+									<option value="0" selected="selected"><?php echo $text_no_status_id ?></option>
+									<?php } else { ?>
+									<option value="0"><?php echo $text_no_status_id ?></option>
+									<?php } ?>
 									<?php foreach ($order_statuses as $order_status): ?>
 									<?php if ($order_status['order_status_id'] == $mollie_ideal_expired_status_id): ?>
-									<option value="<?php echo $order_status['order_status_id'] ?>" selected="selected"><?php echo $order_status['name'] ?></option>
-									<?php else: ?>
-									<option value="<?php echo $order_status['order_status_id'] ?>"><?php echo $order_status['name'] ?></option>
-									<?php endif ?>
-									<?php endforeach ?>
-								</select>
-							</div>
-						</div>
-
-						<div class="form-group">
-							<label class="col-sm-2 control-label" for="mollie_ideal_pending_status_id"><?php clean_echo($entry_pending_status) ?></label>
-
-							<div class="col-sm-10">
-								<select name="mollie_ideal_pending_status_id" id="mollie_ideal_pending_status_id" class="form-control">
-									<?php foreach ($order_statuses as $order_status): ?>
-									<?php if ($order_status['order_status_id'] == $mollie_ideal_pending_status_id): ?>
 									<option value="<?php echo $order_status['order_status_id'] ?>" selected="selected"><?php echo $order_status['name'] ?></option>
 									<?php else: ?>
 									<option value="<?php echo $order_status['order_status_id'] ?>"><?php echo $order_status['name'] ?></option>

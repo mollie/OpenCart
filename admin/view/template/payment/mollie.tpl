@@ -100,8 +100,18 @@
 						<td><?php printf('%s:<br /><span class="help">%s</span>', $entry_show_icons, $help_show_icons) ?></td>
 						<td>
 							<select name="mollie_show_icons">
-								<option value="1" <?php if ($mollie_show_icons == 1) { echo 'selected="selected"'; } ?>><?php clean_echo($text_enabled) ?></option>
-								<option value="0" <?php if ($mollie_show_icons == 0) { echo 'selected="selected"'; } ?>><?php clean_echo($text_disabled) ?></option>
+								<option value="1" <?php if ($mollie_show_icons == 1) { echo 'selected="selected"'; } ?>><?php clean_echo($text_yes) ?></option>
+								<option value="0" <?php if ($mollie_show_icons == 0) { echo 'selected="selected"'; } ?>><?php clean_echo($text_no) ?></option>
+							</select>
+						</td>
+					</tr>
+
+					<tr>
+						<td><?php printf('%s:<br /><span class="help">%s</span>', $entry_show_order_canceled_page, $help_show_order_canceled_page) ?></td>
+						<td>
+							<select name="mollie_show_order_canceled_page">
+								<option value="1" <?php if ($mollie_show_order_canceled_page == 1) { echo 'selected="selected"'; } ?>><?php clean_echo($text_yes) ?></option>
+								<option value="0" <?php if ($mollie_show_order_canceled_page == 0) { echo 'selected="selected"'; } ?>><?php clean_echo($text_no) ?></option>
 							</select>
 						</td>
 					</tr>
@@ -127,6 +137,11 @@
 						<td><?php clean_echo($entry_failed_status) ?>:</td>
 						<td>
 							<select name="mollie_ideal_failed_status_id">
+								<?php if (empty($mollie_ideal_failed_status_id)) { ?>
+									<option value="0" selected="selected"><?php echo $text_no_status_id ?></option>
+								<?php } else { ?>
+									<option value="0"><?php echo $text_no_status_id ?></option>
+								<?php } ?>
 							<?php foreach ($order_statuses as $order_status): ?>
 								<?php if ($order_status['order_status_id'] == $mollie_ideal_failed_status_id): ?>
 									<option value="<?php echo $order_status['order_status_id'] ?>" selected="selected"><?php echo $order_status['name'] ?></option>
@@ -141,13 +156,18 @@
 						<td><?php clean_echo($entry_canceled_status) ?>:</td>
 						<td>
 							<select name="mollie_ideal_canceled_status_id">
-							<?php foreach ($order_statuses as $order_status): ?>
-								<?php if ($order_status['order_status_id'] == $mollie_ideal_canceled_status_id): ?>
-									<option value="<?php echo $order_status['order_status_id'] ?>" selected="selected"><?php echo $order_status['name'] ?></option>
-								<?php else: ?>
-									<option value="<?php echo $order_status['order_status_id'] ?>"><?php echo $order_status['name'] ?></option>
-								<?php endif ?>
-							<?php endforeach ?>
+								<?php if (empty($mollie_ideal_canceled_status_id)) { ?>
+									<option value="0" selected="selected"><?php echo $text_no_status_id ?></option>
+								<?php } else { ?>
+									<option value="0"><?php echo $text_no_status_id ?></option>
+								<?php } ?>
+								<?php foreach ($order_statuses as $order_status): ?>
+									<?php if ($order_status['order_status_id'] == $mollie_ideal_canceled_status_id): ?>
+										<option value="<?php echo $order_status['order_status_id'] ?>" selected="selected"><?php echo $order_status['name'] ?></option>
+									<?php else: ?>
+										<option value="<?php echo $order_status['order_status_id'] ?>"><?php echo $order_status['name'] ?></option>
+									<?php endif ?>
+								<?php endforeach ?>
 							</select>
 						</td>
 					</tr>
@@ -155,13 +175,18 @@
 						<td><?php clean_echo($entry_expired_status) ?>:</td>
 						<td>
 							<select name="mollie_ideal_expired_status_id">
-							<?php foreach ($order_statuses as $order_status): ?>
-								<?php if ($order_status['order_status_id'] == $mollie_ideal_expired_status_id): ?>
-									<option value="<?php echo $order_status['order_status_id'] ?>" selected="selected"><?php echo $order_status['name'] ?></option>
-								<?php else: ?>
-									<option value="<?php echo $order_status['order_status_id'] ?>"><?php echo $order_status['name'] ?></option>
-								<?php endif ?>
-							<?php endforeach ?>
+								<?php if (empty($mollie_ideal_expired_status_id)) { ?>
+								<option value="0" selected="selected"><?php echo $text_no_status_id ?></option>
+								<?php } else { ?>
+								<option value="0"><?php echo $text_no_status_id ?></option>
+								<?php } ?>
+								<?php foreach ($order_statuses as $order_status): ?>
+									<?php if ($order_status['order_status_id'] == $mollie_ideal_expired_status_id): ?>
+										<option value="<?php echo $order_status['order_status_id'] ?>" selected="selected"><?php echo $order_status['name'] ?></option>
+									<?php else: ?>
+										<option value="<?php echo $order_status['order_status_id'] ?>"><?php echo $order_status['name'] ?></option>
+									<?php endif ?>
+								<?php endforeach ?>
 							</select>
 						</td>
 					</tr>

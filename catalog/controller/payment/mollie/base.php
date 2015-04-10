@@ -158,37 +158,6 @@ class ControllerPaymentMollieBase extends Controller
 			$model = $this->getModuleModel();
 			$order = $this->getOpenCartOrder();
 
-			// Check if a payment already exists for this order and redirect to that paymentUrl if it is still open.
-			$payment_id = $model->getTransactionIDByOrderID($order['order_id']);
-
-			if ($payment_id)
-			{
-				try
-				{
-					$payment = $api->payments->get($payment_id);
-				}
-				catch (Mollie_API_Exception $e)
-				{
-					$this->showErrorPage($e->getMessage());
-					return;
-				}
-
-				if (!empty($payment))
-				{
-					// A payment for this order has already been created. If the status is still open, we can redirect to
-					// this paymentUrl. Otherwise an error must be thrown.
-					if ($payment->isOpen() && $order['order_status_id'] === $this->config->get("mollie_ideal_pending_status_id"))
-					{
-						$this->redirect($payment->getPaymentUrl());
-					}
-					else
-					{
-						$this->showErrorPage("A payment already exists for order ID {$order['order_id']}.");
-						return;
-					}
-				}
-			}
-
 			$amount = $this->currency->convert($order['total'], $this->config->get("config_currency"), "EUR");
 
 			$amount      = round($amount, 2);
@@ -249,14 +218,27 @@ class ControllerPaymentMollieBase extends Controller
 				return;
 			}
 
-			// Add pending status for starters.
-			$this->addOrderHistory($order['order_id'], $this->config->get("mollie_ideal_pending_status_id"), $this->language->get("text_redirected"), FALSE);
+			// Some payment methods can't be cancelled. They need an initial order status.
+			if ($this->startAsPending())
+			{
+				$this->addOrderHistory($order, $this->config->get("mollie_ideal_pending_status_id"), $this->language->get("text_redirected"), FALSE);
+			}
 
 			$model->setPayment($order['order_id'], $payment->id);
 
 			// Redirect to payment gateway.
 			$this->redirect($payment->links->paymentUrl);
 		}
+	}
+
+	/**
+	 * Some payment methods can't be cancelled. They need 'pending' as an initial order status.
+	 *
+	 * @return bool
+	 */
+	protected function startAsPending ()
+	{
+		return FALSE;
 	}
 
 	/**
@@ -292,40 +274,81 @@ class ControllerPaymentMollieBase extends Controller
 
 		if (!empty($order))
 		{
-			// Only if the transaction is in 'pending' status
-			if ($order['order_status_id'] === $this->config->get("mollie_ideal_pending_status_id"))
+			// Only process the status if the order is stateless or in 'pending' status.
+			if (empty($order['order_status_id']) || $order['order_status_id'] == $this->config->get("mollie_ideal_pending_status_id"))
 			{
+				// Order paid ('processed').
 				if ($payment->isPaid())
 				{
-					echo "The payment was received and the order was moved to the processing status.";
-					$this->addOrderHistory($order['order_id'], $this->config->get("mollie_ideal_processing_status_id"), $this->language->get("response_success"), TRUE); // Processed
+					$new_status_id = intval($this->config->get("mollie_ideal_processing_status_id"));
+
+					if (!$new_status_id)
+					{
+						echo "The payment has been received. No 'processing' status ID is configured, so the order status could not be updated.";
+						return;
+					}
+
+					$this->addOrderHistory($order, $new_status_id, $this->language->get("response_success"), TRUE);
+
+					echo "The payment was received and the order was moved to the 'processing' status (new status ID: {$new_status_id}.";
 					return;
 				}
 
+				// Order cancelled.
 				if ($payment->status == Mollie_API_Object_Payment::STATUS_CANCELLED)
 				{
-					echo "The payment was cancelled and the order was moved to the canceled status.";
-					$this->addOrderHistory($order['order_id'], $this->config->get("mollie_ideal_canceled_status_id"), $this->language->get("response_cancelled"), FALSE); // Canceled
+					$new_status_id = intval($this->config->get("mollie_ideal_canceled_status_id"));
+
+					if (!$new_status_id)
+					{
+						echo "The payment was cancelled. No 'cancelled' status ID is configured, so the order status could not be updated.";
+						return;
+					}
+
+					$this->addOrderHistory($order, $new_status_id, $this->language->get("response_cancelled"), FALSE);
+
+					echo "The payment was cancelled and the order was moved to the 'cancelled' status (new status ID: {$new_status_id}).";
 					return;
 				}
 
+				// Order expired.
 				if ($payment->status == Mollie_API_Object_Payment::STATUS_EXPIRED)
 				{
-					echo "The payment was expired and the order was moved to the expired status.";
-					$this->addOrderHistory($order['order_id'], $this->config->get("mollie_ideal_expired_status_id"), $this->language->get("response_expired"), FALSE); // Expired
+					$new_status_id = intval($this->config->get("mollie_ideal_expired_status_id"));
+
+					if (!$new_status_id)
+					{
+						echo "The payment expired. No 'expired' status ID is configured, so the order status could not be updated.";
+						return;
+					}
+
+					$this->addOrderHistory($order, $new_status_id, $this->language->get("response_expired"), FALSE);
+
+					echo "The payment expired and the order was moved to the 'expired' status (new status ID: {$new_status_id}).";
 					return;
 				}
 
-				echo "The payment failed for an unknown reason, order was updated.";
-				$this->addOrderHistory($order['order_id'], $this->config->get("mollie_ideal_failed_status_id"), $this->language->get("response_unknown"), FALSE); // Fail
+				// Otherwise, order failed.
+				$new_status_id = intval($this->config->get("mollie_ideal_failed_status_id"));
+
+				if (!$new_status_id)
+				{
+					echo "The payment failed. No 'failed' status ID is configured, so the order status could not be updated.";
+					return;
+				}
+
+				$this->addOrderHistory($order, $new_status_id, $this->language->get("response_unknown"), FALSE);
+
+				echo "The payment failed for an unknown reason and the order was moved to the 'failed' status (new status ID: {$new_status_id}).";
+				return;
 			}
-			else
-			{
-				echo "The order was already processed before.";
-			}
+
+			echo "The order was already processed before (order status ID: " . intval($order['order_status_id']) . ").";
+			return;
 		}
 
-		echo " Done.";
+		header("HTTP/1.0 404 Not Found");
+		echo "Could not find order.";
 	}
 
 	/**
@@ -376,23 +399,33 @@ class ControllerPaymentMollieBase extends Controller
 		// Load required translations.
 		$this->load->language("payment/mollie");
 
-		// Now that the customer has returned to our web site, check if we already know if the payment has succeeded. If the payment is all good, we need to clear the cart.
-		if ($order && $order["order_status_id"] == $this->config->get("mollie_ideal_processing_status_id"))
+		// Show a 'transaction failed' page if we couldn't find the order or if the payment failed.
+		$failed_status_id = $this->config->get("mollie_ideal_failed_status_id");
+
+		if (!$order || ($failed_status_id && $order['order_status_id'] == $failed_status_id))
+		{
+			return $this->showReturnPage(
+				$this->language->get("heading_failed"),
+				$this->language->get("msg_failed")
+			);
+		}
+
+		// If the order status is 'processing' (i.e. 'paid'), redirect to OpenCart's default 'success' page.
+		if ($order["order_status_id"] == $this->config->get("mollie_ideal_processing_status_id"))
 		{
 			// Redirect to 'success' page.
 			$this->redirect($this->url->link("checkout/success", "", "SSL"));
 			return;
 		}
 
-		// When an order could be found, check if Mollie has reported the new status. When the order status is still pending, the report is not delivered yet.
-		elseif ($order && $order['order_status_id'] == $this->config->get("mollie_ideal_pending_status_id"))
+		// If the status is 'pending' (i.e. a bank transfer), the report is not delivered yet.
+		if ($order['order_status_id'] == $this->config->get("mollie_ideal_pending_status_id"))
 		{
 			if ($this->cart)
 			{
 				$this->cart->clear();
 			}
 
-			// Show a 'transaction pending' page.
 			return $this->showReturnPage(
 				$this->language->get("heading_unknown"),
 				$this->language->get("msg_unknown"),
@@ -401,7 +434,13 @@ class ControllerPaymentMollieBase extends Controller
 			);
 		}
 
-		// Show a 'transaction failed' page.
+		// The status is probably 'cancelled'. Allow the admin to redirect their customers back to the shopping cart directly in these cases.
+		if (!boolval($this->config->get("mollie_show_order_canceled_page")))
+		{
+			$this->redirect($this->url->link("checkout/checkout", "", "SSL"));
+		}
+
+		// Show a 'transaction failed' page if all else fails.
 		return $this->showReturnPage(
 			$this->language->get("heading_failed"),
 			$this->language->get("msg_failed")
@@ -518,26 +557,26 @@ class ControllerPaymentMollieBase extends Controller
 	/**
 	 * Map payment status history handling for different Opencart versions.
 	 *
-	 * @param int|string $order_id
+	 * @param array      $order
 	 * @param int|string $order_status_id
 	 * @param string     $comment
 	 * @param bool       $notify
 	 */
-	protected function addOrderHistory ($order_id, $order_status_id, $comment = "", $notify = FALSE)
+	protected function addOrderHistory ($order, $order_status_id, $comment = "", $notify = FALSE)
 	{
 		if ($this->isOpencart2())
 		{
-			$this->model_checkout_order->addOrderHistory($order_id, $order_status_id, $comment, $notify);
+			$this->model_checkout_order->addOrderHistory($order['order_id'], $order_status_id, $comment, $notify);
 		}
 		else
 		{
-			if ($order_status_id === $this->config->get("mollie_ideal_pending_status_id"))
+			if (empty($order['order_status_id']))
 			{
-				$this->model_checkout_order->confirm($order_id, $order_status_id, $comment, $notify);
+				$this->model_checkout_order->confirm($order['order_id'], $order_status_id, $comment, $notify);
 			}
 			else
 			{
-				$this->model_checkout_order->update($order_id, $order_status_id, $comment, $notify);
+				$this->model_checkout_order->update($order['order_id'], $order_status_id, $comment, $notify);
 			}
 		}
 	}

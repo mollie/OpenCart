@@ -65,22 +65,25 @@ $_['text_payment']                 = "Payment";
 $_['text_success']                 = "Success: You have successfully modified your Mollie settings!";
 $_['text_missing_api_key']         = "Please fill out your API key below.";
 $_['text_activate_payment_method'] = 'Enable this payment method in your <a href="https://www.mollie.com/beheer/account/profielen/" target="_blank">Mollie dashboard</a>.';
+$_['text_no_status_id']            = "- Do not update the order status (not recommended) -";
 
 // Entry
-$_['entry_payment_method']    = "Payment method";
-$_['entry_activate']          = "Activate";
-$_['entry_sort_order']        = "Sort order";
-$_['entry_status']            = "Status";
-$_['entry_api_key']           = "API key";
-$_['entry_description']       = "Description";
-$_['entry_show_icons']        = "Show icons";
+$_['entry_payment_method']           = "Payment method";
+$_['entry_activate']                 = "Activate";
+$_['entry_sort_order']               = "Sort order";
+$_['entry_status']                   = "Status";
+$_['entry_api_key']                  = "API key";
+$_['entry_description']              = "Description";
+$_['entry_show_icons']               = "Show icons";
+$_['entry_show_order_canceled_page'] = "Show message if payment is cancelled";
 
 // Help
-$_['help_view_profile']   = 'You can find your API key in <a href="https://www.mollie.com/beheer/account/profielen/" target="_blank" class="alert-link">your Mollie website profiles</a>.';
-$_['help_status']         = "Activate the module";
-$_['help_api_key']        = 'Enter the <code>api_key</code> of the website profile you want to use. The API key starts with <code>test_</code> or <code>live_</code>.';
-$_['help_description']    = 'This description will appear on the bank / card statement of your customer. You may use a maximum of 29 characters. TIP: Use <code>%</code>, this will be replaced by the order id of the payment. Don\'t forget <code>%</code> can be multiple characters long!';
-$_['help_show_icons']     = 'Show icons next to the Mollie payment methods on the checkout page.';
+$_['help_view_profile']             = 'You can find your API key in <a href="https://www.mollie.com/beheer/account/profielen/" target="_blank" class="alert-link">your Mollie website profiles</a>.';
+$_['help_status']                   = "Activate the module";
+$_['help_api_key']                  = 'Enter the <code>api_key</code> of the website profile you want to use. The API key starts with <code>test_</code> or <code>live_</code>.';
+$_['help_description']              = 'This description will appear on the bank / card statement of your customer. You may use a maximum of 29 characters. TIP: Use <code>%</code>, this will be replaced by the order id of the payment. Don\'t forget <code>%</code> can be multiple characters long!';
+$_['help_show_icons']               = 'Show icons next to the Mollie payment methods on the checkout page.';
+$_['help_show_order_canceled_page'] = 'Show a message to the customer if a payment is cancelled, before redirecting the customer back to their shopping cart.';
 
 // Info
 $_['entry_module']            = "Module";

@@ -208,19 +208,22 @@ class ControllerPaymentMollieBase extends Controller
 		$data['text_edit']                    = $this->language->get("text_edit");
 		$data['text_missing_api_key']         = $this->language->get("text_missing_api_key");
 		$data['text_activate_payment_method'] = $this->language->get("text_activate_payment_method");
+		$data['text_no_status_id']            = $this->language->get("text_no_status_id");
 
-		$data['entry_api_key']          = $this->language->get("entry_api_key");
-		$data['entry_description']      = $this->language->get("entry_description");
-		$data['entry_show_icons']       = $this->language->get("entry_show_icons");
-		$data['entry_status']           = $this->language->get("entry_status");
-		$data['entry_mod_status']       = $this->language->get("entry_mod_status");
-		$data['entry_comm_status']      = $this->language->get("entry_comm_status");
+		$data['entry_api_key']                  = $this->language->get("entry_api_key");
+		$data['entry_description']              = $this->language->get("entry_description");
+		$data['entry_show_icons']               = $this->language->get("entry_show_icons");
+		$data['entry_show_order_canceled_page'] = $this->language->get("entry_show_order_canceled_page");
+		$data['entry_status']                   = $this->language->get("entry_status");
+		$data['entry_mod_status']               = $this->language->get("entry_mod_status");
+		$data['entry_comm_status']              = $this->language->get("entry_comm_status");
 
-		$data['help_view_profile']     = $this->language->get("help_view_profile");
-		$data['help_api_key']          = $this->language->get("help_api_key");
-		$data['help_description']      = $this->language->get("help_description");
-		$data['help_show_icons']       = $this->language->get("help_show_icons");
-		$data['help_status']           = $this->language->get("help_status");
+		$data['help_view_profile']              = $this->language->get("help_view_profile");
+		$data['help_api_key']                   = $this->language->get("help_api_key");
+		$data['help_description']               = $this->language->get("help_description");
+		$data['help_show_icons']                = $this->language->get("help_show_icons");
+		$data['help_show_order_canceled_page']  = $this->language->get("help_show_order_canceled_page");
+		$data['help_status']                    = $this->language->get("help_status");
 
 		$data['order_statuses']         = $this->model_localisation_order_status->getOrderStatuses();
 		$data['entry_failed_status']    = $this->language->get("entry_failed_status");
@@ -269,6 +272,12 @@ class ControllerPaymentMollieBase extends Controller
 			$data['error_show_icons'] = '';
 		}
 
+		if (isset($this->error['show_order_canceled_page'])) {
+			$data['show_order_canceled_page'] = $this->error['show_order_canceled_page'];
+		} else {
+			$data['show_order_canceled_page'] = '';
+		}
+
 		if (isset($this->error['total'])) {
 			$data['error_total'] = $this->error['total'];
 		} else {
@@ -307,6 +316,7 @@ class ControllerPaymentMollieBase extends Controller
 			"mollie_api_key"                    => NULL,
 			"mollie_ideal_description"          => "Order %",
 			"mollie_show_icons"                 => FALSE,
+			"mollie_show_order_canceled_page"   => TRUE,
 			"mollie_ideal_pending_status_id"    => 1,
 			"mollie_ideal_processing_status_id" => 2,
 			"mollie_ideal_canceled_status_id"   => 7,
@@ -327,7 +337,7 @@ class ControllerPaymentMollieBase extends Controller
 			{
 				$stored_setting = $this->config->get($setting_name);
 
-				if(!$stored_setting && $default_value !== NULL)
+				if($stored_setting === NULL && $default_value !== NULL)
 				{
 					$data[$setting_name] = $default_value;
 				}

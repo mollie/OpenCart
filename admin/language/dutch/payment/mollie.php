@@ -65,22 +65,25 @@ $_['text_payment']                 = "Betaling";
 $_['text_success']                 = "Gelukt: de instellingen voor de module zijn aangepast!";
 $_['text_missing_api_key']         = "Vul hieronder de API-key in.";
 $_['text_activate_payment_method'] = 'Activeer deze betaalmethode via het <a href="https://www.mollie.com/beheer/account/profielen/" target="_blank">Mollie-dashboard</a>.';
+$_['text_no_status_id']            = "- Status niet wijzigen (niet aanbevolen) -";
 
 // Entry
-$_['entry_payment_method']  = "Betaalmethode";
-$_['entry_activate']        = "Activeren";
-$_['entry_sort_order']      = "Sorteervolgorde";
-$_['entry_status']          = "Status";
-$_['entry_api_key']         = "API-sleutel";
-$_['entry_description']     = "Omschrijving";
-$_['entry_show_icons']      = "Toon icoontjes";
+$_['entry_payment_method']           = "Betaalmethode";
+$_['entry_activate']                 = "Activeren";
+$_['entry_sort_order']               = "Sorteervolgorde";
+$_['entry_status']                   = "Status";
+$_['entry_api_key']                  = "API-sleutel";
+$_['entry_description']              = "Omschrijving";
+$_['entry_show_icons']               = "Toon icoontjes";
+$_['entry_show_order_canceled_page'] = "Toon melding bij geannuleerde betalingen";
 
 // Help
-$_['help_view_profile']    = 'U kunt uw API-sleutel vinden bij <a href="https://www.mollie.com/beheer/account/profielen/" target="_blank" class="alert-link">uw Mollie-websiteprofielen</a>.';
-$_['help_status']          = "Activeer de module";
-$_['help_api_key']         = "Voer hier de <code>api_key</code> van het websiteprofiel in dat u wilt gebruiken. De API-sleutel begint met <code>test_</code> of <code>live_</code>.";
-$_['help_description']     = "De omschrijving zal op het bankafschrift van uw klant verschijnen en kunt u terugvinden in het Mollie beheer. U kunt maximaal 29 tekens gebruiken. TIP: Gebruik <code>%</code>, dit zal vervangen worden door het ordernummer. Het ordernummer kan zelf ook meerdere tekens lang zijn!";
-$_['help_show_icons']      = "Toon icoontjes naast de betaalmethodes van Mollie op de betaalpagina.";
+$_['help_view_profile']             = 'U kunt uw API-sleutel vinden bij <a href="https://www.mollie.com/beheer/account/profielen/" target="_blank" class="alert-link">uw Mollie-websiteprofielen</a>.';
+$_['help_status']                   = "Activeer de module";
+$_['help_api_key']                  = "Voer hier de <code>api_key</code> van het websiteprofiel in dat u wilt gebruiken. De API-sleutel begint met <code>test_</code> of <code>live_</code>.";
+$_['help_description']              = "De omschrijving zal op het bankafschrift van uw klant verschijnen en kunt u terugvinden in het Mollie beheer. U kunt maximaal 29 tekens gebruiken. TIP: Gebruik <code>%</code>, dit zal vervangen worden door het ordernummer. Het ordernummer kan zelf ook meerdere tekens lang zijn!";
+$_['help_show_icons']               = "Toon icoontjes naast de betaalmethodes van Mollie op de betaalpagina.";
+$_['help_show_order_canceled_page'] = "Toon een melding aan de klant als een betaling geannuleerd wordt, alvorens de klant terug naar het winkelmandje te verwijzen.";
 
 // Info
 $_['entry_module']          = "Module";
