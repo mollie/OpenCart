@@ -2,6 +2,11 @@
 
 # Changelog #
 
+## Changes in release 6.1.0 ##
++ Orders are no longer set to 'pending' when created (except for bank transfers). This should remove duplicate orders in the admin panel.
++ The 'cancelled' and 'expired' statuses can be disabled in the admin panel as well, if you do not wish to see these in your order overview.
++ For cancelled payments, you can now choose between showing a 'transaction failed' page or sending your customers directly back to the shopping cart.
+
 ## Changes in release 6.0.1 ##
 + Send users back to their shopping cart if a payment fails.
 
