@@ -2,6 +2,9 @@
 
 # Changelog #
 
+## Changes in release 6.1.1 ##
++ Fix order confirmation button.
+
 ## Changes in release 6.1.0 ##
 + Orders are no longer set to 'pending' when created (except for bank transfers). This should remove duplicate orders in the admin panel.
 + The 'cancelled' and 'expired' statuses can be disabled in the admin panel as well, if you do not wish to see these in your order overview.
