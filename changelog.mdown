@@ -2,6 +2,9 @@
 
 # Changelog #
 
+## Changes in release 6.1.2 ##
++ Fix issue with white screen appearing when cancelling a payment on older PHP versions.
+
 ## Changes in release 6.1.1 ##
 + Fix order confirmation button.
 
