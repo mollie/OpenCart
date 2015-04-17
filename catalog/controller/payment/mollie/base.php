@@ -435,7 +435,7 @@ class ControllerPaymentMollieBase extends Controller
 		}
 
 		// The status is probably 'cancelled'. Allow the admin to redirect their customers back to the shopping cart directly in these cases.
-		if (!boolval($this->config->get("mollie_show_order_canceled_page")))
+		if (!(bool) $this->config->get("mollie_show_order_canceled_page"))
 		{
 			$this->redirect($this->url->link("checkout/checkout", "", "SSL"));
 		}
