@@ -413,6 +413,11 @@ class ControllerPaymentMollieBase extends Controller
 		// If the order status is 'processing' (i.e. 'paid'), redirect to OpenCart's default 'success' page.
 		if ($order["order_status_id"] == $this->config->get("mollie_ideal_processing_status_id"))
 		{
+			if ($this->cart)
+			{
+				$this->cart->clear();
+			}
+
 			// Redirect to 'success' page.
 			$this->redirect($this->url->link("checkout/success", "", "SSL"));
 			return;
