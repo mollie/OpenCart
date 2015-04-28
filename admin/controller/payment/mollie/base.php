@@ -500,15 +500,53 @@ class ControllerPaymentMollieBase extends Controller
 	 */
 	protected function checkCommunicationStatus ()
 	{
+		/*
+		 * Check API key
+		 */
+		$api_key = $this->config->get('mollie_api_key');
+
+		if (empty($api_key))
+		{
+			return '<span style="color:red">No API key provided. Please insert your API key.</span>';
+		}
+
+		$client = NULL;
+
+		/*
+		 * Test compatibility + communication
+		 */
 		try
 		{
-			$this->getAPIClient()->methods->all();
+			$client = $this->getAPIClient();
+
+			if (!$client)
+			{
+				return '<span style="color:red">API client not found.</span>';
+			}
+
+			$client->methods->all();
 
 			return '<span style="color: green">OK</span>';
 		}
+		catch (Mollie_API_Exception_IncompatiblePlatform $e)
+		{
+			return '<span style="color:red">' . $e->getMessage() . ' You can ask your hosting provider to help with this.</span>';
+		}
 		catch (Mollie_API_Exception $e)
 		{
-			return '<span style="color:red">' . htmlspecialchars($e->getMessage()) . '</span>';
+			return '<span style="color:red">'
+			. '<strong>Communicating with Mollie failed:</strong><br/>'
+			. htmlspecialchars($e->getMessage())
+			. '</span><br/><br/>'
+
+			. 'Please check the following conditions. You can ask your hosting provider to help with this.'
+			. '<ul>'
+			. '<li>Make sure outside connections to ' . ($client ? htmlspecialchars($client->getApiEndpoint()) : 'Mollie') . ' are not blocked.</li>'
+			. '<li>Make sure SSL v3 is disabled on your server. Mollie does not support SSL v3.</li>'
+			. '<li>Make sure your server is up-to-date and the latest security patches have been installed.</li>'
+			. '</ul><br/>'
+
+			. 'Contact <a href="mailto:info@mollie.nl">info@mollie.nl</a> if this still does not fix your problem.';
 		}
 	}
 
