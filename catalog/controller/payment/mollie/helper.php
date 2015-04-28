@@ -28,6 +28,14 @@ class MollieHelper
 	static protected $api_client;
 
 	/**
+	 * @return bool
+	 */
+	public static function apiClientFound ()
+	{
+		return file_exists(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/payment/mollie-api-client/");
+	}
+
+	/**
 	 * Get the Mollie client. Needs the Config object to retrieve the API key.
 	 *
 	 * @param Config $config
@@ -36,7 +44,7 @@ class MollieHelper
 	 */
 	public static function getAPIClient ($config)
 	{
-		if (!self::$api_client)
+		if (!self::$api_client && self::apiClientFound())
 		{
 			require_once(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/payment/mollie-api-client/src/Mollie/API/Autoloader.php");
 
@@ -52,6 +60,4 @@ class MollieHelper
 
 		return self::$api_client;
 	}
-
-
 }

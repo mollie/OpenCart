@@ -471,12 +471,20 @@ class ControllerPaymentMollieBase extends Controller
 
 		foreach ($mod_files as $file)
 		{
-			$file = realpath($file);
+			$realpath = realpath($file);
 
-			if (!file_exists($file))
+			if (!file_exists($realpath))
 			{
 				$need_files[] = '<span style="color:red">' . $file . '</span>';
 			}
+		}
+
+		if (!MollieHelper::apiClientFound())
+		{
+			$need_files[] = '<span style="color:red">'
+				. 'API client not found. Please make sure you have installed the module correctly. Use the download '
+				. 'button on the <a href="https://github.com/mollie/OpenCart/releases/latest" target="_blank">release page</a>'
+				. '</span>';
 		}
 
 		if (count($need_files) > 0)
