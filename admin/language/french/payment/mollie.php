@@ -34,6 +34,7 @@
 // These are called automatically by the Payment modules list - do not change the names
 $method_list_logo              = '<a href="https://www.mollie.com" target="_blank"><img src="https://www.mollie.com/images/logo.png" alt="Mollie" title="Mollie" style="border:0px" /></a>';
 $_['text_mollie_banktransfer'] = $method_list_logo;
+$_['text_mollie_belfius']      = $method_list_logo;
 $_['text_mollie_bitcoin']      = $method_list_logo;
 $_['text_mollie_creditcard']   = $method_list_logo;
 $_['text_mollie_ideal']        = $method_list_logo;
@@ -51,6 +52,7 @@ $_['footer_text']             = "Services paiement";
 
 // Module names
 $_['name_mollie_banktransfer'] = "Virement bancaire";
+$_['name_mollie_belfius']      = "Belfius Direct Net";
 $_['name_mollie_bitcoin']      = "Bitcoin";
 $_['name_mollie_creditcard']   = "Creditcard";
 $_['name_mollie_ideal']        = "iDEAL";

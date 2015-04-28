@@ -5,6 +5,7 @@ class MollieHelper
 
 	// All available modules. These should correspond to the Mollie_API_Object_Method constants.
 	const MODULE_NAME_BANKTRANSFER = "banktransfer";
+	const MODULE_NAME_BELFIUS      = "belfius";
 	const MODULE_NAME_BITCOIN      = "bitcoin";
 	const MODULE_NAME_CREDITCARD   = "creditcard";
 	const MODULE_NAME_IDEAL        = "ideal";
@@ -16,6 +17,7 @@ class MollieHelper
 	// List of all available module names.
 	static public $MODULE_NAMES = array(
 		self::MODULE_NAME_BANKTRANSFER,
+		self::MODULE_NAME_BELFIUS,
 		self::MODULE_NAME_BITCOIN,
 		self::MODULE_NAME_CREDITCARD,
 		self::MODULE_NAME_IDEAL,
