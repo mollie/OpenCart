@@ -2,6 +2,9 @@
 
 # Changelog #
 
+## Changes in release 6.2.2 ##
++ Update Mollie API client. Fixes compatibility with PHP 5.2+
+
 ## Changes in release 6.2.1 ##
 + Add payment method Belfius Direct Net
 
