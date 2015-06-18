@@ -8,6 +8,7 @@ class MollieHelper
 	const MODULE_NAME_BELFIUS      = "belfius";
 	const MODULE_NAME_BITCOIN      = "bitcoin";
 	const MODULE_NAME_CREDITCARD   = "creditcard";
+	const MODULE_NAME_DIRECTDEBIT  = "directdebit";
 	const MODULE_NAME_IDEAL        = "ideal";
 	const MODULE_NAME_MISTERCASH   = "mistercash";
 	const MODULE_NAME_PAYPAL       = "paypal";
@@ -20,6 +21,7 @@ class MollieHelper
 		self::MODULE_NAME_BELFIUS,
 		self::MODULE_NAME_BITCOIN,
 		self::MODULE_NAME_CREDITCARD,
+		self::MODULE_NAME_DIRECTDEBIT,
 		self::MODULE_NAME_IDEAL,
 		self::MODULE_NAME_MISTERCASH,
 		self::MODULE_NAME_PAYPAL,
