@@ -87,12 +87,7 @@ class ModelPaymentMollieBase extends Model
 		{
 			$this->log->write("Error retrieving payment method '" . static::MODULE_NAME . "' from Mollie: {$e->getMessage()}.");
 
-			return array(
-				"code"       => "mollie_" . static::MODULE_NAME,
-				"title"      => '<span style="color: red;">Mollie error: ' .$e->getMessage() . '</span>',
-				"sort_order" => $this->config->get("mollie_" . static::MODULE_NAME . "_sort_order"),
-				"terms"      => NULL,
-			);
+			return NULL;
 		}
 
 		// Translate payment method (if a translation is available).
