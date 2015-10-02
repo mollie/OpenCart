@@ -2,6 +2,10 @@
 
 # Changelog #
 
+## Changes in release 6.2.4 ##
++ Add support for SEPA Direct Debit
++ Update Mollie API client to v1.2.10
+
 ## Changes in release 6.2.3 ##
 + Hide unavailable payment methods. Fixes problem when switching between test and live API key or when you change the activated payment methods in your Mollie Profile.
 + Update Mollie API client
