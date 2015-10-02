@@ -65,9 +65,12 @@ $_['response_unknown']   = 'Une erreur inconnue s\'est produite';
 
 // Methods
 $_['method_ideal']            = 'iDEAL';
-$_['method_creditcard']       = 'Carte de crédit';
+$_['method_creditcard']       = 'Creditcard';
 $_['method_mistercash']       = 'Mister Cash';
-$_['method_banktransfer']     = 'Virement bancaire';
+$_['method_banktransfer']     = 'Bank transfer';
+$_['method_directdebit']      = 'Bank transfer';
+$_['method_belfius']          = 'Belfius Direct Net';
+$_['method_bitcoin']          = 'Bitcoin';
+$_['method_sofort']           = 'SOFORT Banking';
 $_['method_paypal']           = 'PayPal';
 $_['method_paysafecard']      = 'paysafecard';
-$_['method_minitix']          = 'MiniTix';
