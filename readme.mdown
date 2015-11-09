@@ -72,6 +72,12 @@ Als e meerdere webwinkels hebt ingesteld op één OpenCart installatie, controle
 
 De module is op dit moment niet compatible met de instelling "Gzip compressie-niveau". Schakel deze instelling  uit door de instelling op "0" te zetten onder het tabblad "Server" in de Opencart admin. De module zal het dan weer doen.
 
+# Wil je meewerken aan deze module? #
+
+Wil je helpen om onze plugin voor WooCommerce nog beter te maken? Wij staan open voor [pull requests](https://github.com/mollie/WooCommerce/pulls?utf8=%E2%9C%93&q=is%3Apr) voor onze module. 
+
+Maar wat denk je er over om bij een [technology driven organisatie](https://www.mollie.com/nl/blog/post/werken-bij-mollie-sfeer-kansen-en-mogelijkheden/) aan de slag te gaan? Mollie is altijd op zoek naar developers en system engineers. [Check onze vacatures](https://www.mollie.com/nl/jobs) of [neem contact met ons op](mailto:personeel@mollie.com).
+
 # Licentie #
 [BSD (Berkeley Software Distribution) License](http://www.opensource.org/licenses/bsd-license.php).
 Copyright (c) 2013, Mollie B.V.
