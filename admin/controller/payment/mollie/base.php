@@ -52,12 +52,16 @@ class ControllerPaymentMollieBase extends Controller
 	// Initialize var(s)
 	protected $error = array();
 
+	// Holds multistore configs
+	protected $data = array();
+
 	/**
+	 * @param int $store The Store ID
 	 * @return Mollie_API_Client
 	 */
-	protected function getAPIClient ()
+	protected function getAPIClient ($store = 0)
 	{
-		return MollieHelper::getAPIClient($this->config);
+		return MollieHelper::getAPIClientAdmin($this->data['stores'][$store]);
 	}
 
 	/**
@@ -171,25 +175,38 @@ class ControllerPaymentMollieBase extends Controller
 
 		$this->document->setTitle($this->language->get("heading_title"));
 
+		$shops = $this->getMultiStores();
+		$this->retrieveMultiStoreConfigs();
+
 		// Call validate method on POST
-		if (($this->request->server['REQUEST_METHOD'] == "POST") && ($this->validate()))
+		
+		$doRedirect = false;
+		foreach($shops as $store)
 		{
-			$post = $this->request->post;
-
-			foreach (MollieHelper::$MODULE_NAMES as $module_name)
+			if (($this->request->server['REQUEST_METHOD'] == "POST") && ($this->validate($store['id'])))
 			{
-				$status = "mollie_" . $module_name . "_status";
+				
+				$post = $this->request->post['stores'][$store['id']];
+				
+				foreach (MollieHelper::$MODULE_NAMES as $module_name)
+				{
+					$status = "mollie_" . $module_name . "_status";
 
-				$post[$status] = (isset($post[$status]) && $post[$status] == "on") ? 1 : 0;
+					$post[$status] = (isset($post[$status]) && $post[$status] == "on") ? 1 : 0;
+				}
+
+				$this->model_setting_setting->editSetting("mollie", $post, $store['id']);
+
+				// Migrate old settings if needed. We used to use "ideal" as setting group, but Opencart 2 requires us to use "mollie".
+				$this->model_setting_setting->deleteSetting("ideal", $store['id']);
+
+				$doRedirect = true;
 			}
+		}
 
-			$this->model_setting_setting->editSetting("mollie", $post);
-
-			// Migrate old settings if needed. We used to use "ideal" as setting group, but Opencart 2 requires us to use "mollie".
-			$this->model_setting_setting->deleteSetting("ideal");
-
+		if ($doRedirect)
+		{
 			$this->session->data['success'] = $this->language->get("text_success");
-
 			$this->redirect($this->url->link("extension/payment", "token=" . $this->session->data['token'], "SSL"));
 		}
 
@@ -238,7 +255,6 @@ class ControllerPaymentMollieBase extends Controller
 		$data['entry_sort_order']       = $this->language->get("entry_sort_order");
 		$data['entry_support']          = $this->language->get("entry_support");
 		$data['entry_mstatus']          = $this->checkModuleStatus();
-		$data['entry_cstatus']          = $this->checkCommunicationStatus();
 		$data['entry_module']           = $this->language->get("entry_module");
 		$data['entry_version']          = $this->language->get("entry_version") . " " . MollieHelper::PLUGIN_VERSION;
 
@@ -247,6 +263,8 @@ class ControllerPaymentMollieBase extends Controller
 
 		$data['tab_general']            = $this->language->get("tab_general");
 
+		$data['shops'] = $shops;
+
 		// If there are errors, show the error.
 		if (isset($this->error['warning'])) {
 			$data['error_warning'] = $this->error['warning'];
@@ -254,34 +272,40 @@ class ControllerPaymentMollieBase extends Controller
 			$data['error_warning'] = '';
 		}
 
-		if (isset($this->error['api_key'])) {
-			$data['error_api_key'] = $this->error['api_key'];
-		} else {
-			$data['error_api_key'] = '';
-		}
+		foreach($shops as $store)
+		{
 
-		if (isset($this->error['description'])) {
-			$data['error_description'] = $this->error['description'];
-		} else {
-			$data['error_description'] = '';
-		}
+			$data['stores'][$store['id']]['entry_cstatus'] = $this->checkCommunicationStatus($store['id']);
 
-		if (isset($this->error['show_icons'])) {
-			$data['error_show_icons'] = $this->error['show_icons'];
-		} else {
-			$data['error_show_icons'] = '';
-		}
+			if (isset($this->error[$store['id']]['api_key'])) {
+				$data['stores'][$store['id']]['error_api_key'] = $this->error[$store['id']]['api_key'];
+			} else {
+				$data['stores'][$store['id']]['error_api_key'] = '';
+			}
 
-		if (isset($this->error['show_order_canceled_page'])) {
-			$data['show_order_canceled_page'] = $this->error['show_order_canceled_page'];
-		} else {
-			$data['show_order_canceled_page'] = '';
-		}
+			if (isset($this->error[$store['id']]['description'])) {
+				$data['stores'][$store['id']]['error_description'] = $this->error[$store['id']]['description'];
+			} else {
+				$data['stores'][$store['id']]['error_description'] = '';
+			}
 
-		if (isset($this->error['total'])) {
-			$data['error_total'] = $this->error['total'];
-		} else {
-			$data['error_total'] = '';
+			if (isset($this->error[$store['id']]['show_icons'])) {
+				$data['stores'][$store['id']]['error_show_icons'] = $this->error[$store['id']]['show_icons'];
+			} else {
+				$data['stores'][$store['id']]['error_show_icons'] = '';
+			}
+
+			if (isset($this->error[$store['id']]['show_order_canceled_page'])) {
+				$data['stores'][$store['id']]['show_order_canceled_page'] = $this->error[$store['id']]['show_order_canceled_page'];
+			} else {
+				$data['stores'][$store['id']]['show_order_canceled_page'] = '';
+			}
+
+			if (isset($this->error[$store['id']]['total'])) {
+				$data['stores'][$store['id']]['error_total'] = $this->error[$store['id']]['total'];
+			} else {
+				$data['stores'][$store['id']]['error_total'] = '';
+			}
 		}
 
 		$data['error_file_missing'] = $this->language->get("error_file_missing");
@@ -324,82 +348,89 @@ class ControllerPaymentMollieBase extends Controller
 			"mollie_ideal_expired_status_id"    => 14,
 		);
 
-		foreach ($settings as $setting_name => $default_value)
+		foreach($shops as $store)
 		{
-			// Attempt to read from post
-			if (isset($this->request->post[$setting_name]))
+			foreach ($settings as $setting_name => $default_value)
 			{
-				$data[$setting_name] = $this->request->post[$setting_name];
+				// Attempt to read from post
+				if (isset($this->request->post['stores'][$store['id']][$setting_name]))
+				{
+					$data['stores'][$store['id']][$setting_name] = $this->request->post['stores'][$store['id']][$setting_name];
+				}
+
+				// Otherwise, attempt to get the setting from the database
+				else
+				{
+					// same as $this->config->get() 
+					$stored_setting = isset($this->data['stores'][$store['id']][$setting_name]) ? $this->data['stores'][$store['id']][$setting_name] : null;
+
+					if($stored_setting === NULL && $default_value !== NULL)
+					{
+						$data['stores'][$store['id']][$setting_name] = $default_value;
+					}
+					else
+					{
+						$data['stores'][$store['id']][$setting_name] = $stored_setting;
+					}
+				}
 			}
 
-			// Otherwise, attempt to get the setting from the database
-			else
-			{
-				$stored_setting = $this->config->get($setting_name);
+			// Check which payment methods we can use with the current API key.
+			$allowed_methods = array();
 
-				if($stored_setting === NULL && $default_value !== NULL)
+			try
+			{
+				$api_methods = $this->getAPIClient($store['id'])->methods->all();
+
+				foreach ($api_methods as $api_method)
 				{
-					$data[$setting_name] = $default_value;
+					$allowed_methods[] = $api_method->id;
+				}
+			}
+			catch (Mollie_API_Exception $e)
+			{
+				// If we have an unauthorized request, our API key is likely invalid.
+				if ($data['stores'][$store['id']]['mollie_api_key'] !== NULL && strpos($e->getMessage(), "Unauthorized request") >= 0)
+				{
+					$data['stores'][$store['id']]['error_api_key'] = $this->language->get("error_api_key_invalid");
+				}
+			}
+
+			$data['stores'][$store['id']]['payment_methods'] = array();
+
+		
+			foreach (MollieHelper::$MODULE_NAMES as $module_name)
+			{
+				$payment_method = array();
+
+				$payment_method['name']    = $this->language->get("name_mollie_" . $module_name);
+				$payment_method['icon']    = "https://www.mollie.com/images/payscreen/methods/" . $module_name . ".png";
+				$payment_method['allowed'] = in_array($module_name, $allowed_methods);
+
+				// Load module specific settings.
+				if (isset($this->request->post['stores'][$store['id']]['mollie_' . $module_name . '_status']))
+				{
+					$payment_method['status'] = ($this->request->post['stores'][$store['id']]['mollie_' . $module_name . '_status'] == "on");
 				}
 				else
 				{
-					$data[$setting_name] = $stored_setting;
+					$payment_method['status'] = (bool) isset($this->data['stores'][$store['id']]["mollie_" . $module_name . "_status"]) ? $this->data['stores'][$store['id']]["mollie_" . $module_name . "_status"] : null;
 				}
+
+				if (isset($this->request->post['stores'][$store['id']]['mollie_' . $module_name . '_sort_order']))
+				{
+					$payment_method['sort_order'] = $this->request->post['stores'][$store['id']]['mollie_' . $module_name . '_sort_order'];
+				}
+				else
+				{
+					$payment_method['sort_order'] = isset($this->data['stores'][$store['id']]["mollie_" . $module_name . "_sort_order"]) ? $this->data['stores'][$store['id']]["mollie_" . $module_name . "_sort_order"] : null;
+				}
+
+				$data['stores'][$store['id']]['payment_methods'][$module_name] = $payment_method;
 			}
+			
 		}
-
-		// Check which payment methods we can use with the current API key.
-		$allowed_methods = array();
-
-		try
-		{
-			$api_methods = $this->getAPIClient()->methods->all();
-
-			foreach ($api_methods as $api_method)
-			{
-				$allowed_methods[] = $api_method->id;
-			}
-		}
-		catch (Mollie_API_Exception $e)
-		{
-			// If we have an unauthorized request, our API key is likely invalid.
-			if ($data['mollie_api_key'] !== NULL && strpos($e->getMessage(), "Unauthorized request") >= 0)
-			{
-				$data['error_api_key'] = $this->language->get("error_api_key_invalid");
-			}
-		}
-
-		$data['payment_methods'] = array();
-
-		foreach (MollieHelper::$MODULE_NAMES as $module_name)
-		{
-			$payment_method = array();
-
-			$payment_method['name']    = $this->language->get("name_mollie_" . $module_name);
-			$payment_method['icon']    = "https://www.mollie.com/images/payscreen/methods/" . $module_name . ".png";
-			$payment_method['allowed'] = in_array($module_name, $allowed_methods);
-
-			// Load module specific settings.
-			if (isset($this->request->post['mollie_' . $module_name . '_status']))
-			{
-				$payment_method['status'] = ($this->request->post['mollie_' . $module_name . '_status'] == "on");
-			}
-			else
-			{
-				$payment_method['status'] = (bool) $this->config->get("mollie_" . $module_name . "_status");
-			}
-
-			if (isset($this->request->post['mollie_' . $module_name . '_sort_order']))
-			{
-				$payment_method['sort_order'] = $this->request->post['mollie_' . $module_name . '_sort_order'];
-			}
-			else
-			{
-				$payment_method['sort_order'] = $this->config->get("mollie_" . $module_name . "_sort_order");
-			}
-
-			$data['payment_methods'][$module_name] = $payment_method;
-		}
+		
 
 		// Set different template for Opencart 2 as it uses Bootstrap and a left column
 		if ($this->isOpencart2())
@@ -421,26 +452,26 @@ class ControllerPaymentMollieBase extends Controller
 
 	/**
 	 * Check the post and check if the user has permission to edit the module settings
-	 *
+	 * @param int $store The store id
 	 * @return bool
 	 */
-	private function validate ()
+	private function validate ($store = 0)
 	{
 		if (!$this->user->hasPermission("modify", "payment/mollie_" . static::MODULE_NAME))
 		{
 			$this->error['warning'] = $this->language->get("error_permission");
 		}
 
-		if (!$this->request->post['mollie_api_key'])
+		if (!$this->request->post['stores'][$store]['mollie_api_key'])
 		{
-			$this->error['api_key'] = $this->language->get("error_api_key");
+			$this->error[$store]['api_key'] = $this->language->get("error_api_key");
 		}
 
-		if (!$this->request->post['mollie_ideal_description'])
+		if (!$this->request->post['stores'][$store]['mollie_ideal_description'])
 		{
-			$this->error['description'] = $this->language->get("error_description");
+			$this->error[$store]['description'] = $this->language->get("error_description");
 		}
-
+		
 		return (count($this->error) == 0);
 	}
 
@@ -496,14 +527,15 @@ class ControllerPaymentMollieBase extends Controller
 	}
 
 	/**
+	 * @param int $store The Store id
 	 * @return string
 	 */
-	protected function checkCommunicationStatus ()
+	protected function checkCommunicationStatus ($store = 0)
 	{
 		/*
 		 * Check API key
 		 */
-		$api_key = $this->config->get('mollie_api_key');
+		$api_key = isset($this->data['stores'][$store]['mollie_api_key']) ? $this->data['stores'][$store]['mollie_api_key'] : null;
 
 		if (empty($api_key))
 		{
@@ -517,7 +549,7 @@ class ControllerPaymentMollieBase extends Controller
 		 */
 		try
 		{
-			$client = $this->getAPIClient();
+			$client = $this->getAPIClient($store);
 
 			if (!$client)
 			{
@@ -618,5 +650,45 @@ class ControllerPaymentMollieBase extends Controller
 	protected function isOpencart2 ()
 	{
 		return version_compare(VERSION, 2, ">=");
+	}
+
+	/**
+	 * Retrieve additional store id's from store table.
+	 * Will not include default store. Only the additional stores. So we inject the default store here.
+	 * @return array
+	 */
+	protected function getMultiStores()
+	{
+		$sql = $this->db->query(sprintf("SELECT store_id as id, name FROM %sstore", DB_PREFIX));
+		$rows = $sql->rows;
+		$default = array(
+			array(
+				'id' => 0,
+				'name' => $this->config->get('config_name')
+			)
+		);
+		$allStores = array_merge($default, $rows);
+
+		return $allStores;
+	}
+
+	/**
+	 * Retrieve mollie options according to multistore (default is store 0)
+	 */
+	protected function retrieveMultiStoreConfigs()
+	{
+		$shops = $this->getMultiStores();
+		foreach($shops as $store)
+		{
+			$sql = $this->db->query(sprintf("SELECT * FROM %ssetting WHERE store_id = %s", DB_PREFIX, $store['id']));
+			$rows = $sql->rows;
+			$newArrray = array();
+			foreach($rows as $setting)
+			{
+				$newArrray[$setting['key']] = $setting['value'];
+			}
+			$this->data['stores'][$store['id']] = $newArrray;
+		}
+		
 	}
 }
