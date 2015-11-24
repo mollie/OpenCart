@@ -2,6 +2,9 @@
 
 # Changelog #
 
+## Changes in release 6.2.5 ##
++ Added multi-store support
+
 ## Changes in release 6.2.4 ##
 + Add support for SEPA Direct Debit
 + Update Mollie API client to v1.2.10
