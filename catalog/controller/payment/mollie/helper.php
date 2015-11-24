@@ -64,4 +64,25 @@ class MollieHelper
 
 		return self::$api_client;
 	}
+
+	/**
+	 * Get the Mollie client. Needs the Config array for multishop to retrieve the API key.
+	 *
+	 * @param array $config
+	 *
+	 * @return Mollie_API_Client
+	 */
+	public static function getAPIClientAdmin ($config)
+	{
+		require_once(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/payment/mollie-api-client/src/Mollie/API/Autoloader.php");
+
+		$mollie = new Mollie_API_Client;
+
+		$mollie->setApiKey(isset($config['mollie_api_key']) ? $config['mollie_api_key'] : null);
+
+		$mollie->addVersionString("OpenCart/" . VERSION);
+		$mollie->addVersionString("MollieOpenCart/" . self::PLUGIN_VERSION);
+
+		return $mollie;
+	}
 }
