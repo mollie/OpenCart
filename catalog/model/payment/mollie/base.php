@@ -69,7 +69,9 @@ class ModelPaymentMollieBase extends Model
 		{
 			$payment_method = $this->getAPIClient()->methods->get(static::MODULE_NAME);
 
-			$amount = round($total, 2);
+			// Quick checkout provides an array wile the default checkout provides only the total.
+			$amount = is_array($total) ? $total[0]['value'] : round($total, 2);
+			
 			$minimum = $payment_method->getMinimumAmount();
 			$maximum = $payment_method->getMaximumAmount();
 
