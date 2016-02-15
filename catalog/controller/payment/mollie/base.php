@@ -84,14 +84,24 @@ class ControllerPaymentMollieBase extends Controller
 	protected function getOpenCartOrder ()
 	{
 		$this->load->model("checkout/order");
+		$order_id = 0;
 
-		if (empty($this->session->data['order_id']))
+		if (empty($this->session->data['order_id']) && !isset($this->request->get['order_id']))
 		{
 			return array();
 		}
+		else if (isset($this->request->get['order_id']))
+		{
+			$order_id = $this->request->get['order_id'];
+		}
+		else
+		{
+			// assuming a session order_id if session order_id is not empty And no get request order_id
+			$order_id = $this->session->data['order_id'];
+		}
 
 		// Load last order from session
-		return $this->model_checkout_order->getOrder($this->session->data['order_id']);
+		return $this->model_checkout_order->getOrder($order_id);
 	}
 
 	/**
@@ -162,7 +172,7 @@ class ControllerPaymentMollieBase extends Controller
 
 			$amount      = round($amount, 2);
 			$description = str_replace("%", $order['order_id'], html_entity_decode($this->config->get("mollie_ideal_description"), ENT_QUOTES, "UTF-8"));
-			$return_url  = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/callback", "", "SSL");
+			$return_url  = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/callback&order_id=".$order['order_id'], "", "SSL");
 			$issuer      = $this->getIssuer();
 
 			try
