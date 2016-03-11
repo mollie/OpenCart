@@ -86,12 +86,6 @@
 					// No confirmation button found. Show our own confirmation button.
 					$("#button-confirm").show();
 
-					// on some opencarts the whole form is not displayed. so show form if not visible.
-					if ($("div.checkout-content").css('display') == "none")
-					{
-						$("div.checkout-content").show();
-					}
-
 					$("#button-confirm").click(function ()
 					{
 						$("#mollie_payment_form").submit();
