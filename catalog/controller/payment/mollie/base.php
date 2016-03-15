@@ -656,8 +656,16 @@ class ControllerPaymentMollieBase extends Controller
 	protected function getTemplatePath ($template)
 	{
 		$theme_path     = $this->config->get("config_template") . "/template/payment/";
-		$default_path   = "default/template/payment/";
 		$possible_paths = array();
+		
+		if ($this->isOpencart22())
+		{
+			$default_path   = "payment/";
+		}
+		else
+		{
+			$default_path   = "default/template/payment/";
+		}
 
 		if ($this->isOpencart2())
 		{
@@ -700,5 +708,10 @@ class ControllerPaymentMollieBase extends Controller
 	protected function isOpencart2 ()
 	{
 		return version_compare(VERSION, 2, ">=");
+	}
+	
+	protected function isOpencart22 ()
+	{
+		return version_compare(VERSION, 2.2, ">=");
 	}
 }
