@@ -478,26 +478,57 @@ class ControllerPaymentMollieBase extends Controller
 	protected function checkModuleStatus ()
 	{
 		$need_files = array();
-		$mod_files  = array(
-			DIR_APPLICATION . "controller/payment/mollie/base.php",
-			DIR_APPLICATION . "language/english/payment/mollie.php",
-			DIR_TEMPLATE . "payment/mollie.tpl",
-			DIR_TEMPLATE . "payment/mollie_2.tpl",
-			DIR_CATALOG . "controller/payment/mollie-api-client/",
-			DIR_CATALOG . "controller/payment/mollie/base.php",
-			DIR_CATALOG . "language/english/payment/mollie.php",
-			DIR_CATALOG . "model/payment/mollie/base.php",
-			DIR_CATALOG . "view/theme/default/template/payment/mollie_checkout_form.tpl",
-			DIR_CATALOG . "view/theme/default/template/payment/mollie_return.tpl",
-			DIR_CATALOG . "view/theme/default/template/payment/mollie_return_2.tpl",
-		);
+		
+			if ($this->isOpencart22())
+			{
+			$mod_files  = array(
+				DIR_APPLICATION . "controller/payment/mollie/base.php",
+				DIR_APPLICATION . "language/en-gb/payment/mollie.php",
+				DIR_TEMPLATE . "payment/mollie.tpl",
+				DIR_TEMPLATE . "payment/mollie_2.tpl",
+				DIR_CATALOG . "controller/payment/mollie-api-client/",
+				DIR_CATALOG . "controller/payment/mollie/base.php",
+				DIR_CATALOG . "language/en-gb/payment/mollie.php",
+				DIR_CATALOG . "model/payment/mollie/base.php",
+				DIR_CATALOG . "view/theme/default/template/payment/mollie_checkout_form.tpl",
+				DIR_CATALOG . "view/theme/default/template/payment/mollie_return.tpl",
+				DIR_CATALOG . "view/theme/default/template/payment/mollie_return_2.tpl",
+				);
+			}
+			else
+			{
+			$mod_files  = array(
+				DIR_APPLICATION . "controller/payment/mollie/base.php",
+				DIR_APPLICATION . "language/english/payment/mollie.php",
+				DIR_TEMPLATE . "payment/mollie.tpl",
+				DIR_TEMPLATE . "payment/mollie_2.tpl",
+				DIR_CATALOG . "controller/payment/mollie-api-client/",
+				DIR_CATALOG . "controller/payment/mollie/base.php",
+				DIR_CATALOG . "language/english/payment/mollie.php",
+				DIR_CATALOG . "model/payment/mollie/base.php",
+				DIR_CATALOG . "view/theme/default/template/payment/mollie_checkout_form.tpl",
+				DIR_CATALOG . "view/theme/default/template/payment/mollie_return.tpl",
+				DIR_CATALOG . "view/theme/default/template/payment/mollie_return_2.tpl",
+				);
+			}
+		
 
 		foreach (MollieHelper::$MODULE_NAMES as $module_name)
 		{
+			if ($this->isOpencart22())
+			{
+			$mod_files[] = DIR_APPLICATION . "controller/payment/mollie_" . $module_name . ".php";
+			$mod_files[] = DIR_APPLICATION . "language/en-gb/payment/mollie_" . $module_name . ".php";
+			$mod_files[] = DIR_CATALOG . "controller/payment/mollie_" . $module_name . ".php";
+			$mod_files[] = DIR_CATALOG . "model/payment/mollie_" . $module_name . ".php";
+			}
+			else
+			{
 			$mod_files[] = DIR_APPLICATION . "controller/payment/mollie_" . $module_name . ".php";
 			$mod_files[] = DIR_APPLICATION . "language/english/payment/mollie_" . $module_name . ".php";
 			$mod_files[] = DIR_CATALOG . "controller/payment/mollie_" . $module_name . ".php";
 			$mod_files[] = DIR_CATALOG . "model/payment/mollie_" . $module_name . ".php";
+			}
 		}
 
 		foreach ($mod_files as $file)
@@ -650,6 +681,11 @@ class ControllerPaymentMollieBase extends Controller
 	protected function isOpencart2 ()
 	{
 		return version_compare(VERSION, 2, ">=");
+	}
+	
+	protected function isOpencart22 ()
+	{
+		return version_compare(VERSION, 2.2, ">=");
 	}
 
 	/**
