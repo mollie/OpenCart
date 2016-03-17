@@ -2,12 +2,19 @@
 
 class TranslationTest extends PHPUnit_Framework_TestCase
 {
-	private static $LANGUAGES = array("dutch", "english");
-
-	private static $keys = array();
+	/**
+	 * @var array
+	 */
+	private static $LANGUAGES = array("dutch", "english", "french", "nl-nl", "en-gb", "fr-fr");
 
 	/**
-	 * @param $path
+	 * @var array
+	 */
+	private static $keys      = array();
+
+	/**
+	 * @param $orig_path
+	 *
 	 * @dataProvider dpTranslationPaths
 	 */
 	public function testTranslationFilesHaveIdenticalKeys($orig_path)
@@ -19,7 +26,8 @@ class TranslationTest extends PHPUnit_Framework_TestCase
 		foreach (self::$LANGUAGES as $language)
 		{
 			$lang_path = $path . DIRECTORY_SEPARATOR . $language . DIRECTORY_SEPARATOR . "payment" . DIRECTORY_SEPARATOR . "mollie.php";
-			$_ = array();
+			$_         = array();
+
 			include $lang_path;
 
 			$keys[$language] = array_keys($_);
