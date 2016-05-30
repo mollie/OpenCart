@@ -2,6 +2,9 @@
 
 # Changelog #
 
+## Changes in release 6.3.1 ##
++ Update submodule [mollie-api-php](https://github.com/mollie/mollie-api-php) to `v1.5.1`
+
 ## Changes in release 6.3.0 ##
 + Added language paths for OC 2.2 and higher.
 
