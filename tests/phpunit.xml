@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <phpunit bootstrap="bootstrap.php" backupStaticAttributes="false" colors="true">
     <testsuites>
-        <testsuite name="Mollie OpenCart iDEAL plugin tests">
+        <testsuite name="Mollie OpenCart">
             <directory>.</directory>
         </testsuite>
     </testsuites>
