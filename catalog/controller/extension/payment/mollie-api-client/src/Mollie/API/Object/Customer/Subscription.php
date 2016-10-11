@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2015, Mollie B.V.
+ * Copyright (c) 2016, Mollie B.V.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,46 +29,104 @@
  * @copyright   Mollie B.V.
  * @link        https://www.mollie.com
  */
-class Mollie_API_Object_Settlement
+class Mollie_API_Object_Customer_Subscription
 {
+	const STATUS_ACTIVE    = "active";
+	const STATUS_PENDING   = "pending";   // Waiting for a valid mandate.
+	const STATUS_CANCELLED = "cancelled";
+	const STATUS_SUSPENDED = "suspended"; // Active, but mandate became invalid.
+	const STATUS_COMPLETED = "completed";
+
 	/**
-	 * Id of the settlement.
-	 *
+	 * @var string
+	 */
+	public $resource;
+
+	/**
 	 * @var string
 	 */
 	public $id;
 
 	/**
-	 * The settlement reference. This corresponds to an invoice that's in your Dashboard.
+	 * @var string
+	 */
+	public $customerId;
+
+	/**
+	 * Either "live" or "test" depending on the customer's mode.
 	 *
 	 * @var string
 	 */
-	public $reference;
+	public $mode;
 
 	/**
-	 * Total settlement amount in euros.
+	 * ISO 8601 format.
 	 *
-	 * @var double
+	 * @var string
+	 */
+	public $createdDatetime;
+
+	/**
+	 * @var string
+	 */
+	public $status;
+
+	/**
+	 * @var string
 	 */
 	public $amount;
 
 	/**
+	 * @var int|null
+	 */
+	public $times;
+
+	/**
 	 * @var string
 	 */
-	public $settledDatetime;
+	public $interval;
 
 	/**
-	 * Revenues and costs nested per year, per month, and per payment method.
-	 *
-	 * @see https://www.mollie.com/en/docs/settlements#settlements-object
-	 * @var object
+	 * @var string
 	 */
-	public $periods;
+	public $description;
 
 	/**
-	 * Payment IDs that were settled (either paid out or reversed).
-	 *
-	 * @var string[]
+	 * @var string|null
 	 */
-	public $paymentIds;
+	public $method;
+
+	/**
+	 * ISO 8601 format.
+	 *
+	 * @var string|null
+	 */
+	public $cancelledDatetime;
+
+	/**
+	 * Contains an optional 'webhookUrl'.
+	 *
+	 * @var object|null
+	 */
+	public $links;
+
+	/**
+	 * Returns whether the Subscription is valid or not.
+	 *
+	 * @return bool
+	 */
+	public function isValid ()
+	{
+		return $this->status === self::STATUS_ACTIVE;
+	}
+
+	/**
+	 * Returns whether the Subscription is cancelled or not.
+	 *
+	 * @return bool
+	 */
+	public function isCancelled ()
+	{
+		return $this->status === self::STATUS_CANCELLED;
+	}
 }

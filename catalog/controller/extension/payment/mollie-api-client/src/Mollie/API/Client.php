@@ -34,7 +34,7 @@ class Mollie_API_Client
 	/**
 	 * Version of our client.
 	 */
-	const CLIENT_VERSION = "1.4.1";
+	const CLIENT_VERSION = "1.7.1";
 
 	/**
 	 * Endpoint of the remote API.
@@ -105,6 +105,16 @@ class Mollie_API_Client
 	public $profiles;
 
 	/**
+	 * RESTful refunds resource. NOTE: requires OAuth access token.
+	 *
+	 * If you wish to create / get / list / cancel refunds with an API key, use the payment_refunds resource
+	 *
+	 * @see $payments_refunds
+	 * @var Mollie_API_Resource_Refunds
+	 */
+	public $refunds;
+
+	/**
 	 * RESTful Settlements resource. NOTE: requires OAuth access token.
 	 *
 	 * @var Mollie_API_Resource_Settlements
@@ -124,6 +134,20 @@ class Mollie_API_Client
 	 * @var Mollie_API_Resource_Customers_Payments
 	 */
 	public $customers_payments;
+
+	/**
+	 * RESTful Customers Mandates resource.
+	 *
+	 * @var Mollie_API_Resource_Customers_Mandates
+	 */
+	public $customers_mandates;
+
+	/**
+	 * RESTful Customers Subscriptions resource.
+	 *
+	 * @var Mollie_API_Resource_Customers_Subscriptions
+	 */
+	public $customers_subscriptions;
 
 	/**
 	 * @var string
@@ -148,6 +172,11 @@ class Mollie_API_Client
 	protected $ch;
 
 	/**
+	 * @var string
+	 */
+	protected $pem_path;
+
+	/**
 	 * @throws Mollie_API_Exception_IncompatiblePlatform
 	 */
 	public function __construct ()
@@ -155,16 +184,19 @@ class Mollie_API_Client
 		$this->getCompatibilityChecker()
 			->checkCompatibility();
 
-		$this->payments           = new Mollie_API_Resource_Payments($this);
-		$this->payments_refunds   = new Mollie_API_Resource_Payments_Refunds($this);
-		$this->issuers            = new Mollie_API_Resource_Issuers($this);
-		$this->methods            = new Mollie_API_Resource_Methods($this);
-		$this->customers          = new Mollie_API_Resource_Customers($this);
-		$this->customers_payments = new Mollie_API_Resource_Customers_Payments($this);
+		$this->payments                = new Mollie_API_Resource_Payments($this);
+		$this->payments_refunds        = new Mollie_API_Resource_Payments_Refunds($this);
+		$this->issuers                 = new Mollie_API_Resource_Issuers($this);
+		$this->methods                 = new Mollie_API_Resource_Methods($this);
+		$this->customers               = new Mollie_API_Resource_Customers($this);
+		$this->customers_payments      = new Mollie_API_Resource_Customers_Payments($this);
+		$this->customers_mandates      = new Mollie_API_Resource_Customers_Mandates($this);
+		$this->customers_subscriptions = new Mollie_API_Resource_Customers_Subscriptions($this);
 
 		// OAuth2 endpoints
 		$this->permissions      = new Mollie_API_Resource_Permissions($this);
 		$this->organizations    = new Mollie_API_Resource_Organizations($this);
+		$this->refunds          = new Mollie_API_Resource_Refunds($this);
 		$this->profiles         = new Mollie_API_Resource_Profiles($this);
 		$this->settlements      = new Mollie_API_Resource_Settlements($this);
 
@@ -174,6 +206,9 @@ class Mollie_API_Client
 		$this->addVersionString("PHP/" . phpversion());
 		$this->addVersionString("cURL/" . $curl_version["version"]);
 		$this->addVersionString($curl_version["ssl_version"]);
+
+		// The PEM path may be overwritten with setPemPath().
+		$this->pem_path = realpath(dirname(__FILE__) . "/cacert.pem");
 	}
 
 	/**
@@ -255,6 +290,16 @@ class Mollie_API_Client
 	}
 
 	/**
+	 * Overwrite the default path to the PEM file. Should only be used by advanced users.
+	 *
+	 * @param string $pem_path
+	 */
+	public function setPemPath ($pem_path)
+	{
+		$this->pem_path = strval($pem_path);
+	}
+
+	/**
 	 * Perform an http call. This method is used by the resource specific classes. Please use the $payments property to
 	 * perform operations on payments.
 	 *
@@ -274,7 +319,7 @@ class Mollie_API_Client
 	{
 		if (empty($this->api_key))
 		{
-			throw new Mollie_API_Exception("You have not set an API key. Please use setApiKey() to set the API key.");
+			throw new Mollie_API_Exception("You have not set an API key or OAuth access token. Please use setApiKey() to set the API key.");
 		}
 
 		if (empty($this->ch) || !function_exists("curl_reset"))
@@ -310,6 +355,7 @@ class Mollie_API_Client
 			"Authorization: Bearer {$this->api_key}",
 			"User-Agent: {$user_agent}",
 			"X-Mollie-Client-Info: " . php_uname(),
+			"Expect:",
 		);
 
 		curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, $http_method);
@@ -329,7 +375,7 @@ class Mollie_API_Client
 		 * On some servers, the list of installed certificates is outdated or not present at all (the ca-bundle.crt
 		 * is not installed). So we tell cURL which certificates we trust.
 		 */
-		curl_setopt($this->ch, CURLOPT_CAINFO, realpath(dirname(__FILE__) . "/cacert.pem"));
+		curl_setopt($this->ch, CURLOPT_CAINFO, $this->pem_path);
 
 		$body = curl_exec($this->ch);
 

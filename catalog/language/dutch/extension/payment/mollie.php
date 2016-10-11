@@ -70,6 +70,7 @@ $_['method_mistercash']       = 'Mister Cash';
 $_['method_banktransfer']     = 'Overboeking';
 $_['method_directdebit']      = 'Eenmalige incasso';
 $_['method_belfius']          = 'Belfius Direct Net';
+$_['method_kbc']              = 'KBC/CBC-Betaalknop';
 $_['method_bitcoin']          = 'Bitcoin';
 $_['method_sofort']           = 'SOFORT Banking';
 $_['method_paypal']           = 'PayPal';

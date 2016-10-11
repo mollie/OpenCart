@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2015, Mollie B.V.
+ * Copyright (c) 2016, Mollie B.V.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,47 +28,35 @@
  * @author      Mollie B.V. <info@mollie.com>
  * @copyright   Mollie B.V.
  * @link        https://www.mollie.com
+ *
+ * @method Mollie_API_Object_Customer_Subscription[]|Mollie_API_Object_List all($offset = 0, $limit = 0, array $filters = array())
+ * @method Mollie_API_Object_Customer_Subscription get($subscription_id, array $filters = array())
  */
-class Mollie_API_Object_Settlement
+class Mollie_API_Resource_Customers_Subscriptions extends Mollie_API_Resource_Base
 {
 	/**
-	 * Id of the settlement.
-	 *
 	 * @var string
 	 */
-	public $id;
+	protected $resource_path = "customers_subscriptions";
 
 	/**
-	 * The settlement reference. This corresponds to an invoice that's in your Dashboard.
+	 * @return Mollie_API_Object_Customer_Subscription
+	 */
+	protected function getResourceObject ()
+	{
+		return new Mollie_API_Object_Customer_Subscription;
+	}
+
+	/**
+	 * Cancel the given Subscription. This is just an alias of the 'delete' method.
 	 *
-	 * @var string
-	 */
-	public $reference;
-
-	/**
-	 * Total settlement amount in euros.
+	 * @param string $subscription_id
 	 *
-	 * @var double
+	 * @return Mollie_API_Object_Customer_Subscription
+	 * @throws Mollie_API_Exception
 	 */
-	public $amount;
-
-	/**
-	 * @var string
-	 */
-	public $settledDatetime;
-
-	/**
-	 * Revenues and costs nested per year, per month, and per payment method.
-	 *
-	 * @see https://www.mollie.com/en/docs/settlements#settlements-object
-	 * @var object
-	 */
-	public $periods;
-
-	/**
-	 * Payment IDs that were settled (either paid out or reversed).
-	 *
-	 * @var string[]
-	 */
-	public $paymentIds;
+	public function cancel ($subscription_id)
+	{
+		return $this->delete($subscription_id);
+	}
 }
