@@ -1,7 +1,7 @@
 <?php
 class MollieHelper
 {
-	const PLUGIN_VERSION = "6.3.1";
+	const PLUGIN_VERSION = "6.3.2";
 
 	// All available modules. These should correspond to the Mollie_API_Object_Method constants.
 	const MODULE_NAME_BANKTRANSFER = "banktransfer";
@@ -10,6 +10,7 @@ class MollieHelper
 	const MODULE_NAME_CREDITCARD   = "creditcard";
 	const MODULE_NAME_DIRECTDEBIT  = "directdebit";
 	const MODULE_NAME_IDEAL        = "ideal";
+	const MODULE_NAME_KBC          = "kbc";
 	const MODULE_NAME_MISTERCASH   = "mistercash";
 	const MODULE_NAME_PAYPAL       = "paypal";
 	const MODULE_NAME_PAYSAFECARD  = "paysafecard";
@@ -23,6 +24,7 @@ class MollieHelper
 		self::MODULE_NAME_CREDITCARD,
 		self::MODULE_NAME_DIRECTDEBIT,
 		self::MODULE_NAME_IDEAL,
+		self::MODULE_NAME_KBC,
 		self::MODULE_NAME_MISTERCASH,
 		self::MODULE_NAME_PAYPAL,
 		self::MODULE_NAME_PAYSAFECARD,
