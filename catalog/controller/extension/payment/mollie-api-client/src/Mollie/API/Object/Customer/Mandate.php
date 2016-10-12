@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2015, Mollie B.V.
+ * Copyright (c) 2016, Mollie B.V.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,46 +29,52 @@
  * @copyright   Mollie B.V.
  * @link        https://www.mollie.com
  */
-class Mollie_API_Object_Settlement
+class Mollie_API_Object_Customer_Mandate
 {
+	const STATUS_PENDING = "pending";
+	const STATUS_VALID   = "valid";
+	const STATUS_INVALID = "invalid";
+
 	/**
-	 * Id of the settlement.
-	 *
+	 * @var string
+	 */
+	public $resource;
+
+	/**
 	 * @var string
 	 */
 	public $id;
 
 	/**
-	 * The settlement reference. This corresponds to an invoice that's in your Dashboard.
-	 *
 	 * @var string
 	 */
-	public $reference;
-
-	/**
-	 * Total settlement amount in euros.
-	 *
-	 * @var double
-	 */
-	public $amount;
+	public $status;
 
 	/**
 	 * @var string
 	 */
-	public $settledDatetime;
+	public $method;
 
 	/**
-	 * Revenues and costs nested per year, per month, and per payment method.
-	 *
-	 * @see https://www.mollie.com/en/docs/settlements#settlements-object
-	 * @var object
+	 * @var string
 	 */
-	public $periods;
+	public $customerId;
 
 	/**
-	 * Payment IDs that were settled (either paid out or reversed).
-	 *
-	 * @var string[]
+	 * @var object|null
 	 */
-	public $paymentIds;
+	public $details;
+
+	/**
+	 * @var string
+	 */
+	public $createdDatetime;
+
+	/**
+	 * @return bool
+	 */
+	public function isValid ()
+	{
+		return $this->status === self::STATUS_VALID;
+	}
 }

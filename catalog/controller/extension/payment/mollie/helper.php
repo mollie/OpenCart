@@ -2,7 +2,7 @@
 class MollieHelper
 {
     // Plugin only for Opencart >= 2.3
-	const PLUGIN_VERSION = "6.4.0";
+	const PLUGIN_VERSION = "7.0.1";
 
 	// All available modules. These should correspond to the Mollie_API_Object_Method constants.
 	const MODULE_NAME_BANKTRANSFER = "banktransfer";
@@ -15,6 +15,7 @@ class MollieHelper
 	const MODULE_NAME_PAYPAL       = "paypal";
 	const MODULE_NAME_PAYSAFECARD  = "paysafecard";
 	const MODULE_NAME_SOFORT       = "sofort";
+	const MODULE_NAME_KBC          = "kbc";
 
 	// List of all available module names.
 	static public $MODULE_NAMES = array(
@@ -28,6 +29,7 @@ class MollieHelper
 		self::MODULE_NAME_PAYPAL,
 		self::MODULE_NAME_PAYSAFECARD,
 		self::MODULE_NAME_SOFORT,
+		self::MODULE_NAME_KBC,
 	);
 
 	static protected $api_client;
