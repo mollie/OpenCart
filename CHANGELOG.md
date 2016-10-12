@@ -2,8 +2,10 @@
 
 # Changelog #
 
-#### Changes in release 6.3.2
-  +
+This is the changelog of the legacy 6.* branch, which is compatible with OpenCart 2.2 and lower. Our newer releases, which are compatible with OpenCart 2.3 and up, are available on the `master` branch.
+
+#### Changes in release 6.4.0
+  + Added the payment method KBC Payment Button.
 
 #### Changes in release 6.3.1
   + Update submodule [mollie-api-php](https://github.com/mollie/mollie-api-php) to `v1.5.1`
