@@ -41,7 +41,7 @@
 	    	<div id="store<?php echo $store['id']; ?>" class="tab <?php if ($store['id'] == 0) { echo 'active'; } ?>">
 				<?php if ($error_warning): ?>
 					<div class="warning"><?php clean_echo($error_warning) ?></div>
-				<?php elseif (!mb_strlen($stores[$store['id']]['mollie_api_key'])): ?>
+				<?php elseif (!strlen($stores[$store['id']]['mollie_api_key'])): ?>
 					<div class="attention"><?php echo $help_view_profile ?></div>
 				<?php endif ?>
 				<div class="content">
@@ -66,7 +66,7 @@
 									// Hide the checkbox in case of an error, but don't remove the input entirely to make sure we keep our setting.
 									$show_checkbox = TRUE;
 
-									if (!mb_strlen($stores[$store['id']]['mollie_api_key']) || !empty($stores[$store['id']]['error_api_key']))
+									if (!strlen($stores[$store['id']]['mollie_api_key']) || !empty($stores[$store['id']]['error_api_key']))
 									{
 										$show_checkbox = FALSE;
 										echo $text_missing_api_key;

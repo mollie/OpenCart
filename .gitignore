@@ -4,5 +4,6 @@
 /build/clover
 /build/logs
 /composer.lock
+/composer.phar
 /vendor
 /*.zip

@@ -48,7 +48,7 @@
 					<?php clean_echo($error_warning) ?>
 					<button type="button" class="close" data-dismiss="alert">&times;</button>
 				</div>
-				<?php } elseif (!mb_strlen($stores[$store['id']]['mollie_api_key'])) { ?>
+				<?php } elseif (!strlen($stores[$store['id']]['mollie_api_key'])) { ?>
 				<div class="alert alert-info">
 					<i class="fa fa-info-circle"></i>
 					<?php echo $help_view_profile ?>
@@ -81,7 +81,7 @@
 									// Hide the checkbox in case of an error, but don't remove the input entirely to make sure we keep our setting.
 									$show_checkbox = TRUE;
 
-									if (!mb_strlen($stores[$store['id']]['mollie_api_key']) || !empty($stores[$store['id']]['error_api_key']))
+									if (!strlen($stores[$store['id']]['mollie_api_key']) || !empty($stores[$store['id']]['error_api_key']))
 									{
 										$show_checkbox = FALSE;
 										echo $text_missing_api_key;
