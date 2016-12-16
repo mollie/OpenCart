@@ -2,6 +2,9 @@
 
 # Changelog #
 
+#### Changes in release 7.1.1
+  + Update bundled cacert.pem file. Follows Mozilla's recommendations on invalid certificates.
+
 #### Changes in release 7.1.0
   + Added the payment method KBC Payment Button.
 
