@@ -1,7 +1,6 @@
 {
     "name": "mollie/opencart",
     "description": "Mollie module for OpenCart",
-    "version": "7.1.1",
     "homepage": "https://www.mollie.com",
     "authors": [
         {
