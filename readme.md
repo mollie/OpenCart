@@ -97,5 +97,3 @@ Contact: [www.mollie.com/nl/about](https://www.mollie.com/nl/about) — info@mol
 + [Meer informatie over PayPal via Mollie](https://www.mollie.com/paypal/)
 + [Meer informatie over Belfius Direct Net via Mollie](https://www.mollie.com/belfiusdirectnet/)
 + [Meer informatie over paysafecard via Mollie](https://www.mollie.com/paysafecard/)
-
-![Powered By Mollie](https://www.mollie.com/images/badge-betaling-medium.png)
