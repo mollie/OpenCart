@@ -1,9 +1,10 @@
 ![Mollie](https://www.mollie.com/files/Mollie-Logo-Style-Small.png)
 
-**Let op:** Deze versie van de module is alleen geschikt voor OpenCart 3 en hoger.
-**Oudere versies:**
-Zie [deze branch](https://github.com/mollie/OpenCart/tree/opencart-2.2) voor de versie die geschikt is voor OpenCart modules 2.2 en lager.
-Zie [deze branch](https://github.com/mollie/OpenCart/tree/opencart-2.2) voor de versie die geschikt is voor OpenCart modules 2.2 en lager.
+**Let op:** Deze versie van de module is alleen geschikt voor **OpenCart 3** en hoger.
+
+voor **2.3.x.x** zie [deze branch](https://github.com/mollie/OpenCart/tree/opencart-2.3).
+
+voor **2.2.x.x**  en lager zie [deze branch](https://github.com/mollie/OpenCart/tree/opencart-2.2).
 
 # Installatie [![Build Status](https://travis-ci.org/mollie/OpenCart.png)](https://travis-ci.org/mollie/OpenCart) #
 **Let op:** voor de installatie van deze module is FTP-toegang tot je webserver benodigd. Heb je hier geen ervaring mee? Laat de installatie van deze module dan over aan je websitebouwer of serverbeheerder.
