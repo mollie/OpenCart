@@ -82,6 +82,7 @@ $_['entry_api_key']                  = "API-sleutel";
 $_['entry_description']              = "Omschrijving";
 $_['entry_show_icons']               = "Toon icoontjes";
 $_['entry_show_order_canceled_page'] = "Toon melding bij geannuleerde betalingen";
+$_['entry_geo_zone']                 = "Geo Zone";
 
 // Help
 $_['help_view_profile']             = 'U kunt uw API-sleutel vinden bij <a href="https://www.mollie.com/beheer/account/profielen/" target="_blank" class="alert-link">uw Mollie-websiteprofielen</a>.';

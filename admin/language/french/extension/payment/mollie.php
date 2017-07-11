@@ -82,6 +82,7 @@ $_['entry_api_key']                  = "Clé API";
 $_['entry_description']              = "Description";
 $_['entry_show_icons']               = "Afficher des icônes";
 $_['entry_show_order_canceled_page'] = "Afficher un message si le paiement est annulé";
+$_['entry_geo_zone']                 = "Geo Zone";
 
 // Help
 $_['help_view_profile']             = 'Vous pouvez trouver votre clé API dans <a href="https://www.mollie.com/beheer/account/profielen/" target="_blank" class="alert-link">vos profils de site à Mollie</a>.';
