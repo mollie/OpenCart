@@ -2,6 +2,11 @@
 
 # Changelog #
 
+#### Changes in release 7.2.0
+  + Add helpful method: `getPaymentID()`
+  + Double check payment status in callback - uses new `getPaymentID()` method
+  + Update mollie_return_2.tpl - some themes are using HTML 'id' attributes on container divs
+
 #### Changes in release 7.1.1
   + Update bundled cacert.pem file. Follows Mozilla's recommendations on invalid certificates.
 
