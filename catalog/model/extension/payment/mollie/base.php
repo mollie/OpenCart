@@ -177,4 +177,16 @@ class ModelExtensionPaymentMollieBase extends Model
 
 		return FALSE;
 	}
+	
+	public function getPaymentID ($order_id)
+	{
+		if (!empty($order_id))
+		{
+			$results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `order_id` = '" . $order_id ."'");
+
+			return $results->row['transaction_id'];
+		}
+
+		return FALSE;
+	}
 }
