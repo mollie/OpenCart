@@ -409,6 +409,19 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		// Load required translations.
 		$this->load->language("extension/payment/mollie");
 
+		// Double-check whether or not the status of the order is correct.
+		$model = $this->getModuleModel();
+
+		$paid_status_id = intval($this->config->get("mollie_ideal_processing_status_id"));
+		$payment_id = $model->getPaymentID($order['order_id']);
+		
+		$payment = $this->getAPIClient()->payments->get($payment_id);
+		
+		if ($payment->isPaid() && $order['order_status_id'] == 0) {
+			$this->addOrderHistory($order, $paid_status_id, $this->language->get("response_success"), TRUE);
+			$order['order_status_id'] = $paid_status_id;
+		} 
+		
 		// Show a 'transaction failed' page if we couldn't find the order or if the payment failed.
 		$failed_status_id = $this->config->get("mollie_ideal_failed_status_id");
 
