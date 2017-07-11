@@ -58,7 +58,7 @@ class ModelExtensionPaymentMollieBase extends Model
 	/**
 	 * On the checkout page this method gets called to get information about the payment method.
 	 *
-	 * @param string $address
+	 * @param array $address
 	 * @param float $total
 	 *
 	 * @return array
