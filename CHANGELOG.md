@@ -4,6 +4,9 @@
 
 This is the changelog of the legacy 6.* branch, which is compatible with OpenCart 2.2 and lower. Our newer releases, which are compatible with OpenCart 2.3 and up, are available on the `master` branch.
 
+#### Changes in release 6.4.1
+  + Update mollie_return_2.tpl - some themes are using HTML 'id' attributes on container divs
+
 #### Changes in release 6.4.0
   + Added the payment method KBC Payment Button.
 
