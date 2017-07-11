@@ -10,7 +10,7 @@
 
 <?php echo $header ?>
 
-<div class="container">
+<div id="container" class="container">
 
 	<ul class="breadcrumb">
 		<?php foreach ($breadcrumbs as $breadcrumb): ?>
