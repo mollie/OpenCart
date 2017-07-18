@@ -305,86 +305,86 @@
 {{ footer }}
 
 <script type="text/javascript">
-    (function () {
-        var timeout, xhr;
-        var api_check_url = $('<div/>').html('{{ api_check_url }}').text();
+	(function () {
+		var timeout, xhr;
+		var api_check_url = $('<div/>').html('{{ api_check_url }}').text();
 
-        function checkIfAPIKeyIsValid(key) {
-            if (xhr) xhr.abort();
+		function checkIfAPIKeyIsValid(key) {
+			if (xhr) xhr.abort();
 
-            xhr = $.get(api_check_url + '&key=' + key);
+			xhr = $.get(api_check_url + '&key=' + key);
 
-            return xhr;
-        }
+			return xhr;
+		}
 
-        function validateAPIKey(value, $icon_container) {
-            if (value === '') {
-                updateIcon($icon_container, 'fa-minus', null, true);
-                return;
-            }
+		function validateAPIKey(value, $icon_container) {
+			if (value === '') {
+				updateIcon($icon_container, 'fa-minus', null, true);
+				return;
+			}
 
-            clearTimeout(timeout);
-            timeout = setTimeout(function () {
-                updateIcon($icon_container, 'fa-spinner fa-spin', null);
+			clearTimeout(timeout);
+			timeout = setTimeout(function () {
+				updateIcon($icon_container, 'fa-spinner fa-spin', null);
 
-                checkIfAPIKeyIsValid(value).then(function (response) {
-                    if (response.valid) {
-                        updateIcon($icon_container, 'fa-check');
-                    } else if (response.invalid) {
-                        updateIcon($icon_container, 'fa-times', response.message);
-                    } else if (response.error) {
-                        updateIcon($icon_container, 'fa-exclamation-triangle', response.message);
-                    }
-                });
-            }, 400);
-        }
+				checkIfAPIKeyIsValid(value).then(function (response) {
+					if (response.valid) {
+						updateIcon($icon_container, 'fa-check');
+					} else if (response.invalid) {
+						updateIcon($icon_container, 'fa-times', response.message);
+					} else if (response.error) {
+						updateIcon($icon_container, 'fa-exclamation-triangle', response.message);
+					}
+				});
+			}, 400);
+		}
 
-        function updateIcon($container, className, message, dontClearErrors) {
-            var colorClass = '';
-            var classPerIcon = {
-                'fa-check': 'text-success',
-                'fa-times': 'text-danger',
-                'fa-exclamation-triangle': 'text-danger'
-            };
+		function updateIcon($container, className, message, dontClearErrors) {
+			var colorClass = '';
+			var classPerIcon = {
+				'fa-check': 'text-success',
+				'fa-times': 'text-danger',
+				'fa-exclamation-triangle': 'text-danger'
+			};
 
-            if (classPerIcon[className]) {
-                colorClass += ' ' + classPerIcon[className];
-            }
+			if (classPerIcon[className]) {
+				colorClass += ' ' + classPerIcon[className];
+			}
 
-            var icon = '<i class="fa ' + className + colorClass + '"></i>';
+			var icon = '<i class="fa ' + className + colorClass + '"></i>';
 
-            $container.html(icon);
-            $container.popover('destroy');
+			$container.html(icon);
+			$container.popover('destroy');
 
-            if (message) {
-                $container.popover({
-                    content: '<span class="' + colorClass + '">' + message + '</span>',
-                    html: true,
-                    placement: 'top',
-                    trigger: 'hover manual'
-                });
+			if (message) {
+				$container.popover({
+					content: '<span class="' + colorClass + '">' + message + '</span>',
+					html: true,
+					placement: 'top',
+					trigger: 'hover manual'
+				});
 
-                if ($container.is(':visible')) {
-                    $container.popover('show');
-                }
-            }
+				if ($container.is(':visible')) {
+					$container.popover('show');
+				}
+			}
 
-            if (!message && -1 !== className.indexOf('spinner')) {
-                message = icon;
-            }
+			if (!message && -1 !== className.indexOf('spinner')) {
+				message = icon;
+			}
 
-            if (!dontClearErrors && $container.closest('.form-group').hasClass('has-error')) {
-              $container.parent().next().remove();
-              $container.closest('.form-group').removeClass('has-error');
-            }
+			if (!dontClearErrors && $container.closest('.form-group').hasClass('has-error')) {
+				$container.parent().next().remove();
+				$container.closest('.form-group').removeClass('has-error');
+			}
 
-            $container.closest('.tab-content').find('[data-communication-status]').html('<span class="' + colorClass + '">' + (message || 'OK') + '</span>');
-        }
+			$container.closest('.tab-content').find('[data-communication-status]').html('<span class="' + colorClass + '">' + (message || 'OK') + '</span>');
+		}
 
-        $('[data-payment-mollie-api-key]').on('keyup', function () {
-            validateAPIKey(this.value, $(this).siblings('.input-group-addon'));
-        }).each(function () {
-            validateAPIKey(this.value, $(this).siblings('.input-group-addon'));
-        });
-    })();
+		$('[data-payment-mollie-api-key]').on('keyup', function () {
+			validateAPIKey(this.value, $(this).siblings('.input-group-addon'));
+		}).each(function () {
+			validateAPIKey(this.value, $(this).siblings('.input-group-addon'));
+		});
+	})();
 </script>
