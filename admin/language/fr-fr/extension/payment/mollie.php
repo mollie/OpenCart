@@ -47,7 +47,7 @@ $_['text_mollie_sofort']       = $method_list_logo;
 
 // Heading
 $_['heading_title']           = "Mollie";
-$_['title_global_options']    = "Pour tous les modules Mollie";
+$_['title_global_options']    = "Paramètres";
 $_['title_payment_status']    = "États de paiement";
 $_['title_mod_about']         = "Sur ce module";
 $_['footer_text']             = "Services paiement";

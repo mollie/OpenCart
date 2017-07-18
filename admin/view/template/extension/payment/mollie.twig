@@ -47,8 +47,8 @@
             <div id="store{{ shop.id }}" class="tab-pane fade in {{ shop.id == 0 ? 'active' : '' }}">
               <ul class="nav nav-tabs">
                 <li class="active"><a data-toggle="tab" href="#payment-methods-{{ shop.id }}">{{ entry_payment_method }}</a></li>
-                <li><a data-toggle="tab" href="#mollie-options-{{ shop.id }}">{{ title_global_options }}</a></li>
                 <li><a data-toggle="tab" href="#payment-statuses-{{ shop.id }}">{{ title_payment_status }}</a></li>
+                <li><a data-toggle="tab" href="#mollie-options-{{ shop.id }}">{{ title_global_options }}</a></li>
                 <li><a data-toggle="tab" href="#about-module-{{ shop.id }}">{{ title_mod_about }}</a></li>
                 <li><a data-toggle="tab" href="#support-{{ shop.id }}">Support</a></li>
               </ul>
@@ -80,7 +80,7 @@
                     </div>
                     <div class="col-sm-3">
                       <select name="stores[{{ shop.id }}][payment_mollie_{{ module_id }}_geo_zone]" class="form-control">
-                        <option value="0">{{ ext_all_zones }}</option>
+                        <option value="0">{{ text_all_zones }}</option>
                         {% for geo_zone in geo_zones %}
                         {% if geo_zone.geo_zone_id == payment_method.geo_zone %}
                         <option value="{{ geo_zone.geo_zone_id }}" selected="selected">{{ geo_zone.name }}</option>
@@ -96,57 +96,7 @@
                   </div>
                   {% endfor %}
                 </div>
-                <div id="mollie-options-{{ shop.id }}" class="tab-pane fade in">
-                  <div class="form-group required">
-                    <label class="col-sm-2 control-label" for="payment_mollie_api_key"><span data-toggle="tooltip" title="{{ help_api_key }}">{{ entry_api_key }}</span></label>
-                    <div class="col-sm-10">
-                      <div class="input-group">
-                        <input type="text" name="stores[{{ shop.id }}][payment_mollie_api_key]" value="{{ stores[shop.id].payment_mollie_api_key }}" placeholder="live_..." id="payment_mollie_api_key" class="form-control" data-payment-mollie-api-key/>
-                        <span class="input-group-addon"><i class="fa fa-minus"></i></span>
-                      </div>
-                      {% if stores[shop.id].error_api_key %}
-                      <div class="text-danger">{{ stores[shop.id].error_api_key }}</div>
-                      {% endif %}
-                    </div>
-                  </div>
-                  <div class="form-group required">
-                    <label class="col-sm-2 control-label" for="stores[{{ shop.id }}][payment_mollie_ideal_description]"><span data-toggle="tooltip" title="{{ help_description }}">{{ entry_description }}</span></label>
-                    <div class="col-sm-10">
-                      <input type="text" name="stores[{{ shop.id }}][payment_mollie_ideal_description]" value="{{ stores[shop.id].payment_mollie_ideal_description }}" id="stores[{{ shop.id }}][payment_mollie_ideal_description]" class="form-control"/>
-                      {% if stores[shop.id].error_description %}
-                      <div class="text-danger">{{ stores[shop.id].error_description }}</div>
-                      {% endif %}
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label class="col-sm-2 control-label" for="input-status"><span data-toggle="tooltip" title="{{ help_show_icons }}">{{ entry_show_icons }}</span></label>
-                    <div class="col-sm-10">
-                      <select name="stores[{{ shop.id }}][payment_mollie_show_icons]" id="input-status" class="form-control">
-                        {% if stores[shop.id].payment_mollie_show_icons %}
-                        <option value="1" selected="selected">{{ text_yes }}</option>
-                        <option value="0">{{ text_no }}</option>
-                        {% else %}
-                        <option value="1">{{ text_yes }}</option>
-                        <option value="0" selected="selected">{{ text_no }}</option>
-                        {% endif %}
-                      </select>
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label class="col-sm-2 control-label" for="input-status"><span data-toggle="tooltip" title="{{ help_show_order_canceled_page }}">{{ entry_show_order_canceled_page }}</span></label>
-                    <div class="col-sm-10">
-                      <select name="stores[{{ shop.id }}][payment_mollie_show_order_canceled_page]" id="input-status" class="form-control">
-                        {% if stores[shop.id].payment_mollie_show_order_canceled_page %}
-                        <option value="1" selected="selected">{{ text_yes }}</option>
-                        <option value="0">{{ text_no }}</option>
-                        {% else %}
-                          <option value="1">{{ text_yes }}</option>
-                          <option value="0" selected="selected">{{ text_no }}</option>
-                        {% endif %}
-                      </select>
-                    </div>
-                  </div>
-                </div>
+
                 <div id="payment-statuses-{{ shop.id }}" class="tab-pane fade in">
                   <div class="form-group">
                     <label class="col-sm-2 control-label" for="payment_mollie_ideal_pending_status_id">{{ entry_pending_status }}</label>
@@ -181,7 +131,6 @@
                       </select>
                     </div>
                   </div>
-
                   <div class="form-group">
                     <label class="col-sm-2 control-label" for="payment_mollie_ideal_canceled_status_id">{{ entry_canceled_status }}</label>
                     <div class="col-sm-10">
@@ -201,7 +150,6 @@
                       </select>
                     </div>
                   </div>
-
                   <div class="form-group">
                     <label class="col-sm-2 control-label" for="payment_mollie_ideal_expired_status_id">{{ entry_expired_status }}</label>
                     <div class="col-sm-10">
@@ -221,7 +169,6 @@
                       </select>
                     </div>
                   </div>
-
                   <div class="form-group">
                     <label class="col-sm-2 control-label" for="payment_mollie_ideal_processing_status_id">{{ entry_processing_status }}</label>
                     <div class="col-sm-10">
@@ -237,6 +184,59 @@
                     </div>
                   </div>
                 </div>
+
+                <div id="mollie-options-{{ shop.id }}" class="tab-pane fade in">
+                  <div class="form-group required">
+                    <label class="col-sm-2 control-label" for="payment_mollie_api_key"><span data-toggle="tooltip" title="{{ help_api_key }}">{{ entry_api_key }}</span></label>
+                    <div class="col-sm-10">
+                      <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-minus"></i></span>
+                        <input type="text" name="stores[{{ shop.id }}][payment_mollie_api_key]" value="{{ stores[shop.id].payment_mollie_api_key }}" placeholder="live_..." id="payment_mollie_api_key" class="form-control" data-payment-mollie-api-key/>
+                      </div>
+                      {% if stores[shop.id].error_api_key %}
+                        <div class="text-danger">{{ stores[shop.id].error_api_key }}</div>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="form-group required">
+                    <label class="col-sm-2 control-label" for="stores[{{ shop.id }}][payment_mollie_ideal_description]"><span data-toggle="tooltip" title="{{ help_description }}">{{ entry_description }}</span></label>
+                    <div class="col-sm-10">
+                      <input type="text" name="stores[{{ shop.id }}][payment_mollie_ideal_description]" value="{{ stores[shop.id].payment_mollie_ideal_description }}" id="stores[{{ shop.id }}][payment_mollie_ideal_description]" class="form-control"/>
+                      {% if stores[shop.id].error_description %}
+                        <div class="text-danger">{{ stores[shop.id].error_description }}</div>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-status"><span data-toggle="tooltip" title="{{ help_show_icons }}">{{ entry_show_icons }}</span></label>
+                    <div class="col-sm-10">
+                      <select name="stores[{{ shop.id }}][payment_mollie_show_icons]" id="input-status" class="form-control">
+                        {% if stores[shop.id].payment_mollie_show_icons %}
+                          <option value="1" selected="selected">{{ text_yes }}</option>
+                          <option value="0">{{ text_no }}</option>
+                        {% else %}
+                          <option value="1">{{ text_yes }}</option>
+                          <option value="0" selected="selected">{{ text_no }}</option>
+                        {% endif %}
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-sm-2 control-label" for="input-status"><span data-toggle="tooltip" title="{{ help_show_order_canceled_page }}">{{ entry_show_order_canceled_page }}</span></label>
+                    <div class="col-sm-10">
+                      <select name="stores[{{ shop.id }}][payment_mollie_show_order_canceled_page]" id="input-status" class="form-control">
+                        {% if stores[shop.id].payment_mollie_show_order_canceled_page %}
+                          <option value="1" selected="selected">{{ text_yes }}</option>
+                          <option value="0">{{ text_no }}</option>
+                        {% else %}
+                          <option value="1">{{ text_yes }}</option>
+                          <option value="0" selected="selected">{{ text_no }}</option>
+                        {% endif %}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
                 <div id="about-module-{{ shop.id }}" class="tab-pane fade in">
                   <div class="form-group">
                     <label class="col-sm-2 control-label">{{ entry_module }}</label>
@@ -272,13 +272,14 @@
                     </div>
                   </div>
                 </div>
+
                 <div id="support-{{ shop.id }}" class="tab-pane fade in">
                   <fieldset>
                     <legend>Module by Quality Works - Technical Support</legend>
                     <div class="row">
                       <label class="col-sm-2">Quality Works</label>
                       <div class="col-sm-10">
-                        Wold 1350<br>8225BZ Lelystad<br>the Netherlands<br><br>tel: +31 (0)85 7430150<br>E-mail: <a href="mailto:info@qualityworks.eu">info@qualityworks.eu</a><br>Internet: <a href="https://www.qualityworks.eu" target="_blank">www.qualityworks.eu</a>
+                        Wold 13 50<br>8225BZ Lelystad<br>the Netherlands<br><br>tel: +31 (0)85 7430150<br>E-mail: <a href="mailto:info@qualityworks.eu">info@qualityworks.eu</a><br>Internet: <a href="https://www.qualityworks.eu" target="_blank">www.qualityworks.eu</a>
                       </div>
                     </div>
                     <legend>Mollie - Support</legend>
@@ -305,11 +306,15 @@
 
 <script type="text/javascript">
     (function () {
-        var timeout;
+        var timeout, xhr;
         var api_check_url = $('<div/>').html('{{ api_check_url }}').text();
 
         function checkIfAPIKeyIsValid(key) {
-            return $.get(api_check_url + '&key=' + key);
+            if (xhr) xhr.abort();
+
+            xhr = $.get(api_check_url + '&key=' + key);
+
+            return xhr;
         }
 
         function validateAPIKey(value, $icon_container) {
@@ -318,10 +323,10 @@
                 return;
             }
 
-            updateIcon($icon_container, 'fa-spinner fa-spin', true);
-
             clearTimeout(timeout);
             timeout = setTimeout(function () {
+                updateIcon($icon_container, 'fa-spinner fa-spin', null);
+
                 checkIfAPIKeyIsValid(value).then(function (response) {
                     if (response.valid) {
                         updateIcon($icon_container, 'fa-check');
@@ -355,9 +360,13 @@
                 $container.popover({
                     content: '<span class="' + colorClass + '">' + message + '</span>',
                     html: true,
-                    placement: 'left',
+                    placement: 'top',
                     trigger: 'hover manual'
-                }).popover('show');
+                });
+
+                if ($container.is(':visible')) {
+                    $container.popover('show');
+                }
             }
 
             if (!message && -1 !== className.indexOf('spinner')) {
@@ -373,9 +382,9 @@
         }
 
         $('[data-payment-mollie-api-key]').on('keyup', function () {
-            validateAPIKey(this.value, $(this).next());
+            validateAPIKey(this.value, $(this).siblings('.input-group-addon'));
         }).each(function () {
-            validateAPIKey(this.value, $(this).next());
+            validateAPIKey(this.value, $(this).siblings('.input-group-addon'));
         });
     })();
 </script>
