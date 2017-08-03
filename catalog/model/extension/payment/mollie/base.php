@@ -31,14 +31,14 @@
  * @copyright   Mollie B.V.
  * @link        https://www.mollie.com
  *
- * @property Config   $config
- * @property DB       $db
+ * @property Config $config
+ * @property DB $db
  * @property Language $language
- * @property Loader   $load
- * @property Log      $log
+ * @property Loader $load
+ * @property Log $log
  * @property Registry $registry
- * @property Session  $session
- * @property URL      $url
+ * @property Session $session
+ * @property URL $url
  */
 require_once(dirname(DIR_SYSTEM) . "/catalog/controller/extension/payment/mollie/helper.php");
 
@@ -50,7 +50,7 @@ class ModelExtensionPaymentMollieBase extends Model
 	/**
 	 * @return Mollie_API_Client
 	 */
-	protected function getAPIClient ()
+	protected function getAPIClient()
 	{
 		return MollieHelper::getAPIClient($this->config);
 	}
@@ -58,37 +58,38 @@ class ModelExtensionPaymentMollieBase extends Model
 	/**
 	 * On the checkout page this method gets called to get information about the payment method.
 	 *
-	 * @param string $address
-	 * @param float  $total
+	 * @param array $address
+	 * @param float $total
 	 *
 	 * @return array
 	 */
-	public function getMethod ($address, $total)
+	public function getMethod($address, $total)
 	{
-		try
-		{
+		try {
 			$payment_method = $this->getAPIClient()->methods->get(static::MODULE_NAME);
 
 			// Quick checkout provides an array wile the default checkout provides only the total.
 			$amount = is_array($total) ? $total[0]['value'] : round($total, 2);
-			
+
 			$minimum = $payment_method->getMinimumAmount();
 			$maximum = $payment_method->getMaximumAmount();
 
-			if ($minimum && $minimum > $amount)
-			{
+			if ($minimum && $minimum > $amount) {
 				return NULL;
 			}
 
-			if ($maximum && $maximum < $amount)
-			{
+			if ($maximum && $maximum < $amount) {
 				return NULL;
 			}
-		}
-		catch (Mollie_API_Exception $e)
-		{
+		} catch (Mollie_API_Exception $e) {
 			$this->log->write("Error retrieving payment method '" . static::MODULE_NAME . "' from Mollie: {$e->getMessage()}.");
 
+			return NULL;
+		}
+
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "zone_to_geo_zone WHERE geo_zone_id = '" . (int)$this->config->get("payment_mollie_" . static::MODULE_NAME . "_geo_zone") . "' AND country_id = '" . (int)$address['country_id'] . "' AND (zone_id = '" . (int)$address['zone_id'] . "' OR zone_id = '0')");
+
+		if ((bool)$this->config->get("payment_mollie_" . static::MODULE_NAME . "_geo_zone") && !$query->num_rows) {
 			return NULL;
 		}
 
@@ -98,23 +99,21 @@ class ModelExtensionPaymentMollieBase extends Model
 		$key = "method_" . $payment_method->id;
 		$val = $this->language->get($key);
 
-		if ($key !== $val)
-		{
+		if ($key !== $val) {
 			$payment_method->description = $val;
 		}
 
 		$icon = "";
 
-		if ($this->config->get("mollie_show_icons"))
-		{
+		if ($this->config->get("payment_mollie_show_icons")) {
 			$icon = '<img src="' . htmlspecialchars($payment_method->image->normal) . '" height="20" style="margin:0 5px -5px 0" />';
 		}
 
 		return array(
-			"code"       => "mollie_" . static::MODULE_NAME,
-			"title"      => $icon . $payment_method->description,
-			"sort_order" => $this->config->get("mollie_" . static::MODULE_NAME . "_sort_order"),
-			"terms"      => NULL,
+			"code" => "mollie_" . static::MODULE_NAME,
+			"title" => $icon . $payment_method->description,
+			"sort_order" => $this->config->get("payment_mollie_" . static::MODULE_NAME . "_sort_order"),
+			"terms" => NULL,
 		);
 	}
 
@@ -126,10 +125,9 @@ class ModelExtensionPaymentMollieBase extends Model
 	 *
 	 * @return bool
 	 */
-	public function setPayment ($order_id, $transaction_id)
+	public function setPayment($order_id, $transaction_id)
 	{
-		if (!empty($order_id) && !empty($transaction_id))
-		{
+		if (!empty($order_id) && !empty($transaction_id)) {
 			$this->db->query(
 				sprintf(
 					"REPLACE INTO `%smollie_payments` (`order_id` ,`transaction_id`, `method`)
@@ -157,10 +155,9 @@ class ModelExtensionPaymentMollieBase extends Model
 	 *
 	 * @return bool
 	 */
-	public function updatePayment ($transaction_id, $payment_status, $consumer = NULL)
+	public function updatePayment($transaction_id, $payment_status, $consumer = NULL)
 	{
-		if (!empty($transaction_id) && !empty($payment_status))
-		{
+		if (!empty($transaction_id) && !empty($payment_status)) {
 			$this->db->query(
 				sprintf(
 					"UPDATE `%smollie_payments` 
@@ -174,19 +171,17 @@ class ModelExtensionPaymentMollieBase extends Model
 
 			return $this->db->countAffected() > 0;
 		}
-
 		return FALSE;
 	}
-	
-	public function getPaymentID ($order_id)
-	{
-		if (!empty($order_id))
-		{
-			$results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `order_id` = '" . $order_id ."'");
 
+	public function getPaymentID($order_id)
+	{
+		if (!empty($order_id)) {
+			$results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `order_id` = '" . $order_id . "'");
+			if($results->num_rows == 0) return FALSE;
 			return $results->row['transaction_id'];
 		}
-
 		return FALSE;
 	}
+
 }

@@ -1,16 +1,19 @@
 ![Mollie](https://www.mollie.com/files/Mollie-Logo-Style-Small.png)
 
-**Let op:** Deze versie van de module is alleen geschikt voor OpenCart 2.3.x.x. Zie [deze branch](https://github.com/mollie/OpenCart/tree/opencart-2.2) voor de versie die geschikt is voor OpenCart modules 2.2 en lager.
+**Let op:** Deze versie van de module is alleen geschikt voor **OpenCart 3** en hoger.
+
+voor **2.3.x.x** zie [deze branch](https://github.com/mollie/OpenCart/tree/opencart-2.3).
+
+voor **2.2.x.x**  en lager zie [deze branch](https://github.com/mollie/OpenCart/tree/opencart-2.2).
 
 # Installatie [![Build Status](https://travis-ci.org/mollie/OpenCart.png)](https://travis-ci.org/mollie/OpenCart) #
-**Let op:** voor de installatie van deze module is FTP-toegang tot je webserver benodigd. Heb je hier geen ervaring mee? Laat de installatie van deze module dan over aan je websitebouwer of serverbeheerder.
-
 + Download op de [OpenCart Releases](https://github.com/mollie/OpenCart/releases)-pagina de nieuwste release.
-+ Kopieër de gedownloade mappen `admin` en `catalog` naar de bestaande OpenCart-installatie op je server.
 + Ga naar uw OpenCart AdminPanel (Beheerpagina).
++ Ga in het menu naar _Extentions_ >> _Installer_.
++ Klik op _Upload_ en kies het .zip bestand die u zojuist heeft gedownload.
 + Ga in het menu naar _Extentions_ en selecteer _Payments_.
-+ Na een correcte afhandeling zou onze Betaalmethode zichtbaar moeten zijn in het _Payments_ overzicht.
-+ Klik vervolgens op _Install_ en daarna op _Edit_.
++ Na een correcte afhandeling zouden onze Betaalmethodes zichtbaar moeten zijn in het _Payments_ overzicht.
++ Klik vervolgens op _Install (groene knop)_ en daarna op _Edit (blauwe knop)_ bij de gewenste betaal methode.
 + Vul je _Mollie API key_ in en bewaar de instellingen. Je vindt de API key in uw Mollie Beheer onder [Websiteprofielen](https://www.mollie.com/beheer/account/profielen/).
 
 # Over Mollie #

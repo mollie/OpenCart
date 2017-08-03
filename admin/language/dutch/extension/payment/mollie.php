@@ -47,7 +47,7 @@ $_['text_mollie_sofort']       = $method_list_logo;
 
 // Heading
 $_['heading_title']         = "Mollie";
-$_['title_global_options']  = "Opties voor alle Mollie-modules";
+$_['title_global_options']  = "Instellingen";
 $_['title_payment_status']  = "Betaalstatussen";
 $_['title_mod_about']       = "Over deze module";
 $_['footer_text']           = "Betaaldiensten";
@@ -82,6 +82,7 @@ $_['entry_api_key']                  = "API-sleutel";
 $_['entry_description']              = "Omschrijving";
 $_['entry_show_icons']               = "Toon icoontjes";
 $_['entry_show_order_canceled_page'] = "Toon melding bij geannuleerde betalingen";
+$_['entry_geo_zone']                 = "Geo Zone";
 
 // Help
 $_['help_view_profile']             = 'U kunt uw API-sleutel vinden bij <a href="https://www.mollie.com/beheer/account/profielen/" target="_blank" class="alert-link">uw Mollie-websiteprofielen</a>.';

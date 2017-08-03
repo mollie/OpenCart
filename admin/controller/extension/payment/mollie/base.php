@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2012-2015, Mollie B.V.
+ * Copyright (c) 2012-2017, Mollie B.V.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -99,14 +99,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		$extensions = $this->getExtensionModel();
 		$this->load->model("user/user_group");
 
-		if ($this->isOpencart2())
-		{
-			$user_id = $this->user->getGroupId();
-		}
-		else
-		{
-			$user_id = $this->user->getId();
-		}
+		$user_id = $this->user->getGroupId();
 
 		foreach (MollieHelper::$MODULE_NAMES as $module_name)
 		{
@@ -150,13 +143,6 @@ class ControllerExtensionPaymentMollieBase extends Controller
 	 */
 	protected function getExtensionModel ()
 	{
-		if ($this->isOpencart2())
-		{
-			$this->load->model("extension/extension");
-
-			return $this->model_extension_extension;
-		}
-
 		$this->load->model("setting/extension");
 
 		return $this->model_setting_extension;
@@ -172,6 +158,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		$this->load->model("setting/setting");
 		$this->load->model("setting/store");
 		$this->load->model("localisation/order_status");
+		$this->load->model("localisation/geo_zone");
 
 		$this->document->setTitle($this->language->get("heading_title"));
 
@@ -190,12 +177,12 @@ class ControllerExtensionPaymentMollieBase extends Controller
 				
 				foreach (MollieHelper::$MODULE_NAMES as $module_name)
 				{
-					$status = "mollie_" . $module_name . "_status";
+					$status = "payment_mollie_" . $module_name . "_status";
 
 					$post[$status] = (isset($post[$status]) && $post[$status] == "on") ? 1 : 0;
 				}
 
-				$this->model_setting_setting->editSetting("mollie", $post, $store['id']);
+				$this->model_setting_setting->editSetting("payment_mollie", $post, $store['id']);
 
 				// Migrate old settings if needed. We used to use "ideal" as setting group, but Opencart 2 requires us to use "mollie".
 				$this->model_setting_setting->deleteSetting("ideal", $store['id']);
@@ -207,10 +194,11 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		if ($doRedirect)
 		{
 			$this->session->data['success'] = $this->language->get("text_success");
-			$this->redirect($this->url->link("extension/extension", "type=payment&token=" . $this->session->data['token'], "SSL"));
+			$this->redirect($this->url->link("marketplace/extension", "type=payment&user_token=" . $this->session->data['user_token'], "SSL"));
 		}
 
 		// Set data for template
+		$data['api_check_url']          = $this->url->link("extension/payment/mollie_" . static::MODULE_NAME . '/validate_api_key', "user_token=" . $this->session->data['user_token'], "SSL");
 		$data['heading_title']          = $this->language->get("heading_title");
 		$data['title_global_options']   = $this->language->get("title_global_options");
 		$data['title_payment_status']   = $this->language->get("title_payment_status");
@@ -226,6 +214,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		$data['text_missing_api_key']         = $this->language->get("text_missing_api_key");
 		$data['text_activate_payment_method'] = $this->language->get("text_activate_payment_method");
 		$data['text_no_status_id']            = $this->language->get("text_no_status_id");
+		$data['text_all_zones']               = $this->language->get("text_all_zones");
 
 		$data['entry_api_key']                  = $this->language->get("entry_api_key");
 		$data['entry_description']              = $this->language->get("entry_description");
@@ -234,6 +223,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		$data['entry_status']                   = $this->language->get("entry_status");
 		$data['entry_mod_status']               = $this->language->get("entry_mod_status");
 		$data['entry_comm_status']              = $this->language->get("entry_comm_status");
+		$data['entry_geo_zone']                 = $this->language->get("entry_geo_zone");
 
 		$data['help_view_profile']              = $this->language->get("help_view_profile");
 		$data['help_api_key']                   = $this->language->get("help_api_key");
@@ -272,10 +262,11 @@ class ControllerExtensionPaymentMollieBase extends Controller
 			$data['error_warning'] = '';
 		}
 
+		$data['geo_zones'] = $this->model_localisation_geo_zone->getGeoZones();
+
 		foreach($shops as $store)
 		{
-
-			$data['stores'][$store['id']]['entry_cstatus'] = $this->checkCommunicationStatus($store['id']);
+			$data['stores'][$store['id']]['entry_cstatus'] = $this->checkCommunicationStatus(isset($store['payment_mollie_api_key']) ? $store['payment_mollie_api_key'] : null);
 
 			if (isset($this->error[$store['id']]['api_key'])) {
 				$data['stores'][$store['id']]['error_api_key'] = $this->error[$store['id']]['api_key'];
@@ -314,38 +305,38 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		$data['breadcrumbs'] = array();
 
 		$data['breadcrumbs'][] = array(
-			"href"      => $this->url->link("common/home", "token=" . $this->session->data['token'], "SSL"),
+			"href"      => $this->url->link("common/dashboard", "user_token=" . $this->session->data['user_token'], "SSL"),
 			"text"      => $this->language->get("text_home"),
 			"separator" => FALSE,
 		);
 
 		$data['breadcrumbs'][] = array(
-			"href"      => $this->url->link("extension/extension", "type=payment&token=" . $this->session->data['token'], "SSL"),
+			"href"      => $this->url->link("marketplace/extension", "type=payment&user_token=" . $this->session->data['user_token'], "SSL"),
 			"text"      => $this->language->get("text_payment"),
 			"separator" => ' :: ',
 		);
 
 		$data['breadcrumbs'][] = array(
-			"href"      => $this->url->link("extension/payment/mollie_" . static::MODULE_NAME, "token=" . $this->session->data['token'], "SSL"),
+			"href"      => $this->url->link("extension/payment/mollie_" . static::MODULE_NAME, "user_token=" . $this->session->data['user_token'], "SSL"),
 			"text"      => $this->language->get("heading_title"),
 			"separator" => " :: ",
 		);
 
 		// Form action url
-		$data['action'] = $this->url->link("extension/payment/mollie_" . static::MODULE_NAME, "token=" . $this->session->data['token'], "SSL");
-		$data['cancel'] = $this->url->link("extension/extension", "type=payment&token=" . $this->session->data['token'], "SSL");
+		$data['action'] = $this->url->link("extension/payment/mollie_" . static::MODULE_NAME, "user_token=" . $this->session->data['user_token'], "SSL");
+		$data['cancel'] = $this->url->link("marketplace/extension", "type=payment&user_token=" . $this->session->data['user_token'], "SSL");
 
 		// Load global settings. Some are prefixed with mollie_ideal_ for legacy reasons.
 		$settings = array(
-			"mollie_api_key"                    => NULL,
-			"mollie_ideal_description"          => "Order %",
-			"mollie_show_icons"                 => FALSE,
-			"mollie_show_order_canceled_page"   => TRUE,
-			"mollie_ideal_pending_status_id"    => 1,
-			"mollie_ideal_processing_status_id" => 2,
-			"mollie_ideal_canceled_status_id"   => 7,
-			"mollie_ideal_failed_status_id"     => 10,
-			"mollie_ideal_expired_status_id"    => 14,
+			"payment_mollie_api_key"                    => NULL,
+			"payment_mollie_ideal_description"          => "Order %",
+			"payment_mollie_show_icons"                 => FALSE,
+			"payment_mollie_show_order_canceled_page"   => TRUE,
+			"payment_mollie_ideal_pending_status_id"    => 1,
+			"payment_mollie_ideal_processing_status_id" => 2,
+			"payment_mollie_ideal_canceled_status_id"   => 7,
+			"payment_mollie_ideal_failed_status_id"     => 10,
+			"payment_mollie_ideal_expired_status_id"    => 14,
 		);
 
 		foreach($shops as $store)
@@ -390,7 +381,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 			catch (Mollie_API_Exception $e)
 			{
 				// If we have an unauthorized request, our API key is likely invalid.
-				if ($data['stores'][$store['id']]['mollie_api_key'] !== NULL && strpos($e->getMessage(), "Unauthorized request") >= 0)
+				if ($data['stores'][$store['id']]['payment_mollie_api_key'] !== NULL && strpos($e->getMessage(), "Unauthorized request") >= 0)
 				{
 					$data['stores'][$store['id']]['error_api_key'] = $this->language->get("error_api_key_invalid");
 				}
@@ -408,46 +399,91 @@ class ControllerExtensionPaymentMollieBase extends Controller
 				$payment_method['allowed'] = in_array($module_name, $allowed_methods);
 
 				// Load module specific settings.
-				if (isset($this->request->post['stores'][$store['id']]['mollie_' . $module_name . '_status']))
+				if (isset($this->request->post['stores'][$store['id']]['payment_mollie_' . $module_name . '_status']))
 				{
-					$payment_method['status'] = ($this->request->post['stores'][$store['id']]['mollie_' . $module_name . '_status'] == "on");
+					$payment_method['status'] = ($this->request->post['stores'][$store['id']]['payment_mollie_' . $module_name . '_status'] == "on");
 				}
 				else
 				{
-					$payment_method['status'] = (bool) isset($this->data['stores'][$store['id']]["mollie_" . $module_name . "_status"]) ? $this->data['stores'][$store['id']]["mollie_" . $module_name . "_status"] : null;
+					$payment_method['status'] = (bool) isset($this->data['stores'][$store['id']]["payment_mollie_" . $module_name . "_status"]) ? $this->data['stores'][$store['id']]["payment_mollie_" . $module_name . "_status"] : null;
 				}
 
-				if (isset($this->request->post['stores'][$store['id']]['mollie_' . $module_name . '_sort_order']))
+				if (isset($this->request->post['stores'][$store['id']]['payment_mollie_' . $module_name . '_sort_order']))
 				{
-					$payment_method['sort_order'] = $this->request->post['stores'][$store['id']]['mollie_' . $module_name . '_sort_order'];
+					$payment_method['sort_order'] = $this->request->post['stores'][$store['id']]['payment_mollie_' . $module_name . '_sort_order'];
 				}
 				else
 				{
-					$payment_method['sort_order'] = isset($this->data['stores'][$store['id']]["mollie_" . $module_name . "_sort_order"]) ? $this->data['stores'][$store['id']]["mollie_" . $module_name . "_sort_order"] : null;
+					$payment_method['sort_order'] = isset($this->data['stores'][$store['id']]["payment_mollie_" . $module_name . "_sort_order"]) ? $this->data['stores'][$store['id']]["payment_mollie_" . $module_name . "_sort_order"] : null;
+				}
+
+				if (isset($this->request->post['stores'][$store['id']]['payment_mollie_' . $module_name . '_geo_zone']))
+				{
+					$payment_method['geo_zone'] = $this->request->post['stores'][$store['id']]['payment_mollie_' . $module_name . '_geo_zone'];
+				}
+				else
+				{
+					$payment_method['geo_zone'] = isset($this->data['stores'][$store['id']]["payment_mollie_" . $module_name . "_geo_zone"]) ? $this->data['stores'][$store['id']]["payment_mollie_" . $module_name . "_geo_zone"] : null;
 				}
 
 				$data['stores'][$store['id']]['payment_methods'][$module_name] = $payment_method;
 			}
 			
 		}
-		
 
-		// Set different template for Opencart 2 as it uses Bootstrap and a left column
-		if ($this->isOpencart2())
-		{
-			$this->renderTemplate("extension/payment/mollie_2.tpl", $data, array(
-				"header",
-				"column_left",
-				"footer",
-			));
+		$this->renderTemplate("extension/payment/mollie", $data, array(
+			"header",
+			"column_left",
+			"footer",
+		));
+	}
+
+	public function validate_api_key()
+	{
+		$json = array(
+			'error' => false,
+			'invalid' => false,
+			'valid' => false,
+			'message' => '',
+		);
+
+		if (empty($this->request->get['key'])) {
+			$json['invalid'] = true;
+			$json['message'] = 'API client not found.';
+		} else {
+			try {
+				$client = MollieHelper::getAPIClientForKey($this->request->get['key']);
+
+				if (!$client) {
+					$json['invalid'] = true;
+					$json['message'] = 'API client not found.';
+				} else {
+					$client->methods->all();
+
+					$json['valid'] = true;
+					$json['message'] = 'Ok.';
+				}
+			} catch (Mollie_API_Exception_IncompatiblePlatform $e) {
+				$json['error'] = true;
+				$json['message'] = $e->getMessage() . ' You can ask your hosting provider to help with this.';
+			} catch (Mollie_API_Exception $e) {
+				$json['error'] = true;
+				$json['message'] = '<strong>Communicating with Mollie failed:</strong><br/>'
+					. htmlspecialchars($e->getMessage())
+					. '<br/><br/>'
+					. 'Please check the following conditions. You can ask your hosting provider to help with this.'
+					. '<ul>'
+					. '<li>Make sure outside connections to ' . ($client ? htmlspecialchars($client->getApiEndpoint()) : 'Mollie') . ' are not blocked.</li>'
+					. '<li>Make sure SSL v3 is disabled on your server. Mollie does not support SSL v3.</li>'
+					. '<li>Make sure your server is up-to-date and the latest security patches have been installed.</li>'
+					. '</ul><br/>'
+					. 'Contact <a href="mailto:info@mollie.nl">info@mollie.nl</a> if this still does not fix your problem.';
+			}
 		}
-		else
-		{
-			$this->renderTemplate("extension/payment/mollie.tpl", $data, array(
-				"header",
-				"footer",
-			));
-		}
+
+
+		$this->response->addHeader('Content-Type: application/json');
+		$this->response->setOutput(json_encode($json));
 	}
 
 	/**
@@ -462,12 +498,12 @@ class ControllerExtensionPaymentMollieBase extends Controller
 			$this->error['warning'] = $this->language->get("error_permission");
 		}
 
-		if (!$this->request->post['stores'][$store]['mollie_api_key'])
+		if (!$this->request->post['stores'][$store]['payment_mollie_api_key'])
 		{
 			$this->error[$store]['api_key'] = $this->language->get("error_api_key");
 		}
 
-		if (!$this->request->post['stores'][$store]['mollie_ideal_description'])
+		if (!$this->request->post['stores'][$store]['payment_mollie_ideal_description'])
 		{
 			$this->error[$store]['description'] = $this->language->get("error_description");
 		}
@@ -478,57 +514,25 @@ class ControllerExtensionPaymentMollieBase extends Controller
 	protected function checkModuleStatus ()
 	{
 		$need_files = array();
-		
-			if ($this->isOpencart22())
-			{
-			$mod_files  = array(
-				DIR_APPLICATION . "controller/extension/payment/mollie/base.php",
-				DIR_APPLICATION . "language/en-gb/extension/payment/mollie.php",
-				DIR_TEMPLATE . "extension/payment/mollie.tpl",
-				DIR_TEMPLATE . "extension/payment/mollie_2.tpl",
-				DIR_CATALOG . "controller/extension/payment/mollie-api-client/",
-				DIR_CATALOG . "controller/extension/payment/mollie/base.php",
-				DIR_CATALOG . "language/en-gb/extension/payment/mollie.php",
-				DIR_CATALOG . "model/extension/payment/mollie/base.php",
-				DIR_CATALOG . "view/theme/default/template/extension/payment/mollie_checkout_form.tpl",
-				DIR_CATALOG . "view/theme/default/template/extension/payment/mollie_return.tpl",
-				DIR_CATALOG . "view/theme/default/template/extension/payment/mollie_return_2.tpl",
-				);
-			}
-			else
-			{
-			$mod_files  = array(
-				DIR_APPLICATION . "controller/extension/payment/mollie/base.php",
-				DIR_APPLICATION . "language/english/extension/payment/mollie.php",
-				DIR_TEMPLATE . "extension/payment/mollie.tpl",
-				DIR_TEMPLATE . "extension/payment/mollie_2.tpl",
-				DIR_CATALOG . "controller/extension/payment/mollie-api-client/",
-				DIR_CATALOG . "controller/extension/payment/mollie/base.php",
-				DIR_CATALOG . "language/english/extension/payment/mollie.php",
-				DIR_CATALOG . "model/extension/payment/mollie/base.php",
-				DIR_CATALOG . "view/theme/default/template/extension/payment/mollie_checkout_form.tpl",
-				DIR_CATALOG . "view/theme/default/template/extension/payment/mollie_return.tpl",
-				DIR_CATALOG . "view/theme/default/template/extension/payment/mollie_return_2.tpl",
-				);
-			}
-		
+
+		$mod_files  = array(
+			DIR_APPLICATION . "controller/extension/payment/mollie/base.php",
+			DIR_APPLICATION . "language/en-gb/extension/payment/mollie.php",
+			DIR_TEMPLATE . "extension/payment/mollie.twig",
+			DIR_CATALOG . "controller/extension/payment/mollie-api-client/",
+			DIR_CATALOG . "controller/extension/payment/mollie/base.php",
+			DIR_CATALOG . "language/en-gb/extension/payment/mollie.php",
+			DIR_CATALOG . "model/extension/payment/mollie/base.php",
+			DIR_CATALOG . "view/theme/default/template/extension/payment/mollie_checkout_form.twig",
+			DIR_CATALOG . "view/theme/default/template/extension/payment/mollie_return.twig",
+		);
 
 		foreach (MollieHelper::$MODULE_NAMES as $module_name)
 		{
-			if ($this->isOpencart22())
-			{
 			$mod_files[] = DIR_APPLICATION . "controller/extension/payment/mollie_" . $module_name . ".php";
 			$mod_files[] = DIR_APPLICATION . "language/en-gb/extension/payment/mollie_" . $module_name . ".php";
 			$mod_files[] = DIR_CATALOG . "controller/extension/payment/mollie_" . $module_name . ".php";
 			$mod_files[] = DIR_CATALOG . "model/extension/payment/mollie_" . $module_name . ".php";
-			}
-			else
-			{
-			$mod_files[] = DIR_APPLICATION . "controller/extension/payment/mollie_" . $module_name . ".php";
-			$mod_files[] = DIR_APPLICATION . "language/english/extension/payment/mollie_" . $module_name . ".php";
-			$mod_files[] = DIR_CATALOG . "controller/extension/payment/mollie_" . $module_name . ".php";
-			$mod_files[] = DIR_CATALOG . "model/extension/payment/mollie_" . $module_name . ".php";
-			}
 		}
 
 		foreach ($mod_files as $file)
@@ -537,13 +541,13 @@ class ControllerExtensionPaymentMollieBase extends Controller
 
 			if (!file_exists($realpath))
 			{
-				$need_files[] = '<span style="color:red">' . $file . '</span>';
+				$need_files[] = '<span class="text-danger">' . $file . '</span>';
 			}
 		}
 
 		if (!MollieHelper::apiClientFound())
 		{
-			$need_files[] = '<span style="color:red">'
+			$need_files[] = '<span class="text-danger">'
 				. 'API client not found. Please make sure you have installed the module correctly. Use the download '
 				. 'button on the <a href="https://github.com/mollie/OpenCart/releases/latest" target="_blank">release page</a>'
 				. '</span>';
@@ -554,62 +558,45 @@ class ControllerExtensionPaymentMollieBase extends Controller
 			return $need_files;
 		}
 
-		return '<span style="color:green">OK</span>';
+		return '<span class="text-success">OK</span>';
 	}
 
 	/**
-	 * @param int $store The Store id
+	 * @param string|null
 	 * @return string
 	 */
-	protected function checkCommunicationStatus ($store = 0)
+	protected function checkCommunicationStatus ($api_key = null)
 	{
-		/*
-		 * Check API key
-		 */
-		$api_key = isset($this->data['stores'][$store]['mollie_api_key']) ? $this->data['stores'][$store]['mollie_api_key'] : null;
-
-		if (empty($api_key))
-		{
+		if (empty($api_key)) {
 			return '<span style="color:red">No API key provided. Please insert your API key.</span>';
 		}
 
-		$client = NULL;
+		try {
+			$client = MollieHelper::getAPIClientForKey($api_key);
 
-		/*
-		 * Test compatibility + communication
-		 */
-		try
-		{
-			$client = $this->getAPIClient($store);
-
-			if (!$client)
-			{
+			if (!$client) {
 				return '<span style="color:red">API client not found.</span>';
 			}
 
 			$client->methods->all();
 
 			return '<span style="color: green">OK</span>';
-		}
-		catch (Mollie_API_Exception_IncompatiblePlatform $e)
-		{
+		} catch (Mollie_API_Exception_IncompatiblePlatform $e) {
 			return '<span style="color:red">' . $e->getMessage() . ' You can ask your hosting provider to help with this.</span>';
-		}
-		catch (Mollie_API_Exception $e)
-		{
+		} catch (Mollie_API_Exception $e) {
 			return '<span style="color:red">'
-			. '<strong>Communicating with Mollie failed:</strong><br/>'
-			. htmlspecialchars($e->getMessage())
-			. '</span><br/><br/>'
+				. '<strong>Communicating with Mollie failed:</strong><br/>'
+				. htmlspecialchars($e->getMessage())
+				. '</span><br/><br/>'
 
-			. 'Please check the following conditions. You can ask your hosting provider to help with this.'
-			. '<ul>'
-			. '<li>Make sure outside connections to ' . ($client ? htmlspecialchars($client->getApiEndpoint()) : 'Mollie') . ' are not blocked.</li>'
-			. '<li>Make sure SSL v3 is disabled on your server. Mollie does not support SSL v3.</li>'
-			. '<li>Make sure your server is up-to-date and the latest security patches have been installed.</li>'
-			. '</ul><br/>'
+				. 'Please check the following conditions. You can ask your hosting provider to help with this.'
+				. '<ul>'
+				. '<li>Make sure outside connections to ' . ($client ? htmlspecialchars($client->getApiEndpoint()) : 'Mollie') . ' are not blocked.</li>'
+				. '<li>Make sure SSL v3 is disabled on your server. Mollie does not support SSL v3.</li>'
+				. '<li>Make sure your server is up-to-date and the latest security patches have been installed.</li>'
+				. '</ul><br/>'
 
-			. 'Contact <a href="mailto:info@mollie.nl">info@mollie.nl</a> if this still does not fix your problem.';
+				. 'Contact <a href="mailto:info@mollie.nl">info@mollie.nl</a> if this still does not fix your problem.';
 		}
 	}
 
@@ -623,33 +610,12 @@ class ControllerExtensionPaymentMollieBase extends Controller
 	 */
 	protected function renderTemplate ($template, $data, $common_children = array(), $echo = TRUE)
 	{
-		if ($this->isOpencart2())
+		foreach ($common_children as $child)
 		{
-			foreach ($common_children as $child)
-			{
-				$data[$child] = $this->load->controller("common/" . $child);
-			}
-
-			$html = $this->load->view($template, $data);
+			$data[$child] = $this->load->controller("common/" . $child);
 		}
-		else
-		{
-			foreach ($data as $field => $value)
-			{
-				$this->data[$field] = $value;
-			}
 
-			$this->template = $template;
-
-			$this->children = array();
-
-			foreach ($common_children as $child)
-			{
-				$this->children[] = "common/" . $child;
-			}
-
-			$html = $this->render();
-		}
+		$html = $this->load->view($template, $data);
 
 		if ($echo)
 		{
@@ -665,27 +631,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 	 */
 	protected function redirect ($url, $status = 302)
 	{
-		if ($this->isOpencart2())
-		{
-			$this->response->redirect($url, $status);
-		}
-		else
-		{
-			parent::redirect($url, $status);
-		}
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function isOpencart2 ()
-	{
-		return version_compare(VERSION, 2, ">=");
-	}
-	
-	protected function isOpencart22 ()
-	{
-		return version_compare(VERSION, 2.2, ">=");
+		$this->response->redirect($url, $status);
 	}
 
 	/**

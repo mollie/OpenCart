@@ -47,7 +47,7 @@ $_['text_mollie_sofort']       = $method_list_logo;
 
 // Heading
 $_['heading_title']           = "Mollie";
-$_['title_global_options']    = "Options for all Mollie modules";
+$_['title_global_options']    = "Settings";
 $_['title_payment_status']    = "Payment statuses";
 $_['title_mod_about']         = "About this module";
 $_['footer_text']             = "Payment services";
@@ -82,6 +82,7 @@ $_['entry_api_key']                  = "API key";
 $_['entry_description']              = "Description";
 $_['entry_show_icons']               = "Show icons";
 $_['entry_show_order_canceled_page'] = "Show message if payment is cancelled";
+$_['entry_geo_zone']                 = "Geo Zone";
 
 // Help
 $_['help_view_profile']             = 'You can find your API key in <a href="https://www.mollie.com/beheer/account/profielen/" target="_blank" class="alert-link">your Mollie website profiles</a>.';

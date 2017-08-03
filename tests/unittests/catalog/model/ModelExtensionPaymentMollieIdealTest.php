@@ -108,9 +108,9 @@ class ModelExtensionPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
 			->method("getMaximumAmount")
 			->willReturn(200);
 
-		$return_50  = $this->model->getMethod("some address", 50);
-		$return_150 = $this->model->getMethod("some address", 150);
-		$return_250 = $this->model->getMethod("some address", 250);
+		$return_50  = $this->model->getMethod(array('zone_id'=>1, 'country_id'=>1), 50);
+		$return_150 = $this->model->getMethod(array('zone_id'=>1, 'country_id'=>1), 150);
+		$return_250 = $this->model->getMethod(array('zone_id'=>1, 'country_id'=>1), 250);
 
 		$this->assertNull($return_50);
 		$this->assertNotNull($return_150);

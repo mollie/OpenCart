@@ -1,8 +1,8 @@
 <?php
 class MollieHelper
 {
-    // Plugin only for Opencart >= 2.3
-	const PLUGIN_VERSION = "7.2.0";
+    // Plugin only for Opencart >= 3.0
+	const PLUGIN_VERSION = "8.0.0";
 
 	// All available modules. These should correspond to the Mollie_API_Object_Method constants.
 	const MODULE_NAME_BANKTRANSFER = "banktransfer";
@@ -57,7 +57,7 @@ class MollieHelper
 
 			$mollie = new Mollie_API_Client;
 
-			$mollie->setApiKey($config->get('mollie_api_key'));
+			$mollie->setApiKey($config->get('payment_mollie_api_key'));
 
 			$mollie->addVersionString("OpenCart/" . VERSION);
 			$mollie->addVersionString("MollieOpenCart/" . self::PLUGIN_VERSION);
@@ -81,7 +81,21 @@ class MollieHelper
 
 		$mollie = new Mollie_API_Client;
 
-		$mollie->setApiKey(isset($config['mollie_api_key']) ? $config['mollie_api_key'] : null);
+		$mollie->setApiKey(isset($config['payment_mollie_api_key']) ? $config['payment_mollie_api_key'] : null);
+
+		$mollie->addVersionString("OpenCart/" . VERSION);
+		$mollie->addVersionString("MollieOpenCart/" . self::PLUGIN_VERSION);
+
+		return $mollie;
+	}
+
+	public static function getAPIClientForKey($key = null)
+	{
+		require_once(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/extension/payment/mollie-api-client/src/Mollie/API/Autoloader.php");
+
+		$mollie = new Mollie_API_Client;
+
+		$mollie->setApiKey(!empty($key) ? $key : null);
 
 		$mollie->addVersionString("OpenCart/" . VERSION);
 		$mollie->addVersionString("MollieOpenCart/" . self::PLUGIN_VERSION);
