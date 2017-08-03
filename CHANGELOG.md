@@ -2,6 +2,11 @@
 
 # Changelog #
 
+#### Changes in release 8.0.0
+  + Convert module to work with OpenCart 3.x.x.x only (soon to be backported).
+  + Addition of geo-zone selection per payment method.
+  + Adjusted admin interface to declutter the view.
+
 #### Changes in release 7.2.0
   + Add helpful method: `getPaymentID()`
   + Double check payment status in callback - uses new `getPaymentID()` method
