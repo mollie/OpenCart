@@ -5,17 +5,24 @@ class MollieHelper
 	const PLUGIN_VERSION = "8.0.0";
 
 	// All available modules. These should correspond to the Mollie_API_Object_Method constants.
-	const MODULE_NAME_BANKTRANSFER = "banktransfer";
-	const MODULE_NAME_BELFIUS      = "belfius";
-	const MODULE_NAME_BITCOIN      = "bitcoin";
-	const MODULE_NAME_CREDITCARD   = "creditcard";
-	const MODULE_NAME_DIRECTDEBIT  = "directdebit";
-	const MODULE_NAME_IDEAL        = "ideal";
-	const MODULE_NAME_MISTERCASH   = "mistercash";
-	const MODULE_NAME_PAYPAL       = "paypal";
-	const MODULE_NAME_PAYSAFECARD  = "paysafecard";
-	const MODULE_NAME_SOFORT       = "sofort";
-	const MODULE_NAME_KBC          = "kbc";
+	const MODULE_NAME_BANKTRANSFER                = "banktransfer";
+	const MODULE_NAME_BELFIUS                     = "belfius";
+	const MODULE_NAME_BITCOIN                     = "bitcoin";
+	const MODULE_NAME_CREDITCARD                  = "creditcard";
+	const MODULE_NAME_DIRECTDEBIT                 = "directdebit";
+	const MODULE_NAME_IDEAL                       = "ideal";
+	const MODULE_NAME_MISTERCASH                  = "mistercash";
+	const MODULE_NAME_PAYPAL                      = "paypal";
+	const MODULE_NAME_PAYSAFECARD                 = "paysafecard";
+	const MODULE_NAME_SOFORT                      = "sofort";
+	const MODULE_NAME_KBC                         = "kbc";
+	const MODULE_NAME_FASHIONCHEQUE               = "fashioncheque";
+	const MODULE_NAME_NATIONALE_ENTERTAINMENTCARD = "nationaleentertainmentcard";
+	const MODULE_NAME_PODIUMCADEAUKAART           = "podiumcadeaukaart";
+	const MODULE_NAME_VVV_GIFTCARD                = "vvvgiftcard";
+	const MODULE_NAME_WEBSHOP_GIFTCARD            = "webshopgiftcard";
+	const MODULE_NAME_YOURGIFT                    = "yourgift";
+
 
 	// List of all available module names.
 	static public $MODULE_NAMES = array(
@@ -30,6 +37,12 @@ class MollieHelper
 		self::MODULE_NAME_PAYSAFECARD,
 		self::MODULE_NAME_SOFORT,
 		self::MODULE_NAME_KBC,
+		self::MODULE_NAME_FASHIONCHEQUE,
+		self::MODULE_NAME_NATIONALE_ENTERTAINMENTCARD,
+		self::MODULE_NAME_PODIUMCADEAUKAART,
+		self::MODULE_NAME_VVV_GIFTCARD,
+		self::MODULE_NAME_WEBSHOP_GIFTCARD,
+		self::MODULE_NAME_YOURGIFT,
 	);
 
 	static protected $api_client;

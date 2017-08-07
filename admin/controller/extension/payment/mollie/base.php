@@ -86,6 +86,9 @@ class ControllerExtensionPaymentMollieBase extends Controller
 				DB_PREFIX
 			));
 
+		// Alter the extension table to support all our extensions.
+		$this->db->query("ALTER TABLE `" . DB_PREFIX . "extension` CHANGE COLUMN `code` `code` VARCHAR(64) NOT NULL AFTER `type`;");
+
 		// Just install all modules while we're at it.
 		$this->installAllModules();
 	}
