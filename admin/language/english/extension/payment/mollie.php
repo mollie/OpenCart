@@ -1,28 +1,28 @@
 <?php
 /**
  * Copyright (c) 2012-2015, Mollie B.V.
- * All rights reserved. 
- * 
- * Redistribution and use in source and binary forms, with or without 
- * modification, are permitted provided that the following conditions are met: 
- * 
- * - Redistributions of source code must retain the above copyright notice, 
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * - Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
- * - Redistributions in binary form must reproduce the above copyright 
+ * - Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND ANY 
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
- * DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE FOR ANY 
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY 
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH 
- * DAMAGE. 
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
  *
  * @package     Mollie
  * @license     Berkeley Software Distribution License (BSD-License 2) http://www.opensource.org/licenses/bsd-license.php
@@ -33,23 +33,18 @@
 
 // These are called automatically by the Payment modules list - do not change the names
 $method_list_logo              = '<a href="https://www.mollie.com" target="_blank"><img src="https://www.mollie.com/images/logo.png" alt="Mollie" title="Mollie" style="border:0px" /></a>';
-$_['text_mollie_banktransfer']                = $method_list_logo;
-$_['text_mollie_belfius']                     = $method_list_logo;
-$_['text_mollie_bitcoin']                     = $method_list_logo;
-$_['text_mollie_creditcard']                  = $method_list_logo;
-$_['text_mollie_directdebit']                 = $method_list_logo;
-$_['text_mollie_ideal']                       = $method_list_logo;
-$_['text_mollie_kbc']                         = $method_list_logo;
-$_['text_mollie_mistercash']                  = $method_list_logo;
-$_['text_mollie_paypal']                      = $method_list_logo;
-$_['text_mollie_paysafecard']                 = $method_list_logo;
-$_['text_mollie_sofort']                      = $method_list_logo;
-$_['text_mollie_fashioncheque']               = $method_list_logo;
-$_['text_mollie_nationaleentertainmentcard']  = $method_list_logo;
-$_['text_mollie_podiumcadeaukaart']           = $method_list_logo;
-$_['text_mollie_vvvgiftcard']                 = $method_list_logo;
-$_['text_mollie_webshopgiftcard']             = $method_list_logo;
-$_['text_mollie_yourgift']                    = $method_list_logo;
+$_['text_mollie_banktransfer']  = $method_list_logo;
+$_['text_mollie_belfius']       = $method_list_logo;
+$_['text_mollie_bitcoin']       = $method_list_logo;
+$_['text_mollie_creditcard']    = $method_list_logo;
+$_['text_mollie_directdebit']   = $method_list_logo;
+$_['text_mollie_ideal']         = $method_list_logo;
+$_['text_mollie_kbc']           = $method_list_logo;
+$_['text_mollie_mistercash']    = $method_list_logo;
+$_['text_mollie_paypal']        = $method_list_logo;
+$_['text_mollie_paysafecard']   = $method_list_logo;
+$_['text_mollie_sofort']        = $method_list_logo;
+$_['text_mollie_giftcard']      = $method_list_logo;
 
 // Heading
 $_['heading_title']           = "Mollie";
@@ -59,23 +54,18 @@ $_['title_mod_about']         = "About this module";
 $_['footer_text']             = "Payment services";
 
 // Module names
-$_['name_mollie_banktransfer']               = "Bank transfer";
-$_['name_mollie_belfius']                    = "Belfius Direct Net";
-$_['name_mollie_bitcoin']                    = "Bitcoin";
-$_['name_mollie_creditcard']                 = "Creditcard";
-$_['name_mollie_directdebit']                = "Direct debit";
-$_['name_mollie_ideal']                      = "iDEAL";
-$_['name_mollie_kbc']                        = "KBC/CBC Payment Button";
-$_['name_mollie_mistercash']                 = "Bancontact/MisterCash";
-$_['name_mollie_paypal']                     = "PayPal";
-$_['name_mollie_paysafecard']                = "paysafecard";
-$_['name_mollie_sofort']                     = "SOFORT Banking";
-$_['name_mollie_fashioncheque']              = 'fashioncheque';
-$_['name_mollie_nationaleentertainmentcard'] = 'Nationale Entertainmentcard';
-$_['name_mollie_podiumcadeaukaart']          = 'Podium Cadeaukaart';
-$_['name_mollie_vvvgiftcard']                = 'VVV Giftcard';
-$_['name_mollie_webshopgiftcard']            = 'Webshop Giftcard';
-$_['name_mollie_yourgift']                   = 'YourGift';
+$_['name_mollie_banktransfer']  = "Bank transfer";
+$_['name_mollie_belfius']       = "Belfius Direct Net";
+$_['name_mollie_bitcoin']       = "Bitcoin";
+$_['name_mollie_creditcard']    = "Creditcard";
+$_['name_mollie_directdebit']   = "Direct debit";
+$_['name_mollie_ideal']         = "iDEAL";
+$_['name_mollie_kbc']           = "KBC/CBC Payment Button";
+$_['name_mollie_mistercash']    = "Bancontact/MisterCash";
+$_['name_mollie_paypal']        = "PayPal";
+$_['name_mollie_paysafecard']   = "paysafecard";
+$_['name_mollie_sofort']        = "SOFORT Banking";
+$_['name_mollie_giftcard']      = 'Giftcard';
 
 // Text
 $_['text_edit']                    = "Edit";
