@@ -36,12 +36,13 @@
  */
 
 // Text
-$_['heading_title']      = 'Paiement par Mollie';
-$_['ideal_title']        = 'Votre paiement';
-$_['text_title']         = 'Payez en ligne';
-$_['text_redirected']    = 'Le client a été renvoyé à l\'écran de paiement';
-$_['text_issuer']        = 'Selectionnez votre banque:';
-$_['button_retry']       = 'Retour à la page de paiement';
+$_['heading_title']         = 'Paiement par Mollie';
+$_['ideal_title']           = 'Votre paiement';
+$_['text_title']            = 'Payez en ligne';
+$_['text_redirected']       = 'Le client a été renvoyé à l\'écran de paiement';
+$_['text_issuer_ideal']     = 'Selectionnez votre banque:';
+$_['text_issuer_giftcard']  = 'Sélectionnez votre carte-cadeau:';
+$_['button_retry']          = 'Retour à la page de paiement';
 
 // Status page: payment failed (e.g. cancelled).
 $_['heading_failed']     = 'Votre paiement n\'a pas été achevée';

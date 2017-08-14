@@ -122,34 +122,18 @@ class ControllerExtensionPaymentMollieBase extends Controller
 	{
 		$this->load->language("extension/payment/mollie");
 
+		$payment_method = $this->getAPIClient()->methods->get(static::MODULE_NAME, array('include' => 'issuers'));
+
 		// Set template data.
 		$data['action'] = $this->url->link("extension/payment/mollie_" . static::MODULE_NAME . "/payment", "", "SSL");
+		$data['image'] = $payment_method->image->normal;
 		$data['message'] = $this->language;
-		$data['issuers'] = $this->getIssuers();
-		$data['text_issuer'] = $this->language->get("text_issuer");
+		$data['issuers'] = isset($payment_method->issuers) ? $payment_method->issuers : array();
+		$data['text_issuer'] = $this->language->get("text_issuer_" . static::MODULE_NAME);
 		$data['set_issuer_url'] = $this->url->link("extension/payment/mollie_" . static::MODULE_NAME . "/set_issuer", "", "SSL");
 
 		// Return HTML output - it will get appended to confirm.tpl.
 		return $this->renderTemplate("mollie_checkout_form", $data, array(), false);
-	}
-
-	/**
-	 * Get all issuers for the current payment method.
-	 *
-	 * @return array
-	 */
-	public function getIssuers()
-	{
-		$issuers = $this->getAPIClient()->issuers->all();
-		$issuers_for_method = array();
-
-		foreach ($issuers as $issuer) {
-			if ($issuer->method == static::MODULE_NAME) {
-				$issuers_for_method[] = $issuer;
-			}
-		}
-
-		return $issuers_for_method;
 	}
 
 	/**
