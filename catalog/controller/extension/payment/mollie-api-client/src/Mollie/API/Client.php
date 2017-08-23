@@ -7,10 +7,10 @@
  * modification, are permitted provided that the following conditions are met:
  *
  * - Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
+ *	this list of conditions and the following disclaimer.
  * - Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
+ *	notice, this list of conditions and the following disclaimer in the
+ *	documentation and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -24,17 +24,17 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  *
- * @license     Berkeley Software Distribution License (BSD-License 2) http://www.opensource.org/licenses/bsd-license.php
- * @author      Mollie B.V. <info@mollie.com>
+ * @license	 Berkeley Software Distribution License (BSD-License 2) http://www.opensource.org/licenses/bsd-license.php
+ * @author	  Mollie B.V. <info@mollie.com>
  * @copyright   Mollie B.V.
- * @link        https://www.mollie.com
+ * @link		https://www.mollie.com
  */
 class Mollie_API_Client
 {
 	/**
 	 * Version of our client.
 	 */
-	const CLIENT_VERSION = "1.7.1";
+	const CLIENT_VERSION = "1.9.1";
 
 	/**
 	 * Endpoint of the remote API.
@@ -46,9 +46,11 @@ class Mollie_API_Client
 	 */
 	const API_VERSION = "v1";
 
-	const HTTP_GET    = "GET";
+	const HTTP_GET	= "GET";
 	const HTTP_POST   = "POST";
 	const HTTP_DELETE = "DELETE";
+
+	const HTTP_STATUS_NO_CONTENT = 204;
 
 	/**
 	 * @var string
@@ -177,6 +179,11 @@ class Mollie_API_Client
 	protected $pem_path;
 
 	/**
+	 * @var int
+	 */
+	protected $last_http_response_status_code;
+
+	/**
 	 * @throws Mollie_API_Exception_IncompatiblePlatform
 	 */
 	public function __construct ()
@@ -184,21 +191,22 @@ class Mollie_API_Client
 		$this->getCompatibilityChecker()
 			->checkCompatibility();
 
-		$this->payments                = new Mollie_API_Resource_Payments($this);
-		$this->payments_refunds        = new Mollie_API_Resource_Payments_Refunds($this);
-		$this->issuers                 = new Mollie_API_Resource_Issuers($this);
-		$this->methods                 = new Mollie_API_Resource_Methods($this);
-		$this->customers               = new Mollie_API_Resource_Customers($this);
-		$this->customers_payments      = new Mollie_API_Resource_Customers_Payments($this);
-		$this->customers_mandates      = new Mollie_API_Resource_Customers_Mandates($this);
+		$this->payments				= new Mollie_API_Resource_Payments($this);
+		$this->payments_refunds		= new Mollie_API_Resource_Payments_Refunds($this);
+		$this->issuers				 = new Mollie_API_Resource_Issuers($this);
+		$this->methods				 = new Mollie_API_Resource_Methods($this);
+		$this->customers			   = new Mollie_API_Resource_Customers($this);
+		$this->customers_payments	  = new Mollie_API_Resource_Customers_Payments($this);
+		$this->customers_mandates	  = new Mollie_API_Resource_Customers_Mandates($this);
 		$this->customers_subscriptions = new Mollie_API_Resource_Customers_Subscriptions($this);
 
 		// OAuth2 endpoints
-		$this->permissions      = new Mollie_API_Resource_Permissions($this);
-		$this->organizations    = new Mollie_API_Resource_Organizations($this);
-		$this->refunds          = new Mollie_API_Resource_Refunds($this);
-		$this->profiles         = new Mollie_API_Resource_Profiles($this);
-		$this->settlements      = new Mollie_API_Resource_Settlements($this);
+		$this->permissions	  = new Mollie_API_Resource_Permissions($this);
+		$this->organizations	= new Mollie_API_Resource_Organizations($this);
+		$this->refunds		  = new Mollie_API_Resource_Refunds($this);
+		$this->profiles		 = new Mollie_API_Resource_Profiles($this);
+		$this->profiles_apikeys = new Mollie_API_Resource_Profiles_APIKeys($this);
+		$this->settlements	  = new Mollie_API_Resource_Settlements($this);
 
 		$curl_version = curl_version();
 
@@ -247,12 +255,12 @@ class Mollie_API_Client
 	{
 		$api_key = trim($api_key);
 
-		if (!preg_match('/^(live|test)_\w+$/', $api_key))
+		if (!preg_match('/^(live|test)_\w{30,}$/', $api_key))
 		{
 			throw new Mollie_API_Exception("Invalid API key: '{$api_key}'. An API key must start with 'test_' or 'live_'.");
 		}
 
-		$this->api_key      = $api_key;
+		$this->api_key	  = $api_key;
 		$this->oauth_access = FALSE;
 	}
 
@@ -269,7 +277,7 @@ class Mollie_API_Client
 			throw new Mollie_API_Exception("Invalid OAuth access token: '{$access_token}'. An access token must start with 'access_'.");
 		}
 
-		$this->api_key      = $access_token;
+		$this->api_key	  = $access_token;
 		$this->oauth_access = TRUE;
 	}
 
@@ -342,6 +350,7 @@ class Mollie_API_Client
 		curl_setopt($this->ch, CURLOPT_URL, $url);
 		curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, TRUE);
 		curl_setopt($this->ch, CURLOPT_TIMEOUT, 10);
+		curl_setopt($this->ch, CURLOPT_ENCODING, "");
 
 		$user_agent = join(' ', $this->version_strings);
 
@@ -369,7 +378,7 @@ class Mollie_API_Client
 
 		curl_setopt($this->ch, CURLOPT_HTTPHEADER, $request_headers);
 		curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, 2);
-		curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, TRUE);
+		curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, true);
 
 		/*
 		 * On some servers, the list of installed certificates is outdated or not present at all (the ca-bundle.crt
@@ -379,25 +388,13 @@ class Mollie_API_Client
 
 		$body = curl_exec($this->ch);
 
-		if (strpos(curl_error($this->ch), "certificate subject name 'mollie.nl' does not match target host") !== FALSE)
-		{
-			/*
-			 * On some servers, the wildcard SSL certificate is not processed correctly. This happens with OpenSSL 0.9.7
-			 * from 2003.
-			 */
-			$request_headers[] = "X-Mollie-Debug: old OpenSSL found";
-			curl_setopt($this->ch, CURLOPT_HTTPHEADER, $request_headers);
-			curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, 0);
-			$body = curl_exec($this->ch);
-		}
+		$this->last_http_response_status_code = (int) curl_getinfo($this->ch, CURLINFO_HTTP_CODE);
 
 		if (curl_errno($this->ch))
 		{
 			$message = "Unable to communicate with Mollie (".curl_errno($this->ch)."): " . curl_error($this->ch) . ".";
 
-			curl_close($this->ch);
-			$this->ch = NULL;
-
+			$this->closeTcpConnection();
 			throw new Mollie_API_Exception($message);
 		}
 
@@ -406,11 +403,22 @@ class Mollie_API_Client
 			/*
 			 * Keep it open if supported by PHP, else close the handle.
 			 */
-			curl_close($this->ch);
-			$this->ch = NULL;
+			$this->closeTcpConnection();
 		}
 
 		return $body;
+	}
+
+	/**
+	 * Close the TCP connection to the Mollie API.
+	 */
+	private function closeTcpConnection ()
+	{
+		if (is_resource($this->ch))
+		{
+			curl_close($this->ch);
+			$this->ch = null;
+		}
 	}
 
 	/**
@@ -418,10 +426,7 @@ class Mollie_API_Client
 	 */
 	public function __destruct ()
 	{
-		if (is_resource($this->ch))
-		{
-			curl_close($this->ch);
-		}
+		$this->closeTcpConnection();
 	}
 
 	/**
@@ -438,5 +443,15 @@ class Mollie_API_Client
 		}
 
 		return $checker;
+	}
+
+	/**
+	 * @deprecated Do not use this method, it should only be used internally
+	 *
+	 * @return int
+	 */
+	public function getLastHttpResponseStatusCode ()
+	{
+		return $this->last_http_response_status_code;
 	}
 }

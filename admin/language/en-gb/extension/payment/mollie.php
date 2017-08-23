@@ -33,17 +33,18 @@
 
 // These are called automatically by the Payment modules list - do not change the names
 $method_list_logo              = '<a href="https://www.mollie.com" target="_blank"><img src="https://www.mollie.com/images/logo.png" alt="Mollie" title="Mollie" style="border:0px" /></a>';
-$_['text_mollie_banktransfer'] = $method_list_logo;
-$_['text_mollie_belfius']      = $method_list_logo;
-$_['text_mollie_bitcoin']      = $method_list_logo;
-$_['text_mollie_creditcard']   = $method_list_logo;
-$_['text_mollie_directdebit']  = $method_list_logo;
-$_['text_mollie_ideal']        = $method_list_logo;
-$_['text_mollie_kbc']          = $method_list_logo;
-$_['text_mollie_mistercash']   = $method_list_logo;
-$_['text_mollie_paypal']       = $method_list_logo;
-$_['text_mollie_paysafecard']  = $method_list_logo;
-$_['text_mollie_sofort']       = $method_list_logo;
+$_['text_mollie_banktransfer']  = $method_list_logo;
+$_['text_mollie_belfius']       = $method_list_logo;
+$_['text_mollie_bitcoin']       = $method_list_logo;
+$_['text_mollie_creditcard']    = $method_list_logo;
+$_['text_mollie_directdebit']   = $method_list_logo;
+$_['text_mollie_ideal']         = $method_list_logo;
+$_['text_mollie_kbc']           = $method_list_logo;
+$_['text_mollie_mistercash']    = $method_list_logo;
+$_['text_mollie_paypal']        = $method_list_logo;
+$_['text_mollie_paysafecard']   = $method_list_logo;
+$_['text_mollie_sofort']        = $method_list_logo;
+$_['text_mollie_giftcard']      = $method_list_logo;
 
 // Heading
 $_['heading_title']           = "Mollie";
@@ -53,18 +54,18 @@ $_['title_mod_about']         = "About this module";
 $_['footer_text']             = "Payment services";
 
 // Module names
-$_['name_mollie_banktransfer'] = "Bank transfer";
-$_['name_mollie_belfius']      = "Belfius Direct Net";
-$_['name_mollie_bitcoin']      = "Bitcoin";
-$_['name_mollie_creditcard']   = "Creditcard";
-$_['name_mollie_directdebit']  = "Direct debit";
-$_['name_mollie_ideal']        = "iDEAL";
-$_['name_mollie_kbc']          = "KBC/CBC Payment Button";
-$_['name_mollie_mistercash']   = "Bancontact/MisterCash";
-$_['name_mollie_paypal']       = "PayPal";
-$_['name_mollie_paysafecard']  = "paysafecard";
-$_['name_mollie_sofort']       = "SOFORT Banking";
-
+$_['name_mollie_banktransfer']  = "Bank transfer";
+$_['name_mollie_belfius']       = "Belfius Direct Net";
+$_['name_mollie_bitcoin']       = "Bitcoin";
+$_['name_mollie_creditcard']    = "Creditcard";
+$_['name_mollie_directdebit']   = "Direct debit";
+$_['name_mollie_ideal']         = "iDEAL";
+$_['name_mollie_kbc']           = "KBC/CBC Payment Button";
+$_['name_mollie_mistercash']    = "Bancontact/MisterCash";
+$_['name_mollie_paypal']        = "PayPal";
+$_['name_mollie_paysafecard']   = "paysafecard";
+$_['name_mollie_sofort']        = "SOFORT Banking";
+$_['name_mollie_giftcard']      = 'Giftcard';
 // Text
 $_['text_edit']                    = "Edit";
 $_['text_payment']                 = "Payment";

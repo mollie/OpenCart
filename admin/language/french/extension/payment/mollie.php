@@ -33,17 +33,18 @@
 
 // These are called automatically by the Payment modules list - do not change the names
 $method_list_logo              = '<a href="https://www.mollie.com" target="_blank"><img src="https://www.mollie.com/images/logo.png" alt="Mollie" title="Mollie" style="border:0px" /></a>';
-$_['text_mollie_banktransfer'] = $method_list_logo;
-$_['text_mollie_belfius']      = $method_list_logo;
-$_['text_mollie_bitcoin']      = $method_list_logo;
-$_['text_mollie_creditcard']   = $method_list_logo;
-$_['text_mollie_directdebit']  = $method_list_logo;
-$_['text_mollie_ideal']        = $method_list_logo;
-$_['text_mollie_kbc']          = $method_list_logo;
-$_['text_mollie_mistercash']   = $method_list_logo;
-$_['text_mollie_paypal']       = $method_list_logo;
-$_['text_mollie_paysafecard']  = $method_list_logo;
-$_['text_mollie_sofort']       = $method_list_logo;
+$_['text_mollie_banktransfer']  = $method_list_logo;
+$_['text_mollie_belfius']       = $method_list_logo;
+$_['text_mollie_bitcoin']       = $method_list_logo;
+$_['text_mollie_creditcard']    = $method_list_logo;
+$_['text_mollie_directdebit']   = $method_list_logo;
+$_['text_mollie_ideal']         = $method_list_logo;
+$_['text_mollie_kbc']           = $method_list_logo;
+$_['text_mollie_mistercash']    = $method_list_logo;
+$_['text_mollie_paypal']        = $method_list_logo;
+$_['text_mollie_paysafecard']   = $method_list_logo;
+$_['text_mollie_sofort']        = $method_list_logo;
+$_['text_mollie_giftcard']      = $method_list_logo;
 
 // Heading
 $_['heading_title']           = "Mollie";
@@ -53,17 +54,19 @@ $_['title_mod_about']         = "Sur ce module";
 $_['footer_text']             = "Services paiement";
 
 // Module names
-$_['name_mollie_banktransfer'] = "Virement bancaire";
-$_['name_mollie_belfius']      = "Belfius Direct Net";
-$_['name_mollie_bitcoin']      = "Bitcoin";
-$_['name_mollie_creditcard']   = "Creditcard";
-$_['name_mollie_directdebit']  = "Débit direct";
-$_['name_mollie_ideal']        = "iDEAL";
-$_['name_mollie_kbc']          = "Bouton de paiement KBC/CBC";
-$_['name_mollie_mistercash']   = "Bancontact/MisterCash";
-$_['name_mollie_paypal']       = "PayPal";
-$_['name_mollie_paysafecard']  = "paysafecard";
-$_['name_mollie_sofort']       = "SOFORT Banking";
+$_['name_mollie_banktransfer']  = "Virement bancaire";
+$_['name_mollie_belfius']       = "Belfius Direct Net";
+$_['name_mollie_bitcoin']       = "Bitcoin";
+$_['name_mollie_creditcard']    = "Creditcard";
+$_['name_mollie_directdebit']   = "Débit direct";
+$_['name_mollie_ideal']         = "iDEAL";
+$_['name_mollie_kbc']           = "Bouton de paiement KBC/CBC";
+$_['name_mollie_mistercash']    = "Bancontact/MisterCash";
+$_['name_mollie_paypal']        = "PayPal";
+$_['name_mollie_paysafecard']   = "paysafecard";
+$_['name_mollie_sofort']        = "SOFORT Banking";
+$_['name_mollie_giftcard']      = 'Giftcard';
+
 
 // Text
 $_['text_edit']                    = "Éditer Mollie";
@@ -82,7 +85,6 @@ $_['entry_api_key']                  = "Clé API";
 $_['entry_description']              = "Description";
 $_['entry_show_icons']               = "Afficher des icônes";
 $_['entry_show_order_canceled_page'] = "Afficher un message si le paiement est annulé";
-$_['entry_geo_zone']                 = "Geo Zone";
 
 // Help
 $_['help_view_profile']             = 'Vous pouvez trouver votre clé API dans <a href="https://www.mollie.com/beheer/account/profielen/" target="_blank" class="alert-link">vos profils de site à Mollie</a>.';

@@ -36,12 +36,13 @@
  */
 
 // Text
-$_['heading_title']      = 'Payment by Mollie';
-$_['ideal_title']        = 'Your payment';
-$_['text_title']         = 'Pay online';
-$_['text_redirected']    = 'The client has been referred to the payment screen';
-$_['text_issuer']        = 'Select your bank';
-$_['button_retry']       = 'Return to checkout page';
+$_['heading_title']         = 'Payment by Mollie';
+$_['ideal_title']           = 'Your payment';
+$_['text_title']            = 'Pay online';
+$_['text_redirected']       = 'The client has been referred to the payment screen';
+$_['text_issuer_ideal']     = 'Select your bank';
+$_['text_issuer_giftcard']  = 'Select your giftcard';
+$_['button_retry']          = 'Return to checkout page';
 
 // Status page: payment failed (e.g. cancelled).
 $_['heading_failed']     = 'Your payment has not been completed';
@@ -64,14 +65,15 @@ $_['response_expired']   = 'The payment has expired';
 $_['response_unknown']   = 'An unknown error occurred';
 
 // Methods
-$_['method_ideal']            = 'iDEAL';
-$_['method_creditcard']       = 'Creditcard';
-$_['method_mistercash']       = 'Mister Cash';
-$_['method_banktransfer']     = 'Bank transfer';
-$_['method_directdebit']      = 'Direct debit';
-$_['method_belfius']          = 'Belfius Direct Net';
-$_['method_kbc']              = 'KBC/CBC Payment Button';
-$_['method_bitcoin']          = 'Bitcoin';
-$_['method_sofort']           = 'SOFORT Banking';
-$_['method_paypal']           = 'PayPal';
-$_['method_paysafecard']      = 'paysafecard';
+$_['method_ideal']        = 'iDEAL';
+$_['method_creditcard']   = 'Creditcard';
+$_['method_mistercash']   = 'Mister Cash';
+$_['method_banktransfer'] = 'Bank transfer';
+$_['method_directdebit']  = 'Direct debit';
+$_['method_belfius']      = 'Belfius Direct Net';
+$_['method_kbc']          = 'KBC/CBC Payment Button';
+$_['method_bitcoin']      = 'Bitcoin';
+$_['method_sofort']       = 'SOFORT Banking';
+$_['method_paypal']       = 'PayPal';
+$_['method_paysafecard']  = 'paysafecard';
+$_['method_giftcard']     = 'Webshop Giftcard';

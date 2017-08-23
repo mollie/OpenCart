@@ -2,20 +2,22 @@
 class MollieHelper
 {
     // Plugin only for Opencart >= 3.0
-	const PLUGIN_VERSION = "8.0.0";
+	const PLUGIN_VERSION = "8.1.0";
 
 	// All available modules. These should correspond to the Mollie_API_Object_Method constants.
-	const MODULE_NAME_BANKTRANSFER = "banktransfer";
-	const MODULE_NAME_BELFIUS      = "belfius";
-	const MODULE_NAME_BITCOIN      = "bitcoin";
-	const MODULE_NAME_CREDITCARD   = "creditcard";
-	const MODULE_NAME_DIRECTDEBIT  = "directdebit";
-	const MODULE_NAME_IDEAL        = "ideal";
-	const MODULE_NAME_MISTERCASH   = "mistercash";
-	const MODULE_NAME_PAYPAL       = "paypal";
-	const MODULE_NAME_PAYSAFECARD  = "paysafecard";
-	const MODULE_NAME_SOFORT       = "sofort";
-	const MODULE_NAME_KBC          = "kbc";
+	const MODULE_NAME_BANKTRANSFER  = "banktransfer";
+	const MODULE_NAME_BELFIUS       = "belfius";
+	const MODULE_NAME_BITCOIN       = "bitcoin";
+	const MODULE_NAME_CREDITCARD    = "creditcard";
+	const MODULE_NAME_DIRECTDEBIT   = "directdebit";
+	const MODULE_NAME_IDEAL         = "ideal";
+	const MODULE_NAME_MISTERCASH    = "mistercash";
+	const MODULE_NAME_PAYPAL        = "paypal";
+	const MODULE_NAME_PAYSAFECARD   = "paysafecard";
+	const MODULE_NAME_SOFORT        = "sofort";
+	const MODULE_NAME_KBC           = "kbc";
+	const MODULE_NAME_GIFTCARD      = "giftcard";
+
 
 	// List of all available module names.
 	static public $MODULE_NAMES = array(
@@ -30,6 +32,7 @@ class MollieHelper
 		self::MODULE_NAME_PAYSAFECARD,
 		self::MODULE_NAME_SOFORT,
 		self::MODULE_NAME_KBC,
+		self::MODULE_NAME_GIFTCARD,
 	);
 
 	static protected $api_client;

@@ -36,12 +36,13 @@
  */
 
 // Text
-$_['heading_title']      = 'Betaling via Mollie';
-$_['ideal_title']        = 'Uw betaling';
-$_['text_title']         = 'Online betalen';
-$_['text_redirected']    = 'De klant is doorgestuurd naar het betaalscherm';
-$_['text_issuer']        = 'Kies uw bank';
-$_['button_retry']       = 'Opnieuw proberen af te rekenen';
+$_['heading_title']         = 'Betaling via Mollie';
+$_['ideal_title']           = 'Uw betaling';
+$_['text_title']            = 'Online betalen';
+$_['text_redirected']       = 'De klant is doorgestuurd naar het betaalscherm';
+$_['text_issuer_ideal']     = 'Kies uw bank';
+$_['text_issuer_giftcard']  = 'Kies uw giftcard';
+$_['button_retry']          = 'Opnieuw proberen af te rekenen';
 
 // Status page: payment failed (e.g. cancelled).
 $_['heading_failed']     = 'Uw betaling is niet voltooid';
@@ -64,14 +65,15 @@ $_['response_expired']   = 'De betaling is verlopen';
 $_['response_unknown']   = 'Er is een onbekende fout opgetreden';
 
 // Methods
-$_['method_ideal']            = 'iDEAL';
-$_['method_creditcard']       = 'Creditcard';
-$_['method_mistercash']       = 'Mister Cash';
-$_['method_banktransfer']     = 'Overboeking';
-$_['method_directdebit']      = 'Eenmalige incasso';
-$_['method_belfius']          = 'Belfius Direct Net';
-$_['method_kbc']              = 'KBC/CBC-Betaalknop';
-$_['method_bitcoin']          = 'Bitcoin';
-$_['method_sofort']           = 'SOFORT Banking';
-$_['method_paypal']           = 'PayPal';
-$_['method_paysafecard']      = 'paysafecard';
+$_['method_ideal']                      = 'iDEAL';
+$_['method_creditcard']                 = 'Creditcard';
+$_['method_mistercash']                 = 'Mister Cash';
+$_['method_banktransfer']               = 'Overboeking';
+$_['method_directdebit']                = 'Eenmalige incasso';
+$_['method_belfius']                    = 'Belfius Direct Net';
+$_['method_kbc']                        = 'KBC/CBC-Betaalknop';
+$_['method_bitcoin']                    = 'Bitcoin';
+$_['method_sofort']                     = 'SOFORT Banking';
+$_['method_paypal']                     = 'PayPal';
+$_['method_paysafecard']                = 'paysafecard';
+$_['method_giftcard']                   = 'Giftcard';

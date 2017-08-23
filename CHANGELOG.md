@@ -2,6 +2,15 @@
 
 # Changelog #
 
+#### Changes in release 8.1.0
+  + Added 6 new payment methods (Gift cards)!
+    + fashioncheque
+    + Nationale EntertainmentCard
+    + Podium Cadeaukaart
+    + VVV Giftcard
+    + YourGift
+    + Webshop Giftcard
+
 #### Changes in release 8.0.0
   + Convert module to work with OpenCart 3.x.x.x only (soon to be backported).
   + Addition of geo-zone selection per payment method.
