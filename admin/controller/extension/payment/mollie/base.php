@@ -169,7 +169,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		$this->document->setTitle($this->language->get("heading_title"));
 
 		$shops = $this->getMultiStores();
-		$code = $this->getModuleCode();
+		$code = MollieHelper::getModuleCode();
 		$this->retrieveMultiStoreConfigs();
 
 		// Call validate method on POST
@@ -505,12 +505,12 @@ class ControllerExtensionPaymentMollieBase extends Controller
 			$this->error['warning'] = $this->language->get("error_permission");
 		}
 
-		if (!$this->request->post['stores'][$store][$this->getModuleCode() . '_api_key'])
+		if (!$this->request->post['stores'][$store][MollieHelper::getModuleCode() . '_api_key'])
 		{
 			$this->error[$store]['api_key'] = $this->language->get("error_api_key");
 		}
 
-		if (!$this->request->post['stores'][$store][$this->getModuleCode() . '_ideal_description'])
+		if (!$this->request->post['stores'][$store][MollieHelper::getModuleCode() . '_ideal_description'])
 		{
 			$this->error[$store]['description'] = $this->language->get("error_description");
 		}
@@ -693,25 +693,13 @@ class ControllerExtensionPaymentMollieBase extends Controller
 	}
 
 	/**
-	 * @return string
-	 */
-	private function getModuleCode()
-	{
-		if ($this->isOpenCart3x()) {
-			return 'payment_mollie';
-		}
-
-		return 'mollie';
-	}
-
-	/**
 	 * Get the extension installation handler.
 	 *
 	 * @return Model
 	 */
 	protected function getExtensionModel()
 	{
-		if ($this->isOpenCart3x()) {
+		if (MollieHelper::isOpenCart3x()) {
 			$this->load->model('setting/extension');
 			return $this->model_setting_extension;
 		}
@@ -725,7 +713,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 	 */
 	private function getExtensionsUri()
 	{
-		if ($this->isOpenCart3x()) {
+		if (MollieHelper::isOpenCart3x()) {
 			return 'marketplace/extension';
 		}
 
@@ -737,19 +725,10 @@ class ControllerExtensionPaymentMollieBase extends Controller
 	 */
 	private function getTokenUriPart()
 	{
-		if ($this->isOpenCart3x()) {
+		if (MollieHelper::isOpenCart3x()) {
 			return 'user_token=' . $this->session->data['user_token'];
 		}
 
 		return 'token=' . $this->session->data['token'];
 	}
-
-	/**
-	 * @return bool
-	 */
-	private function isOpenCart3x()
-	{
-		return version_compare(VERSION, '3.0.0', '>=');
-	}
-
 }

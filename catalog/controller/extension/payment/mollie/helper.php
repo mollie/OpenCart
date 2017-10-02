@@ -60,7 +60,7 @@ class MollieHelper
 
 			$mollie = new Mollie_API_Client;
 
-			$mollie->setApiKey($config->get('payment_mollie_api_key'));
+			$mollie->setApiKey($config->get(self::getModuleCode() . '_api_key'));
 
 			$mollie->addVersionString("OpenCart/" . VERSION);
 			$mollie->addVersionString("MollieOpenCart/" . self::PLUGIN_VERSION);
@@ -84,7 +84,7 @@ class MollieHelper
 
 		$mollie = new Mollie_API_Client;
 
-		$mollie->setApiKey(isset($config['payment_mollie_api_key']) ? $config['payment_mollie_api_key'] : null);
+		$mollie->setApiKey(isset($config[self::getModuleCode() . '_api_key']) ? $config[self::getModuleCode() . '_api_key'] : null);
 
 		$mollie->addVersionString("OpenCart/" . VERSION);
 		$mollie->addVersionString("MollieOpenCart/" . self::PLUGIN_VERSION);
@@ -104,5 +104,25 @@ class MollieHelper
 		$mollie->addVersionString("MollieOpenCart/" . self::PLUGIN_VERSION);
 
 		return $mollie;
+	}
+
+	/**
+	 * @return string
+	 */
+	public static function getModuleCode()
+	{
+		if (self::isOpenCart3x()) {
+			return 'payment_mollie';
+		}
+
+		return 'mollie';
+	}
+
+	/**
+	 * @return bool
+	 */
+	public static function isOpenCart3x()
+	{
+		return version_compare(VERSION, '3.0.0', '>=');
 	}
 }
