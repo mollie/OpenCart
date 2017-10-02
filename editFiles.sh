@@ -14,6 +14,7 @@ echo Edit base Controllers.
 
 sed "s/extension\/payment/payment/g" ./upload/admin/controller/payment/mollie/base.php  -i
 sed "s/return 'payment'/return 'extension\/payment'/g" ./upload/admin/controller/payment/mollie/base.php  -i
+sed "s/\"controller\/payment\/\" \:/\"controller\/extension\/payment\/\" \:/g" ./upload/admin/controller/payment/mollie/base.php  -i
 
 sed "s/extension\/payment/payment/g" ./upload/catalog/controller/payment/mollie/base.php  -i
 sed "s/return 'payment'/return 'extension\/payment'/g" ./upload/catalog/controller/payment/mollie/base.php  -i

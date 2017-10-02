@@ -688,10 +688,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 	 */
 	private function oldFolderMethod()
 	{
-		if(isset($this->oldFolderMethod)) return $this->oldFolderMethod;
-		$this->oldFolderMethod = version_compare(VERSION, '2.3.0.0', '<');
-		return $this->oldFolderMethod;
-
+		return version_compare(VERSION, '2.3.0.0', '<');
 	}
 
 	/**
