@@ -55,6 +55,8 @@ class ControllerExtensionPaymentMollieBase extends Controller
 	// Holds multistore configs
 	protected $data = array();
 
+	protected $oldFolderMethod;
+
 	/**
 	 * @param int $store The Store ID
 	 * @return Mollie_API_Client
@@ -88,6 +90,22 @@ class ControllerExtensionPaymentMollieBase extends Controller
 
 		// Just install all modules while we're at it.
 		$this->installAllModules();
+		$this->cleanUp();
+	}
+
+	/**
+	 * Clean up files that are not needed for the running version of OC.
+	 */
+	public function cleanUp()
+	{
+		// If the old method is used, delete the files in the new structure.
+		$path_to_delete = DIR_APPLICATION . ($this->oldFolderMethod() ? "controller/extension/payment/" : "controller/payment/");
+		foreach (MollieHelper::$MODULE_NAMES as $module_name) {
+			$file_to_delete = $path_to_delete . "mollie_" . $module_name . ".php";
+			unlink($file_to_delete);
+		}
+		unlink($path_to_delete . "mollie/base.php");
+		rmdir($path_to_delete . "mollie");
 	}
 
 	/**
@@ -671,6 +689,17 @@ class ControllerExtensionPaymentMollieBase extends Controller
 			}
 			$this->data['stores'][$store['id']] = $newArrray;
 		}
-		
 	}
+
+	/**
+	 * Check if old folder structure should be used.
+	 * @return bool
+	 */
+	private function oldFolderMethod()
+	{
+		if(isset($this->oldFolderMethod)) return $this->oldFolderMethod;
+		$this->oldFolderMethod = version_compare(VERSION, '2.3.0.0', '<');
+		return $this->oldFolderMethod;
+	}
+
 }
