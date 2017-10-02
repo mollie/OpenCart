@@ -1,4 +1,4 @@
-#!bin/bash
+#!/bin/bash
 
 echo Edit copied files for old style folders.
 echo Changing classnames.
@@ -13,10 +13,10 @@ sed "s/extension\/payment/payment/g" ./upload/catalog/controller/payment/mollie/
 echo Edit base Controllers.
 
 sed "s/extension\/payment/payment/g" ./upload/admin/controller/payment/mollie/base.php  -i
-sed "s/extension\/extension/extension\/payment/g" ./upload/admin/controller/payment/mollie/base.php  -i
+sed "s/return 'payment'/return 'extension\/payment'/g" ./upload/admin/controller/payment/mollie/base.php  -i
 
 sed "s/extension\/payment/payment/g" ./upload/catalog/controller/payment/mollie/base.php  -i
-sed "s/extension\/extension/extension\/payment/g" ./upload/catalog/controller/payment/mollie/base.php  -i
+sed "s/return 'payment'/return 'extension\/payment'/g" ./upload/catalog/controller/payment/mollie/base.php  -i
 sed "s/extension\_payment/payment/g" ./upload/catalog/controller/payment/mollie/base.php  -i
 
 echo Edit base Model.

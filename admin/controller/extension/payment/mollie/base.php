@@ -115,9 +115,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 	{
 		// Load models.
 		$extensions = $this->getExtensionModel();
-		$this->load->model("user/user_group");
-
-		$user_id = $this->user->getGroupId();
+		$user_id = $this->getUserId();
 
 		foreach (MollieHelper::$MODULE_NAMES as $module_name)
 		{
@@ -622,6 +620,10 @@ class ControllerExtensionPaymentMollieBase extends Controller
 			$data[$child] = $this->load->controller("common/" . $child);
 		}
 
+		if (!MollieHelper::isOpenCart3x()) {
+			$template .= '.tpl';
+		}
+
 		$html = $this->load->view($template, $data);
 
 		if ($echo)
@@ -717,7 +719,11 @@ class ControllerExtensionPaymentMollieBase extends Controller
 			return 'marketplace/extension';
 		}
 
-		return 'extension/extension';
+		if (MollieHelper::isOpenCart23x()) {
+			return 'extension/extension';
+		}
+
+		return 'extension/payment';
 	}
 
 	/**
@@ -730,5 +736,16 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		}
 
 		return 'token=' . $this->session->data['token'];
+	}
+
+	private function getUserId()
+	{
+		$this->load->model('user/user_group');
+
+		if (method_exists($this->user, 'getGroupId')) {
+			return $this->user->getGroupId();
+		}
+
+		return $this->user->getId();
 	}
 }
