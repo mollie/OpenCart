@@ -155,18 +155,6 @@ class ControllerExtensionPaymentMollieBase extends Controller
 	}
 
 	/**
-	 * Get the extension installation handler.
-	 *
-	 * @return Model
-	 */
-	protected function getExtensionModel ()
-	{
-		$this->load->model("setting/extension");
-
-		return $this->model_setting_extension;
-	}
-
-	/**
 	 * Render the payment method's settings page.
 	 */
 	public function index ()
@@ -181,6 +169,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		$this->document->setTitle($this->language->get("heading_title"));
 
 		$shops = $this->getMultiStores();
+		$code = $this->getModuleCode();
 		$this->retrieveMultiStoreConfigs();
 
 		// Call validate method on POST
@@ -195,12 +184,12 @@ class ControllerExtensionPaymentMollieBase extends Controller
 				
 				foreach (MollieHelper::$MODULE_NAMES as $module_name)
 				{
-					$status = "payment_mollie_" . $module_name . "_status";
+					$status = $code . "_" . $module_name . "_status";
 
 					$post[$status] = (isset($post[$status]) && $post[$status] == "on") ? 1 : 0;
 				}
 
-				$this->model_setting_setting->editSetting("payment_mollie", $post, $store['id']);
+				$this->model_setting_setting->editSetting($code, $post, $store['id']);
 
 				// Migrate old settings if needed. We used to use "ideal" as setting group, but Opencart 2 requires us to use "mollie".
 				$this->model_setting_setting->deleteSetting("ideal", $store['id']);
@@ -212,11 +201,11 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		if ($doRedirect)
 		{
 			$this->session->data['success'] = $this->language->get("text_success");
-			$this->redirect($this->url->link("marketplace/extension", "type=payment&user_token=" . $this->session->data['user_token'], "SSL"));
+			$this->redirect($this->url->link($this->getExtensionsUri(), "type=payment&" . $this->getTokenUriPart(), "SSL"));
 		}
 
 		// Set data for template
-		$data['api_check_url']          = $this->url->link("extension/payment/mollie_" . static::MODULE_NAME . '/validate_api_key', "user_token=" . $this->session->data['user_token'], "SSL");
+		$data['api_check_url']          = $this->url->link("extension/payment/mollie_" . static::MODULE_NAME . '/validate_api_key', $this->getTokenUriPart(), "SSL");
 		$data['heading_title']          = $this->language->get("heading_title");
 		$data['title_global_options']   = $this->language->get("title_global_options");
 		$data['title_payment_status']   = $this->language->get("title_payment_status");
@@ -272,6 +261,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		$data['tab_general']            = $this->language->get("tab_general");
 
 		$data['shops'] = $shops;
+		$data['code'] = $code;
 
 		// If there are errors, show the error.
 		if (isset($this->error['warning'])) {
@@ -284,7 +274,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 
 		foreach($shops as $store)
 		{
-			$data['stores'][$store['id']]['entry_cstatus'] = $this->checkCommunicationStatus(isset($store['payment_mollie_api_key']) ? $store['payment_mollie_api_key'] : null);
+			$data['stores'][$store['id']]['entry_cstatus'] = $this->checkCommunicationStatus(isset($store[$code . '_api_key']) ? $store[$code . '_api_key'] : null);
 
 			if (isset($this->error[$store['id']]['api_key'])) {
 				$data['stores'][$store['id']]['error_api_key'] = $this->error[$store['id']]['api_key'];
@@ -323,38 +313,38 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		$data['breadcrumbs'] = array();
 
 		$data['breadcrumbs'][] = array(
-			"href"      => $this->url->link("common/dashboard", "user_token=" . $this->session->data['user_token'], "SSL"),
+			"href"      => $this->url->link("common/dashboard", $this->getTokenUriPart(), "SSL"),
 			"text"      => $this->language->get("text_home"),
 			"separator" => FALSE,
 		);
 
 		$data['breadcrumbs'][] = array(
-			"href"      => $this->url->link("marketplace/extension", "type=payment&user_token=" . $this->session->data['user_token'], "SSL"),
+			"href"      => $this->url->link($this->getExtensionsUri(), "type=payment&" . $this->getTokenUriPart(), "SSL"),
 			"text"      => $this->language->get("text_payment"),
 			"separator" => ' :: ',
 		);
 
 		$data['breadcrumbs'][] = array(
-			"href"      => $this->url->link("extension/payment/mollie_" . static::MODULE_NAME, "user_token=" . $this->session->data['user_token'], "SSL"),
+			"href"      => $this->url->link("extension/payment/mollie_" . static::MODULE_NAME, $this->getTokenUriPart(), "SSL"),
 			"text"      => $this->language->get("heading_title"),
 			"separator" => " :: ",
 		);
 
 		// Form action url
-		$data['action'] = $this->url->link("extension/payment/mollie_" . static::MODULE_NAME, "user_token=" . $this->session->data['user_token'], "SSL");
-		$data['cancel'] = $this->url->link("marketplace/extension", "type=payment&user_token=" . $this->session->data['user_token'], "SSL");
+		$data['action'] = $this->url->link("extension/payment/mollie_" . static::MODULE_NAME, $this->getTokenUriPart(), "SSL");
+		$data['cancel'] = $this->url->link($this->getExtensionsUri(), "type=payment&" . $this->getTokenUriPart(), "SSL");
 
 		// Load global settings. Some are prefixed with mollie_ideal_ for legacy reasons.
 		$settings = array(
-			"payment_mollie_api_key"                    => NULL,
-			"payment_mollie_ideal_description"          => "Order %",
-			"payment_mollie_show_icons"                 => FALSE,
-			"payment_mollie_show_order_canceled_page"   => TRUE,
-			"payment_mollie_ideal_pending_status_id"    => 1,
-			"payment_mollie_ideal_processing_status_id" => 2,
-			"payment_mollie_ideal_canceled_status_id"   => 7,
-			"payment_mollie_ideal_failed_status_id"     => 10,
-			"payment_mollie_ideal_expired_status_id"    => 14,
+			$code . "_api_key"                    => NULL,
+			$code . "_ideal_description"          => "Order %",
+			$code . "_show_icons"                 => FALSE,
+			$code . "_show_order_canceled_page"   => TRUE,
+			$code . "_ideal_pending_status_id"    => 1,
+			$code . "_ideal_processing_status_id" => 2,
+			$code . "_ideal_canceled_status_id"   => 7,
+			$code . "_ideal_failed_status_id"     => 10,
+			$code . "_ideal_expired_status_id"    => 14,
 		);
 
 		foreach($shops as $store)
@@ -399,7 +389,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 			catch (Mollie_API_Exception $e)
 			{
 				// If we have an unauthorized request, our API key is likely invalid.
-				if ($data['stores'][$store['id']]['payment_mollie_api_key'] !== NULL && strpos($e->getMessage(), "Unauthorized request") >= 0)
+				if ($data['stores'][$store['id']][$code . '_api_key'] !== NULL && strpos($e->getMessage(), "Unauthorized request") >= 0)
 				{
 					$data['stores'][$store['id']]['error_api_key'] = $this->language->get("error_api_key_invalid");
 				}
@@ -407,7 +397,6 @@ class ControllerExtensionPaymentMollieBase extends Controller
 
 			$data['stores'][$store['id']]['payment_methods'] = array();
 
-		
 			foreach (MollieHelper::$MODULE_NAMES as $module_name)
 			{
 				$payment_method = array();
@@ -417,31 +406,31 @@ class ControllerExtensionPaymentMollieBase extends Controller
 				$payment_method['allowed'] = in_array($module_name, $allowed_methods);
 
 				// Load module specific settings.
-				if (isset($this->request->post['stores'][$store['id']]['payment_mollie_' . $module_name . '_status']))
+				if (isset($this->request->post['stores'][$store['id']][$code . '_' . $module_name . '_status']))
 				{
-					$payment_method['status'] = ($this->request->post['stores'][$store['id']]['payment_mollie_' . $module_name . '_status'] == "on");
+					$payment_method['status'] = ($this->request->post['stores'][$store['id']][$code . '_' . $module_name . '_status'] == "on");
 				}
 				else
 				{
-					$payment_method['status'] = (bool) isset($this->data['stores'][$store['id']]["payment_mollie_" . $module_name . "_status"]) ? $this->data['stores'][$store['id']]["payment_mollie_" . $module_name . "_status"] : null;
+					$payment_method['status'] = (bool) isset($this->data['stores'][$store['id']][$code . "_" . $module_name . "_status"]) ? $this->data['stores'][$store['id']][$code . "_" . $module_name . "_status"] : null;
 				}
 
-				if (isset($this->request->post['stores'][$store['id']]['payment_mollie_' . $module_name . '_sort_order']))
+				if (isset($this->request->post['stores'][$store['id']][$code . '_' . $module_name . '_sort_order']))
 				{
-					$payment_method['sort_order'] = $this->request->post['stores'][$store['id']]['payment_mollie_' . $module_name . '_sort_order'];
+					$payment_method['sort_order'] = $this->request->post['stores'][$store['id']][$code . '_' . $module_name . '_sort_order'];
 				}
 				else
 				{
-					$payment_method['sort_order'] = isset($this->data['stores'][$store['id']]["payment_mollie_" . $module_name . "_sort_order"]) ? $this->data['stores'][$store['id']]["payment_mollie_" . $module_name . "_sort_order"] : null;
+					$payment_method['sort_order'] = isset($this->data['stores'][$store['id']][$code . "_" . $module_name . "_sort_order"]) ? $this->data['stores'][$store['id']][$code . "_" . $module_name . "_sort_order"] : null;
 				}
 
-				if (isset($this->request->post['stores'][$store['id']]['payment_mollie_' . $module_name . '_geo_zone']))
+				if (isset($this->request->post['stores'][$store['id']][$code . '_' . $module_name . '_geo_zone']))
 				{
-					$payment_method['geo_zone'] = $this->request->post['stores'][$store['id']]['payment_mollie_' . $module_name . '_geo_zone'];
+					$payment_method['geo_zone'] = $this->request->post['stores'][$store['id']][$code . '_' . $module_name . '_geo_zone'];
 				}
 				else
 				{
-					$payment_method['geo_zone'] = isset($this->data['stores'][$store['id']]["payment_mollie_" . $module_name . "_geo_zone"]) ? $this->data['stores'][$store['id']]["payment_mollie_" . $module_name . "_geo_zone"] : null;
+					$payment_method['geo_zone'] = isset($this->data['stores'][$store['id']][$code . "_" . $module_name . "_geo_zone"]) ? $this->data['stores'][$store['id']][$code . "_" . $module_name . "_geo_zone"] : null;
 				}
 
 				$data['stores'][$store['id']]['payment_methods'][$module_name] = $payment_method;
@@ -516,12 +505,12 @@ class ControllerExtensionPaymentMollieBase extends Controller
 			$this->error['warning'] = $this->language->get("error_permission");
 		}
 
-		if (!$this->request->post['stores'][$store]['payment_mollie_api_key'])
+		if (!$this->request->post['stores'][$store][$this->getModuleCode() . '_api_key'])
 		{
 			$this->error[$store]['api_key'] = $this->language->get("error_api_key");
 		}
 
-		if (!$this->request->post['stores'][$store]['payment_mollie_ideal_description'])
+		if (!$this->request->post['stores'][$store][$this->getModuleCode() . '_ideal_description'])
 		{
 			$this->error[$store]['description'] = $this->language->get("error_description");
 		}
@@ -700,6 +689,67 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		if(isset($this->oldFolderMethod)) return $this->oldFolderMethod;
 		$this->oldFolderMethod = version_compare(VERSION, '2.3.0.0', '<');
 		return $this->oldFolderMethod;
+
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getModuleCode()
+	{
+		if ($this->isOpenCart3x()) {
+			return 'payment_mollie';
+		}
+
+		return 'mollie';
+	}
+
+	/**
+	 * Get the extension installation handler.
+	 *
+	 * @return Model
+	 */
+	protected function getExtensionModel()
+	{
+		if ($this->isOpenCart3x()) {
+			$this->load->model('setting/extension');
+			return $this->model_setting_extension;
+		}
+
+		$this->load->model('extension/extension');
+		return $this->model_extension_extension;
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getExtensionsUri()
+	{
+		if ($this->isOpenCart3x()) {
+			return 'marketplace/extension';
+		}
+
+		return 'extension/extension';
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getTokenUriPart()
+	{
+		if ($this->isOpenCart3x()) {
+			return 'user_token=' . $this->session->data['user_token'];
+		}
+
+		return 'token=' . $this->session->data['token'];
+	}
+
+	/**
+	 * @return bool
+	 */
+	private function isOpenCart3x()
+	{
+		return version_compare(VERSION, '3.0.0', '>=');
 	}
 
 }
