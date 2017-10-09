@@ -65,6 +65,7 @@ class ModelExtensionPaymentMollieBase extends Model
 	 */
 	public function getMethod($address, $total)
 	{
+		$moduleCode = MollieHelper::getModuleCode();
 		try {
 			$payment_method = $this->getAPIClient()->methods->get(static::MODULE_NAME);
 
@@ -87,9 +88,9 @@ class ModelExtensionPaymentMollieBase extends Model
 			return NULL;
 		}
 
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "zone_to_geo_zone WHERE geo_zone_id = '" . (int)$this->config->get("payment_mollie_" . static::MODULE_NAME . "_geo_zone") . "' AND country_id = '" . (int)$address['country_id'] . "' AND (zone_id = '" . (int)$address['zone_id'] . "' OR zone_id = '0')");
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "zone_to_geo_zone WHERE geo_zone_id = '" . (int)$this->config->get($moduleCode . "_" . static::MODULE_NAME . "_geo_zone") . "' AND country_id = '" . (int)$address['country_id'] . "' AND (zone_id = '" . (int)$address['zone_id'] . "' OR zone_id = '0')");
 
-		if ((bool)$this->config->get("payment_mollie_" . static::MODULE_NAME . "_geo_zone") && !$query->num_rows) {
+		if ((bool)$this->config->get($moduleCode . "_" . static::MODULE_NAME . "_geo_zone") && !$query->num_rows) {
 			return NULL;
 		}
 
@@ -105,14 +106,14 @@ class ModelExtensionPaymentMollieBase extends Model
 
 		$icon = "";
 
-		if ($this->config->get("payment_mollie_show_icons")) {
+		if ($this->config->get($moduleCode . "_show_icons")) {
 			$icon = '<img src="' . htmlspecialchars($payment_method->image->normal) . '" height="20" style="margin:0 5px -5px 0" />';
 		}
 
 		return array(
 			"code" => "mollie_" . static::MODULE_NAME,
 			"title" => $icon . $payment_method->description,
-			"sort_order" => $this->config->get("payment_mollie_" . static::MODULE_NAME . "_sort_order"),
+			"sort_order" => $this->config->get($moduleCode . "_" . static::MODULE_NAME . "_sort_order"),
 			"terms" => NULL,
 		);
 	}
