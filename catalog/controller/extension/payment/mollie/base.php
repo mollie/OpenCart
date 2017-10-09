@@ -168,9 +168,6 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		$return_url = $this->url->link("extension/payment/mollie_" . static::MODULE_NAME . "/callback&order_id=" . $order['order_id'], "", "SSL");
 		$issuer = $this->getIssuer();
 
-		list ($language, $country) = explode('-', $this->session->data['language']);
-		$locale = strtolower($language) . '_' . strtoupper($country);
-
 		try {
 			$data = array(
 				"amount" => $amount,
@@ -180,7 +177,6 @@ class ControllerExtensionPaymentMollieBase extends Controller
 				"metadata" => array("order_id" => $order['order_id']),
 				"method" => static::MODULE_NAME,
 				"issuer" => $issuer,
-				"locale" => $locale,
 
 				/*
 				 * This data is sent along for credit card payments / fraud checks. You can remove this but you will
@@ -198,6 +194,12 @@ class ControllerExtensionPaymentMollieBase extends Controller
 				"shippingPostal" => $order['shipping_postcode'] ? $order['shipping_postcode'] : $order['payment_postcode'],
 				"shippingCountry" => $order['shipping_iso_code_2'] ? $order['shipping_iso_code_2'] : $order['payment_iso_code_2'],
 			);
+
+			if (strstr($this->session->data['language'], '-')) {
+				list ($language, $country) = explode('-', $this->session->data['language']);
+				$data['locale'] = strtolower($language) . '_' . strtoupper($country);
+			}
+
 			$payment = $api->payments->create($data);
 		} catch (Mollie_Api_Exception $e) {
 			$this->showErrorPage($e->getMessage());
@@ -563,7 +565,15 @@ class ControllerExtensionPaymentMollieBase extends Controller
 	 */
 	protected function addOrderHistory($order, $order_status_id, $comment = "", $notify = false)
 	{
-		$this->model_checkout_order->addOrderHistory($order['order_id'], $order_status_id, $comment, $notify);
+		if (MollieHelper::isOpenCart2x()) {
+			$this->model_checkout_order->addOrderHistory($order['order_id'], $order_status_id, $comment, $notify);
+		} else {
+			if (empty($order['order_status_id'])) {
+				$this->model_checkout_order->confirm($order['order_id'], $order_status_id, $comment, $notify);
+			} else {
+				$this->model_checkout_order->update($order['order_id'], $order_status_id, $comment, $notify);
+			}
+		}
 	}
 
 	/**
@@ -577,20 +587,41 @@ class ControllerExtensionPaymentMollieBase extends Controller
 	 */
 	protected function renderTemplate($template, $data, $common_children = array(), $echo = true)
 	{
-		foreach ($common_children as $child) {
-			$data[$child] = $this->load->controller("common/" . $child);
-		}
-
-		if (MollieHelper::isOpenCart2x()) {
+		if (!MollieHelper::isOpenCart3x()) {
 			$template .= '.tpl';
 		}
 
 		if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/' . $template)) {
-			$html = $this->load->view($this->config->get('config_template') . '/template/payment/' . $template, $data);
+			$template = $this->config->get('config_template') . '/template/payment/' . $template;
 		} else if (file_exists(DIR_TEMPLATE . 'default/template/payment/' . $template)) {
-			$html = $this->load->view('default/template/payment/' . $template, $data);
+			$template = 'default/template/payment/' . $template;
 		} else {
-			$html = $this->load->view('extension/payment/' . $template, $data);
+			$template = 'extension/payment/' . $template;
+		}
+
+		if (MollieHelper::isOpenCart2x()) {
+			foreach ($common_children as $child) {
+				$data[$child] = $this->load->controller("common/" . $child);
+			}
+
+			$html = $this->load->view($template, $data);
+		} else {
+			$this->template = $template;
+			$this->children = array();
+
+			foreach ($data as $field => $value) {
+				$this->data[$field] = $value;
+			}
+
+			foreach($common_children as $child) {
+				if ($child === 'column_left') {
+					continue;
+				}
+
+				$this->children[] = "common/" . $child;
+			}
+
+			$html = $this->render();
 		}
 
 		if ($echo) {

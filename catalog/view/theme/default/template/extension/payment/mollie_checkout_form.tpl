@@ -17,7 +17,7 @@
 			</div>
 			<?php } ?>
 			<div class="right pull-right">
-				<input type="submit" value="<?php $message->get('button_confirm'); ?>" id="button-confirm" class="button btn btn-primary" form="mollie_payment_form">
+				<input type="submit" value="<?php echo $message->get('button_confirm'); ?>" id="button-confirm" class="button btn btn-primary" form="mollie_payment_form">
 			</div>
 		</div>
 

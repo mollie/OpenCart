@@ -436,7 +436,12 @@ class ControllerExtensionPaymentMollieBase extends Controller
 			
 		}
 
-		$this->renderTemplate("extension/payment/mollie", $data, array(
+		$template = 'extension/payment/mollie';
+		if (!MollieHelper::isOpenCart2x()) {
+			$template = 'extension/payment/mollie_1';
+		}
+
+		$this->renderTemplate($template, $data, array(
 			"header",
 			"column_left",
 			"footer",
@@ -615,19 +620,36 @@ class ControllerExtensionPaymentMollieBase extends Controller
 	 */
 	protected function renderTemplate ($template, $data, $common_children = array(), $echo = TRUE)
 	{
-		foreach ($common_children as $child)
-		{
-			$data[$child] = $this->load->controller("common/" . $child);
-		}
-
 		if (!MollieHelper::isOpenCart3x()) {
 			$template .= '.tpl';
 		}
 
-		$html = $this->load->view($template, $data);
+		if (MollieHelper::isOpenCart2x()) {
+			foreach ($common_children as $child) {
+				$data[$child] = $this->load->controller("common/" . $child);
+			}
 
-		if ($echo)
-		{
+			$html = $this->load->view($template, $data);
+		} else {
+			$this->template = $template;
+			$this->children = array();
+
+			foreach ($data as $field => $value) {
+				$this->data[$field] = $value;
+			}
+
+			foreach($common_children as $child) {
+				if ($child === 'column_left') {
+					continue;
+				}
+
+				$this->children[] = "common/" . $child;
+			}
+
+			$html = $this->render();
+		}
+
+		if ($echo) {
 			return $this->response->setOutput($html);
 		}
 
@@ -703,8 +725,13 @@ class ControllerExtensionPaymentMollieBase extends Controller
 			return $this->model_setting_extension;
 		}
 
-		$this->load->model('extension/extension');
-		return $this->model_extension_extension;
+		if (MollieHelper::isOpenCart2x()) {
+			$this->load->model('extension/extension');
+			return $this->model_extension_extension;
+		}
+
+		$this->load->model('setting/extension');
+		return $this->model_setting_extension;
 	}
 
 	/**
