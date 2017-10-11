@@ -10,7 +10,7 @@
 					<select name="mollie_issuer" style="margin-left:1em" id="mollie_issuers">
 						<option value="">&mdash;</option>
 						<?php foreach ($issuers as $issuer) { ?>
-						<option value="<?php echo $issuer['id']; ?>"><?php echo $issuer['name']; ?></option>
+						<option value="<?php echo $issuer->id; ?>"><?php echo $issuer->name; ?></option>
 						<?php } ?>
 					</select>
 				</label>

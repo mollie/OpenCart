@@ -176,11 +176,10 @@
 						</div>
 
 						<div id="mollie-options-<?php echo $shop['id']; ?>" class="vtabs-content">
-							<div class="form-group required">
-								<label class="col-sm-2 control-label" for="<?php echo $code; ?>_api_key"><span data-toggle="tooltip" title="<?php echo $help_api_key; ?>"><?php echo $entry_api_key; ?></span></label>
+							<div class="form-group">
+								<label class="col-sm-2 control-label" for="<?php echo $code; ?>_api_key"><span class="required">*</span> <?php echo $entry_api_key; ?><br /><span class="help"><?php echo $help_api_key; ?></span></label>
 								<div class="col-sm-10">
-									<div class="input-group">
-										<span class="input-group-addon"><i class="fa fa-minus"></i></span>
+									<div class="input-group message-block">
 										<input type="text" name="stores[<?php echo $shop['id']; ?>][<?php echo $code; ?>_api_key]" value="<?php echo $stores[$shop['id']][$code . '_api_key']; ?>" placeholder="live_..." id="<?php echo $code; ?>_api_key" class="form-control" data-payment-mollie-api-key/>
 									</div>
 									<?php if ($stores[$shop['id']]['error_api_key']) { ?>
@@ -188,8 +187,8 @@
 									<?php } ?>
 								</div>
 							</div>
-							<div class="form-group required">
-								<label class="col-sm-2 control-label" for="stores[<?php echo $shop['id']; ?>][<?php echo $code; ?>_ideal_description]"><span data-toggle="tooltip" title="<?php echo $help_description; ?>"><?php echo $entry_description; ?></span></label>
+							<div class="form-group">
+								<label class="col-sm-2 control-label" for="stores[<?php echo $shop['id']; ?>][<?php echo $code; ?>_ideal_description]"><span class="required">*</span> <?php echo $entry_description; ?> <span class="help"><?php echo $help_description; ?></span></label>
 								<div class="col-sm-10">
 									<input type="text" name="stores[<?php echo $shop['id']; ?>][<?php echo $code; ?>_ideal_description]" value="<?php echo $stores[$shop['id']][$code . '_ideal_description']; ?>" id="stores[<?php echo $shop['id']; ?>][<?php echo $code; ?>_ideal_description]" class="form-control"/>
 									<?php if ($stores[$shop['id']]['error_description']) { ?>
@@ -309,79 +308,61 @@
 
 		function validateAPIKey(value, $icon_container) {
 			if (value === '') {
-				updateIcon($icon_container, 'fa-minus', null, true);
+				updateIcon($icon_container, 'empty', null, true);
 				return;
 			}
 
 			clearTimeout(timeout);
 			timeout = setTimeout(function () {
-				updateIcon($icon_container, 'fa-spinner fa-spin', null);
+				updateIcon($icon_container, 'loading', null);
 
 				checkIfAPIKeyIsValid(value).then(function (response) {
 					if (response.valid) {
-						updateIcon($icon_container, 'fa-check');
+						updateIcon($icon_container, 'success');
 					} else if (response.invalid) {
-						updateIcon($icon_container, 'fa-times', response.message);
+						updateIcon($icon_container, 'attention', response.message);
 					} else if (response.error) {
-						updateIcon($icon_container, 'fa-exclamation-triangle', response.message);
+						updateIcon($icon_container, 'warning', response.message);
 					}
 				});
 			}, 400);
 		}
 
 		function updateIcon($container, className, message, dontClearErrors) {
-			var colorClass = '';
-			var classPerIcon = {
-				'fa-check': 'text-success',
-				'fa-times': 'text-danger',
-				'fa-exclamation-triangle': 'text-danger'
-			};
+			$container.removeClass('success loading empty attention warning').addClass(className);
 
-			if (classPerIcon[className]) {
-				colorClass += ' ' + classPerIcon[className];
+			if (!dontClearErrors) {
+				$container.find('#key-message').remove();
 			}
-
-			var icon = '<i class="fa ' + className + colorClass + '"></i>';
-
-			$container.html(icon);
-			$container.popover('destroy');
 
 			if (message) {
-				$container.popover({
-					content: '<span class="' + colorClass + '">' + message + '</span>',
-					html: true,
-					placement: 'top',
-					trigger: 'hover manual'
-				});
-
-				if ($container.is(':visible')) {
-					$container.popover('show');
-				}
+				$container.append('<span id="key-message" class="error">' + message + '</span>');
 			}
 
-			if (!message && -1 !== className.indexOf('spinner')) {
-				message = icon;
-			}
-
-			if (!dontClearErrors && $container.closest('.form-group').hasClass('has-error')) {
-				$container.parent().next().remove();
-				$container.closest('.form-group').removeClass('has-error');
-			}
-
-			$container.closest('.tab-content').find('[data-communication-status]').html('<span class="' + colorClass + '">' + (message || 'OK') + '</span>');
+			$container.closest('.tab-content').find('[data-communication-status]').html('<span class="' + (message ? 'error' : 'text-success') + '">' + (message || 'OK') + '</span>');
 		}
 
 		$('[data-payment-mollie-api-key]').on('keyup', function () {
-			validateAPIKey(this.value, $(this).siblings('.input-group-addon'));
+			validateAPIKey(this.value, $(this).closest('.input-group'));
 		}).each(function () {
-			validateAPIKey(this.value, $(this).siblings('.input-group-addon'));
+			validateAPIKey(this.value, $(this).closest('.input-group'));
 		});
 	})();
 </script>
 
 
 <style>
-	fieldset {padding: 0;
+  .input-group.message-block {
+    padding: 0;
+    margin-bottom: 0;
+    border: 0 none;
+    background-color: transparent;
+    background-position: 160px 3px;
+  }
+  .text-success {
+    color: #4cb64c;
+  }
+  fieldset {padding: 0;
 		margin: 0;
 		border: 0;
 		min-width: 0;

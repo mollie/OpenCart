@@ -483,7 +483,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 					. '<br/><br/>'
 					. 'Please check the following conditions. You can ask your hosting provider to help with this.'
 					. '<ul>'
-					. '<li>Make sure outside connections to ' . ($client ? htmlspecialchars($client->getApiEndpoint()) : 'Mollie') . ' are not blocked.</li>'
+					. '<li>Make sure outside connections to ' . (isset($client) ? htmlspecialchars($client->getApiEndpoint()) : 'Mollie') . ' are not blocked.</li>'
 					. '<li>Make sure SSL v3 is disabled on your server. Mollie does not support SSL v3.</li>'
 					. '<li>Make sure your server is up-to-date and the latest security patches have been installed.</li>'
 					. '</ul><br/>'
