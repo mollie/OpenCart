@@ -250,7 +250,7 @@
 							<div class="form-group">
 								<label class="col-sm-2 control-label"><?php echo $entry_comm_status; ?></label>
 								<div class="col-sm-10">
-									<p class="form-control-static" data-communication-status><i class="fa fa-spinner fa-spin"></i></p>
+									<p class="form-control-static" data-communication-status></p>
 								</div>
 							</div>
 							<div class="form-group">
@@ -339,7 +339,7 @@
 				$container.append('<span id="key-message" class="error">' + message + '</span>');
 			}
 
-			$container.closest('.tab-content').find('[data-communication-status]').html('<span class="' + (message ? 'error' : 'text-success') + '">' + (message || 'OK') + '</span>');
+			$('[data-communication-status]').html('<span class="' + (message ? 'error' : 'text-success') + '">' + (message || 'OK') + '</span>');
 		}
 
 		$('[data-payment-mollie-api-key]').on('keyup', function () {
