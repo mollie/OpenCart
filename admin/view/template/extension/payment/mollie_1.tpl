@@ -12,7 +12,7 @@
 			<div class="success">
 				<?php echo $shop['name']; ?>: <?php echo $error_warning; ?>
 			</div>
-		<?php } elseif (!empty($stores[$shop['id']][$code . '_api_key'])) { ?>
+		<?php } elseif (empty($stores[$shop['id']][$code . '_api_key'])) { ?>
 			<div class="attention">
 				<i><?php echo $shop['name']; ?>: </i> <?php echo $help_view_profile; ?>
 			</div>

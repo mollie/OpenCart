@@ -23,7 +23,7 @@
           <button type="button" class="close" data-dismiss="alert">&times;
           </button>
         </div>
-        {% elseif stores[shop.id].payment_mollie_api_key|length %}
+        {% elseif stores[shop.id].payment_mollie_api_key|length <= 0 %}
         <div class="alert alert-info alert-dismissable">
           <i class="fa fa-info-circle"></i>
           <i>{{ shop.name }}: </i> {{ help_view_profile }}
