@@ -366,6 +366,7 @@
 		margin: 0;
 		border: 0;
 		min-width: 0;
+    overflow: hidden;
 	}
 	fieldset legend {
 		padding-bottom: 5px;
