@@ -662,7 +662,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 	 */
 	protected function redirect ($url, $status = 302)
 	{
-		$this->response->redirect($url, $status);
+		$this->response->redirect(str_replace('&amp;', '&', $url), $status);
 	}
 
 	/**
