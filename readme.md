@@ -1,17 +1,16 @@
 ![Mollie](https://www.mollie.com/files/Mollie-Logo-Style-Small.png)
 
-**Let op:** Deze versie van de module is alleen geschikt voor **OpenCart 3** en hoger.
-
-voor **2.3.x.x** zie [deze branch](https://github.com/mollie/OpenCart/tree/opencart-2.3).
-
-voor **2.2.x.x**  en lager zie [deze branch](https://github.com/mollie/OpenCart/tree/opencart-2.2).
-
 # Installatie [![Build Status](https://travis-ci.org/mollie/OpenCart.png)](https://travis-ci.org/mollie/OpenCart) #
 + Download op de [OpenCart Releases](https://github.com/mollie/OpenCart/releases)-pagina de nieuwste release.
-+ Ga naar uw OpenCart AdminPanel (Beheerpagina).
-+ Ga in het menu naar _Extentions_ >> _Installer_.
-+ Klik op _Upload_ en kies het .zip bestand die u zojuist heeft gedownload.
-+ Ga in het menu naar _Extentions_ en selecteer _Payments_.
+  + Voor opencart 2.3+ en 3+ download je **mollie-opencart-2.3-and-up.ocmod.zip**
+  + Voor opencart 1.5 t/m 2.2 download je **mollie-opencart-2.2-and-lower.ocmod.zip**
++ **OpenCart 2+**
+  + Ga naar uw OpenCart AdminPanel (Beheerpagina).
+  + Ga in het menu naar _Extentions_ >> _Installer_.
+  + Klik op _Upload_ en kies het .zip bestand die u zojuist heeft gedownload.
+  + Ga in het menu naar _Extentions_ en selecteer _Payments_.
++ **OpenCart 1.5+**
+  + Upload alle bestanden vanuit de "upload" map in de .zip naar de root van uw opencart shop.
 + Na een correcte afhandeling zouden onze Betaalmethodes zichtbaar moeten zijn in het _Payments_ overzicht.
 + Klik vervolgens op _Install (groene knop)_ en daarna op _Edit (blauwe knop)_ bij de gewenste betaal methode.
 + Vul je _Mollie API key_ in en bewaar de instellingen. Je vindt de API key in uw Mollie Beheer onder [Websiteprofielen](https://www.mollie.com/beheer/account/profielen/).
@@ -50,6 +49,9 @@ Via [Mollie](https://www.mollie.com/) is iDEAL gemakkelijk aan te sluiten zonder
 
 ### paysafecard ###
 [paysafecard](https://www.mollie.com/paysafecard/) is de populairste prepaidcard voor online betalingen die veel door ouders voor hun kinderen wordt gekocht.
+
+### Cadeaukaarten ###
+[Tegoedkaarten](https://www.mollie.com/payments/gift-cards/) waarop de gever een bedrag kan laden.
 
 # Veelgestelde vragen #
 

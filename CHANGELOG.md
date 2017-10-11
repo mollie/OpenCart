@@ -2,6 +2,10 @@
 
 # Changelog #
 
+#### Changes in release 8.2.0
+  + New features are now available for OpenCart 1.5 and 2.x!
+  + Minor issues solved.
+
 #### Changes in release 8.1.0
   + Added 6 new payment methods (Gift cards)!
     + fashioncheque

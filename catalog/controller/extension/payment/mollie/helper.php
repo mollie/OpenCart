@@ -1,8 +1,7 @@
 <?php
 class MollieHelper
 {
-    // Plugin only for Opencart >= 3.0
-	const PLUGIN_VERSION = "8.1.0";
+	const PLUGIN_VERSION = "8.2.0";
 
 	// All available modules. These should correspond to the Mollie_API_Object_Method constants.
 	const MODULE_NAME_BANKTRANSFER  = "banktransfer";
