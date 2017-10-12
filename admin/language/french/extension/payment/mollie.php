@@ -80,7 +80,6 @@ $_['text_no_status_id']            = '- Ne pas mettre à jour le statut (non rec
 $_['entry_payment_method']           = "Procédé de paiement";
 $_['entry_activate']                 = "Activate";
 $_['entry_sort_order']               = "Ordre de triage";
-$_['entry_status']                   = "État";
 $_['entry_api_key']                  = "Clé API";
 $_['entry_description']              = "Description";
 $_['entry_show_icons']               = "Afficher des icônes";

@@ -79,7 +79,6 @@ $_['text_no_status_id']            = "- Do not update the order status (not reco
 $_['entry_payment_method']           = "Payment method";
 $_['entry_activate']                 = "Activate";
 $_['entry_sort_order']               = "Sort order";
-$_['entry_status']                   = "Status";
 $_['entry_api_key']                  = "API key";
 $_['entry_description']              = "Description";
 $_['entry_show_icons']               = "Show icons";

@@ -234,20 +234,6 @@
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-2 control-label"><?php echo $entry_status; ?></label>
-								<div class="col-sm-10">
-									<p class="form-control-static">
-										<?php if (is_array($entry_mstatus)) { ?>
-											<?php foreach ($entry_mstatus as $file) { ?>
-												<?php echo $error_file_missing; ?>: "<?php echo $file; ?>"
-											<?php } ?>
-										<?php } else { ?>
-											<?php echo $entry_mstatus; ?>
-										<?php } ?>
-									</p>
-								</div>
-							</div>
-							<div class="form-group">
 								<label class="col-sm-2 control-label"><?php echo $entry_comm_status; ?></label>
 								<div class="col-sm-10">
 									<p class="form-control-static" data-communication-status></p>

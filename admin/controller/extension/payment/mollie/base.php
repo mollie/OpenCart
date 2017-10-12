@@ -225,7 +225,6 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		$data['entry_description']              = $this->language->get("entry_description");
 		$data['entry_show_icons']               = $this->language->get("entry_show_icons");
 		$data['entry_show_order_canceled_page'] = $this->language->get("entry_show_order_canceled_page");
-		$data['entry_status']                   = $this->language->get("entry_status");
 		$data['entry_mod_status']               = $this->language->get("entry_mod_status");
 		$data['entry_comm_status']              = $this->language->get("entry_comm_status");
 		$data['entry_geo_zone']                 = $this->language->get("entry_geo_zone");
@@ -249,7 +248,6 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		$data['entry_activate']         = $this->language->get("entry_activate");
 		$data['entry_sort_order']       = $this->language->get("entry_sort_order");
 		$data['entry_support']          = $this->language->get("entry_support");
-		$data['entry_mstatus']          = $this->checkModuleStatus();
 		$data['entry_module']           = $this->language->get("entry_module");
 		$data['entry_version']          = $this->language->get("entry_version") . " " . MollieHelper::PLUGIN_VERSION;
 
@@ -519,56 +517,6 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		}
 		
 		return (count($this->error) == 0);
-	}
-
-	protected function checkModuleStatus ()
-	{
-		$need_files = array();
-
-		$mod_files  = array(
-			DIR_APPLICATION . "controller/extension/payment/mollie/base.php",
-			DIR_APPLICATION . "language/en-gb/extension/payment/mollie.php",
-			DIR_TEMPLATE . "extension/payment/mollie.twig",
-			DIR_CATALOG . "controller/extension/payment/mollie-api-client/",
-			DIR_CATALOG . "controller/extension/payment/mollie/base.php",
-			DIR_CATALOG . "language/en-gb/extension/payment/mollie.php",
-			DIR_CATALOG . "model/extension/payment/mollie/base.php",
-			DIR_CATALOG . "view/theme/default/template/extension/payment/mollie_checkout_form.twig",
-			DIR_CATALOG . "view/theme/default/template/extension/payment/mollie_return.twig",
-		);
-
-		foreach (MollieHelper::$MODULE_NAMES as $module_name)
-		{
-			$mod_files[] = DIR_APPLICATION . "controller/extension/payment/mollie_" . $module_name . ".php";
-			$mod_files[] = DIR_APPLICATION . "language/en-gb/extension/payment/mollie_" . $module_name . ".php";
-			$mod_files[] = DIR_CATALOG . "controller/extension/payment/mollie_" . $module_name . ".php";
-			$mod_files[] = DIR_CATALOG . "model/extension/payment/mollie_" . $module_name . ".php";
-		}
-
-		foreach ($mod_files as $file)
-		{
-			$realpath = realpath($file);
-
-			if (!file_exists($realpath))
-			{
-				$need_files[] = '<span class="text-danger">' . $file . '</span>';
-			}
-		}
-
-		if (!MollieHelper::apiClientFound())
-		{
-			$need_files[] = '<span class="text-danger">'
-				. 'API client not found. Please make sure you have installed the module correctly. Use the download '
-				. 'button on the <a href="https://github.com/mollie/OpenCart/releases/latest" target="_blank">release page</a>'
-				. '</span>';
-		}
-
-		if (count($need_files) > 0)
-		{
-			return $need_files;
-		}
-
-		return '<span class="text-success">OK</span>';
 	}
 
 	/**
