@@ -9,7 +9,7 @@ echo "3/8 Unzip temporary zip to upload dir..."
 unzip -q temp.zip -d upload
 echo "4/8 Create opencart installable zip..."
 rm mollie-opencart-2.3-and-up.ocmod.zip
-zip -9 -rq mollie-opencart-2.3-and-up.ocmod.zip upload LICENSE readme.mdown -x *.git* *.DS_Store
+zip -9 -rq mollie-opencart-2.3-and-up.ocmod.zip upload LICENSE readme.md -x *.git* *.DS_Store
 
 echo "5/8 Move files for legacy support (2.2 and lower)..."
 mv ./upload/admin/controller/extension/* ./upload/admin/controller
@@ -55,7 +55,7 @@ echo "--------------------------------------------------------------------";
 
 echo "7/8 Create zip for legacy support (2.2 and lower)..."
 rm mollie-opencart-2.2-and-lower.ocmod.zip
-zip -9 -rq mollie-opencart-2.2-and-lower.ocmod.zip upload LICENSE readme.mdown -x *.git* *.DS_Store
+zip -9 -rq mollie-opencart-2.2-and-lower.ocmod.zip upload LICENSE readme.md -x *.git* *.DS_Store
 
 echo "8/8 Cleanup..."
 rm -rf ./upload
