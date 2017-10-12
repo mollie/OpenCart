@@ -55,8 +55,6 @@ class ControllerExtensionPaymentMollieBase extends Controller
 	// Holds multistore configs
 	protected $data = array();
 
-	protected $oldFolderMethod;
-
 	/**
 	 * @param int $store The Store ID
 	 * @return Mollie_API_Client
@@ -98,14 +96,28 @@ class ControllerExtensionPaymentMollieBase extends Controller
 	 */
 	public function cleanUp()
 	{
-		// If the old method is used, delete the files in the new structure.
-		$path_to_delete = DIR_APPLICATION . ($this->oldFolderMethod() ? "controller/extension/payment/" : "controller/payment/");
-		foreach (MollieHelper::$MODULE_NAMES as $module_name) {
-			$file_to_delete = $path_to_delete . "mollie_" . $module_name . ".php";
-			unlink($file_to_delete);
+		$adminThemeDir = DIR_APPLICATION . 'view/template/extension/payment/';
+		$catalogThemeDir = DIR_CATALOG . 'view/theme/default/template/extension/payment/';
+
+		// Remove old template from previous version.
+		unlink($adminThemeDir . 'mollie_2.tpl');
+
+		if (MollieHelper::isOpenCart3x()) {
+			unlink($adminThemeDir . 'mollie_1.tpl');
+			unlink($adminThemeDir . 'mollie.tpl');
+			unlink($catalogThemeDir . 'mollie_return.tpl');
+			unlink($catalogThemeDir . 'mollie_checkout_form.tpl');
+		} elseif (MollieHelper::isOpenCart2x()) {
+			unlink($adminThemeDir . 'mollie_1.tpl');
+			unlink($adminThemeDir . 'mollie.twig');
+			unlink($catalogThemeDir . 'mollie_return.twig');
+			unlink($catalogThemeDir . 'mollie_checkout_form.twig');
+		} else {
+			unlink($adminThemeDir . 'mollie.tpl');
+			unlink($adminThemeDir . 'mollie.twig');
+			unlink($catalogThemeDir . 'mollie_return.twig');
+			unlink($catalogThemeDir . 'mollie_checkout_form.twig');
 		}
-		unlink($path_to_delete . "mollie/base.php");
-		rmdir($path_to_delete . "mollie");
 	}
 
 	/**
@@ -650,15 +662,6 @@ class ControllerExtensionPaymentMollieBase extends Controller
 			}
 			$this->data['stores'][$store['id']] = $newArrray;
 		}
-	}
-
-	/**
-	 * Check if old folder structure should be used.
-	 * @return bool
-	 */
-	private function oldFolderMethod()
-	{
-		return version_compare(VERSION, '2.3.0.0', '<');
 	}
 
 	/**
