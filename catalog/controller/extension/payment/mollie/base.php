@@ -133,7 +133,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		$data['set_issuer_url'] = $this->url->link("extension/payment/mollie_" . static::MODULE_NAME . "/set_issuer", "", "SSL");
 
 		// Return HTML output - it will get appended to confirm.tpl.
-		return $this->renderTemplate("mollie_checkout_form", $data, array(), false);
+		return $this->renderTemplate('mollie_checkout_form', $data, array(), false);
 	}
 
 	/**
@@ -164,12 +164,9 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		$amount = $this->currency->convert($order['total'], $this->config->get("config_currency"), "EUR");
 
 		$amount = round($amount, 2);
-		$description = str_replace("%", $order['order_id'], html_entity_decode($this->config->get("payment_mollie_ideal_description"), ENT_QUOTES, "UTF-8"));
+		$description = str_replace("%", $order['order_id'], html_entity_decode($this->config->get(MollieHelper::getModuleCode() . "_ideal_description"), ENT_QUOTES, "UTF-8"));
 		$return_url = $this->url->link("extension/payment/mollie_" . static::MODULE_NAME . "/callback&order_id=" . $order['order_id'], "", "SSL");
 		$issuer = $this->getIssuer();
-
-		list ($language, $country) = explode('-', $this->session->data['language']);
-		$locale = strtolower($language) . '_' . strtoupper($country);
 
 		try {
 			$data = array(
@@ -180,7 +177,6 @@ class ControllerExtensionPaymentMollieBase extends Controller
 				"metadata" => array("order_id" => $order['order_id']),
 				"method" => static::MODULE_NAME,
 				"issuer" => $issuer,
-				"locale" => $locale,
 
 				/*
 				 * This data is sent along for credit card payments / fraud checks. You can remove this but you will
@@ -198,6 +194,12 @@ class ControllerExtensionPaymentMollieBase extends Controller
 				"shippingPostal" => $order['shipping_postcode'] ? $order['shipping_postcode'] : $order['payment_postcode'],
 				"shippingCountry" => $order['shipping_iso_code_2'] ? $order['shipping_iso_code_2'] : $order['payment_iso_code_2'],
 			);
+
+			if (strstr($this->session->data['language'], '-')) {
+				list ($language, $country) = explode('-', $this->session->data['language']);
+				$data['locale'] = strtolower($language) . '_' . strtoupper($country);
+			}
+
 			$payment = $api->payments->create($data);
 		} catch (Mollie_Api_Exception $e) {
 			$this->showErrorPage($e->getMessage());
@@ -207,7 +209,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 
 		// Some payment methods can't be cancelled. They need an initial order status.
 		if ($this->startAsPending()) {
-			$this->addOrderHistory($order, $this->config->get("payment_mollie_ideal_pending_status_id"), $this->language->get("text_redirected"), false);
+			$this->addOrderHistory($order, $this->config->get(MollieHelper::getModuleCode() . "_ideal_pending_status_id"), $this->language->get("text_redirected"), false);
 		}
 
 		$model->setPayment($order['order_id'], $payment->id);
@@ -237,6 +239,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 			return;
 		}
 
+		$moduleCode = MollieHelper::getModuleCode();
 		$payment_id = $this->request->post['id'];
 		$this->writeToMollieLog("Received webhook for payment_id " . $payment_id);
 
@@ -257,14 +260,14 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		}
 
 		// Only process the status if the order is stateless or in 'pending' status.
-		if (!empty($order['order_status_id']) && $order['order_status_id'] != $this->config->get("payment_mollie_ideal_pending_status_id")) {
+		if (!empty($order['order_status_id']) && $order['order_status_id'] != $this->config->get($moduleCode . "_ideal_pending_status_id")) {
 			$this->writeToMollieLog("The order was already processed before (order status ID: " . intval($order['order_status_id']) . ")");
 			return;
 		}
 
 		// Order paid ('processed').
 		if ($payment->isPaid()) {
-			$new_status_id = intval($this->config->get("payment_mollie_ideal_processing_status_id"));
+			$new_status_id = intval($this->config->get($moduleCode . "_ideal_processing_status_id"));
 
 			if (!$new_status_id) {
 				$this->writeToMollieLog("The payment has been received. No 'processing' status ID is configured, so the order status could not be updated.", true);
@@ -277,7 +280,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 
 		// Order cancelled.
 		if ($payment->status == Mollie_API_Object_Payment::STATUS_CANCELLED) {
-			$new_status_id = intval($this->config->get("payment_mollie_ideal_canceled_status_id"));
+			$new_status_id = intval($this->config->get($moduleCode . "_ideal_canceled_status_id"));
 
 			if (!$new_status_id) {
 				$this->writeToMollieLog("The payment was cancelled. No 'cancelled' status ID is configured, so the order status could not be updated.", true);
@@ -290,7 +293,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 
 		// Order expired.
 		if ($payment->status == Mollie_API_Object_Payment::STATUS_EXPIRED) {
-			$new_status_id = intval($this->config->get("payment_mollie_ideal_expired_status_id"));
+			$new_status_id = intval($this->config->get($moduleCode . "_ideal_expired_status_id"));
 
 			if (!$new_status_id) {
 				$this->writeToMollieLog("The payment expired. No 'expired' status ID is configured, so the order status could not be updated.", true);
@@ -302,7 +305,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		}
 
 		// Otherwise, order failed.
-		$new_status_id = intval($this->config->get("payment_mollie_ideal_failed_status_id"));
+		$new_status_id = intval($this->config->get($moduleCode . "_ideal_failed_status_id"));
 
 		if (!$new_status_id) {
 			$this->writeToMollieLog("The payment failed. No 'failed' status ID is configured, so the order status could not be updated.", true);
@@ -354,7 +357,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 	 */
 	public function callback()
 	{
-
+		$moduleCode = MollieHelper::getModuleCode();
 		$order_id = $this->getOrderID();
 
 		if ($order_id === false) {
@@ -403,7 +406,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		}
 
 		// Show a 'transaction failed' page if we couldn't find the order or if the payment failed.
-		$failed_status_id = $this->config->get("payment_mollie_ideal_failed_status_id");
+		$failed_status_id = $this->config->get($moduleCode . "_ideal_failed_status_id");
 
 		if (!$order || ($failed_status_id && $order['order_status_id'] == $failed_status_id)) {
 			return $this->showReturnPage(
@@ -413,7 +416,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		}
 
 		// If the order status is 'processing' (i.e. 'paid'), redirect to OpenCart's default 'success' page.
-		if ($order["order_status_id"] == $this->config->get("payment_mollie_ideal_processing_status_id")) {
+		if ($order["order_status_id"] == $this->config->get($moduleCode . "_ideal_processing_status_id")) {
 			if ($this->cart) {
 				$this->cart->clear();
 			}
@@ -424,7 +427,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		}
 
 		// If the status is 'pending' (i.e. a bank transfer), the report is not delivered yet.
-		if ($order['order_status_id'] == $this->config->get("payment_mollie_ideal_pending_status_id")) {
+		if ($order['order_status_id'] == $this->config->get($moduleCode . "_ideal_pending_status_id")) {
 			if ($this->cart) {
 				$this->cart->clear();
 			}
@@ -438,7 +441,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		}
 
 		// The status is probably 'cancelled'. Allow the admin to redirect their customers back to the shopping cart directly in these cases.
-		if (!(bool)$this->config->get("payment_mollie_show_order_canceled_page")) {
+		if (!(bool)$this->config->get($moduleCode . "_show_order_canceled_page")) {
 			$this->redirect($this->url->link("checkout/checkout", "", "SSL"));
 		}
 
@@ -562,7 +565,15 @@ class ControllerExtensionPaymentMollieBase extends Controller
 	 */
 	protected function addOrderHistory($order, $order_status_id, $comment = "", $notify = false)
 	{
-		$this->model_checkout_order->addOrderHistory($order['order_id'], $order_status_id, $comment, $notify);
+		if (MollieHelper::isOpenCart2x()) {
+			$this->model_checkout_order->addOrderHistory($order['order_id'], $order_status_id, $comment, $notify);
+		} else {
+			if (empty($order['order_status_id'])) {
+				$this->model_checkout_order->confirm($order['order_id'], $order_status_id, $comment, $notify);
+			} else {
+				$this->model_checkout_order->update($order['order_id'], $order_status_id, $comment, $notify);
+			}
+		}
 	}
 
 	/**
@@ -576,11 +587,42 @@ class ControllerExtensionPaymentMollieBase extends Controller
 	 */
 	protected function renderTemplate($template, $data, $common_children = array(), $echo = true)
 	{
-		foreach ($common_children as $child) {
-			$data[$child] = $this->load->controller("common/" . $child);
+		if (!MollieHelper::isOpenCart3x()) {
+			$template .= '.tpl';
 		}
 
-		$html = $this->load->view('extension/payment/' . $template, $data);
+		if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/' . $template)) {
+			$template = $this->config->get('config_template') . '/template/payment/' . $template;
+		} else if (file_exists(DIR_TEMPLATE . 'default/template/payment/' . $template)) {
+			$template = 'default/template/payment/' . $template;
+		} else {
+			$template = 'extension/payment/' . $template;
+		}
+
+		if (MollieHelper::isOpenCart2x()) {
+			foreach ($common_children as $child) {
+				$data[$child] = $this->load->controller("common/" . $child);
+			}
+
+			$html = $this->load->view($template, $data);
+		} else {
+			$this->template = $template;
+			$this->children = array();
+
+			foreach ($data as $field => $value) {
+				$this->data[$field] = $value;
+			}
+
+			foreach($common_children as $child) {
+				if ($child === 'column_left') {
+					continue;
+				}
+
+				$this->children[] = "common/" . $child;
+			}
+
+			$html = $this->render();
+		}
 
 		if ($echo) {
 			return $this->response->setOutput($html);

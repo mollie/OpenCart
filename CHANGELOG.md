@@ -2,6 +2,11 @@
 
 # Changelog #
 
+#### Changes in release 8.2.0
+  + New features are now available for OpenCart 1.5 and 2.x!
+  + Fix a bug where a payment method would not always be displayed correctly in the order email when using payment images.
+  + Minor issues solved.
+
 #### Changes in release 8.1.0
   + Added 6 new payment methods (Gift cards)!
     + fashioncheque

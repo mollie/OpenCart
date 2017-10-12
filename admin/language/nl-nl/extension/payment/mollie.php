@@ -79,7 +79,6 @@ $_['text_no_status_id']            = "- Status niet wijzigen (niet aanbevolen) -
 $_['entry_payment_method']           = "Betaalmethode";
 $_['entry_activate']                 = "Activeren";
 $_['entry_sort_order']               = "Sorteervolgorde";
-$_['entry_status']                   = "Status";
 $_['entry_api_key']                  = "API-sleutel";
 $_['entry_description']              = "Omschrijving";
 $_['entry_show_icons']               = "Toon icoontjes";

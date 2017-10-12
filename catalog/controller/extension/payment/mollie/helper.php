@@ -1,8 +1,7 @@
 <?php
 class MollieHelper
 {
-    // Plugin only for Opencart >= 3.0
-	const PLUGIN_VERSION = "8.1.0";
+	const PLUGIN_VERSION = "8.2.0";
 
 	// All available modules. These should correspond to the Mollie_API_Object_Method constants.
 	const MODULE_NAME_BANKTRANSFER  = "banktransfer";
@@ -60,7 +59,7 @@ class MollieHelper
 
 			$mollie = new Mollie_API_Client;
 
-			$mollie->setApiKey($config->get('payment_mollie_api_key'));
+			$mollie->setApiKey($config->get(self::getModuleCode() . '_api_key'));
 
 			$mollie->addVersionString("OpenCart/" . VERSION);
 			$mollie->addVersionString("MollieOpenCart/" . self::PLUGIN_VERSION);
@@ -84,7 +83,7 @@ class MollieHelper
 
 		$mollie = new Mollie_API_Client;
 
-		$mollie->setApiKey(isset($config['payment_mollie_api_key']) ? $config['payment_mollie_api_key'] : null);
+		$mollie->setApiKey(isset($config[self::getModuleCode() . '_api_key']) ? $config[self::getModuleCode() . '_api_key'] : null);
 
 		$mollie->addVersionString("OpenCart/" . VERSION);
 		$mollie->addVersionString("MollieOpenCart/" . self::PLUGIN_VERSION);
@@ -104,5 +103,41 @@ class MollieHelper
 		$mollie->addVersionString("MollieOpenCart/" . self::PLUGIN_VERSION);
 
 		return $mollie;
+	}
+
+	/**
+	 * @return string
+	 */
+	public static function getModuleCode()
+	{
+		if (self::isOpenCart3x()) {
+			return 'payment_mollie';
+		}
+
+		return 'mollie';
+	}
+
+	/**
+	 * @return bool
+	 */
+	public static function isOpenCart3x()
+	{
+		return version_compare(VERSION, '3.0.0', '>=');
+	}
+
+	/**
+	 * @return bool
+	 */
+	public static function isOpenCart23x()
+	{
+		return version_compare(VERSION, '2.3.0', '>=');
+	}
+
+	/**
+	 * @return bool
+	 */
+	public static function isOpenCart2x()
+	{
+		return version_compare(VERSION, '2', '>=');
 	}
 }
