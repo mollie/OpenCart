@@ -86,7 +86,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 				DB_PREFIX
 			));
 
-		$this->db->query("ALTER TABLE `" . DB_PREFIX . "order` MODIFY `payment_method` VARCHAR(255);");
+		$this->db->query("ALTER TABLE `" . DB_PREFIX . "order` MODIFY `payment_method` VARCHAR(255) NOT NULL;");
 
 		// Just install all modules while we're at it.
 		$this->installAllModules();
