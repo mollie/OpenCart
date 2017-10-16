@@ -4,7 +4,7 @@ date_default_timezone_set('CET');
 define("DIR_APPLICATION", realpath(dirname(__FILE__) . "/.."));
 define("DIR_SYSTEM",      DIR_APPLICATION . "/system");
 define("DIR_TEMPLATE",    DIR_APPLICATION . "/catalog/view/theme");
-define("VERSION",         '8.2.0');
+define("VERSION",         '8.2.1');
 
 
 date_default_timezone_set("Europe/Amsterdam");

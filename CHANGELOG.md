@@ -2,6 +2,9 @@
 
 # Changelog #
 
+#### Changes in release 8.2.1
+  + Fixed a bug where Bancontact would be displayed as Mister Cash
+
 #### Changes in release 8.2.0
   + New features are now available for OpenCart 1.5 and 2.x!
   + Fix a bug where a payment method would not always be displayed correctly in the order email when using payment images.
