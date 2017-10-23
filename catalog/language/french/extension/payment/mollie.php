@@ -42,6 +42,7 @@ $_['text_title']            = 'Payez en ligne';
 $_['text_redirected']       = 'Le client a été renvoyé à l\'écran de paiement';
 $_['text_issuer_ideal']     = 'Selectionnez votre banque:';
 $_['text_issuer_giftcard']  = 'Sélectionnez votre carte-cadeau:';
+$_['text_issuer_kbc']       = 'Sélectionnez votre bouton de paiement:';
 $_['button_retry']          = 'Retour à la page de paiement';
 
 // Status page: payment failed (e.g. cancelled).

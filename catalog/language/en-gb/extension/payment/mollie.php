@@ -42,6 +42,7 @@ $_['text_title']            = 'Pay online';
 $_['text_redirected']       = 'The client has been referred to the payment screen';
 $_['text_issuer_ideal']     = 'Select your bank';
 $_['text_issuer_giftcard']  = 'Select your giftcard';
+$_['text_issuer_kbc']       = 'Select your payment button.';
 $_['button_retry']          = 'Return to checkout page';
 
 // Status page: payment failed (e.g. cancelled).

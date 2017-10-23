@@ -42,6 +42,7 @@ $_['text_title']            = 'Online betalen';
 $_['text_redirected']       = 'De klant is doorgestuurd naar het betaalscherm';
 $_['text_issuer_ideal']     = 'Kies uw bank';
 $_['text_issuer_giftcard']  = 'Kies uw giftcard';
+$_['text_issuer_kbc']       = 'Kies uw betaalknop';
 $_['button_retry']          = 'Opnieuw proberen af te rekenen';
 
 // Status page: payment failed (e.g. cancelled).
