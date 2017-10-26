@@ -23,24 +23,11 @@
 
 		<script type="text/javascript">
 			(function ($) {
-				function initiateMollieConfirmClick(confirm_button_exists) {
-					if (confirm_button_exists) {
-						$("#qc_confirm_order").click(function () {
-							$("#mollie_payment_form").submit();
-						});
-					} else {
-						$("#button-confirm").click(function () {
-							$("#mollie_payment_form").submit();
-						});
-					}
-				}
-
-				// Run after pageload.
 				$(function () {
 					var issuers = $("#mollie_issuers"),
 							confirm_button_exists = ($("#qc_confirm_order").length > 0);
 
-					if (issuers.find("option").length == 1) {
+					if (issuers.find("option").length === 1) {
 						$.post("<?php echo $set_issuer_url; ?>", {mollie_issuer_id: issuers.val()});
 					}
 
@@ -55,8 +42,6 @@
 							$("#mollie_payment_form").parent().show();
 						}
 
-						// render after change (for ajax checkouts)
-						initiateMollieConfirmClick(confirm_button_exists);
 						return;
 					}
 
@@ -64,9 +49,6 @@
 					$("#button-confirm").show().click(function () {
 						$("#mollie_payment_form").submit();
 					});
-
-					// default confirm button render
-					initiateMollieConfirmClick(confirm_button_exists);
 				});
 			})(window.jQuery || window.$);
 		</script>

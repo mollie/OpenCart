@@ -22,53 +22,35 @@
     </div>
 
     <script type="text/javascript">
-        (function ($) {
-            function initiateMollieConfirmClick(confirm_button_exists) {
-                if (confirm_button_exists) {
-                    $("#qc_confirm_order").click(function () {
-                        $("#mollie_payment_form").submit();
-                    });
-                } else {
-                    $("#button-confirm").click(function () {
-                        $("#mollie_payment_form").submit();
-                    });
-                }
-            }
+			(function ($) {
+				$(function () {
+					var issuers = $("#mollie_issuers"),
+							confirm_button_exists = ($("#qc_confirm_order").length > 0);
 
-            // Run after pageload.
-            $(function () {
-                var issuers = $("#mollie_issuers"),
-                    confirm_button_exists = ($("#qc_confirm_order").length > 0);
+					if (issuers.find("option").length === 1) {
+						$.post("{{ set_issuer_url }}", {mollie_issuer_id: issuers.val()});
+					}
 
-                if (issuers.find("option").length == 1) {
-                    $.post("{{ set_issuer_url }}", {mollie_issuer_id: issuers.val()});
-                }
+					issuers.bind("change", function () {
+						$.post("{{ set_issuer_url }}", {mollie_issuer_id: $(this).val()});
+					});
 
-                issuers.bind("change", function () {
-                    $.post("{{ set_issuer_url }}", {mollie_issuer_id: $(this).val()});
-                });
+					// See if we can find a a confirmation button on the page (i.e. ajax checkouts).
+					if (confirm_button_exists) {
+						// If we have issuers, show the form.
+						if (issuers.length) {
+							$("#mollie_payment_form").parent().show();
+						}
 
-                // See if we can find a a confirmation button on the page (i.e. ajax checkouts).
-                if (confirm_button_exists) {
-                    // If we have issuers, show the form.
-                    if (issuers.length) {
-                        $("#mollie_payment_form").parent().show();
-                    }
+						return;
+					}
 
-                    // render after change (for ajax checkouts)
-                    initiateMollieConfirmClick(confirm_button_exists);
-                    return;
-                }
-
-                // No confirmation button found. Show our own confirmation button.
-                $("#button-confirm").show().click(function () {
-                    $("#mollie_payment_form").submit();
-                });
-
-                // default confirm button render
-                initiateMollieConfirmClick(confirm_button_exists);
-            });
-        })(window.jQuery || window.$);
+					// No confirmation button found. Show our own confirmation button.
+					$("#button-confirm").show().click(function () {
+						$("#mollie_payment_form").submit();
+					});
+				});
+			})(window.jQuery || window.$);
     </script>
   </form>
 </div>
