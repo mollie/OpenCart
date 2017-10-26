@@ -2,6 +2,10 @@
 
 # Changelog #
 
+#### Changes in release 8.2.2
+  + Fixed a bug where quick checkouts would not validate properly
+  + Added missing translation
+  
 #### Changes in release 8.2.1
   + Fixed a bug where Bancontact would be displayed as Mister Cash
 
