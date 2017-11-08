@@ -400,7 +400,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 
 		$payment = $this->getAPIClient()->payments->get($payment_id);
 
-		if ($payment->isPaid() && $order['order_status_id'] == 0) {
+		if ($payment->isPaid() && $order['order_status_id'] != $paid_status_id) {
 			$this->addOrderHistory($order, $paid_status_id, $this->language->get("response_success"), true);
 			$order['order_status_id'] = $paid_status_id;
 		}
