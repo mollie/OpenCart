@@ -2,6 +2,10 @@
 
 # Changelog #
 
+#### Changes in release 8.2.3
+  + Improved logging for future debugging
+  + Minor bug fixes.
+
 #### Changes in release 8.2.2
   + Fixed a bug where quick checkouts would not validate properly
   + Added missing translation
