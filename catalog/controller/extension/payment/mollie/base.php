@@ -380,13 +380,15 @@ class ControllerExtensionPaymentMollieBase extends Controller
 			);
 		}
 
+		$this->writeToMollieLog("Received callback for order " . $order_id);
+
 		// Load required translations.
 		$this->load->language("extension/payment/mollie");
 
 		// Double-check whether or not the status of the order is correct.
 		$model = $this->getModuleModel();
 
-		$paid_status_id = intval($this->config->get("mollie_ideal_processing_status_id"));
+		$paid_status_id = intval($this->config->get($moduleCode . "_ideal_processing_status_id"));
 		$payment_id = $model->getPaymentID($order['order_id']);
 
 		if ($payment_id === false) {
@@ -409,6 +411,12 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		$failed_status_id = $this->config->get($moduleCode . "_ideal_failed_status_id");
 
 		if (!$order || ($failed_status_id && $order['order_status_id'] == $failed_status_id)) {
+			if ($failed_status_id && $order['order_status_id'] == $failed_status_id) {
+				$this->writeToMollieLog("Error payment failed for order " . $order['order_id']);
+			} else {
+				$this->writeToMollieLog("Error couldn't find order");
+			}
+
 			return $this->showReturnPage(
 				$this->language->get("heading_failed"),
 				$this->language->get("msg_failed")
@@ -417,6 +425,8 @@ class ControllerExtensionPaymentMollieBase extends Controller
 
 		// If the order status is 'processing' (i.e. 'paid'), redirect to OpenCart's default 'success' page.
 		if ($order["order_status_id"] == $this->config->get($moduleCode . "_ideal_processing_status_id")) {
+			$this->writeToMollieLog("Success redirect to success page for order " . $order['order_id']);
+
 			if ($this->cart) {
 				$this->cart->clear();
 			}
@@ -428,6 +438,8 @@ class ControllerExtensionPaymentMollieBase extends Controller
 
 		// If the status is 'pending' (i.e. a bank transfer), the report is not delivered yet.
 		if ($order['order_status_id'] == $this->config->get($moduleCode . "_ideal_pending_status_id")) {
+			$this->writeToMollieLog("Unknown payment status for order " . $order['order_id']);
+
 			if ($this->cart) {
 				$this->cart->clear();
 			}
@@ -446,6 +458,8 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		}
 
 		// Show a 'transaction failed' page if all else fails.
+		$this->writeToMollieLog("Everything else failed for order " . $order['order_id']);
+
 		return $this->showReturnPage(
 			$this->language->get("heading_failed"),
 			$this->language->get("msg_failed")
