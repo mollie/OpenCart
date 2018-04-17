@@ -171,6 +171,18 @@ class ControllerExtensionPaymentMollieBase extends Controller
 	 */
 	public function index ()
 	{
+		// Double-check if clean-up has been done - For upgrades
+		$adminThemeDir = DIR_APPLICATION . 'view/template/extension/payment/';
+		if (MollieHelper::isOpenCart3x() || MollieHelper::isOpenCart2x()) {
+			if(file_exists($adminThemeDir . 'mollie_1.tpl')) {
+				$this->cleanUp();
+			}
+		} else {
+			if(file_exists($adminThemeDir . 'mollie.tpl')) {
+				$this->cleanUp();
+			}
+		}
+		
 		// Load essential models
 		$this->load->language("extension/payment/mollie");
 		$this->load->model("setting/setting");

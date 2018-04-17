@@ -78,3 +78,4 @@ $_['method_sofort']       = 'SOFORT Banking';
 $_['method_paypal']       = 'PayPal';
 $_['method_paysafecard']  = 'paysafecard';
 $_['method_giftcard']     = 'Giftcard';
+$_['method_inghomepay']   = 'ING Home\'Pay';
