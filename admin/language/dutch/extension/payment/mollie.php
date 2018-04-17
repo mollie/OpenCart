@@ -45,7 +45,7 @@ $_['text_mollie_paypal']        = $method_list_logo;
 $_['text_mollie_paysafecard']   = $method_list_logo;
 $_['text_mollie_sofort']        = $method_list_logo;
 $_['text_mollie_giftcard']      = $method_list_logo;
-$_['text_mollie_inghomepay']      = $method_list_logo;
+$_['text_mollie_inghomepay']    = $method_list_logo;
 
 // Heading
 $_['heading_title']         = "Mollie";
