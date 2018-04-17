@@ -1,7 +1,7 @@
 <?php
 class MollieHelper
 {
-	const PLUGIN_VERSION = "8.2.3";
+	const PLUGIN_VERSION = "8.3.0";
 
 	// All available modules. These should correspond to the Mollie_API_Object_Method constants.
 	const MODULE_NAME_BANKTRANSFER  = "banktransfer";
@@ -16,6 +16,7 @@ class MollieHelper
 	const MODULE_NAME_SOFORT        = "sofort";
 	const MODULE_NAME_KBC           = "kbc";
 	const MODULE_NAME_GIFTCARD      = "giftcard";
+	const MODULE_NAME_INGHOMEPAY    = "inghomepay";
 
 
 	// List of all available module names.
@@ -32,6 +33,7 @@ class MollieHelper
 		self::MODULE_NAME_SOFORT,
 		self::MODULE_NAME_KBC,
 		self::MODULE_NAME_GIFTCARD,
+		self::MODULE_NAME_INGHOMEPAY
 	);
 
 	static protected $api_client;
