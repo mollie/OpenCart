@@ -195,9 +195,25 @@ class ControllerPaymentMollieBase extends Controller
 				"shippingCountry" => $order['shipping_iso_code_2'] ? $order['shipping_iso_code_2'] : $order['payment_iso_code_2'],
 			);
 
+			$locales = array(
+				en_US,
+				de_AT,
+				de_CH,
+				de_DE,
+				es_ES,
+				fr_BE,
+				fr_FR,
+				nl_BE,
+				nl_NL
+			);
+			
 			if (strstr($this->session->data['language'], '-')) {
 				list ($language, $country) = explode('-', $this->session->data['language']);
-				$data['locale'] = strtolower($language) . '_' . strtoupper($country);
+				$locale = strtolower($language) . '_' . strtoupper($country);
+			}
+			
+			if (!in_array($locale, $locales)) {
+				$locale = 'en_US';
 			}
 
 			$payment = $api->payments->create($data);
