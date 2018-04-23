@@ -196,15 +196,15 @@ class ControllerPaymentMollieBase extends Controller
 			);
 
 			$locales = array(
-				en_US,
-				de_AT,
-				de_CH,
-				de_DE,
-				es_ES,
-				fr_BE,
-				fr_FR,
-				nl_BE,
-				nl_NL
+				'en_US',
+				'de_AT',
+				'de_CH',
+				'de_DE',
+				'es_ES',
+				'fr_BE',
+				'fr_FR',
+				'nl_BE',
+				'nl_NL'
 			);
 			
 			if (strstr($this->session->data['language'], '-')) {
