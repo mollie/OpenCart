@@ -68,6 +68,8 @@ $_['name_mollie_paysafecard']   = "paysafecard";
 $_['name_mollie_sofort']        = "SOFORT Banking";
 $_['name_mollie_giftcard']      = 'Giftcard';
 $_['name_mollie_inghomepay']    = 'ING Home\'pay';
+$_['name_mollie_eps']           = 'EPS';
+$_['name_mollie_giropay']       = 'Giropay';
 
 // Text
 $_['text_edit']                    = "Edit";

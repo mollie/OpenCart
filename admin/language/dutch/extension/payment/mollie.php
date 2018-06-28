@@ -46,6 +46,8 @@ $_['text_mollie_paysafecard']   = $method_list_logo;
 $_['text_mollie_sofort']        = $method_list_logo;
 $_['text_mollie_giftcard']      = $method_list_logo;
 $_['text_mollie_inghomepay']    = $method_list_logo;
+$_['text_mollie_eps']           = $method_list_logo;
+$_['text_mollie_giropay']       = $method_list_logo;
 
 // Heading
 $_['heading_title']         = "Mollie";
@@ -68,6 +70,8 @@ $_['name_mollie_paysafecard']   = "paysafecard";
 $_['name_mollie_sofort']        = "SOFORT Banking";
 $_['name_mollie_giftcard']      = 'Giftcard';
 $_['name_mollie_inghomepay']    = 'ING Home\'Pay';
+$_['name_mollie_eps']           = 'EPS';
+$_['name_mollie_giropay']       = 'Giropay';
 
 // Text
 $_['text_edit']                    = "Bewerk Mollie";
