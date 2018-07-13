@@ -68,7 +68,7 @@ $_['response_unknown']   = 'Une erreur inconnue s\'est produite';
 // Methods
 $_['method_ideal']                      = 'iDEAL';
 $_['method_creditcard']                 = 'Creditcard';
-$_['method_mistercash']                 = 'Bancontact';
+$_['method_bancontact']                 = 'Bancontact';
 $_['method_banktransfer']               = 'Bank transfer';
 $_['method_directdebit']                = 'Bank transfer';
 $_['method_belfius']                    = 'Belfius Direct Net';
@@ -78,4 +78,6 @@ $_['method_sofort']                     = 'SOFORT Banking';
 $_['method_paypal']                     = 'PayPal';
 $_['method_paysafecard']                = 'paysafecard';
 $_['method_giftcard']                   = 'Giftcard';
-$_['method_inghomepay']   				= 'ING Home\'Pay';
+$_['method_inghomepay']                 = 'ING Home\'Pay';
+$_['method_eps']                        = 'Giropay';
+$_['method_giropay']                    = 'EPS';

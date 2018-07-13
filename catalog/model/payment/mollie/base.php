@@ -48,7 +48,7 @@ class ModelPaymentMollieBase extends Model
 	const MODULE_NAME = NULL;
 
 	/**
-	 * @return Mollie_API_Client
+	 * @return MollieApiClient
 	 */
 	protected function getAPIClient()
 	{
@@ -82,7 +82,7 @@ class ModelPaymentMollieBase extends Model
 			if ($maximum && $maximum < $amount) {
 				return NULL;
 			}
-		} catch (Mollie_API_Exception $e) {
+		} catch (Mollie\Api\Exceptions\ApiException $e) {
 			$this->log->write("Error retrieving payment method '" . static::MODULE_NAME . "' from Mollie: {$e->getMessage()}.");
 
 			return NULL;
