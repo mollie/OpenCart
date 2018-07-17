@@ -244,7 +244,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
         $model->setPayment($order['order_id'], $payment->id);
 
         // Redirect to payment gateway.
-        $this->redirect($payment->_links->checkout['href']);
+        $this->redirect($payment->_links->checkout->href);
     }
 
     /**
