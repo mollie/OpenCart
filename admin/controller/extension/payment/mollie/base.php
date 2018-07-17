@@ -106,7 +106,9 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		$catalogThemeDir = DIR_CATALOG . 'view/theme/default/template/extension/payment/';
 
 		// Remove old template from previous version.
-		unlink($adminThemeDir . 'mollie_2.tpl');
+		if (file_exists($adminThemeDir . 'mollie_2.tpl')) {
+			unlink($adminThemeDir . 'mollie_2.tpl');
+		}
 
 		if (MollieHelper::isOpenCart3x()) {
 			unlink($adminThemeDir . 'mollie_1.tpl');

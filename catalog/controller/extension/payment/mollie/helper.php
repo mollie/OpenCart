@@ -63,6 +63,7 @@ class MollieHelper
 	{
 		if (!self::$api_client && self::apiClientFound())
 		{
+			require_once(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/extension/payment/mollie-api-client/vendor/autoload.php");
 			$mollie = new MollieApiClient;
 
 			$mollie->setApiKey($config->get(self::getModuleCode() . '_api_key'));
@@ -85,6 +86,7 @@ class MollieHelper
 	 */
 	public static function getAPIClientAdmin ($config)
 	{
+		require_once(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/extension/payment/mollie-api-client/vendor/autoload.php");
 		$mollie = new MollieApiClient;
 
 		$mollie->setApiKey(isset($config[self::getModuleCode() . '_api_key']) ? $config[self::getModuleCode() . '_api_key'] : null);
@@ -97,6 +99,7 @@ class MollieHelper
 
 	public static function getAPIClientForKey($key = null)
 	{
+		require_once(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/extension/payment/mollie-api-client/vendor/autoload.php");
 		$mollie = new MollieApiClient;
 
 		$mollie->setApiKey(!empty($key) ? $key : null);
