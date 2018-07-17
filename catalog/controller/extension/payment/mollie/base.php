@@ -129,7 +129,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 
         // Set template data.
         $data['action'] = $this->url->link("extension/payment/mollie_" . static::MODULE_NAME . "/payment", "", "SSL");
-        $data['image'] = $payment_method->image->normal;
+        $data['image'] = $payment_method->image->size1x;
         $data['message'] = $this->language;
         $data['issuers'] = isset($payment_method->issuers) ? $payment_method->issuers : array();
         $data['text_issuer'] = $this->language->get("text_issuer_" . static::MODULE_NAME);
