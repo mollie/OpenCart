@@ -172,33 +172,39 @@ class ControllerExtensionPaymentMollieBase extends Controller
 
         try {
             $data = array(
-                "amount" => ["currency" => "EUR", "value" => $amount],
+                "amount" => ["currency" => "EUR", "value" => (string)$amount],
                 "description" => $description,
                 "redirectUrl" => $return_url,
                 "webhookUrl" => $this->getWebhookUrl(),
                 "metadata" => array("order_id" => $order['order_id']),
                 "method" => static::MODULE_NAME,
                 "issuer" => $issuer,
-
+            );
                 /*
                  * This data is sent along for credit card payments / fraud checks. You can remove this but you will
                  * have a higher conversion if you leave it here.
                  */
 
-                "billingAddress" => [
+               $data["billingAddress"] = [
+                    "streetAndNumber" => $order['payment_address_1'] . ' ' . $order['payment_address_2'],
                     "city" => $order['payment_city'],
                     "region" => $order['payment_zone'],
                     "postalCode" => $order['payment_postcode'],
                     "country" => $order['payment_iso_code_2']
-                ],
+                ];
 
-                "shippingAddress" => [
-                    "city" => $order['shipping_city'],
-                    "region" => $order['shipping_zone'],
-                    "postalCode" => $order['shipping_postcode'],
-                    "country" => $order['shipping_iso_code_2']
-                ],
-            );
+                if (!empty($order['shipping_firstname']) || !empty($order['shipping_lastname'])) {
+                    $data["shippingAddress"] = [
+                        "streetAndNumber" => $order['shipping_address_1'] . ' ' . $order['shipping_address_2'],
+                        "city" => $order['shipping_city'],
+                        "region" => $order['shipping_zone'],
+                        "postalCode" => $order['shipping_postcode'],
+                        "country" => $order['shipping_iso_code_2']
+                    ];
+                } else {
+                    $data["shippingAddress"] = $data["billingAddress"];
+                }
+
 
             $locales = array(
                 'en_US',
@@ -238,7 +244,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
         $model->setPayment($order['order_id'], $payment->id);
 
         // Redirect to payment gateway.
-        $this->redirect($payment->_links->checkout);
+        $this->redirect($payment->_links->checkout['href']);
     }
 
     /**
