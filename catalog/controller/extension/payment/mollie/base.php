@@ -172,7 +172,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 
         try {
             $data = array(
-                "amount" => ["currency" => "EUR", "value" => (string)$amount],
+                "amount" => ["currency" => "EUR", "value" => (string)number_format($amount,2)],
                 "description" => $description,
                 "redirectUrl" => $return_url,
                 "webhookUrl" => $this->getWebhookUrl(),
@@ -221,6 +221,8 @@ class ControllerExtensionPaymentMollieBase extends Controller
             if (strstr($this->session->data['language'], '-')) {
                 list ($language, $country) = explode('-', $this->session->data['language']);
                 $locale = strtolower($language) . '_' . strtoupper($country);
+            } else {
+                $locale = strtolower($this->session->data['language']) . '_' . strtoupper($this->session->data['language']);
             }
 
             if (!in_array($locale, $locales)) {
