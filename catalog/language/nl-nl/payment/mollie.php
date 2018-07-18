@@ -68,7 +68,7 @@ $_['response_unknown']   = 'Er is een onbekende fout opgetreden';
 // Methods
 $_['method_ideal']        = 'iDEAL';
 $_['method_creditcard']   = 'Creditcard';
-$_['method_bancontact']   = 'Bancontact';
+$_['method_bancontact']   = 'Bancontact/MisterCash';
 $_['method_banktransfer'] = 'Overboeking';
 $_['method_directdebit']  = 'Eenmalige incasso';
 $_['method_belfius']      = 'Belfius Direct Net';

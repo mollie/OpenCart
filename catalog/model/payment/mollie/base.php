@@ -68,20 +68,6 @@ class ModelPaymentMollieBase extends Model
 		$moduleCode = MollieHelper::getModuleCode();
 		try {
 			$payment_method = $this->getAPIClient()->methods->get(static::MODULE_NAME);
-
-			// Quick checkout provides an array wile the default checkout provides only the total.
-			$amount = is_array($total) ? $total[0]['value'] : round($total, 2);
-
-			$minimum = $payment_method->getMinimumAmount();
-			$maximum = $payment_method->getMaximumAmount();
-
-			if ($minimum && $minimum > $amount) {
-				return NULL;
-			}
-
-			if ($maximum && $maximum < $amount) {
-				return NULL;
-			}
 		} catch (Mollie\Api\Exceptions\ApiException $e) {
 			$this->log->write("Error retrieving payment method '" . static::MODULE_NAME . "' from Mollie: {$e->getMessage()}.");
 

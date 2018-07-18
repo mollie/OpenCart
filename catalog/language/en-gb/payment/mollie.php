@@ -68,7 +68,7 @@ $_['response_unknown']   = 'An unknown error occurred';
 // Methods
 $_['method_ideal']        = 'iDEAL';
 $_['method_creditcard']   = 'Creditcard';
-$_['method_bancontact']   = 'Bancontact';
+$_['method_bancontact']   = 'Bancontact/MisterCash';
 $_['method_banktransfer'] = 'Bank transfer';
 $_['method_directdebit']  = 'Direct debit';
 $_['method_belfius']      = 'Belfius Direct Net';
