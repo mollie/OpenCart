@@ -3,7 +3,7 @@ use Mollie\Api\MollieApiClient;
 
 class MollieHelper
 {
-	const PLUGIN_VERSION = "8.4.0";
+	const PLUGIN_VERSION = "8.3.2";
 
 	// All available modules. These should correspond to the Mollie_API_Object_Method constants.
 	const MODULE_NAME_BANKTRANSFER  = "banktransfer";
@@ -49,7 +49,7 @@ class MollieHelper
 	 */
 	public static function apiClientFound ()
 	{
-		return file_exists(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/extension/payment/mollie-api-client/");
+		return file_exists(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/payment/mollie-api-client/");
 	}
 
 	/**
@@ -63,7 +63,7 @@ class MollieHelper
 	{
 		if (!self::$api_client && self::apiClientFound())
 		{
-			require_once(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/extension/payment/mollie-api-client/src/Mollie/API/Autoloader.php");
+			require_once(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/payment/mollie-api-client/src/Mollie/API/Autoloader.php");
 
 			$mollie = new MollieApiClient;
 
@@ -87,7 +87,7 @@ class MollieHelper
 	 */
 	public static function getAPIClientAdmin ($config)
 	{
-		require_once(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/extension/payment/mollie-api-client/src/Mollie/API/Autoloader.php");
+		require_once(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/payment/mollie-api-client/src/Mollie/API/Autoloader.php");
 
 		$mollie = new MollieApiClient;
 
@@ -101,7 +101,7 @@ class MollieHelper
 
 	public static function getAPIClientForKey($key = null)
 	{
-		require_once(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/extension/payment/mollie-api-client/src/Mollie/API/Autoloader.php");
+		require_once(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/payment/mollie-api-client/src/Mollie/API/Autoloader.php");
 
 		$mollie = new MollieApiClient;
 
