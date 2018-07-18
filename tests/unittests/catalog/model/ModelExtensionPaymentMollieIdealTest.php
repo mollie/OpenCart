@@ -54,69 +54,6 @@ class ModelExtensionPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
 		$this->model->url = $this->getMock("stub", array("link"));
 	}
 
-	/**
-	 * Add mock payment methods to the list of payment methods the API client will return.
-	 *
-	 * @param string $id
-	 * @param int    $min_amount
-	 * @param int    $max_amount
-	 *
-	 * @return mixed
-	 */
-	protected function addPaymentMethod ($id = "method", $min_amount = 0, $max_amount = 999)
-	{
-		$method = $this->getMock("stub", array("getMinimumAmount", "getMaximumAmount"));
-
-		$method->id          = $id;
-		$method->description = $id;
-
-		$method->image = new StdClass;
-		$method->image->normal = NULL;
-		$method->image->bigger = NULL;
-
-		$method->method("getMinimumAmount")->willReturn($min_amount);
-		$method->method("getMaximumAmount")->willReturn($max_amount);
-
-		$this->client_methods[] = $method;
-
-		return $method;
-	}
-
-	/**
-	 * Retrieve the correct payment methods for a specified amount.
-	 */
-	public function testGetMethodCanReturnNULL ()
-	{
-		$method = $this->getMock("stub", array("getMinimumAmount", "getMaximumAmount"));
-
-		$method->id          = NULL;
-		$method->description = NULL;
-
-		$this->client_methods
-			->expects($this->exactly(3))
-			->method("get")
-			->with(NULL)
-			->willReturn($method);
-
-		$method
-			->expects($this->exactly(3))
-			->method("getMinimumAmount")
-			->willReturn(100);
-
-		$method
-			->expects($this->exactly(3))
-			->method("getMaximumAmount")
-			->willReturn(200);
-
-		$return_50  = $this->model->getMethod(array('zone_id'=>1, 'country_id'=>1), 50);
-		$return_150 = $this->model->getMethod(array('zone_id'=>1, 'country_id'=>1), 150);
-		$return_250 = $this->model->getMethod(array('zone_id'=>1, 'country_id'=>1), 250);
-
-		$this->assertNull($return_50);
-		$this->assertNotNull($return_150);
-		$this->assertNull($return_250);
-	}
-
 	public function testSetPaymentReturnsFalseIfArgumentsOmitted()
 	{
 		$this->assertFalse($this->model->setPayment(NULL, NULL));

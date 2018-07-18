@@ -1,4 +1,6 @@
 <?php
+use Mollie\Api\MollieApiClient;
+
 class MollieHelper
 {
 	const PLUGIN_VERSION = "8.4.0";
@@ -10,7 +12,7 @@ class MollieHelper
 	const MODULE_NAME_CREDITCARD    = "creditcard";
 	const MODULE_NAME_DIRECTDEBIT   = "directdebit";
 	const MODULE_NAME_IDEAL         = "ideal";
-	const MODULE_NAME_MISTERCASH    = "mistercash";
+	const MODULE_NAME_BANCONTACT    = "bancontact";
 	const MODULE_NAME_PAYPAL        = "paypal";
 	const MODULE_NAME_PAYSAFECARD   = "paysafecard";
 	const MODULE_NAME_SOFORT        = "sofort";
@@ -29,7 +31,7 @@ class MollieHelper
 		self::MODULE_NAME_CREDITCARD,
 		self::MODULE_NAME_DIRECTDEBIT,
 		self::MODULE_NAME_IDEAL,
-		self::MODULE_NAME_MISTERCASH,
+		self::MODULE_NAME_BANCONTACT,
 		self::MODULE_NAME_PAYPAL,
 		self::MODULE_NAME_PAYSAFECARD,
 		self::MODULE_NAME_SOFORT,
@@ -55,15 +57,14 @@ class MollieHelper
 	 *
 	 * @param Config $config
 	 *
-	 * @return Mollie_API_Client
+	 * @return MollieApiClient
 	 */
 	public static function getAPIClient ($config)
 	{
 		if (!self::$api_client && self::apiClientFound())
 		{
-			require_once(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/extension/payment/mollie-api-client/src/Mollie/API/Autoloader.php");
-
-			$mollie = new Mollie_API_Client;
+			require_once(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/extension/payment/mollie-api-client/vendor/autoload.php");
+			$mollie = new MollieApiClient;
 
 			$mollie->setApiKey($config->get(self::getModuleCode() . '_api_key'));
 
@@ -81,13 +82,12 @@ class MollieHelper
 	 *
 	 * @param array $config
 	 *
-	 * @return Mollie_API_Client
+	 * @return MollieApiClient
 	 */
 	public static function getAPIClientAdmin ($config)
 	{
-		require_once(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/extension/payment/mollie-api-client/src/Mollie/API/Autoloader.php");
-
-		$mollie = new Mollie_API_Client;
+		require_once(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/extension/payment/mollie-api-client/vendor/autoload.php");
+		$mollie = new MollieApiClient;
 
 		$mollie->setApiKey(isset($config[self::getModuleCode() . '_api_key']) ? $config[self::getModuleCode() . '_api_key'] : null);
 
@@ -99,9 +99,8 @@ class MollieHelper
 
 	public static function getAPIClientForKey($key = null)
 	{
-		require_once(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/extension/payment/mollie-api-client/src/Mollie/API/Autoloader.php");
-
-		$mollie = new Mollie_API_Client;
+		require_once(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/extension/payment/mollie-api-client/vendor/autoload.php");
+		$mollie = new MollieApiClient;
 
 		$mollie->setApiKey(!empty($key) ? $key : null);
 
