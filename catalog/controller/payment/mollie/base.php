@@ -634,7 +634,7 @@ class ControllerPaymentMollieBase extends Controller
 
 		if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/' . $template)) {
 			$template = $this->config->get('config_template') . '/template/payment/' . $template;
-		} else if (file_exists(DIR_TEMPLATE . 'default/template/payment/' . $template)) {
+		} else if (file_exists(DIR_TEMPLATE . 'default/template/payment/' . $template) && VERSION < '2.2.0.0') {
 			$template = 'default/template/payment/' . $template;
 		} else {
 			$template = 'payment/' . $template;
