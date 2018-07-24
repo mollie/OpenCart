@@ -1,5 +1,10 @@
 #!/bin/bash
 
+echo "Retrieving Mollie API client v2..."
+git submodule update --init
+rmdir ./catalog/controller/extension/payment/mollie-api-client/examples
+rmdir ./catalog/controller/extension/payment/mollie-api-client/tests
+
 echo "1/8 Create temporary zip..."
 zip -9 -rq temp.zip admin catalog
 echo "2/8 Create temporary upload dir..."

@@ -42,6 +42,10 @@
  * @property URL                          $url
  * @property User                         $user
  */
+
+use Mollie\Api\Exceptions\ApiException;
+use Mollie\Api\Exceptions\IncompatiblePlatform;
+use Mollie\Api\MollieApiClient;
 require_once(dirname(DIR_SYSTEM) . "/catalog/controller/payment/mollie/helper.php");
 
 class ControllerPaymentMollieBase extends Controller
@@ -57,7 +61,7 @@ class ControllerPaymentMollieBase extends Controller
 
 	/**
 	 * @param int $store The Store ID
-	 * @return Mollie_API_Client
+	 * @return MollieAPIClient
 	 */
 	protected function getAPIClient ($store = 0)
 	{
@@ -410,7 +414,7 @@ class ControllerPaymentMollieBase extends Controller
 					$allowed_methods[] = $api_method->id;
 				}
 			}
-			catch (Mollie_API_Exception $e)
+			catch (Mollie\Api\Exceptions\ApiException $e)
 			{
 				// If we have an unauthorized request, our API key is likely invalid.
 				if ($data['stores'][$store['id']][$code . '_api_key'] !== NULL && strpos($e->getMessage(), "Unauthorized request") >= 0)
@@ -499,10 +503,10 @@ class ControllerPaymentMollieBase extends Controller
 					$json['valid'] = true;
 					$json['message'] = 'Ok.';
 				}
-			} catch (Mollie_API_Exception_IncompatiblePlatform $e) {
+			} catch (IncompatiblePlatform $e) {
 				$json['error'] = true;
 				$json['message'] = $e->getMessage() . ' You can ask your hosting provider to help with this.';
-			} catch (Mollie_API_Exception $e) {
+			} catch (ApiException $e) {
 				$json['error'] = true;
 				$json['message'] = '<strong>Communicating with Mollie failed:</strong><br/>'
 					. htmlspecialchars($e->getMessage())
@@ -567,9 +571,9 @@ class ControllerPaymentMollieBase extends Controller
 			$client->methods->all();
 
 			return '<span style="color: green">OK</span>';
-		} catch (Mollie_API_Exception_IncompatiblePlatform $e) {
+		} catch (IncompatiblePlatform $e) {
 			return '<span style="color:red">' . $e->getMessage() . ' You can ask your hosting provider to help with this.</span>';
-		} catch (Mollie_API_Exception $e) {
+		} catch (ApiException $e) {
 			return '<span style="color:red">'
 				. '<strong>Communicating with Mollie failed:</strong><br/>'
 				. htmlspecialchars($e->getMessage())

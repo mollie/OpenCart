@@ -45,6 +45,9 @@
  *
  * @method render
  */
+
+use Mollie\Api\MollieApiClient;
+use Mollie\Api\Types\PaymentStatus;
 require_once(dirname(DIR_SYSTEM) . "/catalog/controller/payment/mollie/helper.php");
 
 class ControllerPaymentMollieBase extends Controller
@@ -53,7 +56,7 @@ class ControllerPaymentMollieBase extends Controller
 	const MODULE_NAME = null;
 
 	/**
-	 * @return Mollie_API_Client
+	 * @return MollieAPIClient
 	 */
 	protected function getAPIClient()
 	{
@@ -126,7 +129,7 @@ class ControllerPaymentMollieBase extends Controller
 
 		// Set template data.
 		$data['action'] = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/payment", "", "SSL");
-		$data['image'] = $payment_method->image->normal;
+		$data['image'] = $payment_method->image->size1x;
 		$data['message'] = $this->language;
 		$data['issuers'] = isset($payment_method->issuers) ? $payment_method->issuers : array();
 		$data['text_issuer'] = $this->language->get("text_issuer_" . static::MODULE_NAME);
@@ -148,7 +151,7 @@ class ControllerPaymentMollieBase extends Controller
 		}
 		try {
 			$api = $this->getAPIClient();
-		} catch (Mollie_API_Exception $e) {
+		} catch (Mollie\Api\Exceptions\ApiException $e) {
 			$this->showErrorPage($e->getMessage());
 			$this->writeToMollieLog("Creating payment failed, API did not load; " . $e->getMessage());
 			return;
@@ -162,7 +165,6 @@ class ControllerPaymentMollieBase extends Controller
 		$order = $this->getOpenCartOrder($order_id);
 
 		$amount = $this->currency->convert($order['total'], $this->config->get("config_currency"), "EUR");
-
 		$amount = round($amount, 2);
 		$description = str_replace("%", $order['order_id'], html_entity_decode($this->config->get(MollieHelper::getModuleCode() . "_ideal_description"), ENT_QUOTES, "UTF-8"));
 		$return_url = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/callback&order_id=" . $order['order_id'], "", "SSL");
@@ -170,30 +172,37 @@ class ControllerPaymentMollieBase extends Controller
 
 		try {
 			$data = array(
-				"amount" => $amount,
+				"amount" => ["currency" => "EUR", "value" => (string)$amount],
 				"description" => $description,
 				"redirectUrl" => $return_url,
 				"webhookUrl" => $this->getWebhookUrl(),
 				"metadata" => array("order_id" => $order['order_id']),
 				"method" => static::MODULE_NAME,
-				"issuer" => $issuer,
-
+				"issuer" => $issuer
+			);
 				/*
 				 * This data is sent along for credit card payments / fraud checks. You can remove this but you will
 				 * have a higher conversion if you leave it here.
 				 */
+			$data["billingAddress"] = [
+				"streetAndNumber" => $order['payment_address_1'] . ' ' . $order['payment_address_2'],
+				"city" => $order['payment_city'],
+				"region" => $order['payment_zone'],
+				"postalCode" => $order['payment_postcode'],
+				"country" => $order['payment_iso_code_2']
+			];
 
-				"billingCity" => $order['payment_city'],
-				"billingRegion" => $order['payment_zone'],
-				"billingPostal" => $order['payment_postcode'],
-				"billingCountry" => $order['payment_iso_code_2'],
-
-				"shippingAddress" => $order['shipping_address_1'] ? $order['shipping_address_1'] : null,
-				"shippingCity" => $order['shipping_city'] ? $order['shipping_city'] : $order['payment_city'],
-				"shippingRegion" => $order['shipping_zone'] ? $order['shipping_zone'] : $order['payment_zone'],
-				"shippingPostal" => $order['shipping_postcode'] ? $order['shipping_postcode'] : $order['payment_postcode'],
-				"shippingCountry" => $order['shipping_iso_code_2'] ? $order['shipping_iso_code_2'] : $order['payment_iso_code_2'],
-			);
+			if (!empty($order['shipping_firstname']) || !empty($order['shipping_lastname'])) {
+				$data["shippingAddress"] = [
+					"streetAndNumber" => $order['shipping_address_1'] . ' ' . $order['shipping_address_2'],
+					"city" => $order['shipping_city'],
+					"region" => $order['shipping_zone'],
+					"postalCode" => $order['shipping_postcode'],
+					"country" => $order['shipping_iso_code_2']
+				];
+			} else {
+				$data["shippingAddress"] = $data["billingAddress"];
+			}
 
 			$locales = array(
 				'en_US',
@@ -210,14 +219,18 @@ class ControllerPaymentMollieBase extends Controller
 			if (strstr($this->session->data['language'], '-')) {
 				list ($language, $country) = explode('-', $this->session->data['language']);
 				$locale = strtolower($language) . '_' . strtoupper($country);
+			} else {
+				$locale = strtolower($this->session->data['language']) . '_' . strtoupper($this->session->data['language']);
 			}
 			
 			if (!in_array($locale, $locales)) {
-				$locale = 'en_US';
+				$locale = 'nl_NL';
 			}
 
+			$data['locale'] = $locale;
+
 			$payment = $api->payments->create($data);
-		} catch (Mollie_Api_Exception $e) {
+		} catch (Mollie\Api\Exceptions\ApiException $e) {
 			$this->showErrorPage($e->getMessage());
 			$this->writeToMollieLog("Creating payment failed; " . $e->getMessage());
 			return;
@@ -231,7 +244,7 @@ class ControllerPaymentMollieBase extends Controller
 		$model->setPayment($order['order_id'], $payment->id);
 
 		// Redirect to payment gateway.
-		$this->redirect($payment->links->paymentUrl);
+		$this->redirect($payment->_links->checkout->href);
 	}
 
 	/**
@@ -295,7 +308,7 @@ class ControllerPaymentMollieBase extends Controller
 		}
 
 		// Order cancelled.
-		if ($payment->status == Mollie_API_Object_Payment::STATUS_CANCELLED) {
+		if ($payment->status == PaymentStatus::STATUS_CANCELED) {
 			$new_status_id = intval($this->config->get($moduleCode . "_ideal_canceled_status_id"));
 
 			if (!$new_status_id) {
@@ -308,7 +321,7 @@ class ControllerPaymentMollieBase extends Controller
 		}
 
 		// Order expired.
-		if ($payment->status == Mollie_API_Object_Payment::STATUS_EXPIRED) {
+		if ($payment->status == PaymentStatus::STATUS_EXPIRED) {
 			$new_status_id = intval($this->config->get($moduleCode . "_ideal_expired_status_id"));
 
 			if (!$new_status_id) {
@@ -396,13 +409,15 @@ class ControllerPaymentMollieBase extends Controller
 			);
 		}
 
+		$this->writeToMollieLog("Received callback for order " . $order_id);
+
 		// Load required translations.
 		$this->load->language("payment/mollie");
 
 		// Double-check whether or not the status of the order is correct.
 		$model = $this->getModuleModel();
 
-		$paid_status_id = intval($this->config->get("mollie_ideal_processing_status_id"));
+		$paid_status_id = intval($this->config->get($moduleCode . "_ideal_processing_status_id"));
 		$payment_id = $model->getPaymentID($order['order_id']);
 
 		if ($payment_id === false) {
@@ -416,7 +431,7 @@ class ControllerPaymentMollieBase extends Controller
 
 		$payment = $this->getAPIClient()->payments->get($payment_id);
 
-		if ($payment->isPaid() && $order['order_status_id'] == 0) {
+		if ($payment->isPaid() && $order['order_status_id'] != $paid_status_id) {
 			$this->addOrderHistory($order, $paid_status_id, $this->language->get("response_success"), true);
 			$order['order_status_id'] = $paid_status_id;
 		}
@@ -425,6 +440,12 @@ class ControllerPaymentMollieBase extends Controller
 		$failed_status_id = $this->config->get($moduleCode . "_ideal_failed_status_id");
 
 		if (!$order || ($failed_status_id && $order['order_status_id'] == $failed_status_id)) {
+			if ($failed_status_id && $order['order_status_id'] == $failed_status_id) {
+				$this->writeToMollieLog("Error payment failed for order " . $order['order_id']);
+			} else {
+				$this->writeToMollieLog("Error couldn't find order");
+			}
+
 			return $this->showReturnPage(
 				$this->language->get("heading_failed"),
 				$this->language->get("msg_failed")
@@ -433,6 +454,7 @@ class ControllerPaymentMollieBase extends Controller
 
 		// If the order status is 'processing' (i.e. 'paid'), redirect to OpenCart's default 'success' page.
 		if ($order["order_status_id"] == $this->config->get($moduleCode . "_ideal_processing_status_id")) {
+			$this->writeToMollieLog("Success redirect to success page for order " . $order['order_id']);
 			if ($this->cart) {
 				$this->cart->clear();
 			}
@@ -444,6 +466,7 @@ class ControllerPaymentMollieBase extends Controller
 
 		// If the status is 'pending' (i.e. a bank transfer), the report is not delivered yet.
 		if ($order['order_status_id'] == $this->config->get($moduleCode . "_ideal_pending_status_id")) {
+			$this->writeToMollieLog("Unknown payment status for order " . $order['order_id']);
 			if ($this->cart) {
 				$this->cart->clear();
 			}
@@ -462,6 +485,8 @@ class ControllerPaymentMollieBase extends Controller
 		}
 
 		// Show a 'transaction failed' page if all else fails.
+		$this->writeToMollieLog("Everything else failed for order " . $order['order_id']);
+
 		return $this->showReturnPage(
 			$this->language->get("heading_failed"),
 			$this->language->get("msg_failed")
@@ -609,7 +634,7 @@ class ControllerPaymentMollieBase extends Controller
 
 		if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/' . $template)) {
 			$template = $this->config->get('config_template') . '/template/payment/' . $template;
-		} else if (file_exists(DIR_TEMPLATE . 'default/template/payment/' . $template)) {
+		} else if (file_exists(DIR_TEMPLATE . 'default/template/payment/' . $template) && VERSION < '2.2.0.0') {
 			$template = 'default/template/payment/' . $template;
 		} else {
 			$template = 'payment/' . $template;

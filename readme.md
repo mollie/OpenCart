@@ -27,7 +27,7 @@ Via [Mollie](https://www.mollie.com/) is iDEAL gemakkelijk aan te sluiten zonder
 [Creditcard](https://www.mollie.com/creditcard/) is vrijwel de bekendste methode voor het ontvangen van betalingen met wereldwijde dekking. Doordat we onder andere de bekende merken Mastercard en Visa ondersteunen, zorgt dit direct voor veel potentiële kopers.
 
 ### Bancontact/Mister Cash ###
-[Bancontact/Mister Cash](https://www.mollie.com/mistercash/) maakt gebruik van een fysieke kaart die gekoppeld is aan tegoed op een Belgische bankrekening. Betalingen via Bancontact/Mister Cash zijn gegarandeerd en lijken daarmee sterk op iDEAL in Nederland. Daarom is het uitermate geschikt voor uw webwinkel.
+[Bancontact/Mister Cash](https://www.mollie.com/bancontact/) maakt gebruik van een fysieke kaart die gekoppeld is aan tegoed op een Belgische bankrekening. Betalingen via Bancontact/Mister Cash zijn gegarandeerd en lijken daarmee sterk op iDEAL in Nederland. Daarom is het uitermate geschikt voor uw webwinkel.
 
 ### SOFORT Banking ###
 [SOFORT Banking](https://www.mollie.com/sofort/) is een in Duitsland zeer populaire betaalmethode. Betalingen zijn direct en niet storneerbaar, waarmee het sterk op het Nederlandse iDEAL lijkt. Daarom is het uitermate geschikt voor uw webwinkel.
@@ -94,7 +94,7 @@ Contact: [www.mollie.com/nl/about](https://www.mollie.com/nl/about) — info@mol
 
 + [Meer informatie over iDEAL via Mollie](https://www.mollie.com/ideal/)
 + [Meer informatie over credit card via Mollie](https://www.mollie.com/creditcard/)
-+ [Meer informatie over Bancontact/Mister Cash via Mollie](https://www.mollie.com/mistercash/)
++ [Meer informatie over Bancontact/Mister Cash via Mollie](https://www.mollie.com/bancontact/)
 + [Meer informatie over SOFORT Banking via Mollie](https://www.mollie.com/sofort/)
 + [Meer informatie over SEPA Bank transfer via Mollie](https://www.mollie.com/banktransfer/)
 + [Meer informatie over SEPA Direct debit via Mollie](https://www.mollie.com/directdebit/)

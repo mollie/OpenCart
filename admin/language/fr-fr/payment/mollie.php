@@ -40,12 +40,15 @@ $_['text_mollie_creditcard']    = $method_list_logo;
 $_['text_mollie_directdebit']   = $method_list_logo;
 $_['text_mollie_ideal']         = $method_list_logo;
 $_['text_mollie_kbc']           = $method_list_logo;
-$_['text_mollie_mistercash']    = $method_list_logo;
+$_['text_mollie_bancontact']    = $method_list_logo;
 $_['text_mollie_paypal']        = $method_list_logo;
 $_['text_mollie_paysafecard']   = $method_list_logo;
 $_['text_mollie_sofort']        = $method_list_logo;
 $_['text_mollie_giftcard']      = $method_list_logo;
 $_['text_mollie_inghomepay']    = $method_list_logo;
+$_['text_mollie_mistercash']    = $method_list_logo;
+$_['text_mollie_eps']           = $method_list_logo;
+$_['text_mollie_giropay']       = $method_list_logo;
 
 // Heading
 $_['heading_title']           = "Mollie";
@@ -62,12 +65,15 @@ $_['name_mollie_creditcard']    = "Creditcard";
 $_['name_mollie_directdebit']   = "Débit direct";
 $_['name_mollie_ideal']         = "iDEAL";
 $_['name_mollie_kbc']           = "Bouton de paiement KBC/CBC";
-$_['name_mollie_mistercash']    = "Bancontact/MisterCash";
+$_['name_mollie_bancontact']    = "Bancontact";
 $_['name_mollie_paypal']        = "PayPal";
 $_['name_mollie_paysafecard']   = "paysafecard";
 $_['name_mollie_sofort']        = "SOFORT Banking";
 $_['name_mollie_giftcard']      = 'Giftcard';
-$_['name_mollie_inghomepay']    = 'ING Home\'Pay';
+$_['name_mollie_inghomepay']    = 'ING Home\'pay';
+$_['name_mollie_mistercash']    = "Bancontact/MisterCash";
+$_['name_mollie_eps']           = 'EPS';
+$_['name_mollie_giropay']       = 'Giropay';
 
 // Text
 $_['text_edit']                    = "Éditer Mollie";
