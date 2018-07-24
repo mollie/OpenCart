@@ -19,5 +19,4 @@ install:
 
 script:
 - composer validate --strict
-- find admin catalog tests -name '*.php' | xargs -n 1 -P4 php -l
-- vendor/bin/phpunit -c tests/phpunit.xml
+- find admin catalog -path catalog/controller/payment/mollie-api-client -prune -o -name '*.php' | xargs -n 1 -P4 php -l
