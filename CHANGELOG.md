@@ -169,7 +169,7 @@
 
 #### Wijzigigen in versie 5.0
   + De module gebruikt nu de nieuwe betalings-API van Mollie. Dit betekent dat de module naast [iDEAL](https://www.mollie.com/ideal/), nu
-  ook [creditcard](https://www.mollie.com/creditcard/), [Mister Cash](https://www.mollie.com/mistercash/) en [paysafecard](https://www.mollie.com/paysafecard/)
+  ook [creditcard](https://www.mollie.com/creditcard/), [Mister Cash](https://www.mollie.com/bancontact/) en [paysafecard](https://www.mollie.com/paysafecard/)
   ondersteunt. Mocht een betaling om wat voor reden dan ook niet lukken, dat kan uw klant het gelijk nog een keer proberen. U hoeft hiervoor niets extra's
   te implementeren. In de toekomst zullen ook nog nieuwe betaalmethodes toegevoegd worden. Deze zijn dan direct beschikbaar in uw webshop.
   + Het instellingenscherm in de admin toont nu gelijk of de module correct kan communiceren met de Mollie API. Hierdoor kunnen we u beter helpen wanneer

@@ -42,6 +42,10 @@
  * @property URL                          $url
  * @property User                         $user
  */
+use Mollie\Api\Exceptions\ApiException;
+use Mollie\Api\Exceptions\IncompatiblePlatform;
+use Mollie\Api\MollieApiClient;
+
 require_once(dirname(DIR_SYSTEM) . "/catalog/controller/extension/payment/mollie/helper.php");
 
 class ControllerExtensionPaymentMollieBase extends Controller
@@ -57,7 +61,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 
 	/**
 	 * @param int $store The Store ID
-	 * @return Mollie_API_Client
+	 * @return MollieApiClient
 	 */
 	protected function getAPIClient ($store = 0)
 	{
@@ -102,7 +106,9 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		$catalogThemeDir = DIR_CATALOG . 'view/theme/default/template/extension/payment/';
 
 		// Remove old template from previous version.
-		unlink($adminThemeDir . 'mollie_2.tpl');
+		if (file_exists($adminThemeDir . 'mollie_2.tpl')) {
+			unlink($adminThemeDir . 'mollie_2.tpl');
+		}
 
 		if (MollieHelper::isOpenCart3x()) {
 			unlink($adminThemeDir . 'mollie_1.tpl');
@@ -408,7 +414,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 					$allowed_methods[] = $api_method->id;
 				}
 			}
-			catch (Mollie_API_Exception $e)
+			catch (Mollie\Api\Exceptions\ApiException $e)
 			{
 				// If we have an unauthorized request, our API key is likely invalid.
 				if ($data['stores'][$store['id']][$code . '_api_key'] !== NULL && strpos($e->getMessage(), "Unauthorized request") >= 0)
@@ -472,7 +478,10 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		));
 	}
 
-	public function validate_api_key()
+    /**
+     *
+     */
+    public function validate_api_key()
 	{
 		$json = array(
 			'error' => false,
@@ -497,10 +506,10 @@ class ControllerExtensionPaymentMollieBase extends Controller
 					$json['valid'] = true;
 					$json['message'] = 'Ok.';
 				}
-			} catch (Mollie_API_Exception_IncompatiblePlatform $e) {
+			} catch (IncompatiblePlatform $e) {
 				$json['error'] = true;
 				$json['message'] = $e->getMessage() . ' You can ask your hosting provider to help with this.';
-			} catch (Mollie_API_Exception $e) {
+			} catch (ApiException $e) {
 				$json['error'] = true;
 				$json['message'] = '<strong>Communicating with Mollie failed:</strong><br/>'
 					. htmlspecialchars($e->getMessage())
@@ -565,9 +574,9 @@ class ControllerExtensionPaymentMollieBase extends Controller
 			$client->methods->all();
 
 			return '<span style="color: green">OK</span>';
-		} catch (Mollie_API_Exception_IncompatiblePlatform $e) {
+		} catch (Mollie\Api\Exceptions\ApiException_IncompatiblePlatform $e) {
 			return '<span style="color:red">' . $e->getMessage() . ' You can ask your hosting provider to help with this.</span>';
-		} catch (Mollie_API_Exception $e) {
+		} catch (Mollie\Api\Exceptions\ApiException $e) {
 			return '<span style="color:red">'
 				. '<strong>Communicating with Mollie failed:</strong><br/>'
 				. htmlspecialchars($e->getMessage())
