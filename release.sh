@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Retrieving Mollie API client v1..."
+echo "Retrieving Mollie API client v2..."
 git submodule update --init
 rmdir ./catalog/controller/extension/payment/mollie-api-client/examples
 rmdir ./catalog/controller/extension/payment/mollie-api-client/tests

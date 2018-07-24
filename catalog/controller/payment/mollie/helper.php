@@ -1,4 +1,5 @@
 <?php
+
 use Mollie\Api\MollieApiClient;
 
 class MollieHelper
@@ -19,8 +20,8 @@ class MollieHelper
 	const MODULE_NAME_KBC           = "kbc";
 	const MODULE_NAME_GIFTCARD      = "giftcard";
 	const MODULE_NAME_INGHOMEPAY    = "inghomepay";
-	const MODULE_NAME_EPS           = "eps";
-	const MODULE_NAME_GIROPAY       = "giropay";
+	const MODULE_NAME_EPS			= "eps";
+	const MODULE_NAME_GIROPAY		= "giropay";
 
 
 	// List of all available module names.
@@ -49,7 +50,7 @@ class MollieHelper
 	 */
 	public static function apiClientFound ()
 	{
-		return file_exists(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/extension/payment/mollie-api-client/");
+		return file_exists(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/payment/mollie-api-client/");
 	}
 
 	/**
@@ -63,7 +64,7 @@ class MollieHelper
 	{
 		if (!self::$api_client && self::apiClientFound())
 		{
-			require_once(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/extension/payment/mollie-api-client/src/Mollie/API/Autoloader.php");
+			require_once(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/payment/mollie-api-client/vendor/autoload.php");
 
 			$mollie = new MollieApiClient;
 
@@ -87,7 +88,7 @@ class MollieHelper
 	 */
 	public static function getAPIClientAdmin ($config)
 	{
-		require_once(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/extension/payment/mollie-api-client/src/Mollie/API/Autoloader.php");
+		require_once(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/payment/mollie-api-client/vendor/autoload.php");
 
 		$mollie = new MollieApiClient;
 
@@ -101,7 +102,7 @@ class MollieHelper
 
 	public static function getAPIClientForKey($key = null)
 	{
-		require_once(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/extension/payment/mollie-api-client/src/Mollie/API/Autoloader.php");
+		require_once(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/payment/mollie-api-client/vendor/autoload.php");
 
 		$mollie = new MollieApiClient;
 
