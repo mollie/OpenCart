@@ -172,7 +172,7 @@ class ControllerPaymentMollieBase extends Controller
 
 		try {
 			$data = array(
-				"amount" => ["currency" => "EUR", "value" => (string)$amount],
+				"amount" => ["currency" => "EUR", "value" => (string)number_format($amount,2)],
 				"description" => $description,
 				"redirectUrl" => $return_url,
 				"webhookUrl" => $this->getWebhookUrl(),
