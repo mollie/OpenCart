@@ -95,7 +95,7 @@ class ModelExtensionPaymentMollieBase extends Model
 		$icon = "";
 
 		if ($this->config->get($moduleCode . "_show_icons")) {
-			$icon = '<img src="' . htmlspecialchars($payment_method->image->normal) . '" height="20" style="margin:0 5px -5px 0" />';
+			$icon = '<img src="' . htmlspecialchars($payment_method->image->size1x) . '" height="20" style="margin:0 5px -5px 0" />';
 		}
 
 		return array(
