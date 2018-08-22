@@ -79,5 +79,5 @@ $_['method_paypal']       = 'PayPal';
 $_['method_paysafecard']  = 'paysafecard';
 $_['method_giftcard']     = 'Giftcard';
 $_['method_inghomepay']   = 'ING Home\'Pay';
-$_['method_eps']          = 'Giropay';
-$_['method_giropay']      = 'EPS';
+$_['method_eps']          = 'EPS';
+$_['method_giropay']      = 'Giropay';
