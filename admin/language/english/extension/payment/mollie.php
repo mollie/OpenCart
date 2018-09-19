@@ -88,6 +88,8 @@ $_['entry_description']              = "Description";
 $_['entry_show_icons']               = "Show icons";
 $_['entry_show_order_canceled_page'] = "Show message if payment is cancelled";
 $_['entry_geo_zone']                 = "Geo Zone";
+$_['entry_creditcard_max_amount']    = "Maximumbedrag voor credit card";
+$_['eg_creditcard_max_amount']       = "eg.500";
 
 // Help
 $_['help_view_profile']             = 'You can find your API key in <a href="https://www.mollie.com/beheer/account/profielen/" target="_blank" class="alert-link">your Mollie website profiles</a>.';
@@ -96,6 +98,7 @@ $_['help_api_key']                  = 'Enter the <code>api_key</code> of the web
 $_['help_description']              = 'This description will appear on the bank / card statement of your customer. You may use a maximum of 29 characters. TIP: Use <code>%</code>, this will be replaced by the order id of the payment. Don\'t forget <code>%</code> can be multiple characters long!';
 $_['help_show_icons']               = 'Show icons next to the Mollie payment methods on the checkout page.';
 $_['help_show_order_canceled_page'] = 'Show a message to the customer if a payment is cancelled, before redirecting the customer back to their shopping cart.';
+$_['help_creditcard_max_amount'] = 'Enter the amount you have set for credit card in your mollie account.';
 
 // Info
 $_['entry_module']            = "Module";

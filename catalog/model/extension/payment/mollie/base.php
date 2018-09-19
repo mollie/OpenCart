@@ -98,6 +98,13 @@ class ModelExtensionPaymentMollieBase extends Model
 			$icon = '<img src="' . htmlspecialchars($payment_method->image->size1x) . '" height="20" style="margin:0 5px -5px 0" />';
 		}
 
+		if (static::MODULE_NAME == 'creditcard'){
+			$amount_limit = $this->config->get($moduleCode .'_creditcard_max_amount');
+			if(($amount_limit != NULL) && ($total > $amount_limit)) {
+				return;
+			}
+		}
+
 		return array(
 			"code" => "mollie_" . static::MODULE_NAME,
 			"title" => $icon . $payment_method->description,

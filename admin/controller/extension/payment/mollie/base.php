@@ -282,6 +282,9 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		$data['entry_support']          = $this->language->get("entry_support");
 		$data['entry_module']           = $this->language->get("entry_module");
 		$data['entry_version']          = $this->language->get("entry_version") . " " . MollieHelper::PLUGIN_VERSION;
+		$data['entry_creditcard_max_amount']           = $this->language->get("entry_creditcard_max_amount");
+		$data['help_creditcard_max_amount']           = $this->language->get("help_creditcard_max_amount");
+		$data['eg_creditcard_max_amount']           = $this->language->get("eg_creditcard_max_amount");
 
 		$data['button_save']            = $this->language->get("button_save");
 		$data['button_cancel']          = $this->language->get("button_cancel");
@@ -373,6 +376,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 			$code . "_ideal_canceled_status_id"   => 7,
 			$code . "_ideal_failed_status_id"     => 10,
 			$code . "_ideal_expired_status_id"    => 14,
+			$code . "_creditcard_max_amount"      => NULL,
 		);
 
 		foreach($shops as $store)

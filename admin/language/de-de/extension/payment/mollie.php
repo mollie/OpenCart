@@ -90,6 +90,8 @@ $_['entry_description']              = "Beschreibung";
 $_['entry_show_icons']               = "Icons anzeigen";
 $_['entry_show_order_canceled_page'] = "Meldung bei annullierten Bezahlungen anzeigen";
 $_['entry_geo_zone']                 = "Geo Zone";
+$_['entry_creditcard_max_amount']    = "Höchstbetrag für Kreditkarte";
+$_['eg_creditcard_max_amount']       = "eg.500";
 
 // Help
 $_['help_view_profile']             = 'Sie können Ihren API Key auf <a href="https://www.mollie.com/beheer/account/profielen/" target="_blank" class="alert-link">Ihren Mollie-Webseiten-Profilen finden</a>.';
@@ -98,6 +100,7 @@ $_['help_api_key']                  = "Geben Sie hier den <code>api_key</code> d
 $_['help_description']              = "Die Beschreibung soll auf der Banküberweisung Ihres Kunden erscheinen und Sie können sie in der Mollie Verwaltung sehen. Sie können maximal 29 Zeichen verwenden. TIPP: Verwenden Sie %, dies wird durch die Auftragsnummer ersetzt werden. Die Auftragsnummer selbst kann auch mehrere Zeichen lang sein!";
 $_['help_show_icons']               = "Icons neben den Zahlungsarten von Mollie auf der Zahlungsseite anzeigen.";
 $_['help_show_order_canceled_page'] = "Eine Meldung für den Kunden anzeigen, wenn eine Zahlung annulliert wurde, bevor der Kunde zurück zum Warenkorb verwiesen wird.";
+$_['help_creditcard_max_amount'] = 'Geben Sie den Betrag ein, den Sie in Ihrem mollie-Konto für die Kreditkarte festgelegt haben.';
 
 // Info
 $_['entry_module']          = "Module";

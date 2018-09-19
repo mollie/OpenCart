@@ -90,6 +90,8 @@ $_['entry_description']              = "Omschrijving";
 $_['entry_show_icons']               = "Toon icoontjes";
 $_['entry_show_order_canceled_page'] = "Toon melding bij geannuleerde betalingen";
 $_['entry_geo_zone']                 = "Geo Zone";
+$_['entry_creditcard_max_amount']    = "Maximumbedrag voor creditcard";
+$_['eg_creditcard_max_amount']       = "eg.500";
 
 // Help
 $_['help_view_profile']             = 'U kunt uw API-sleutel vinden bij <a href="https://www.mollie.com/beheer/account/profielen/" target="_blank" class="alert-link">uw Mollie-websiteprofielen</a>.';
@@ -98,6 +100,7 @@ $_['help_api_key']                  = "Voer hier de <code>api_key</code> van het
 $_['help_description']              = "De omschrijving zal op het bankafschrift van uw klant verschijnen en kunt u terugvinden in het Mollie beheer. U kunt maximaal 29 tekens gebruiken. TIP: Gebruik <code>%</code>, dit zal vervangen worden door het ordernummer. Het ordernummer kan zelf ook meerdere tekens lang zijn!";
 $_['help_show_icons']               = "Toon icoontjes naast de betaalmethodes van Mollie op de betaalpagina.";
 $_['help_show_order_canceled_page'] = "Toon een melding aan de klant als een betaling geannuleerd wordt, alvorens de klant terug naar het winkelmandje te verwijzen.";
+$_['help_creditcard_max_amount'] = 'Voer het bedrag in dat u hebt ingesteld voor uw creditcard in uw mollie-account.';
 
 // Info
 $_['entry_module']          = "Module";
