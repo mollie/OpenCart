@@ -180,7 +180,7 @@
 								<label class="col-sm-2 control-label" for="<?php echo $code; ?>_api_key"><span class="required">*</span> <?php echo $entry_api_key; ?><br /><span class="help"><?php echo $help_api_key; ?></span></label>
 								<div class="col-sm-10">
 									<div class="input-group message-block">
-										<input type="text" name="stores[<?php echo $shop['id']; ?>][<?php echo $code; ?>_api_key]" value="<?php echo $stores[$shop['id']][$code . '_api_key']; ?>" placeholder="live_..." id="<?php echo $code; ?>_api_key" class="form-control" data-payment-mollie-api-key/>
+										<input type="text" name="stores[<?php echo $shop['id']; ?>][<?php echo $code; ?>_api_key]" value="<?php echo $stores[$shop['id']][$code . '_api_key']; ?>" placeholder="live_..." id="<?php echo $code; ?>_api_key" store="<?php echo $shop['id']; ?>" class="form-control" data-payment-mollie-api-key/>
 									</div>
 									<?php if ($stores[$shop['id']]['error_api_key']) { ?>
 										<div class="text-danger"><?php echo $stores[$shop['id']]['error_api_key']; ?></div>
@@ -305,6 +305,7 @@
 				checkIfAPIKeyIsValid(value).then(function (response) {
 					if (response.valid) {
 						updateIcon($icon_container, 'success');
+						saveAPIKey(value, $('#mollie_api_key').attr('store'));
 					} else if (response.invalid) {
 						updateIcon($icon_container, 'attention', response.message);
 					} else if (response.error) {
@@ -312,6 +313,21 @@
 					}
 				});
 			}, 400);
+		}
+		
+		function saveAPIKey(key, store_id) {
+			var data = {
+                'api_key': key,
+                'store_id': store_id
+            };
+			$.ajax({
+			  type: "POST",
+			  url: 'index.php?route=extension/payment/mollie_<?php echo $module_name; ?>/saveAPIKey&<?php echo $token; ?>',
+			  data: data,
+			  success: function() {
+			  	window.location.reload();
+			  }
+			});
 		}
 
 		function updateIcon($container, className, message, dontClearErrors) {
@@ -329,8 +345,6 @@
 		}
 
 		$('[data-payment-mollie-api-key]').on('keyup', function () {
-			validateAPIKey(this.value, $(this).closest('.input-group'));
-		}).each(function () {
 			validateAPIKey(this.value, $(this).closest('.input-group'));
 		});
 	})();

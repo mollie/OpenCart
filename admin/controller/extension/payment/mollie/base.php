@@ -236,6 +236,8 @@ class ControllerExtensionPaymentMollieBase extends Controller
 
 		// Set data for template
 		$data['api_check_url']          = $this->url->link("extension/payment/mollie_" . static::MODULE_NAME . '/validate_api_key', $this->getTokenUriPart(), "SSL");
+		$data['module_name']          = static::MODULE_NAME;
+		$data['token']          	  = $this->getTokenUriPart();
 		$data['heading_title']          = $this->language->get("heading_title");
 		$data['title_global_options']   = $this->language->get("title_global_options");
 		$data['title_payment_status']   = $this->language->get("title_payment_status");
@@ -282,6 +284,9 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		$data['entry_support']          = $this->language->get("entry_support");
 		$data['entry_module']           = $this->language->get("entry_module");
 		$data['entry_version']          = $this->language->get("entry_version") . " " . MollieHelper::PLUGIN_VERSION;
+		$data['entry_creditcard_max_amount']           = $this->language->get("entry_creditcard_max_amount");
+		$data['help_creditcard_max_amount']           = $this->language->get("help_creditcard_max_amount");
+		$data['eg_creditcard_max_amount']           = $this->language->get("eg_creditcard_max_amount");
 
 		$data['button_save']            = $this->language->get("button_save");
 		$data['button_cancel']          = $this->language->get("button_cancel");
@@ -373,6 +378,7 @@ class ControllerExtensionPaymentMollieBase extends Controller
 			$code . "_ideal_canceled_status_id"   => 7,
 			$code . "_ideal_failed_status_id"     => 10,
 			$code . "_ideal_expired_status_id"    => 14,
+			$code . "_creditcard_max_amount"      => NULL,
 		);
 
 		foreach($shops as $store)
@@ -745,5 +751,16 @@ class ControllerExtensionPaymentMollieBase extends Controller
 		}
 
 		return $this->user->getId();
+	}
+
+	public function saveAPIKey() {
+		$this->load->model('setting/setting');
+		$code = 'mollie';
+		$store_id = $_POST['store_id'];
+		$data = array(
+			'mollie_api_key' => $_POST['api_key']
+		);
+		$this->model_setting_setting->editSetting($code, $data, $store_id);
+		return true;
 	}
 }

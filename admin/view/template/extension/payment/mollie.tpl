@@ -191,7 +191,7 @@
 										<div class="col-sm-10">
 											<div class="input-group">
 												<span class="input-group-addon"><i class="fa fa-minus"></i></span>
-												<input type="text" name="stores[<?php echo $shop['id']; ?>][<?php echo $code; ?>_api_key]" value="<?php echo $stores[$shop['id']][$code . '_api_key']; ?>" placeholder="live_..." id="<?php echo $code; ?>_api_key" class="form-control" data-payment-mollie-api-key/>
+												<input type="text" name="stores[<?php echo $shop['id']; ?>][<?php echo $code; ?>_api_key]" value="<?php echo $stores[$shop['id']][$code . '_api_key']; ?>" placeholder="live_..." id="<?php echo $code; ?>_api_key" class="form-control" store="<?php echo $shop['id']; ?>" data-payment-mollie-api-key/>
 											</div>
 											<?php if ($stores[$shop['id']]['error_api_key']) { ?>
 											<div class="text-danger"><?php echo $stores[$shop['id']]['error_api_key']; ?></div>
@@ -235,6 +235,12 @@
 											</select>
 										</div>
 									</div>
+									<div class="form-group">
+										<label class="col-sm-2 control-label" for="stores[<?php echo $shop['id']; ?>][<?php echo $code; ?>_creditcard_max_amount]"><span data-toggle="tooltip" title="<?php echo $help_creditcard_max_amount; ?>"><?php echo $entry_creditcard_max_amount; ?></span></label>
+										<div class="col-sm-10">
+											<input type="text" name="stores[<?php echo $shop['id']; ?>][<?php echo $code; ?>_creditcard_max_amount]" value="<?php echo $stores[$shop['id']][$code . '_creditcard_max_amount']; ?>" placeholder="<?php echo $eg_creditcard_max_amount; ?>" id="stores[<?php echo $shop['id']; ?>][<?php echo $code; ?>_creditcard_max_amount]" class="form-control"/>
+										</div>
+									</div>
 								</div>
 
 								<div id="about-module-<?php echo $shop['id']; ?>" class="tab-pane fade in">
@@ -261,11 +267,11 @@
 
 								<div id="support-<?php echo $shop['id']; ?>" class="tab-pane fade in">
 									<fieldset>
-										<legend>Module by Quality Works - Technical Support</legend>
+										<legend>Module by Comercia - Technical Support</legend>
 										<div class="row">
-											<label class="col-sm-2">Quality Works</label>
+											<label class="col-sm-2">Comercia</label>
 											<div class="col-sm-10">
-												Wold 13 50<br>8225BZ Lelystad<br>the Netherlands<br><br>tel: +31 (0)85 7430150<br>E-mail: <a href="mailto:info@qualityworks.eu">info@qualityworks.eu</a><br>Internet: <a href="https://www.qualityworks.eu" target="_blank">www.qualityworks.eu</a>
+												Rijksstraatweg 90<br>7391MV Twello<br>the Netherlands<br><br>tel: +31 (0)85-7733618<br>E-mail: <a href="mailto:support@comercia.nl">support@comercia.nl</a><br>Internet: <a href="https://www.comercia.nl" target="_blank">www.comercia.nl</a>
 											</div>
 										</div>
 										<legend>Mollie - Support</legend>
@@ -316,6 +322,7 @@
 				checkIfAPIKeyIsValid(value).then(function (response) {
 					if (response.valid) {
 						updateIcon($icon_container, 'fa-check');
+						saveAPIKey(value, $('#mollie_api_key').attr('store'));
 					} else if (response.invalid) {
 						updateIcon($icon_container, 'fa-times', response.message);
 					} else if (response.error) {
@@ -323,6 +330,21 @@
 					}
 				});
 			}, 400);
+		}
+
+		function saveAPIKey(key, store_id) {
+			var data = {
+                'api_key': key,
+                'store_id': store_id
+            };
+			$.ajax({
+			  type: "POST",
+			  url: 'index.php?route=extension/payment/mollie_<?php echo $module_name; ?>/saveAPIKey&<?php echo $token; ?>',
+			  data: data,
+			  success: function() {
+			  	window.location.reload();
+			  }
+			});
 		}
 
 		function updateIcon($container, className, message, dontClearErrors) {
@@ -368,8 +390,6 @@
 		}
 
 		$('[data-payment-mollie-api-key]').on('keyup', function () {
-			validateAPIKey(this.value, $(this).siblings('.input-group-addon'));
-		}).each(function () {
 			validateAPIKey(this.value, $(this).siblings('.input-group-addon'));
 		});
 	})();
