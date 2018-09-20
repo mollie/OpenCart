@@ -164,15 +164,15 @@ class ControllerExtensionPaymentMollieBase extends Controller
         $order_id = $this->getOrderID();
         $order = $this->getOpenCartOrder($order_id);
 
-        $amount = $this->currency->convert($order['total'], $this->config->get("config_currency"), "EUR");
-        $amount = round($amount, 2);
+        $currency = $this->session->data['currency'];
+        $amount = $this->currency->convert($order['total'], $this->config->get("config_currency"), $currency);
         $description = str_replace("%", $order['order_id'], html_entity_decode($this->config->get(MollieHelper::getModuleCode() . "_ideal_description"), ENT_QUOTES, "UTF-8"));
         $return_url = $this->url->link("extension/payment/mollie_" . static::MODULE_NAME . "/callback&order_id=" . $order['order_id'], "", "SSL");
         $issuer = $this->getIssuer();
 
         try {
             $data = array(
-                "amount" => ["currency" => "EUR", "value" => (string)number_format($amount,2)],
+                "amount" => ["currency" => $currency, "value" => (string)number_format((float)$amount, 2, '.', '')],
                 "description" => $description,
                 "redirectUrl" => $return_url,
                 "webhookUrl" => $this->getWebhookUrl(),
@@ -230,7 +230,6 @@ class ControllerExtensionPaymentMollieBase extends Controller
             }
 
             $data["locale"]=$locale;
-
             $payment = $api->payments->create($data);
         } catch (Mollie\Api\Exceptions\ApiException $e) {
             $this->showErrorPage($e->getMessage());
@@ -287,6 +286,10 @@ class ControllerExtensionPaymentMollieBase extends Controller
         if (empty($order)) {
             header("HTTP/1.0 404 Not Found");
             echo "Could not find order.";
+            return;
+        }
+
+        if($order['order_status_id'] != 0) {
             return;
         }
 
