@@ -289,6 +289,10 @@ class ControllerExtensionPaymentMollieBase extends Controller
             return;
         }
 
+        if($order['order_status_id'] != 0) {
+            return;
+        }
+
         // Only process the status if the order is stateless or in 'pending' status.
         if (!empty($order['order_status_id']) && $order['order_status_id'] != $this->config->get($moduleCode . "_ideal_pending_status_id")) {
             $this->writeToMollieLog("The order was already processed before (order status ID: " . intval($order['order_status_id']) . ")");
