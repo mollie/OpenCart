@@ -250,13 +250,13 @@
 
 						<div id="support-<?php echo $shop['id']; ?>" class="vtabs-content">
 							<fieldset>
-								<legend>Module by Quality Works - Technical Support</legend>
-								<div class="row">
-									<label class="col-sm-2">Quality Works</label>
-									<div class="col-sm-10">
-										Wold 13 50<br>8225BZ Lelystad<br>the Netherlands<br><br>tel: +31 (0)85 7430150<br>E-mail: <a href="mailto:info@qualityworks.eu">info@qualityworks.eu</a><br>Internet: <a href="https://www.qualityworks.eu" target="_blank">www.qualityworks.eu</a>
+								<legend>Module by Comercia - Technical Support</legend>
+									<div class="row">
+										<label class="col-sm-2">Comercia</label>
+										<div class="col-sm-10">
+											Rijksstraatweg 90<br>7391MV Twello<br>the Netherlands<br><br>tel: +31 (0)85-7733618<br>E-mail: <a href="mailto:support@comercia.nl">support@comercia.nl</a><br>Internet: <a href="https://www.comercia.nl" target="_blank">www.comercia.nl</a>
+										</div>
 									</div>
-								</div>
 								<legend>Mollie - Support</legend>
 							</fieldset>
 							<fieldset>
