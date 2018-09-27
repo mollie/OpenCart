@@ -1,0 +1,81 @@
+<modification>
+    <id>Comercia Utility</id>
+    <version>1.0.6</version>
+    <vqmver>2.3.0</vqmver>
+    <author>Comercia - Mark Smit</author>
+
+    <file name="system/startup.php">
+        <operation error="skip">
+            <search position="after"><![CDATA[<?php]]></search>
+            <add><![CDATA[include_once(DIR_SYSTEM."/comercia/util.php");]]></add>
+        </operation>
+    </file>
+
+    <file name="system/framework.php">
+        <operation error="skip">
+            <search position="before"><![CDATA[$registry = new Registry();]]></search>
+            <add><![CDATA[
+                global $registry;
+                global $application_context;
+                $application_context=$application_config;
+            ]]></add>
+        </operation>
+    </file>
+
+
+    <file name="catalog/view/theme/*/template/common/header.tpl" error="skip">
+        <operation>
+            <search position="after"><![CDATA[<head>]]></search>
+            <add><![CDATA[<?php echo comercia\util::html()->variables();?>]]>
+            </add>
+        </operation>
+    </file>
+
+    <file name="admin/view/template/common/header.tpl" error="skip">
+        <operation error="skip">
+            <search position="after"><![CDATA[<head>]]></search>
+            <add><![CDATA[<?php echo comercia\util::html()->variables();?>]]>
+            </add>
+        </operation>
+    </file>
+
+
+    <file name="catalog/view/theme/*/template/common/header.twig" error="skip">
+        <operation >
+            <search position="after"><![CDATA[<head>]]></search>
+            <add><![CDATA[{{ html_variables() }}]]>
+            </add>
+        </operation>
+    </file>
+
+    <file name="admin/view/template/common/header.twig" error="skip">
+        <operation>
+            <search position="after"><![CDATA[<head>]]></search>
+            <add><![CDATA[{{ html_variables() }}]]>
+            </add>
+        </operation>
+    </file>
+
+
+
+    <file name="system/library/template/twig.php" error="skip">
+        <operation>
+            <search position="after"><![CDATA[$this->twig = new \Twig_Environment]]></search>
+            <add><![CDATA[
+            \comercia\Util::twig()->prepare($this->twig);
+           ]]>
+            </add>
+        </operation>
+    </file>
+
+
+
+    <file name="system/engine/action.php" error="skip">
+        <operation error="skip">
+            <search position="replace"><![CDATA[if (is_dir(DIR_APPLICATION . 'controller/' . $path)) {]]></search>
+            <add>
+                <![CDATA[	if (is_dir(DIR_APPLICATION . 'controller/' . $path) && !is_file(DIR_APPLICATION . 'controller/' . str_replace(array('../', '..\\', '..'), '', $path) . '.php')) {]]>
+            </add>
+        </operation>
+    </file>
+</modification>

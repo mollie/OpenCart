@@ -1,0 +1,56 @@
+<div class="checkout-content">
+  <form action="{{ action }}" method="post" id="mollie_payment_form">
+    <div class="buttons clearfix">
+      {% if issuers is not empty %}
+      <div class="left pull-left">
+        <label style="width:auto !important">
+          <img src="{{ image }}" width="20" style="float:left; margin-right:0.5em; margin-top:-3px" />
+          <strong>{{ text_issuer }}:</strong>
+
+          <select name="mollie_issuer" style="margin-left:1em" id="mollie_issuers">
+            <option value="">&mdash;</option>
+            {% for issuer in issuers %}
+            <option value="{{ issuer.id }}">{{ issuer.name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
+      {% endif %}
+      <div class="right pull-right">
+        <input type="submit" value="{{ message.get('button_confirm') }}" id="button-confirm" class="button btn btn-primary" form="mollie_payment_form">
+      </div>
+    </div>
+
+    <script type="text/javascript">
+			(function ($) {
+				$(function () {
+					var issuers = $("#mollie_issuers"),
+							confirm_button_exists = ($("#qc_confirm_order").length > 0);
+
+					if (issuers.find("option").length === 1) {
+						$.post("{{ set_issuer_url }}", {mollie_issuer_id: issuers.val()});
+					}
+
+					issuers.bind("change", function () {
+						$.post("{{ set_issuer_url }}", {mollie_issuer_id: $(this).val()});
+					});
+
+					// See if we can find a a confirmation button on the page (i.e. ajax checkouts).
+					if (confirm_button_exists) {
+						// If we have issuers, show the form.
+						if (issuers.length) {
+							$("#mollie_payment_form").parent().show();
+						}
+
+						return;
+					}
+
+					// No confirmation button found. Show our own confirmation button.
+					$("#button-confirm").show().click(function () {
+						$("#mollie_payment_form").submit();
+					});
+				});
+			})(window.jQuery || window.$);
+    </script>
+  </form>
+</div>
