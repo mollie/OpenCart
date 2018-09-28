@@ -235,12 +235,6 @@
 											</select>
 										</div>
 									</div>
-									<div class="form-group">
-										<label class="col-sm-2 control-label" for="stores[<?php echo $shop['id']; ?>][<?php echo $code; ?>_creditcard_max_amount]"><span data-toggle="tooltip" title="<?php echo $help_creditcard_max_amount; ?>"><?php echo $entry_creditcard_max_amount; ?></span></label>
-										<div class="col-sm-10">
-											<input type="text" name="stores[<?php echo $shop['id']; ?>][<?php echo $code; ?>_creditcard_max_amount]" value="<?php echo $stores[$shop['id']][$code . '_creditcard_max_amount']; ?>" placeholder="<?php echo $eg_creditcard_max_amount; ?>" id="stores[<?php echo $shop['id']; ?>][<?php echo $code; ?>_creditcard_max_amount]" class="form-control"/>
-										</div>
-									</div>
 								</div>
 
 								<div id="about-module-<?php echo $shop['id']; ?>" class="tab-pane fade in">
