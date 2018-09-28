@@ -91,6 +91,7 @@ $_['entry_show_icons']               = "Mostrar iconos";
 $_['entry_show_order_canceled_page'] = "Mostrar notificación en caso de cancelación de pagos";
 $_['entry_geo_zone']                 = "Zona Geo";
 
+
 // Help
 $_['help_view_profile']             = 'Puede encontrar su clave API en  <a href="https://www.mollie.com/beheer/account/profielen/" target="_blank" class="alert-link">sus 
 perfiles de la web de Mollie</a>.';

@@ -99,6 +99,7 @@ $_['help_description']              = "Die Beschreibung soll auf der Banküberwe
 $_['help_show_icons']               = "Icons neben den Zahlungsarten von Mollie auf der Zahlungsseite anzeigen.";
 $_['help_show_order_canceled_page'] = "Eine Meldung für den Kunden anzeigen, wenn eine Zahlung annulliert wurde, bevor der Kunde zurück zum Warenkorb verwiesen wird.";
 
+
 // Info
 $_['entry_module']          = "Module";
 $_['entry_mod_status']      = "Modulestatus";
