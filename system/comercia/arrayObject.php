@@ -15,6 +15,11 @@ class ArrayObject
         return @$this->data[$name] ?: "";
     }
 
+    function get($name)
+    {
+        return @$this->data[$name] ?: "";
+    }
+
     function __set($name, $value)
     {
         $this->data[$name] = $value;

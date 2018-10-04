@@ -48,7 +48,13 @@ use Mollie\Api\MollieApiClient;
 
 require_once(dirname(DIR_SYSTEM) . "/catalog/controller/payment/mollie/helper.php");
 
-require_once(DIR_SYSTEM . "comercia/util.php");
+define("MOLLIE_VERSION", MollieHelper::PLUGIN_VERSION);
+define("MOLLIE_RELEASE", MOLLIE_VERSION . ".5");
+define("MOLLIE_VERSION_URL", "https://api.github.com/repos/mollie/OpenCart/releases/latest");
+
+if (!defined("MOLLIE_TMP")) {
+    define("MOLLIE_TMP", sys_get_temp_dir());
+}
 
 use comercia\Util;
 
@@ -106,29 +112,36 @@ class ControllerPaymentMollieBase extends Controller
 	 */
 	public function cleanUp()
 	{
-		$adminThemeDir = DIR_APPLICATION . 'view/template/extension/payment/';
-		$catalogThemeDir = DIR_CATALOG . 'view/theme/default/template/extension/payment/';
+		$adminThemeDir = DIR_APPLICATION . 'view/template/';
+		$catalogThemeDir = DIR_CATALOG . 'view/theme/default/template/';
 
 		// Remove old template from previous version.
-		if (file_exists($adminThemeDir . 'mollie_2.tpl')) {
-			unlink($adminThemeDir . 'mollie_2.tpl');
+		if (file_exists($adminThemeDir . 'extension/payment/mollie_2.tpl')) {
+			unlink($adminThemeDir . 'extension/payment/mollie_2.tpl');
+			unlink($adminThemeDir . 'payment/mollie_2.tpl');
 		}
 
 		if (MollieHelper::isOpenCart3x()) {
-			unlink($adminThemeDir . 'mollie_1.tpl');
-			unlink($adminThemeDir . 'mollie.tpl');
-			unlink($catalogThemeDir . 'mollie_return.tpl');
-			unlink($catalogThemeDir . 'mollie_checkout_form.tpl');
+			unlink($adminThemeDir . 'extension/payment/mollie(max_1.5.6.4).tpl');
+			unlink($adminThemeDir . 'payment/mollie(max_1.5.6.4).tpl');
+			unlink($catalogThemeDir . 'extension/payment/mollie_return.tpl');
+			unlink($catalogThemeDir . 'payment/mollie_return.tpl');
+			unlink($catalogThemeDir . 'extension/payment/mollie_checkout_form.tpl');
+			unlink($catalogThemeDir . 'payment/mollie_checkout_form.tpl');
 		} elseif (MollieHelper::isOpenCart2x()) {
-			unlink($adminThemeDir . 'mollie_1.tpl');
-			unlink($adminThemeDir . 'mollie.twig');
-			unlink($catalogThemeDir . 'mollie_return.twig');
-			unlink($catalogThemeDir . 'mollie_checkout_form.twig');
+			unlink($adminThemeDir . 'extension/payment/mollie(max_1.5.6.4).tpl');
+			unlink($adminThemeDir . 'payment/mollie(max_1.5.6.4).tpl');
+			unlink($catalogThemeDir . 'extension/payment/mollie_return.twig');
+			unlink($catalogThemeDir . 'payment/mollie_return.twig');
+			unlink($catalogThemeDir . 'extension/payment/mollie_checkout_form.twig');
+			unlink($catalogThemeDir . 'payment/mollie_checkout_form.twig');
 		} else {
-			unlink($adminThemeDir . 'mollie.tpl');
-			unlink($adminThemeDir . 'mollie.twig');
-			unlink($catalogThemeDir . 'mollie_return.twig');
-			unlink($catalogThemeDir . 'mollie_checkout_form.twig');
+			unlink($adminThemeDir . 'extension/payment/mollie.tpl');
+			unlink($adminThemeDir . 'payment/mollie.tpl');
+			unlink($catalogThemeDir . 'extension/payment/mollie_return.twig');
+			unlink($catalogThemeDir . 'payment/mollie_return.twig');
+			unlink($catalogThemeDir . 'extension/payment/mollie_checkout_form.twig');
+			unlink($catalogThemeDir . 'payment/mollie_checkout_form.twig');
 		}
 	}
 
@@ -138,7 +151,7 @@ class ControllerPaymentMollieBase extends Controller
 	protected function installAllModules ()
 	{
 		// Load models.
-		$extensions = $this->getExtensionModel();
+		$extensions = Util::load()->model('extension/extension');
 		$user_id = $this->getUserId();
 
 		foreach (MollieHelper::$MODULE_NAMES as $module_name)
@@ -170,7 +183,7 @@ class ControllerPaymentMollieBase extends Controller
 	 */
 	protected function uninstallAllModules ()
 	{
-		$extensions = $this->getExtensionModel();
+		$extensions = Util::load()->model('extension/extension');
 
 		foreach (MollieHelper::$MODULE_NAMES as $module_name)
 		{
@@ -196,8 +209,9 @@ class ControllerPaymentMollieBase extends Controller
 		}
 
 		//Load language data
-		$data = array();
+		$data = array("version" => MOLLIE_RELEASE);
 		Util::load()->language("payment/mollie", $data);
+		$this->data = $data;
 		$form = Util::form($data);
 		
 		// Load essential models
@@ -205,12 +219,13 @@ class ControllerPaymentMollieBase extends Controller
 		$modelStore       = Util::load()->model("setting/store");
 		$modelOrderStatus = Util::load()->model("localisation/order_status");
 		$modelGeoZone     = Util::load()->model("localisation/geo_zone");
+		Util::load()->library("mollieHttpClient");
 
 		$code = MollieHelper::getModuleCode();
 
 		$form->finish(function ($data) {
 			$code = MollieHelper::getModuleCode();
-			$redirect = false;
+			$redirect = true;
             $stores = Util::info()->stores();
             foreach ($stores as $store) {
             	if ($this->validate($store["store_id"])) {
@@ -219,14 +234,15 @@ class ControllerPaymentMollieBase extends Controller
 	                    $configSet = array_merge($configSet, Util::request()->post()->allPrefixed($code, false));
 	                }
 	                Util::config($store["store_id"])->set($code, $configSet);
-
-	                $redirect = true;
+            	}
+            	else {
+            		$redirect = false;
             	}
             }
 
             if ($redirect) {
             	Util::session()->success = $data['text_success'];
-            	Util::response()->redirectToUrl(Util::url()->link(Util::route()->extension(), "type=payment"));
+            	Util::response()->redirectToUrl(Util::url()->link(Util::route()->extension(false, 'payment'), "type=payment"));
             }
         });
 
@@ -249,7 +265,8 @@ class ControllerPaymentMollieBase extends Controller
         	$paymentGeoZone[] 	= $code . '_' . $module_name . '_geo_zone';
 		}
 
-        $settingFields = array($code . "_creditcard_max_amount", $code . "_show_icons", $code . "_show_order_canceled_page", $code . "_ideal_description", $code . "_api_key", $code . "_ideal_processing_status_id", $code . "_ideal_expired_status_id", $code . "_ideal_canceled_status_id", $code . "_ideal_failed_status_id", $code . "_ideal_pending_status_id");
+        $fields = array("show_icons", "show_order_canceled_page", "ideal_description", "api_key", "ideal_processing_status_id", "ideal_expired_status_id", "ideal_canceled_status_id", "ideal_failed_status_id", "ideal_pending_status_id");
+        $settingFields = Util::arrayHelper()->prefixAllValues($code . '_', $fields);
 
         $storeFormFields = array_merge($settingFields, $paymentStatus, $paymentSortOrder, $paymentGeoZone);
 
@@ -264,60 +281,26 @@ class ControllerPaymentMollieBase extends Controller
         //Breadcrumb
         Util::breadcrumb($data)
             ->add("text_home", "common/home")
-            ->add("text_payment", "payment", "type=payment")
-            ->add("heading_title", "payment/mollie_" . static::MODULE_NAME);
+            ->add("text_payment", Util::route()->extension(false, 'payment'), "type=payment")
+            ->add("heading_title", Util::route()->extension("mollie_" . static::MODULE_NAME, 'payment'));
 
 		// Set data for template
 		$data['api_check_url']          = Util::url()->link("payment/mollie_" . static::MODULE_NAME . '/validate_api_key');
 		$data['module_name']          = static::MODULE_NAME;
 		$data['token']          	  = $this->getTokenUriPart();
 		$data['entry_version']          = $this->language->get("entry_version") . " " . MollieHelper::PLUGIN_VERSION;
+		$data['update_url'] = $this->getUpdateUrl();
 
-		//$data['shops'] = $data['stores'];
 		$data['code'] = $code;
 
 		$data['geo_zones']			=	$modelGeoZone->getGeoZones();
 		$data['order_statuses']		=	$modelOrderStatus->getOrderStatuses();
 
 		$shops = $data['shops'];
-		foreach($shops as $store)
-		{
-			$data['shops'][$store['store_id']]['entry_cstatus'] = $this->checkCommunicationStatus(isset($store[$code . '_api_key']) ? $store[$code . '_api_key'] : null);
 
-			if (isset($this->error[$store['store_id']]['api_key'])) {
-				$data['shops'][$store['store_id']]['error_api_key'] = $this->error[$store['store_id']]['api_key'];
-			} else {
-				$data['shops'][$store['store_id']]['error_api_key'] = '';
-			}
-
-			if (isset($this->error[$store['store_id']]['description'])) {
-				$data['shops'][$store['store_id']]['error_description'] = $this->error[$store['store_id']]['description'];
-			} else {
-				$data['shops'][$store['store_id']]['error_description'] = '';
-			}
-
-			if (isset($this->error[$store['store_id']]['show_icons'])) {
-				$data['shops'][$store['store_id']]['error_show_icons'] = $this->error[$store['store_id']]['show_icons'];
-			} else {
-				$data['shops'][$store['store_id']]['error_show_icons'] = '';
-			}
-
-			if (isset($this->error[$store['store_id']]['show_order_canceled_page'])) {
-				$data['shops'][$store['store_id']]['show_order_canceled_page'] = $this->error[$store['store_id']]['show_order_canceled_page'];
-			} else {
-				$data['shops'][$store['store_id']]['show_order_canceled_page'] = '';
-			}
-
-			if (isset($this->error[$store['store_id']]['total'])) {
-				$data['shops'][$store['store_id']]['error_total'] = $this->error[$store['store_id']]['total'];
-			} else {
-				$data['shops'][$store['store_id']]['error_total'] = '';
-			}
-		}
-	
 		// Form action url
 		$data['action'] = Util::url()->link("payment/mollie_" . static::MODULE_NAME);
-		$data['cancel'] = Util::url()->link( Util::route()->extension(), "type=payment");
+		$data['cancel'] = Util::url()->link( Util::route()->extension(false, 'payment'), "type=payment");
 
 		// Load global settings. Some are prefixed with mollie_ideal_ for legacy reasons.
 		$settings = array(
@@ -330,18 +313,17 @@ class ControllerPaymentMollieBase extends Controller
 			$code . "_ideal_canceled_status_id"   => 7,
 			$code . "_ideal_failed_status_id"     => 10,
 			$code . "_ideal_expired_status_id"    => 14,
-			$code . "_creditcard_max_amount"      => NULL,
 		);
 
-		foreach($shops as $store)
+		foreach($shops as &$store)
 		{
 			$this->data = $store;
 			foreach ($settings as $setting_name => $default_value)
 			{
 				// Attempt to read from post
-				if (isset(Util::request()->post()->{$store['store_id'] . '_' . $setting_name}))
+				if (null != Util::request()->post()->get($store['store_id'] . '_' . $setting_name))
 				{
-					$data['shops'][$store['store_id']][$setting_name] = Util::request()->post()->{$store['store_id'] . '_' . $setting_name};
+					$data['shops'][$store['store_id']][$setting_name] = Util::request()->post()->get($store['store_id'] . '_' . $setting_name);
 				}
 
 				// Otherwise, attempt to get the setting from the database
@@ -366,7 +348,7 @@ class ControllerPaymentMollieBase extends Controller
 			$allowed_methods = array();
 			try
 			{
-				$api_methods = $this->getAPIClient($store['store_id'])->methods->all();
+				$api_methods = $this->getAPIClient()->methods->all();
 
 				foreach ($api_methods as $api_method)
 				{
@@ -376,7 +358,7 @@ class ControllerPaymentMollieBase extends Controller
 			catch (Mollie\Api\Exceptions\ApiException $e)
 			{
 				// If we have an unauthorized request, our API key is likely invalid.
-				if ($store[$code . '_api_key'] !== NULL && strpos($e->getMessage(), "Unauthorized request") >= 0)
+				if ($store[$code . '_api_key'] !== NULL && strpos($e->getMessage(), "Unauthorized request") !== false)
 				{
 					$data['error_api_key'] = $this->language->get("error_api_key_invalid");
 				}
@@ -393,27 +375,27 @@ class ControllerPaymentMollieBase extends Controller
 				$payment_method['allowed'] = in_array($module_name, $allowed_methods);
 
 				// Load module specific settings.
-				if (isset(Util::request()->post()->{$store['store_id'] . '_' . $code . '_' . $module_name . '_status'}))
+				if (isset($store[$store['store_id'] . '_' . $code . '_' . $module_name . '_status']))
 				{
-					$payment_method['status'] = (Util::request()->post()->{$store['store_id'] . '_' . $code . '_' . $module_name . '_status'} == "on");
+					$payment_method['status'] = ($store[$store['store_id'] . '_' . $code . '_' . $module_name . '_status'] == "on");
 				}
 				else
 				{
 					$payment_method['status'] = (bool) isset($store[$code . "_" . $module_name . "_status"]) ? $store[$code . "_" . $module_name . "_status"] : null;
 				}
 
-				if (isset(Util::request()->post()->{$store['store_id'] . '_' . $code . '_' . $module_name . '_sort_order'}))
+				if (isset($store[$store['store_id'] . '_' . $code . '_' . $module_name . '_sort_order']))
 				{
-					$payment_method['sort_order'] = Util::request()->post()->{$store['store_id'] . '_' . $code . '_' . $module_name . '_sort_order'};
+					$payment_method['sort_order'] = $store[$store['store_id'] . '_' . $code . '_' . $module_name . '_sort_order'];
 				}
 				else
 				{
 					$payment_method['sort_order'] = isset($store[$code . "_" . $module_name . "_sort_order"]) ? $store[$code . "_" . $module_name . "_sort_order"] : null;
 				}
 
-				if (isset(Util::request()->post()->{$store['store_id'] . '_' . $code . '_' . $module_name . '_geo_zone'}))
+				if (isset($store[$store['store_id'] . '_' . $code . '_' . $module_name . '_geo_zone']))
 				{
-					$payment_method['geo_zone'] = Util::request()->post()->{$store['store_id'] . '_' . $code . '_' . $module_name . '_geo_zone'};
+					$payment_method['geo_zone'] = $store[$store['store_id'] . '_' . $code . '_' . $module_name . '_geo_zone'];
 				}
 				else
 				{
@@ -422,14 +404,16 @@ class ControllerPaymentMollieBase extends Controller
 
 				$data['store'][$store['store_id'] . '_' . $code . '_payment_methods'][$module_name] = $payment_method;
 			}
+
+			$data['shops'][$store['store_id']]['entry_cstatus'] = $this->checkCommunicationStatus(isset($store[$code . '_api_key']) ? $store[$code . '_api_key'] : null);
+
+			Util::error($store, $store['store_id'], $this->error)
+				->notIsset('error_api_key', 'api_key')
+				->notIsset('error_description', 'description');
 			
 		}
-		$template = 'mollie';
-		$this->renderTemplate($template, $data, array(
-			"header",
-			"column_left",
-			"footer",
-		));
+		
+		Util::response()->view("payment/mollie", $data);
 	}
 
     /**
@@ -495,14 +479,14 @@ class ControllerPaymentMollieBase extends Controller
 			$this->error['warning'] = $this->language->get("error_permission");
 		}
 
-		if (!Util::request()->post()->{$store . '_' . MollieHelper::getModuleCode() . '_api_key'})
+		if (!Util::request()->post()->get($store . '_' . MollieHelper::getModuleCode() . '_api_key'))
 		{
-			$this->error[$store]['api_key'] = $this->language->get("error_api_key");
+			$this->error[$store]['api_key'] = $this->data["error_api_key"];
 		}
 
-		if (!Util::request()->post()->{$store . '_' . MollieHelper::getModuleCode() . '_ideal_description'})
+		if (!Util::request()->post()->get($store . '_' . MollieHelper::getModuleCode() . '_ideal_description'))
 		{
-			$this->error[$store]['description'] = $this->language->get("error_description");
+			$this->error[$store]['description'] = $this->data["error_description"];
 		}
 		
 		return (count($this->error) == 0);
@@ -548,85 +532,11 @@ class ControllerPaymentMollieBase extends Controller
 	}
 
 	/**
-	 * Map template handling for different Opencart versions
-	 *
-	 * @param string $template
-	 * @param array  $data
-	 * @param array  $common_children
-	 * @param bool   $echo
-	 */
-	protected function renderTemplate ($template, $data, $common_children = array(), $echo = TRUE)
-	{
-		if (!MollieHelper::isOpenCart3x()) {
-			$template .= '.tpl';
-		}
-
-		if (MollieHelper::isOpenCart2x()) {
-			foreach ($common_children as $child) {
-				$data[$child] = $this->load->controller("common/" . $child);
-			}
-
-			if (MollieHelper::isOpenCart3x()) {
-		        $this->config->set('template_engine', 'template');
-		       $html = $this->load->view('payment/'.$template, $data);
-		      } else {
-		        $html = $this->load->view('payment/'.$template, $data);
-		      }
-
-		} else {
-			$template = 'mollie_1.tpl';
-			$this->template = 'payment/'.$template;
-			$this->children = array();
-
-			foreach ($data as $field => $value) {
-				$this->data[$field] = $value;
-			}
-
-			foreach($common_children as $child) {
-				if ($child === 'column_left') {
-					continue;
-				}
-
-				$this->children[] = "common/" . $child;
-			}
-
-			$html = $this->render();
-		}
-
-		if ($echo) {
-			return $this->response->setOutput($html);
-		}
-
-		return $html;
-	}
-
-	/**
-	 * Get the extension installation handler.
-	 *
-	 * @return Model
-	 */
-	protected function getExtensionModel()
-	{
-		if (Util::version()->isMinimal("3")) {
-			$this->load->model('setting/extension');
-			return $this->model_setting_extension;
-		}
-
-		if (Util::version()->isMinimal("2")) {
-			$this->load->model('extension/extension');
-			return $this->model_extension_extension;
-		}
-
-		$this->load->model('setting/extension');
-		return $this->model_setting_extension;
-	}
-
-	/**
 	 * @return string
 	 */
 	private function getTokenUriPart()
 	{
-		if (MollieHelper::isOpenCart3x()) {
+		if (isset($this->session->data['user_token'])) {
 			return 'user_token=' . $this->session->data['user_token'];
 		}
 
@@ -654,4 +564,108 @@ class ControllerPaymentMollieBase extends Controller
 		$this->model_setting_setting->editSetting($code, $data, $store_id);
 		return true;
 	}
+
+		 private function getUpdateUrl()
+    {
+        $client = new mollieHttpClient();
+        $info = $client->get(MOLLIE_VERSION_URL);
+        if ($info["tag_name"] && $info["tag_name"] != MOLLIE_RELEASE && version_compare(MOLLIE_RELEASE, $info["tag_name"], "<")) {
+            return Util::url()->link("payment/mollie_" . static::MODULE_NAME . '/update');
+        }
+        return false;
+    }
+
+    function update()
+    {
+        Util::load()->library("mollieHttpClient");
+
+        //get info
+        $client = new mollieHttpClient();
+        $info = $client->get(MOLLIE_VERSION_URL);
+
+        //save tmp file
+        $temp_file = MOLLIE_TMP . "/mollieUpdate.zip";
+        $handle = fopen($temp_file, "w+");
+        $content = $client->get($info["zipball_url"], false, false);
+        fwrite($handle, $content);
+        fclose($handle);
+
+
+        //extract to temp dir
+        $temp_dir = MOLLIE_TMP . "/mollieUpdate";
+        if (class_exists("ZipArchive")) {
+            $zip = new ZipArchive;
+            $zip->open($temp_file);
+            $zip->extractTo($temp_dir);
+            $zip->close();
+        } else {
+            shell_exec("unzip " . $temp_file . " -d " . $temp_dir);
+        }
+
+        //find upload path
+
+        $handle = opendir($temp_dir);
+        $upload_dir = $temp_dir . "/upload";
+        while ($file = readdir($handle)) {
+            if ($file != "." && $file != ".." && is_dir($temp_dir . "/" . $file . "/upload")) {
+                $upload_dir = $temp_dir . "/" . $file . "/upload";
+                break;
+            }
+        }
+
+        //copy files
+        $handle = opendir($upload_dir);
+        while ($file = readdir($handle)) {
+            if ($file != "." && $file != "..") {
+                $from = $upload_dir . "/" . $file;
+                if ($file == "admin") {
+                    $to = DIR_APPLICATION;
+                } elseif ($file == "system") {
+                    $to = DIR_SYSTEM;
+                } else {
+                    $to = DIR_CATALOG . "../" . $file . "/";
+                }
+                $this->cpy($from, $to);
+            }
+
+        }
+
+        //cleanup
+        unlink($temp_file);
+        $this->rmDirRecursive($temp_dir);
+
+        //go back
+        Util::response()->redirectBack();
+    }
+
+    public function rmDirRecursive($dir)
+    {
+        $files = array_diff(scandir($dir), array('.', '..'));
+        foreach ($files as $file) {
+            (is_dir("$dir/$file")) ? $this->rmDirRecursive("$dir/$file") : unlink("$dir/$file");
+        }
+        return rmdir($dir);
+    }
+
+    function cpy($source, $dest)
+    {
+        if (is_dir($source)) {
+            $dir_handle = opendir($source);
+            while ($file = readdir($dir_handle)) {
+                if ($file != "." && $file != "..") {
+                    if (is_dir($source . "/" . $file)) {
+                        if (!is_dir($dest . "/" . $file)) {
+                            mkdir($dest . "/" . $file);
+                        }
+                        $this->cpy($source . "/" . $file, $dest . "/" . $file);
+                    } else {
+                        copy($source . "/" . $file, $dest . "/" . $file);
+                    }
+                }
+            }
+            closedir($dir_handle);
+        } else {
+            copy($source, $dest);
+        }
+    }
 }

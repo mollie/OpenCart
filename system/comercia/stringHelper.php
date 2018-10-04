@@ -14,7 +14,7 @@ class StringHelper
     function rewriteForVersion($string,$words){
         foreach($words as $word){
             $match=false;
-            $versionMatch=@$word[0]?:array_values($word)[0];
+            $versionMatch=@isset($word[0])?:array_values($word)[0];
             foreach ($word as $version=>$newWord){
                 if(strpos($string, $newWord) !== false){
                     $match=$newWord;

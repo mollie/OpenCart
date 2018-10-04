@@ -43,6 +43,14 @@ class ArrayHelper
         }
         return $result;
     }
+
+    function prefixAllValues($prefix, $input) {
+        $result = [];
+        foreach ($input as $val) {
+            $result[] = $prefix . $val;
+        }
+        return $result;
+    }
 }
 
 ?>

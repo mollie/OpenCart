@@ -76,23 +76,6 @@ class ModelPaymentMollieBase extends Model
 			return NULL;
 		}
 
-		//Get payment methods allowed for this amount and currency
-		$allowed_methods = array();
-		$currency = $this->session->data['currency'];
-		$data = array(
-            "amount" => ["value" => (string)number_format((float)$total, 2, '.', ''), "currency" => $currency,]
-        );
-		$payment_methods = $this->getAPIClient()->methods->all($data);
-
-		foreach ($payment_methods as $allowed_method)
-		{
-			$allowed_methods[] = $allowed_method->id;
-		}
-		
-		if(!in_array($payment_method->id, $allowed_methods)) {
-			return NULL;
-		}
-
 		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "zone_to_geo_zone WHERE geo_zone_id = '" . (int)$this->config->get($moduleCode . "_" . static::MODULE_NAME . "_geo_zone") . "' AND country_id = '" . (int)$address['country_id'] . "' AND (zone_id = '" . (int)$address['zone_id'] . "' OR zone_id = '0')");
 
 		if ((bool)$this->config->get($moduleCode . "_" . static::MODULE_NAME . "_geo_zone") && !$query->num_rows) {
@@ -113,13 +96,6 @@ class ModelPaymentMollieBase extends Model
 
 		if ($this->config->get($moduleCode . "_show_icons")) {
 			$icon = '<img src="' . htmlspecialchars($payment_method->image->size1x) . '" height="20" style="margin:0 5px -5px 0" />';
-		}
-
-		if (static::MODULE_NAME == 'creditcard'){
-			$amount_limit = $this->config->get($moduleCode .'_creditcard_max_amount');
-			if(($amount_limit != NULL) && ($total > $amount_limit)) {
-				return;
-			}
 		}
 
 		return array(

@@ -1,0 +1,21 @@
+<modification>
+    <id>Mollie</id>
+    <version>2.2.1</version>
+    <vqmver>2.3.0</vqmver>
+    <author>Comercia - Pradeep Mishra</author>
+
+    <file name="catalog/controller/event/compatibility.php" error="log">
+        <operation>
+            <search position="replace"><![CDATA['model/' . $route . '.php']]></search>
+            <add><![CDATA['model/'.((strpos($route,'get') !== false) ? dirname($route) : $route).'.php']]></add>
+        </operation>
+    </file>
+    <file name="admin/controller/event/compatibility.php" error="log">
+        <operation>
+            <search index="1"><![CDATA[$route = $part[1] . '/' . $part[2];]]></search>
+            <add position="after"><![CDATA[if(array_key_exists(3, $part)) {
+                $route = $part[1] . '/' . $part[2] . '/' . $part[3];
+            }]]></add>
+        </operation>
+    </file>
+</modification>

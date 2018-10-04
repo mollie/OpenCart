@@ -1,4 +1,5 @@
 <?php
+use comercia\Util;
 use Mollie\Api\MollieApiClient;
 
 class MollieHelper
@@ -115,11 +116,7 @@ class MollieHelper
 	 */
 	public static function getModuleCode()
 	{
-		if (self::isOpenCart3x()) {
-			return 'payment_mollie';
-		}
-
-		return 'mollie';
+		return Util::info()->getModuleCode('mollie', 'payment');
 	}
 
 	/**
@@ -127,7 +124,7 @@ class MollieHelper
 	 */
 	public static function isOpenCart3x()
 	{
-		return version_compare(VERSION, '3.0.0', '>=');
+		return Util::version()->isMinimal('3.0.0');
 	}
 
 	/**
@@ -135,7 +132,7 @@ class MollieHelper
 	 */
 	public static function isOpenCart23x()
 	{
-		return version_compare(VERSION, '2.3.0', '>=');
+		return Util::version()->isMinimal('2.3.0');
 	}
 
 	/**
@@ -143,6 +140,6 @@ class MollieHelper
 	 */
 	public static function isOpenCart2x()
 	{
-		return version_compare(VERSION, '2', '>=');
+		return Util::version()->isMinimal('2');
 	}
 }

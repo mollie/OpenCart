@@ -224,12 +224,6 @@
 									</select>
 								</div>
 							</div>
-							<div class="form-group">
-								<label class="col-sm-2 control-label" for="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_creditcard_max_amount"><span data-toggle="tooltip" title="<?php echo $help_creditcard_max_amount; ?>"><?php echo $entry_creditcard_max_amount; ?></span></label>
-								<div class="col-sm-10">
-									<input type="text" name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_creditcard_max_amount" value="<?php echo $shop[$code . '_creditcard_max_amount']; ?>" placeholder="<?php echo $eg_creditcard_max_amount; ?>" id="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_creditcard_max_amount" class="form-control"/>
-								</div>
-							</div>
 						</div>
 
 						<div id="about-module-<?php echo $shop['store_id']; ?>" class="vtabs-content">
@@ -276,6 +270,11 @@
 						</div>
 					</div>
 				<?php } ?>
+				<div class="panel-body">
+		            <?php if($update_url){ ?>
+		            <a href="<?php echo $update_url; ?>" class="btn btn-success"><?php echo $button_update; ?></a>
+		            <?php } ?>
+		        </div>
 			</form>
 		</div>
 	</div>

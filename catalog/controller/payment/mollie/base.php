@@ -49,7 +49,6 @@ use Mollie\Api\MollieApiClient;
 use Mollie\Api\Types\PaymentStatus;
 
 require_once(dirname(DIR_SYSTEM) . "/catalog/controller/payment/mollie/helper.php");
-require_once(DIR_SYSTEM . "comercia/util.php");
 
 use comercia\Util;
 
@@ -139,7 +138,7 @@ class ControllerPaymentMollieBase extends Controller
         $data['set_issuer_url'] = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/set_issuer", "", "SSL");
 
         // Return HTML output - it will get appended to confirm.tpl.
-        return $this->renderTemplate('mollie_checkout_form', $data, array(), false);
+        return Util::load()->view('payment/mollie_checkout_form', $data);
     }
 
     /**
@@ -149,7 +148,7 @@ class ControllerPaymentMollieBase extends Controller
      */
     public function payment()
     {
-        if ($this->request->server['REQUEST_METHOD'] != "POST") {
+        if (Util::request()->server()->REQUEST_METHOD != 'POST') {
             return;
         }
         try {
@@ -221,11 +220,11 @@ class ControllerPaymentMollieBase extends Controller
                 'nl_NL'
             );
 
-            if (strstr($this->session->data['language'], '-')) {
-                list ($language, $country) = explode('-', $this->session->data['language']);
+            if (strstr(isset($this->session->data['language']) ? $this->session->data['language'] : $this->config->get('config_language'), '-')) {
+                list ($language, $country) = explode('-', isset($this->session->data['language']) ? $this->session->data['language'] : $this->config->get('config_language'));
                 $locale = strtolower($language) . '_' . strtoupper($country);
             } else {
-                $locale = strtolower($this->session->data['language']) . '_' . strtoupper($this->session->data['language']);
+                $locale = strtolower(isset($this->session->data['language']) ? $this->session->data['language'] : $this->config->get('config_language')) . '_' . strtoupper(isset($this->session->data['language']) ? $this->session->data['language'] : $this->config->get('config_language'));
             }
 
             if (!in_array($locale, $locales)) {
