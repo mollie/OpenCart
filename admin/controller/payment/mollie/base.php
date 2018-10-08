@@ -296,8 +296,6 @@ class ControllerPaymentMollieBase extends Controller
 		$data['geo_zones']			=	$modelGeoZone->getGeoZones();
 		$data['order_statuses']		=	$modelOrderStatus->getOrderStatuses();
 
-		$shops = $data['shops'];
-
 		// Form action url
 		$data['action'] = Util::url()->link("payment/mollie_" . static::MODULE_NAME);
 		$data['cancel'] = Util::url()->link( Util::route()->extension(false, 'payment'), "type=payment");
@@ -315,7 +313,7 @@ class ControllerPaymentMollieBase extends Controller
 			$code . "_ideal_expired_status_id"    => 14,
 		);
 
-		foreach($shops as &$store)
+		foreach($data['shops'] as &$store)
 		{
 			$this->data = $store;
 			foreach ($settings as $setting_name => $default_value)
@@ -412,7 +410,6 @@ class ControllerPaymentMollieBase extends Controller
 				->notIsset('error_description', 'description');
 			
 		}
-		
 		Util::response()->view("payment/mollie", $data);
 	}
 

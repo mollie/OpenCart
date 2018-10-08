@@ -35,12 +35,18 @@ class Info
             });
             $stores = array_values($stores);
         }
-        return $stores;
+
+        //Make store id as key
+        $storeIDKeyArray = [];
+        foreach($stores as $store) {
+            $storeIDKeyArray[$store['store_id']] = $store;
+        }
+        return $storeIDKeyArray;
     }
 
     function getModuleCode($name, $type) {
         if(Util::version()->isMinimal("3")) {
-            return $type . '_' . $name;
+            return $type . _ . $name;
         }
         return $name;
     }

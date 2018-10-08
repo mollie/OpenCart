@@ -180,7 +180,7 @@
 								<label class="col-sm-2 control-label" for="<?php echo $code; ?>_api_key"><span class="required">*</span> <?php echo $entry_api_key; ?><br /><span class="help"><?php echo $help_api_key; ?></span></label>
 								<div class="col-sm-10">
 									<div class="input-group message-block">
-										<input type="text" name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_api_key" value="<?php echo $shop[$code . '_api_key']; ?>" placeholder="live_..." id="<?php echo $code; ?>_api_key" class="form-control" store="<?php echo $shop['store_id']; ?>" data-payment-mollie-api-key/>
+										<input type="text" name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_api_key" value="<?php echo $shop[$code . '_api_key']; ?>" placeholder="live_..." id="<?php echo $code; ?>_api_key" class="form-control" store="<?php echo $shop['store_id']; ?>" <?php echo $shop['store_id']; ?>-data-payment-mollie-api-key/>
 									</div>
 									<?php if ($shop['error_api_key']) { ?>
 									<div class="text-danger"><?php echo $shop['error_api_key']; ?></div>
@@ -297,7 +297,7 @@
 			return xhr;
 		}
 
-		function validateAPIKey(value, $icon_container) {
+		function validateAPIKey(value, $icon_container, store_id) {
 			if (value === '') {
 				updateIcon($icon_container, 'empty', null, true);
 				return;
@@ -310,7 +310,7 @@
 				checkIfAPIKeyIsValid(value).then(function (response) {
 					if (response.valid) {
 						updateIcon($icon_container, 'success');
-						saveAPIKey(value, $('#mollie_api_key').attr('store'));
+						saveAPIKey(value, store_id);
 					} else if (response.invalid) {
 						updateIcon($icon_container, 'attention', response.message);
 					} else if (response.error) {
@@ -349,9 +349,13 @@
 			$('[data-communication-status]').html('<span class="' + (message ? 'error' : 'text-success') + '">' + (message || 'OK') + '</span>');
 		}
 
-		$('[data-payment-mollie-api-key]').on('keyup', function () {
-			validateAPIKey(this.value, $(this).closest('.input-group'));
+		<?php foreach($shops as $shop) { ?>
+
+		$('[<?php echo $shop["store_id"] ?>-data-payment-mollie-api-key]').on('keyup', function () {
+			validateAPIKey(this.value, $(this).siblings('.input-group-addon'), $(this).attr('store'));
 		});
+
+		<?php } ?>
 	})();
 </script>
 
