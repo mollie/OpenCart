@@ -46,7 +46,7 @@ class Info
 
     function getModuleCode($name, $type) {
         if(Util::version()->isMinimal("3")) {
-            return $type . _ . $name;
+            return $type . '_' . $name;
         }
         return $name;
     }
