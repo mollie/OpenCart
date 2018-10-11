@@ -89,8 +89,6 @@ $_['entry_api_key']                  = "Clé API";
 $_['entry_description']              = "Description";
 $_['entry_show_icons']               = "Afficher des icônes";
 $_['entry_show_order_canceled_page'] = "Afficher un message si le paiement est annulé";
-$_['entry_creditcard_max_amount']    = "Montant maximum pour carte de crédit";
-$_['eg_creditcard_max_amount']       = "eg.500";
 
 // Help
 $_['help_view_profile']             = 'Vous pouvez trouver votre clé API dans <a href="https://www.mollie.com/beheer/account/profielen/" target="_blank" class="alert-link">vos profils de site à Mollie</a>.';
@@ -99,7 +97,6 @@ $_['help_api_key']                  = 'Entrer ici le <code>api_key</code> du pro
 $_['help_description']              = 'Cette description apparaîtra sur le relevé bancaire de votre client. Vous pouvez utiliser un maximum de 29 caractères. ASTUCE: Utilisez le <code>%</code>, il sera remplacé par l\'id de la commande du paiement. N\'oubliez pas que <code>%/code> peut devenir plusieurs caractères!';
 $_['help_show_icons']               = 'Afficher les icônes à côté des méthodes de paiement Mollie sur la page de paiement.';
 $_['help_show_order_canceled_page'] = 'Afficher un message au client si un paiement est annulé, avant de rediriger le client vers leur panier.';
-$_['help_creditcard_max_amount'] = 'Entrez le montant que vous avez défini pour la carte de crédit dans votre compte mollie.';
 
 // Info
 $_['entry_module']            = "Module";

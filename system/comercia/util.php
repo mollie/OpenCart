@@ -250,10 +250,10 @@ class Util
         return $twig;
     }
 
-    static function error(&$data = array(), $store_id = -1, $error = array())
+    static function validation(&$data = array(), $store_id = -1, $error = array())
     {
-        require_once(__DIR__ . "/error.php");
-        return new Error($data, $store_id, $error);
+        require_once(__DIR__ . "/validation.php");
+        return new Validation($data, $store_id, $error);
     }
 }
 

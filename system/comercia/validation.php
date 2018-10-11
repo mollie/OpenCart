@@ -1,6 +1,6 @@
 <?php
 namespace comercia;
-class Error
+class Validation
 {
     var $data;
     var $store_id;
