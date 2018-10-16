@@ -1,6 +1,6 @@
 <?php
 
-namespace _PhpScoper5b87e821469bb\GuzzleHttp\Promise;
+namespace _PhpScoper5bbb1f4b001f3\GuzzleHttp\Promise;
 
 /**
  * A task queue that executes tasks in a FIFO order.
@@ -11,7 +11,7 @@ namespace _PhpScoper5b87e821469bb\GuzzleHttp\Promise;
  *
  *     GuzzleHttp\Promise\queue()->run();
  */
-class TaskQueue implements \_PhpScoper5b87e821469bb\GuzzleHttp\Promise\TaskQueueInterface
+class TaskQueue implements \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Promise\TaskQueueInterface
 {
     private $enableShutdown = \true;
     private $queue = [];

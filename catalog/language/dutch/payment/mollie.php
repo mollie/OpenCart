@@ -64,6 +64,7 @@ $_['response_cancelled'] = 'De klant heeft de betaling geannuleerd';
 $_['response_failed']    = 'De betaling is helaas mislukt. Probeer het alstublieft opnieuw.';
 $_['response_expired']   = 'De betaling is verlopen';
 $_['response_unknown']   = 'Er is een onbekende fout opgetreden';
+$_['shipment_success']   = 'Zending is gemaakt';
 
 // Methods
 $_['method_ideal']                      = 'iDEAL';
@@ -81,3 +82,5 @@ $_['method_giftcard']                   = 'Giftcard';
 $_['method_inghomepay']                 = 'ING Home\'Pay';
 $_['method_eps']                        = 'Giropay';
 $_['method_giropay']                    = 'EPS';
+$_['method_klarnapaylater'] 			= 'Klarna Pay Later';
+$_['method_klarnasliceit']  			= 'Klarna Slice It';

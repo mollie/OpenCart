@@ -24,7 +24,7 @@ abstract class BaseCollection extends \ArrayObject
         $this->_links = $_links;
     }
     /**
-     * @return string
+     * @return string|null
      */
     public abstract function getCollectionResourceName();
 }

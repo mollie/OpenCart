@@ -107,7 +107,7 @@ class Customer extends \Mollie\Api\Resources\BaseResource
      */
     public function cancelSubscription($subscriptionId)
     {
-        return $this->client->subscriptions->cancelFor($this, $subscriptionId);
+        return $this->client->subscriptions->cancelFor($this, $subscriptionId, $this->getPresetOptions());
     }
     /**
      * Get all subscriptions for this customer
@@ -145,7 +145,7 @@ class Customer extends \Mollie\Api\Resources\BaseResource
      */
     public function revokeMandate($mandateId)
     {
-        return $this->client->mandates->revokeFor($this, $mandateId);
+        return $this->client->mandates->revokeFor($this, $mandateId, $this->getPresetOptions());
     }
     /**
      * Get all mandates for this customer

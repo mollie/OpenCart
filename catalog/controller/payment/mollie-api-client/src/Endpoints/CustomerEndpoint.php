@@ -15,7 +15,7 @@ class CustomerEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
      */
     protected function getResourceObject()
     {
-        return new \Mollie\Api\Resources\Customer($this->api);
+        return new \Mollie\Api\Resources\Customer($this->client);
     }
     /**
      * Get the collection object that is used by this API endpoint. Every API endpoint uses one type of collection object.
@@ -27,7 +27,7 @@ class CustomerEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
      */
     protected function getResourceCollectionObject($count, $_links)
     {
-        return new \Mollie\Api\Resources\CustomerCollection($this->api, $count, $_links);
+        return new \Mollie\Api\Resources\CustomerCollection($this->client, $count, $_links);
     }
     /**
      * Creates a customer in Mollie.
@@ -64,12 +64,13 @@ class CustomerEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
      *
      * @param string $customerId
      *
+     * @param array $data
      * @return null
      * @throws ApiException
      */
-    public function delete($customerId)
+    public function delete($customerId, array $data = [])
     {
-        return $this->rest_delete($customerId);
+        return $this->rest_delete($customerId, $data);
     }
     /**
      * Retrieves a collection of Customers from Mollie.

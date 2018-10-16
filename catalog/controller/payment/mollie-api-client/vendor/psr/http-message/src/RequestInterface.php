@@ -1,6 +1,6 @@
 <?php
 
-namespace _PhpScoper5b87e821469bb\Psr\Http\Message;
+namespace _PhpScoper5bbb1f4b001f3\Psr\Http\Message;
 
 /**
  * Representation of an outgoing, client-side request.
@@ -21,7 +21,7 @@ namespace _PhpScoper5b87e821469bb\Psr\Http\Message;
  * be implemented such that they retain the internal state of the current
  * message and return an instance that contains the changed state.
  */
-interface RequestInterface extends \_PhpScoper5b87e821469bb\Psr\Http\Message\MessageInterface
+interface RequestInterface extends \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\MessageInterface
 {
     /**
      * Retrieves the message's request target.
@@ -120,5 +120,5 @@ interface RequestInterface extends \_PhpScoper5b87e821469bb\Psr\Http\Message\Mes
      * @param bool $preserveHost Preserve the original state of the Host header.
      * @return static
      */
-    public function withUri(\_PhpScoper5b87e821469bb\Psr\Http\Message\UriInterface $uri, $preserveHost = \false);
+    public function withUri(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface $uri, $preserveHost = \false);
 }

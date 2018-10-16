@@ -64,6 +64,7 @@ $_['response_cancelled'] = 'Der Kunde hat die Zahlung annulliert';
 $_['response_failed']    = 'Die Zahlung ist leider fehlgeschlagen. Versuchen Sie es bitte erneut.';
 $_['response_expired']   = 'Die Zahlung ist verstrichen';
 $_['response_unknown']   = 'Es ist ein unbekannter Fehler aufgetreten';
+$_['shipment_success']   = 'Sendung wird erstellt';
 
 // Methods
 $_['method_ideal']                      = 'iDEAL';
@@ -81,3 +82,5 @@ $_['method_giftcard']                   = 'Giftcard';
 $_['method_inghomepay']                 = 'ING Home\'Pay';
 $_['method_eps']                        = 'Giropay';
 $_['method_giropay']                    = 'EPS';
+$_['method_klarnapaylater'] 			= 'Klarna Pay Later';
+$_['method_klarnasliceit']  			= 'Klarna Slice It';

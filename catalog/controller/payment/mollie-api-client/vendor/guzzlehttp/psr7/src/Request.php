@@ -1,15 +1,15 @@
 <?php
 
-namespace _PhpScoper5b87e821469bb\GuzzleHttp\Psr7;
+namespace _PhpScoper5bbb1f4b001f3\GuzzleHttp\Psr7;
 
 use InvalidArgumentException;
-use _PhpScoper5b87e821469bb\Psr\Http\Message\RequestInterface;
-use _PhpScoper5b87e821469bb\Psr\Http\Message\StreamInterface;
-use _PhpScoper5b87e821469bb\Psr\Http\Message\UriInterface;
+use _PhpScoper5bbb1f4b001f3\Psr\Http\Message\RequestInterface;
+use _PhpScoper5bbb1f4b001f3\Psr\Http\Message\StreamInterface;
+use _PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface;
 /**
  * PSR-7 request implementation.
  */
-class Request implements \_PhpScoper5b87e821469bb\Psr\Http\Message\RequestInterface
+class Request implements \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\RequestInterface
 {
     use MessageTrait;
     /** @var string */
@@ -27,8 +27,8 @@ class Request implements \_PhpScoper5b87e821469bb\Psr\Http\Message\RequestInterf
      */
     public function __construct($method, $uri, array $headers = [], $body = null, $version = '1.1')
     {
-        if (!$uri instanceof \_PhpScoper5b87e821469bb\Psr\Http\Message\UriInterface) {
-            $uri = new \_PhpScoper5b87e821469bb\GuzzleHttp\Psr7\Uri($uri);
+        if (!$uri instanceof \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface) {
+            $uri = new \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Psr7\Uri($uri);
         }
         $this->method = \strtoupper($method);
         $this->uri = $uri;
@@ -78,7 +78,7 @@ class Request implements \_PhpScoper5b87e821469bb\Psr\Http\Message\RequestInterf
     {
         return $this->uri;
     }
-    public function withUri(\_PhpScoper5b87e821469bb\Psr\Http\Message\UriInterface $uri, $preserveHost = \false)
+    public function withUri(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface $uri, $preserveHost = \false)
     {
         if ($uri === $this->uri) {
             return $this;

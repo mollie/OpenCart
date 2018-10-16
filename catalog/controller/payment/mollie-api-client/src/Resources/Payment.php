@@ -19,7 +19,8 @@ class Payment extends \Mollie\Api\Resources\BaseResource
      */
     public $id;
     /**
-     * Mode of the payment, either "live" or "test" depending on the API Key that was used.
+     * Mode of the payment, either "live" or "test" depending on the API Key that was
+     * used.
      *
      * @var string
      */
@@ -37,31 +38,33 @@ class Payment extends \Mollie\Api\Resources\BaseResource
      */
     public $settlementAmount;
     /**
-     * The amount of the payment that has been refunded to the consumer, in EURO with 2 decimals. This field will be
-     * null if the payment can not be refunded.
+     * The amount of the payment that has been refunded to the consumer, in EURO with
+     * 2 decimals. This field will be null if the payment can not be refunded.
      *
      * @var object|null
      */
     public $amountRefunded;
     /**
-     * The amount of a refunded payment that can still be refunded, in EURO with 2 decimals. This field will be
-     * null if the payment can not be refunded.
+     * The amount of a refunded payment that can still be refunded, in EURO with 2
+     * decimals. This field will be null if the payment can not be refunded.
      *
-     * For some payment methods this amount can be higher than the payment amount. This is possible to reimburse
-     * the costs for a return shipment to your customer for example.
+     * For some payment methods this amount can be higher than the payment amount.
+     * This is possible to reimburse the costs for a return shipment to your customer
+     * for example.
      *
      * @var object|null
      */
     public $amountRemaining;
     /**
-     * Description of the payment that is shown to the customer during the payment, and
-     * possibly on the bank or credit card statement.
+     * Description of the payment that is shown to the customer during the payment,
+     * and possibly on the bank or credit card statement.
      *
      * @var string
      */
     public $description;
     /**
-     * If method is empty/null, the customer can pick his/her preferred payment method.
+     * If method is empty/null, the customer can pick his/her preferred payment
+     * method.
      *
      * @see Method
      * @var string|null
@@ -146,6 +149,13 @@ class Payment extends \Mollie\Api\Resources\BaseResource
      */
     public $subscriptionId;
     /**
+     * The order ID this payment belongs to.
+     *
+     * @example ord_pbjz8x
+     * @var string|null
+     */
+    public $orderId;
+    /**
      * The settlement ID this payment belongs to.
      *
      * @example stl_jDk30akdN
@@ -219,6 +229,15 @@ class Payment extends \Mollie\Api\Resources\BaseResource
         return $this->status === \Mollie\Api\Types\PaymentStatus::STATUS_PENDING;
     }
     /**
+     * Is this payment authorized?
+     *
+     * @return bool
+     */
+    public function isAuthorized()
+    {
+        return $this->status === \Mollie\Api\Types\PaymentStatus::STATUS_AUTHORIZED;
+    }
+    /**
      * Is this payment paid for?
      *
      * @return bool
@@ -255,8 +274,9 @@ class Payment extends \Mollie\Api\Resources\BaseResource
         return $this->status === \Mollie\Api\Types\PaymentStatus::STATUS_FAILED;
     }
     /**
-     * Check whether 'sequenceType' is set to 'first'. If a 'first' payment has been completed successfully, the
-     * consumer's account may be charged automatically using recurring payments.
+     * Check whether 'sequenceType' is set to 'first'. If a 'first' payment has been
+     * completed successfully, the consumer's account may be charged automatically
+     * using recurring payments.
      *
      * @return bool
      */
@@ -265,7 +285,8 @@ class Payment extends \Mollie\Api\Resources\BaseResource
         return $this->sequenceType === \Mollie\Api\Types\SequenceType::SEQUENCETYPE_FIRST;
     }
     /**
-     * Check whether 'sequenceType' is set to 'recurring'. This type of payment is processed without involving
+     * Check whether 'sequenceType' is set to 'recurring'. This type of payment is
+     * processed without involving
      * the consumer.
      *
      * @return bool
@@ -313,8 +334,9 @@ class Payment extends \Mollie\Api\Resources\BaseResource
         return 0.0;
     }
     /**
-     * Get the remaining amount that can be refunded. For some payment methods this amount can be higher than
-     * the payment amount. This is possible to reimburse the costs for a return shipment to your customer for example.
+     * Get the remaining amount that can be refunded. For some payment methods this
+     * amount can be higher than the payment amount. This is possible to reimburse
+     * the costs for a return shipment to your customer for example.
      *
      * @return float
      */
@@ -354,6 +376,34 @@ class Payment extends \Mollie\Api\Resources\BaseResource
         return $this->client->paymentRefunds->getFor($this, $refundId, $parameters);
     }
     /**
+     * Retrieves all captures associated with this payment
+     *
+     * @return CaptureCollection
+     * @throws ApiException
+     */
+    public function captures()
+    {
+        if (!isset($this->_links->captures->href)) {
+            return new \Mollie\Api\Resources\CaptureCollection($this->client, 0, null);
+        }
+        $result = $this->client->performHttpCallToFullUrl(\Mollie\Api\MollieApiClient::HTTP_GET, $this->_links->captures->href);
+        $resourceCollection = new \Mollie\Api\Resources\CaptureCollection($this->client, $result->count, $result->_links);
+        foreach ($result->_embedded->captures as $dataResult) {
+            $resourceCollection[] = \Mollie\Api\Resources\ResourceFactory::createFromApiResult($dataResult, new \Mollie\Api\Resources\Capture($this->client));
+        }
+        return $resourceCollection;
+    }
+    /**
+     * @param string $captureId
+     * @param array $parameters
+     *
+     * @return Capture
+     */
+    public function getCapture($captureId, array $parameters = [])
+    {
+        return $this->client->paymentCaptures->getFor($this, $captureId, $parameters);
+    }
+    /**
      * Retrieves all chargebacks associated with this payment
      *
      * @return ChargebackCollection
@@ -372,9 +422,22 @@ class Payment extends \Mollie\Api\Resources\BaseResource
         return $resourceCollection;
     }
     /**
+     * Retrieves a specific chargeback for this payment.
+     *
+     * @param string $chargebackId
+     * @param array $parameters
+     *
+     * @return Chargeback
+     */
+    public function getChargeback($chargebackId, array $parameters = [])
+    {
+        return $this->client->paymentChargebacks->getFor($this, $chargebackId, $parameters);
+    }
+    /**
      * Issue a refund for this payment.
      *
-     * The $data parameter may either be an array of endpoint parameters or empty to do a full refund.
+     * The $data parameter may either be an array of endpoint parameters or empty to
+     * do a full refund.
      *
      * @param array|null $data
      *

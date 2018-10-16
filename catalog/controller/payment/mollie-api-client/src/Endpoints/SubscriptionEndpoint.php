@@ -17,7 +17,7 @@ class SubscriptionEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
      */
     protected function getResourceObject()
     {
-        return new \Mollie\Api\Resources\Subscription($this->api);
+        return new \Mollie\Api\Resources\Subscription($this->client);
     }
     /**
      * Get the collection object that is used by this API endpoint. Every API endpoint uses one type of collection object.
@@ -29,7 +29,7 @@ class SubscriptionEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
      */
     protected function getResourceCollectionObject($count, $_links)
     {
-        return new \Mollie\Api\Resources\SubscriptionCollection($this->api, $count, $_links);
+        return new \Mollie\Api\Resources\SubscriptionCollection($this->client, $count, $_links);
     }
     /**
      * Create a subscription for a Customer
@@ -74,11 +74,13 @@ class SubscriptionEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
      * @param Customer $customer
      * @param string $subscriptionId
      *
+     * @param array $data
      * @return null
+     * @throws \Mollie\Api\Exceptions\ApiException
      */
-    public function cancelFor(\Mollie\Api\Resources\Customer $customer, $subscriptionId)
+    public function cancelFor(\Mollie\Api\Resources\Customer $customer, $subscriptionId, array $data = [])
     {
         $this->parentId = $customer->id;
-        return parent::rest_delete($subscriptionId);
+        return parent::rest_delete($subscriptionId, $data);
     }
 }

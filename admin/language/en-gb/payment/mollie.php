@@ -48,6 +48,8 @@ $_['text_mollie_giftcard']      = $method_list_logo;
 $_['text_mollie_inghomepay']    = $method_list_logo;
 $_['text_mollie_eps']           = $method_list_logo;
 $_['text_mollie_giropay']       = $method_list_logo;
+$_['text_mollie_klarnapaylater'] = $method_list_logo;
+$_['text_mollie_klarnasliceit']  = $method_list_logo;
 
 // Heading
 $_['heading_title']           = "Mollie";
@@ -72,6 +74,8 @@ $_['name_mollie_giftcard']      = 'Giftcard';
 $_['name_mollie_inghomepay']    = 'ING Home\'pay';
 $_['name_mollie_eps']           = 'EPS';
 $_['name_mollie_giropay']       = 'Giropay';
+$_['name_mollie_klarnapaylater'] = 'Klarna Pay Later';
+$_['name_mollie_klarnasliceit']  = 'Klarna Slice It';
 
 // Text
 $_['text_edit']                    = "Edit";
@@ -120,3 +124,8 @@ $_['entry_failed_status']     = "Payment failed status";
 $_['entry_canceled_status']   = "Payment canceled status";
 $_['entry_expired_status']    = "Payment expired status";
 $_['entry_processing_status'] = "Payment successful status";
+
+$_['entry_shipping_status']   = "Order shipped status";
+$_['entry_shipment']       			 = "Create shipment immediately";
+$_['entry_create_shipment_status']   = "Create shipment after order status";
+$_['help_shipment'] 				 = "Shipment(For klarna methods only) will be created right after creating order. Select 'No' to create shipment when order reach to a specific status and select the order status from below.";

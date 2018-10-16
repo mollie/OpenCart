@@ -22,6 +22,8 @@ class MollieHelper
 	const MODULE_NAME_INGHOMEPAY    = "inghomepay";
 	const MODULE_NAME_EPS           = "eps";
 	const MODULE_NAME_GIROPAY       = "giropay";
+	const MODULE_NAME_KLARNAPAYLATER = "klarnapaylater";
+	const MODULE_NAME_KLARNASLICEIT  = "klarnasliceit";
 
 
 	// List of all available module names.
@@ -40,7 +42,9 @@ class MollieHelper
 		self::MODULE_NAME_GIFTCARD,
 		self::MODULE_NAME_INGHOMEPAY,
 		self::MODULE_NAME_EPS,
-		self::MODULE_NAME_GIROPAY
+		self::MODULE_NAME_GIROPAY,
+		self::MODULE_NAME_KLARNAPAYLATER,
+		self::MODULE_NAME_KLARNASLICEIT
 	);
 
 	static protected $api_client;

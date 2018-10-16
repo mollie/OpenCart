@@ -183,6 +183,20 @@
 											</select>
 										</div>
 									</div>
+									<div class="form-group">
+										<label class="col-sm-2 control-label" for="<?php echo $code; ?>_ideal_shipping_status_id"><?php echo $entry_shipping_status; ?></label>
+										<div class="col-sm-10">
+											<select name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_ideal_shipping_status_id" id="<?php echo $code; ?>_ideal_shipping_status_id" class="form-control">
+												<?php foreach ($order_statuses as $order_status) { ?>
+													<?php if ($order_status['order_status_id'] == $shop[$code . '_ideal_shipping_status_id']) { ?>
+													<option value="<?php echo $order_status['order_status_id']; ?>" selected="selected"><?php echo $order_status['name']; ?></option>
+													<?php } else { ?>
+													<option value="<?php echo $order_status['order_status_id']; ?>"><?php echo $order_status['name']; ?></option>
+													<?php } ?>
+												<?php } ?>
+											</select>
+										</div>
+									</div>
 								</div>
 
 								<div id="mollie-options-<?php echo $shop['store_id']; ?>" class="tab-pane fade in">
@@ -231,6 +245,34 @@
 												<?php } else { ?>
 												<option value="1"><?php echo $text_yes; ?></option>
 												<option value="0" selected="selected"><?php echo $text_no; ?></option>
+												<?php } ?>
+											</select>
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="col-sm-2 control-label" for="input-status"><span data-toggle="tooltip" title="<?php echo $help_shipment; ?>"><?php echo $entry_shipment; ?></span></label>
+										<div class="col-sm-10">
+											<select name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_create_shipment" id="<?php echo $shop['store_id']; ?>-create-shipment" class="form-control">
+												<?php if ($shop[$code . '_create_shipment']) { ?>
+												<option value="1" selected="selected"><?php echo $text_yes; ?></option>
+												<option value="0"><?php echo $text_no; ?></option>
+												<?php } else { ?>
+												<option value="1"><?php echo $text_yes; ?></option>
+												<option value="0" selected="selected"><?php echo $text_no; ?></option>
+												<?php } ?>
+											</select>
+										</div>
+									</div>
+									<div class="form-group" id="<?php echo $shop['store_id']; ?>-create-shipment-status">
+										<label class="col-sm-2 control-label" for="<?php echo $code; ?>_create_shipping_status_id"><?php echo $entry_create_shipment_status; ?></label>
+										<div class="col-sm-10">
+											<select name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_create_shipment_status_id" id="<?php echo $code; ?>_create_shipment_status_id" class="form-control">
+												<?php foreach ($order_statuses as $order_status) { ?>
+													<?php if ($order_status['order_status_id'] == $shop[$code . '_create_shipment_status_id']) { ?>
+													<option value="<?php echo $order_status['order_status_id']; ?>" selected="selected"><?php echo $order_status['name']; ?></option>
+													<?php } else { ?>
+													<option value="<?php echo $order_status['order_status_id']; ?>"><?php echo $order_status['name']; ?></option>
+													<?php } ?>
 												<?php } ?>
 											</select>
 										</div>
@@ -394,6 +436,17 @@
 				validateAPIKey(this.value, $(this).siblings('.input-group-addon'), $(this).attr('store'));
 			});
 
+			var elem = document.getElementById('<?php echo $shop["store_id"] ?>-create-shipment');
+			var hiddenDiv = document.getElementById('<?php echo $shop["store_id"] ?>-create-shipment-status');
+			if(elem.value == 1) {
+				hiddenDiv.style.display = "none";
+			}
+			
+			elem.onchange = function(){
+			    hiddenDiv.style.display = (this.value == "1") ? "none":"block";
+			};
+
 		<?php } ?>
+
 	})();
 </script>

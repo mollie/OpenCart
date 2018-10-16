@@ -8,17 +8,22 @@ $loader = require_once __DIR__.'/composer-autoload.php';
 // https://github.com/humbug/php-scoper/blob/master/README.md#functions-whitelisting
 if (!function_exists('database_write')) {
     function database_write() {
-        return \_PhpScoper5b87e821469bb\database_write(...func_get_args());
+        return \_PhpScoper5bbb1f4b001f3\database_write(...func_get_args());
     }
 }
 if (!function_exists('database_read')) {
     function database_read() {
-        return \_PhpScoper5b87e821469bb\database_read(...func_get_args());
+        return \_PhpScoper5bbb1f4b001f3\database_read(...func_get_args());
     }
 }
-if (!function_exists('composerRequire82030f8453ef92bd2040820af6890694')) {
-    function composerRequire82030f8453ef92bd2040820af6890694() {
-        return \_PhpScoper5b87e821469bb\composerRequire82030f8453ef92bd2040820af6890694(...func_get_args());
+if (!function_exists('printOrders')) {
+    function printOrders() {
+        return \_PhpScoper5bbb1f4b001f3\printOrders(...func_get_args());
+    }
+}
+if (!function_exists('composerRequirea3126e82b6f8a8825a16880fe8b70058')) {
+    function composerRequirea3126e82b6f8a8825a16880fe8b70058() {
+        return \_PhpScoper5bbb1f4b001f3\composerRequirea3126e82b6f8a8825a16880fe8b70058(...func_get_args());
     }
 }
 

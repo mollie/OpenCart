@@ -16,7 +16,7 @@ class CustomerPaymentsEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
      */
     protected function getResourceObject()
     {
-        return new \Mollie\Api\Resources\Payment($this->api);
+        return new \Mollie\Api\Resources\Payment($this->client);
     }
     /**
      * Get the collection object that is used by this API endpoint. Every API endpoint uses one type of collection object.
@@ -28,7 +28,7 @@ class CustomerPaymentsEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
      */
     protected function getResourceCollectionObject($count, $_links)
     {
-        return new \Mollie\Api\Resources\PaymentCollection($this->api, $count, $_links);
+        return new \Mollie\Api\Resources\PaymentCollection($this->client, $count, $_links);
     }
     /**
      * Create a subscription for a Customer

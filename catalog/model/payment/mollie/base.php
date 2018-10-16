@@ -114,16 +114,16 @@ class ModelPaymentMollieBase extends Model
 	 *
 	 * @return bool
 	 */
-	public function setPayment($order_id, $transaction_id)
+	public function setPayment($order_id, $mollie_order_id)
 	{
-		if (!empty($order_id) && !empty($transaction_id)) {
+		if (!empty($order_id) && !empty($mollie_order_id)) {
 			$this->db->query(
 				sprintf(
-					"REPLACE INTO `%smollie_payments` (`order_id` ,`transaction_id`, `method`)
+					"REPLACE INTO `%smollie_payments` (`order_id` ,`mollie_order_id`, `method`)
 					 VALUES ('%s', '%s', 'idl')",
 					DB_PREFIX,
 					$this->db->escape($order_id),
-					$this->db->escape($transaction_id)
+					$this->db->escape($mollie_order_id)
 				)
 			);
 
@@ -171,6 +171,36 @@ class ModelPaymentMollieBase extends Model
 			return $results->row['transaction_id'];
 		}
 		return FALSE;
+	}
+
+	public function getOrderID($order_id)
+	{
+		if (!empty($order_id)) {
+			$results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `order_id` = '" . $order_id . "'");
+			if($results->num_rows == 0) return FALSE;
+			return $results->row['mollie_order_id'];
+		}
+		return FALSE;
+	}
+
+	public function getOrderProducts($order_id) {
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "order_product WHERE order_id = '" . (int)$order_id . "'");
+
+		return $query->rows;
+	}
+
+	public function getTaxRate() {
+		$query = $this->db->query("SELECT rate FROM " . DB_PREFIX . "tax_rate WHERE name LIKE '%VAT%'");
+
+		if($query->num_rows != 0) {
+			return $query->row['rate'];
+		}
+		return 0;
+	}
+
+	public function getCouponDetails($orderID) {
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "order_total WHERE order_id = '" . (int)$orderID . "' AND code = 'coupon'");
+		return $query->row;
 	}
 
 }

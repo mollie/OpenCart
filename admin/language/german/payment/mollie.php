@@ -48,6 +48,8 @@ $_['text_mollie_giftcard']      = $method_list_logo;
 $_['text_mollie_inghomepay']    = $method_list_logo;
 $_['text_mollie_eps']           = $method_list_logo;
 $_['text_mollie_giropay']       = $method_list_logo;
+$_['text_mollie_klarnapaylater'] = $method_list_logo;
+$_['text_mollie_klarnasliceit']  = $method_list_logo;
 
 // Heading
 $_['heading_title']         = "Mollie";
@@ -72,6 +74,8 @@ $_['name_mollie_giftcard']      = 'Giftcard';
 $_['name_mollie_inghomepay']    = 'ING Home\'Pay';
 $_['name_mollie_eps']           = 'EPS';
 $_['name_mollie_giropay']       = 'Giropay';
+$_['name_mollie_klarnapaylater'] = 'Klarna Pay Later';
+$_['name_mollie_klarnasliceit']  = 'Klarna Slice It';
 
 // Text
 $_['text_edit']                    = "Mollie bearbeiten";
@@ -121,3 +125,8 @@ $_['entry_failed_status']    = "Status Zahlung fehlgeschlagen";
 $_['entry_canceled_status']  = "Status Zahlung annulliert";
 $_['entry_expired_status']   = "Status Zahlung verstrichen";
 $_['entry_processing_status']= "Status Zahlung erfolgreich";
+
+$_['entry_shipping_status']   = "Versandstatus der Bestellung";
+$_['entry_shipment']       			 = "Erstellen Sie sofort eine Sendung";
+$_['entry_create_shipment_status']   = "Erstellen Sie eine Sendung nach dem Bestellstatus";
+$_['help_shipment'] 				 = "Versand (nur für Klarna-Methoden) wird direkt nach dem Erstellen der Bestellung erstellt. Wählen Sie 'Nein', um die Sendung zu erstellen, wenn die Bestellung einen bestimmten Status erreicht, und wählen Sie den Bestellstatus von unten aus.";

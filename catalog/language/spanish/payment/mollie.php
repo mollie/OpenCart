@@ -64,6 +64,7 @@ $_['response_cancelled'] = 'El cliente ha cancelado el pago';
 $_['response_failed']    = 'Lamentablemente, no se ha efectuado el pago. Por favor, inténtelo de nuevo.';
 $_['response_expired']   = 'El pago ha caducado';
 $_['response_unknown']   = 'Se ha producido un error desconocido';
+$_['shipment_success']   = 'Se crea el envio';
 
 // Methods
 $_['method_ideal']                      = 'iDEAL';
@@ -81,3 +82,5 @@ $_['method_giftcard']                   = 'Giftcard';
 $_['method_inghomepay']                 = 'ING Home\'Pay';
 $_['method_eps']                        = 'Giropay';
 $_['method_giropay']                    = 'EPS';
+$_['method_klarnapaylater'] 			= 'Klarna Pay Later';
+$_['method_klarnasliceit']  			= 'Klarna Slice It';
