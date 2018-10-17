@@ -470,7 +470,7 @@ class ControllerPaymentMollieBase extends Controller
 
 			$data['shops'][$store['store_id']]['entry_cstatus'] = $this->checkCommunicationStatus(isset($store[$code . '_api_key']) ? $store[$code . '_api_key'] : null);
 
-			Util::error($store, $store['store_id'], $this->error)
+			Util::validation($store, $store['store_id'], $this->error)
 				->notIsset('error_api_key', 'api_key')
 				->notIsset('error_description', 'description');
 			
