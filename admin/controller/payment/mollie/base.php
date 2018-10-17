@@ -133,6 +133,34 @@ class ControllerPaymentMollieBase extends Controller
 			unlink($adminThemeDir . 'payment/mollie_2.tpl');
 		}
 
+		//Remove 'mistercash' files from old version
+		$adminControllerDir   = DIR_APPLICATION . 'controller/';
+		$adminLanguageDir     = DIR_APPLICATION . 'language/';
+		$catalogControllerDir = DIR_CATALOG . 'controller/';
+		$catalogModelDir      = DIR_CATALOG . 'model/';
+
+		if(file_exists($adminControllerDir . 'extension/payment/mistercash.php')) {
+			unlink($adminControllerDir . 'extension/payment/mistercash.php');
+			$languageFiles = glob($adminLanguageDir .'*/extension/payment/mistercash.php');
+			foreach($languageFiles as $file) {
+				unlink($file);
+			}
+
+			unlink($catalogControllerDir .'extension/payment/mistercash.php');
+			unlink($catalogModelDir .'extension/payment/mistercash.php');
+		}
+
+		if(file_exists($adminControllerDir . 'payment/mistercash.php')) {
+			unlink($adminControllerDir . 'payment/mistercash.php');
+			$languageFiles = glob($adminLanguageDir .'*/payment/mistercash.php');
+			foreach($languageFiles as $file) {
+				unlink($file);
+			}
+
+			unlink($catalogControllerDir .'payment/mistercash.php');
+			unlink($catalogModelDir .'payment/mistercash.php');
+		}
+
 		if (MollieHelper::isOpenCart3x()) {
 			if(file_exists($adminThemeDir . 'extension/payment/mollie(max_1.5.6.4).tpl')) {
 				unlink($adminThemeDir . 'extension/payment/mollie(max_1.5.6.4).tpl');
@@ -209,6 +237,14 @@ class ControllerPaymentMollieBase extends Controller
 		}
 	}
 
+	//Delete old 'mistercash' data from setting
+	public function clearData() {
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "setting WHERE `key` LIKE '%mistercash%'");
+		if($query->num_rows > 0) {
+			$this->db->query("DELETE FROM " . DB_PREFIX . "setting WHERE `key` LIKE '%mistercash%'");
+		}
+	}
+
 	/**
 	 * Render the payment method's settings page.
 	 */
@@ -225,6 +261,14 @@ class ControllerPaymentMollieBase extends Controller
 				$this->cleanUp();
 			}
 		}
+
+		$adminControllerDir   = DIR_APPLICATION . 'controller/';
+		if(file_exists($adminControllerDir . 'extension/payment/mistercash.php') || file_exists($adminControllerDir . 'payment/mistercash.php')) {
+			$this->cleanUp();
+		}
+
+		//Also delete data related to 'mistercash' from setting
+		$this->clearData();
 
 		//Load language data
 		$data = array("version" => MOLLIE_RELEASE);
@@ -426,7 +470,7 @@ class ControllerPaymentMollieBase extends Controller
 
 			$data['shops'][$store['store_id']]['entry_cstatus'] = $this->checkCommunicationStatus(isset($store[$code . '_api_key']) ? $store[$code . '_api_key'] : null);
 
-			Util::validation($store, $store['store_id'], $this->error)
+			Util::error($store, $store['store_id'], $this->error)
 				->notIsset('error_api_key', 'api_key')
 				->notIsset('error_description', 'description');
 			
