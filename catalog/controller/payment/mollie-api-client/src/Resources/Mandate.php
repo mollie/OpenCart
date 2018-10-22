@@ -21,6 +21,10 @@ class Mandate extends \Mollie\Api\Resources\BaseResource
     /**
      * @var string
      */
+    public $mode;
+    /**
+     * @var string
+     */
     public $method;
     /**
      * @var object|null
@@ -79,7 +83,11 @@ class Mandate extends \Mollie\Api\Resources\BaseResource
         if (!isset($this->_links->self->href)) {
             return $this;
         }
-        $result = $this->client->performHttpCallToFullUrl(\Mollie\Api\MollieApiClient::HTTP_DELETE, $this->_links->self->href);
+        $body = null;
+        if ($this->client->usesOAuth()) {
+            $body = \json_encode(["testmode" => $this->mode === "test" ? \true : \false]);
+        }
+        $result = $this->client->performHttpCallToFullUrl(\Mollie\Api\MollieApiClient::HTTP_DELETE, $this->_links->self->href, $body);
         return $result;
     }
 }

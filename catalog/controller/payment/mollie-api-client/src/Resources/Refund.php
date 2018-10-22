@@ -42,6 +42,20 @@ class Refund extends \Mollie\Api\Resources\BaseResource
      */
     public $paymentId;
     /**
+     * The order id that was refunded.
+     *
+     * @var string|null
+     */
+    public $orderId;
+    /**
+     * The order lines contain the actual things the customer ordered.
+     * The lines will show the quantity, discountAmount, vatAmount and totalAmount
+     * refunded.
+     *
+     * @var array|object[]|null
+     */
+    public $lines;
+    /**
      * The settlement amount
      *
      * @var object
@@ -94,13 +108,15 @@ class Refund extends \Mollie\Api\Resources\BaseResource
         return $this->status === \Mollie\Api\Types\RefundStatus::STATUS_REFUNDED;
     }
     /**
-     * Cancel the refund
+     * Cancel the refund.
+     * Returns null if successful.
      *
-     * @return BaseResource
+     * @return null
+     * @throws ApiException
      */
     public function cancel()
     {
-        $dataResult = $this->client->performHttpCallToFullUrl(\Mollie\Api\MollieApiClient::HTTP_DELETE, $this->_links->self->href);
-        return \Mollie\Api\Resources\ResourceFactory::createFromApiResult($dataResult, new self($this->client));
+        $this->client->performHttpCallToFullUrl(\Mollie\Api\MollieApiClient::HTTP_DELETE, $this->_links->self->href);
+        return null;
     }
 }

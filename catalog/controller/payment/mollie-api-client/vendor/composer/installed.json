@@ -34,7 +34,7 @@
         "installation-source": "dist",
         "autoload": {
             "psr-4": {
-                "_PhpScoper5b87e821469bb\\Composer\\CaBundle\\": "src"
+                "_PhpScoper5bbb1f4b001f3\\Composer\\CaBundle\\": "src"
             }
         },
         "notification-url": "https:\/\/packagist.org\/downloads\/",
@@ -98,7 +98,7 @@
                 "src\/functions_include.php"
             ],
             "psr-4": {
-                "_PhpScoper5b87e821469bb\\GuzzleHttp\\": "src\/"
+                "_PhpScoper5bbb1f4b001f3\\GuzzleHttp\\": "src\/"
             }
         },
         "notification-url": "https:\/\/packagist.org\/downloads\/",
@@ -155,7 +155,7 @@
         "installation-source": "dist",
         "autoload": {
             "psr-4": {
-                "_PhpScoper5b87e821469bb\\GuzzleHttp\\Promise\\": "src\/"
+                "_PhpScoper5bbb1f4b001f3\\GuzzleHttp\\Promise\\": "src\/"
             },
             "files": [
                 "src\/functions_include.php"
@@ -212,7 +212,7 @@
         "installation-source": "dist",
         "autoload": {
             "psr-4": {
-                "_PhpScoper5b87e821469bb\\GuzzleHttp\\Psr7\\": "src\/"
+                "_PhpScoper5bbb1f4b001f3\\GuzzleHttp\\Psr7\\": "src\/"
             },
             "files": [
                 "src\/functions_include.php"
@@ -272,7 +272,7 @@
         "installation-source": "dist",
         "autoload": {
             "psr-4": {
-                "_PhpScoper5b87e821469bb\\Psr\\Http\\Message\\": "src\/"
+                "_PhpScoper5bbb1f4b001f3\\Psr\\Http\\Message\\": "src\/"
             }
         },
         "notification-url": "https:\/\/packagist.org\/downloads\/",

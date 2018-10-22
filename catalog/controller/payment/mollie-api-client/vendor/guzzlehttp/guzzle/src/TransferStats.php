@@ -1,10 +1,10 @@
 <?php
 
-namespace _PhpScoper5b87e821469bb\GuzzleHttp;
+namespace _PhpScoper5bbb1f4b001f3\GuzzleHttp;
 
-use _PhpScoper5b87e821469bb\Psr\Http\Message\RequestInterface;
-use _PhpScoper5b87e821469bb\Psr\Http\Message\ResponseInterface;
-use _PhpScoper5b87e821469bb\Psr\Http\Message\UriInterface;
+use _PhpScoper5bbb1f4b001f3\Psr\Http\Message\RequestInterface;
+use _PhpScoper5bbb1f4b001f3\Psr\Http\Message\ResponseInterface;
+use _PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface;
 /**
  * Represents data at the point after it was transferred either successfully
  * or after a network error.
@@ -23,7 +23,7 @@ final class TransferStats
      * @param mixed             $handlerErrorData Handler error data.
      * @param array             $handlerStats     Handler specific stats.
      */
-    public function __construct(\_PhpScoper5b87e821469bb\Psr\Http\Message\RequestInterface $request, \_PhpScoper5b87e821469bb\Psr\Http\Message\ResponseInterface $response = null, $transferTime = null, $handlerErrorData = null, $handlerStats = [])
+    public function __construct(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\RequestInterface $request, \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\ResponseInterface $response = null, $transferTime = null, $handlerErrorData = null, $handlerStats = [])
     {
         $this->request = $request;
         $this->response = $response;

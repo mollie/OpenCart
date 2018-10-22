@@ -16,7 +16,7 @@ class MandateEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
      */
     protected function getResourceObject()
     {
-        return new \Mollie\Api\Resources\Mandate($this->api);
+        return new \Mollie\Api\Resources\Mandate($this->client);
     }
     /**
      * Get the collection object that is used by this API endpoint. Every API endpoint uses one type of collection object.
@@ -28,7 +28,7 @@ class MandateEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
      */
     protected function getResourceCollectionObject($count, $_links)
     {
-        return new \Mollie\Api\Resources\MandateCollection($this->api, $count, $_links);
+        return new \Mollie\Api\Resources\MandateCollection($this->client, $count, $_links);
     }
     /**
      * @param Customer $customer
@@ -71,11 +71,13 @@ class MandateEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
      * @param Customer $customer
      * @param string $mandateId
      *
+     * @param array $data
      * @return null
+     * @throws \Mollie\Api\Exceptions\ApiException
      */
-    public function revokeFor(\Mollie\Api\Resources\Customer $customer, $mandateId)
+    public function revokeFor(\Mollie\Api\Resources\Customer $customer, $mandateId, $data = [])
     {
         $this->parentId = $customer->id;
-        return parent::rest_delete($mandateId);
+        return parent::rest_delete($mandateId, $data);
     }
 }

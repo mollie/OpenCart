@@ -1,8 +1,8 @@
 <?php
 
-namespace _PhpScoper5b87e821469bb\GuzzleHttp\Handler;
+namespace _PhpScoper5bbb1f4b001f3\GuzzleHttp\Handler;
 
-use _PhpScoper5b87e821469bb\Psr\Http\Message\RequestInterface;
+use _PhpScoper5bbb1f4b001f3\Psr\Http\Message\RequestInterface;
 interface CurlFactoryInterface
 {
     /**
@@ -14,7 +14,7 @@ interface CurlFactoryInterface
      * @return EasyHandle
      * @throws \RuntimeException when an option cannot be applied
      */
-    public function create(\_PhpScoper5b87e821469bb\Psr\Http\Message\RequestInterface $request, array $options);
+    public function create(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\RequestInterface $request, array $options);
     /**
      * Release an easy handle, allowing it to be reused or closed.
      *
@@ -22,5 +22,5 @@ interface CurlFactoryInterface
      *
      * @param EasyHandle $easy
      */
-    public function release(\_PhpScoper5b87e821469bb\GuzzleHttp\Handler\EasyHandle $easy);
+    public function release(\_PhpScoper5bbb1f4b001f3\GuzzleHttp\Handler\EasyHandle $easy);
 }

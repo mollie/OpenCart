@@ -48,6 +48,8 @@ $_['text_mollie_giftcard']      = $method_list_logo;
 $_['text_mollie_inghomepay']    = $method_list_logo;
 $_['text_mollie_eps']           = $method_list_logo;
 $_['text_mollie_giropay']       = $method_list_logo;
+$_['text_mollie_klarnapaylater'] = $method_list_logo;
+$_['text_mollie_klarnasliceit']  = $method_list_logo;
 
 // Heading
 $_['heading_title']         = "Mollie";
@@ -72,6 +74,8 @@ $_['name_mollie_giftcard']      = 'Giftcard';
 $_['name_mollie_inghomepay']    = 'ING Home\'pay';
 $_['name_mollie_eps']           = 'EPS';
 $_['name_mollie_giropay']       = 'Giropay';
+$_['name_mollie_klarnapaylater'] = 'Klarna Pay Later';
+$_['name_mollie_klarnasliceit']  = 'Klarna Slice It';
 
 // Text
 $_['text_edit']                    = "Bewerk Mollie";
@@ -120,3 +124,8 @@ $_['entry_failed_status']    = "Status betaling mislukt";
 $_['entry_canceled_status']  = "Status betaling geannuleerd";
 $_['entry_expired_status']   = "Status betaling verlopen";
 $_['entry_processing_status']= "Status betaling succesvol";
+
+$_['entry_shipping_status']   = "Status bestelling verzonden";
+$_['entry_shipment']       			 = "Maak direct verzending aan";
+$_['entry_create_shipment_status']   = "Maak verzending aan na order status";
+$_['help_shipment'] 				 = "Verzending (alleen voor Klarna-methoden) wordt direct na het maken van de bestelling gemaakt. Selecteer 'Nee' om een ​​zending te creëren wanneer de order een specifieke status bereikt en selecteer de bestelstatus van onder.";

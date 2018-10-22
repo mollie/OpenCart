@@ -64,6 +64,7 @@ $_['response_cancelled'] = 'The client has canceled the payment';
 $_['response_failed']    = 'Unfortunately something went wrong. Please retry the payment.';
 $_['response_expired']   = 'The payment has expired';
 $_['response_unknown']   = 'An unknown error occurred';
+$_['shipment_success']   = 'Shipment is created';
 
 // Methods
 $_['method_ideal']        = 'iDEAL';
@@ -81,3 +82,5 @@ $_['method_giftcard']     = 'Giftcard';
 $_['method_inghomepay']   = 'ING Home\'Pay';
 $_['method_eps']          = 'Giropay';
 $_['method_giropay']      = 'EPS';
+$_['method_klarnapaylater'] = 'Klarna Pay Later';
+$_['method_klarnasliceit']  = 'Klarna Slice It';

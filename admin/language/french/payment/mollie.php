@@ -48,6 +48,8 @@ $_['text_mollie_giftcard']      = $method_list_logo;
 $_['text_mollie_inghomepay']    = $method_list_logo;
 $_['text_mollie_eps']           = $method_list_logo;
 $_['text_mollie_giropay']       = $method_list_logo;
+$_['text_mollie_klarnapaylater'] = $method_list_logo;
+$_['text_mollie_klarnasliceit']  = $method_list_logo;
 
 // Heading
 $_['heading_title']           = "Mollie";
@@ -72,6 +74,8 @@ $_['name_mollie_giftcard']      = 'Giftcard';
 $_['name_mollie_inghomepay']    = 'ING Home\'pay';
 $_['name_mollie_eps']           = 'EPS';
 $_['name_mollie_giropay']       = 'Giropay';
+$_['name_mollie_klarnapaylater'] = 'Klarna Pay Later';
+$_['name_mollie_klarnasliceit']  = 'Klarna Slice It';
 
 // Text
 $_['text_edit']                    = "Éditer Mollie";
@@ -119,3 +123,8 @@ $_['entry_failed_status']     = "État de paiement échoué";
 $_['entry_canceled_status']   = "État de paiement annulé";
 $_['entry_expired_status']    = "État de paiement expiré";
 $_['entry_processing_status'] = "État de paiement traitement";
+
+$_['entry_shipping_status']   = "Statut de la commande expédiée";
+$_['entry_shipment']       			 = "Créer un envoi immédiatement";
+$_['entry_create_shipment_status']   = "Créer un envoi après le statut de la commande";
+$_['help_shipment'] 				 = "Envoi (pour les méthodes klarna uniquement) sera créé juste après la création de la commande. Sélectionnez «Non» pour créer une expédition lorsque la commande atteint un statut spécifique et sélectionnez le statut de la commande ci-dessous.";

@@ -119,6 +119,30 @@ class ControllerPaymentMollieBase extends Controller
         return $orderModel->getOrder($order_id);
     }
 
+    //Get order products
+    protected function getOrderProducts($order_id)
+    {
+        $model = Util::load()->model("payment/mollie_" . static::MODULE_NAME);
+
+        return $model->getOrderProducts($order_id);
+    }
+
+    //Get tax rate
+    protected function getTaxRate()
+    {
+        $model = Util::load()->model("payment/mollie_" . static::MODULE_NAME);
+
+        return $model->getTaxRate();
+    }
+
+    //Get Coupon Details
+    protected function getCouponDetails($orderID)
+    {
+        $model = Util::load()->model("payment/mollie_" . static::MODULE_NAME);
+
+        return $model->getCouponDetails($orderID);
+    }
+
     /**
      * This gets called by OpenCart at the final checkout step and should generate a confirmation button.
      * @return string
@@ -175,37 +199,107 @@ class ControllerPaymentMollieBase extends Controller
         try {
             $data = array(
                 "amount" => ["currency" => $currency, "value" => (string)number_format((float)$amount, 2, '.', '')],
-                "description" => $description,
+                "orderNumber" => $order['order_id'],
                 "redirectUrl" => $return_url,
                 "webhookUrl" => $this->getWebhookUrl(),
-                "metadata" => array("order_id" => $order['order_id']),
+                "metadata" => array("order_id" => $order['order_id'], "description" => $description),
                 "method" => static::MODULE_NAME,
-                "issuer" => $issuer,
             );
+
+            $data['payment'] = ["issuer" => $issuer];
+
+            //Order line data
+            $orderProducts = $this->getOrderProducts($order['order_id']);
+            $lines = array();
+
+            //Get VAT rate
+            $vatRate = $this->getTaxRate();
+            foreach($orderProducts as $orderProduct) {
+                $total = $orderProduct['total'] + ($orderProduct['tax'] * $orderProduct['quantity']);
+                $vatAmount = $total * ( $vatRate / (100 +  $vatRate));
+                $lines[] = array(
+                    'type'          =>  'physical',
+                    'name'          =>  $orderProduct['name'],
+                    'quantity'      =>  $orderProduct['quantity'],
+                    'unitPrice'     =>  ["currency" => $currency, "value" => (string)number_format((float)($orderProduct['price'] + $orderProduct['tax']), 2, '.', '')],
+                    'totalAmount'   =>  ["currency" => $currency, "value" => (string)number_format((float)$total, 2, '.', '')],
+                    'vatRate'       =>  (string)number_format((float)$vatRate, 2, '.', ''),
+                    'vatAmount'     =>  ["currency" => $currency, "value" => (string)number_format((float)$vatAmount, 2, '.', '')]
+                );
+            }
+
+            //Check for shipping fee
+            if(isset($this->session->data['shipping_method'])) {
+                $title = $this->session->data['shipping_method']['title'];
+                $cost = $this->session->data['shipping_method']['cost'];
+                $taxClass = $this->session->data['shipping_method']['tax_class_id'];
+                $costWithTax = $this->tax->calculate($cost, $taxClass, $this->config->get('config_tax'));
+                $shippingVATAmount = $costWithTax * ( $vatRate / (100 +  $vatRate));
+                $lineForShipping[] = array(
+                    'type'          =>  'shipping_fee',
+                    'name'          =>  $title,
+                    'quantity'      =>  1,
+                    'unitPrice'     =>  ["currency" => $currency, "value" => (string)number_format((float)$costWithTax, 2, '.', '')],
+                    'totalAmount'   =>  ["currency" => $currency, "value" => (string)number_format((float)$costWithTax, 2, '.', '')],
+                    'vatRate'       =>  (string)number_format((float)$vatRate, 2, '.', ''),
+                    'vatAmount'     =>  ["currency" => $currency, "value" => (string)number_format((float)$shippingVATAmount, 2, '.', '')]
+                );
+
+                $lines = array_merge($lines, $lineForShipping);
+            }
+
+            //Check if coupon applied
+            if(isset($this->session->data['coupon'])) {
+                //Get coupon data
+                $coupon = $this->getCouponDetails($order['order_id']);
+                $taxClass = $this->session->data['shipping_method']['tax_class_id'];
+                $unitPriceWithTax = $this->tax->calculate($coupon['value'], $taxClass, $this->config->get('config_tax'));
+                $couponVATAmount = $unitPriceWithTax * ( $vatRate / (100 +  $vatRate));
+                $lineForCoupon[] = array(
+                    'type'          =>  'store_credit',
+                    'name'          =>  $coupon['title'],
+                    'quantity'      =>  1,
+                    'unitPrice'     =>  ["currency" => $currency, "value" => (string)number_format((float)$unitPriceWithTax, 2, '.', '')],
+                    'totalAmount'   =>  ["currency" => $currency, "value" => (string)number_format((float)$unitPriceWithTax, 2, '.', '')],
+                    'vatRate'       =>  (string)number_format((float)$vatRate, 2, '.', ''),
+                    'vatAmount'     =>  ["currency" => $currency, "value" => (string)number_format((float)$couponVATAmount, 2, '.', '')]
+                );
+
+                $lines = array_merge($lines, $lineForCoupon);
+            }
+
+            $data['lines'] = $lines;
+
                 /*
                  * This data is sent along for credit card payments / fraud checks. You can remove this but you will
                  * have a higher conversion if you leave it here.
                  */
 
-               $data["billingAddress"] = [
-                    "streetAndNumber" => $order['payment_address_1'] . ' ' . $order['payment_address_2'],
-                    "city" => $order['payment_city'],
-                    "region" => $order['payment_zone'],
-                    "postalCode" => $order['payment_postcode'],
-                    "country" => $order['payment_iso_code_2']
-                ];
+           $data["billingAddress"] = [
+                "givenName"     =>   $order['payment_firstname'],
+                "familyName"    =>   $order['payment_lastname'],
+                "email"         =>   $order['email'],
+                "streetAndNumber" => $order['payment_address_1'] . ' ' . $order['payment_address_2'],
+                "city" => $order['payment_city'],
+                "region" => $order['payment_zone'],
+                "postalCode" => $order['payment_postcode'],
+                "country" => $order['payment_iso_code_2']
+            ];
 
-                if (!empty($order['shipping_firstname']) || !empty($order['shipping_lastname'])) {
-                    $data["shippingAddress"] = [
-                        "streetAndNumber" => $order['shipping_address_1'] . ' ' . $order['shipping_address_2'],
-                        "city" => $order['shipping_city'],
-                        "region" => $order['shipping_zone'],
-                        "postalCode" => $order['shipping_postcode'],
-                        "country" => $order['shipping_iso_code_2']
-                    ];
-                } else {
-                    $data["shippingAddress"] = $data["billingAddress"];
-                }
+            if (!empty($order['shipping_firstname']) || !empty($order['shipping_lastname'])) {
+                $data["shippingAddress"] = [
+                    "givenName"     =>   $order['shipping_firstname'],
+                    "familyName"    =>   $order['shipping_lastname'],
+                    "email"         =>   $order['email'],
+                    "streetAndNumber" => $order['shipping_address_1'] . ' ' . $order['shipping_address_2'],
+                    "city" => $order['shipping_city'],
+                    "region" => $order['shipping_zone'],
+                    "postalCode" => $order['shipping_postcode'],
+                    "country" => $order['shipping_iso_code_2']
+                ];
+            } else {
+                $data["shippingAddress"] = $data["billingAddress"];
+            }
 
 
             $locales = array(
@@ -232,10 +326,13 @@ class ControllerPaymentMollieBase extends Controller
             }
 
             $data["locale"]=$locale;
-            $payment = $api->payments->create($data);
+
+            //Create Order
+            $orderObject = $api->orders->create($data);
+
         } catch (Mollie\Api\Exceptions\ApiException $e) {
             $this->showErrorPage($e->getMessage());
-            $this->writeToMollieLog("Creating payment failed; " . $e->getMessage());
+            $this->writeToMollieLog("Creating order failed; " . $e->getMessage());
             return;
         }
 
@@ -244,10 +341,10 @@ class ControllerPaymentMollieBase extends Controller
             $this->addOrderHistory($order, $this->config->get(MollieHelper::getModuleCode() . "_ideal_pending_status_id"), $this->language->get("text_redirected"), false);
         }
 
-        $model->setPayment($order['order_id'], $payment->id);
+        $model->setPayment($order['order_id'], $orderObject->id);
 
         // Redirect to payment gateway.
-        $this->redirect($payment->_links->checkout->href);
+        $this->redirect($orderObject->_links->checkout->href);
     }
 
     /**
@@ -272,10 +369,10 @@ class ControllerPaymentMollieBase extends Controller
         }
 
         $moduleCode = MollieHelper::getModuleCode();
-        $payment_id = $this->request->post['id'];
-        $this->writeToMollieLog("Received webhook for payment_id " . $payment_id);
+        $order_id = $this->request->post['id'];
+        $this->writeToMollieLog("Received webhook for order_id " . $order_id);
 
-        $payment = $this->getAPIClient()->payments->get($payment_id);
+        $mollieOrder = $this->getAPIClient()->orders->get($order_id);
 
         // Load essentials
         Util::load()->model("checkout/order");
@@ -283,7 +380,7 @@ class ControllerPaymentMollieBase extends Controller
         Util::load()->language("payment/mollie");
 
         //Get order_id of this transaction from db
-        $order = $this->model_checkout_order->getOrder($payment->metadata->order_id);
+        $order = $this->model_checkout_order->getOrder($mollieOrder->metadata->order_id);
 
         if (empty($order)) {
             header("HTTP/1.0 404 Not Found");
@@ -302,20 +399,20 @@ class ControllerPaymentMollieBase extends Controller
         }
 
         // Order paid ('processed').
-        if ($payment->isPaid()) {
+        if ($mollieOrder->isPaid() || $mollieOrder->isAuthorized()) {
             $new_status_id = intval($this->config->get($moduleCode . "_ideal_processing_status_id"));
 
             if (!$new_status_id) {
-                $this->writeToMollieLog("The payment has been received. No 'processing' status ID is configured, so the order status could not be updated.", true);
+                $this->writeToMollieLog("The payment has been received/authorised. No 'processing' status ID is configured, so the order status could not be updated.", true);
                 return;
             }
             $this->addOrderHistory($order, $new_status_id, $this->language->get("response_success"), true);
-            $this->writeToMollieLog("The payment was received and the order was moved to the 'processing' status (new status ID: {$new_status_id}.", true);
+            $this->writeToMollieLog("The payment was received/authorised and the order was moved to the 'processing' status (new status ID: {$new_status_id}.", true);
             return;
         }
 
         // Order cancelled.
-        if ($payment->status == PaymentStatus::STATUS_CANCELED) {
+        if ($mollieOrder->status == PaymentStatus::STATUS_CANCELED) {
             $new_status_id = intval($this->config->get($moduleCode . "_ideal_canceled_status_id"));
 
             if (!$new_status_id) {
@@ -328,7 +425,7 @@ class ControllerPaymentMollieBase extends Controller
         }
 
         // Order expired.
-        if ($payment->status == PaymentStatus::STATUS_CANCELED) {
+        if ($mollieOrder->status == PaymentStatus::STATUS_CANCELED) {
             $new_status_id = intval($this->config->get($moduleCode . "_ideal_expired_status_id"));
 
             if (!$new_status_id) {
@@ -385,6 +482,48 @@ class ControllerPaymentMollieBase extends Controller
         return null;
     }
 
+    //Create shipment after the order reach to a specific status
+    public function createShipment(&$route, &$data) {
+
+        $order_id = $data[0];
+        $order_status_id = $data[1];
+        $moduleCode = MollieHelper::getModuleCode();
+
+        $orderModel = Util::load()->model("checkout/order");
+        $mollieModel = Util::load()->model('payment/mollie/base');
+        Util::load()->language("payment/mollie");
+
+        //Get order_id of this transaction from db
+        $order = $orderModel->getOrder($order_id);
+        if (empty($order)) {
+            header("HTTP/1.0 404 Not Found");
+            echo "Could not find order.";
+            return;
+        }
+
+        $mollie_order_id = $mollieModel->getOrderID($order_id);
+        if (empty($mollie_order_id)) {
+            $this->writeToMollieLog("Could not find mollie reference order id.");
+            return;
+        }
+
+         $mollieOrder = $this->getAPIClient()->orders->get($mollie_order_id);
+         if($mollieOrder->isAuthorized() && !$this->config->get($moduleCode . "_create_shipment") && ($order_status_id == $this->config->get($moduleCode . "_create_shipment_status_id"))) {
+            //Shipment lines
+            $shipmentLine = array();
+            foreach($mollieOrder->lines as $line) {
+                $shipmentLine[] = array(
+                    'id'        =>  $line->id,
+                    'quantity'  =>  $line->quantity
+                );
+            }
+
+            $shipmentData['lines'] = $shipmentLine;
+            $mollieShipment = $mollieOrder->createShipment($shipmentData);
+            $this->writeToMollieLog("Shipment created for order-".$order_id);
+         }
+    }
+
     /**
      * Customer returning from the bank with an transaction_id
      * Depending on what the state of the payment is they get redirected to the corresponding page
@@ -425,10 +564,10 @@ class ControllerPaymentMollieBase extends Controller
         $model = $this->getModuleModel();
 
         $paid_status_id = intval($this->config->get($moduleCode . "_ideal_processing_status_id"));
-        $payment_id = $model->getPaymentID($order['order_id']);
+        $mollie_order_id = $model->getOrderID($order['order_id']);
 
-        if ($payment_id === false) {
-            $this->writeToMollieLog("Error getting payment id for order " . $order['order_id']);
+        if ($mollie_order_id === false) {
+            $this->writeToMollieLog("Error getting order id for order " . $order['order_id']);
 
             return $this->showReturnPage(
                 $this->language->get("heading_failed"),
@@ -436,13 +575,30 @@ class ControllerPaymentMollieBase extends Controller
             );
         }
 
-        $payment = $this->getAPIClient()->payments->get($payment_id);
-
-        if ($payment->isPaid() && $order['order_status_id'] != $paid_status_id) {
+        $orderDetails = $this->getAPIClient()->orders->get($mollie_order_id, ["embed" => "payments"]);
+        if (($orderDetails->isPaid() || $orderDetails->isAuthorized()) && $order['order_status_id'] != $paid_status_id) {
             $this->addOrderHistory($order, $paid_status_id, $this->language->get("response_success"), true);
             $order['order_status_id'] = $paid_status_id;
         }
 
+        //Check for immediate shipment creation
+        if($orderDetails->isAuthorized() && $this->config->get($moduleCode . "_create_shipment")) {
+            //Shipment lines
+            $shipmentLine = array();
+            foreach($orderDetails->lines as $line) {
+                $shipmentLine[] = array(
+                    'id'        =>  $line->id,
+                    'quantity'  =>  $line->quantity
+                );
+            }
+
+            $shipmentData['lines'] = $shipmentLine;
+            $mollieShipment = $orderDetails->createShipment($shipmentData);
+            $shipped_status_id = intval($this->config->get($moduleCode . "_ideal_shipping_status_id"));
+            $this->addOrderHistory($order, $shipped_status_id, $this->language->get("shipment_success"), true);
+            $this->writeToMollieLog("Shipment created for order-".$order_id);
+            $order['order_status_id'] = $shipped_status_id;
+        }
         // Show a 'transaction failed' page if we couldn't find the order or if the payment failed.
         $failed_status_id = $this->config->get($moduleCode . "_ideal_failed_status_id");
 
@@ -460,7 +616,7 @@ class ControllerPaymentMollieBase extends Controller
         }
 
         // If the order status is 'processing' (i.e. 'paid'), redirect to OpenCart's default 'success' page.
-        if ($order["order_status_id"] == $this->config->get($moduleCode . "_ideal_processing_status_id")) {
+        if ($order["order_status_id"] == $this->config->get($moduleCode . "_ideal_processing_status_id") || $order["order_status_id"] == $this->config->get($moduleCode . "_ideal_shipping_status_id")) {
             $this->writeToMollieLog("Success redirect to success page for order " . $order['order_id']);
 
             if ($this->cart) {

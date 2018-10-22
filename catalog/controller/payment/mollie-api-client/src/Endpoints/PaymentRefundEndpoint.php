@@ -15,7 +15,7 @@ class PaymentRefundEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
      */
     protected function getResourceObject()
     {
-        return new \Mollie\Api\Resources\Refund($this->api);
+        return new \Mollie\Api\Resources\Refund($this->client);
     }
     /**
      * Get the collection object that is used by this API endpoint. Every API endpoint uses one type of collection object.
@@ -27,7 +27,7 @@ class PaymentRefundEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
      */
     protected function getResourceCollectionObject($count, $_links)
     {
-        return new \Mollie\Api\Resources\RefundCollection($this->api, $count, $_links);
+        return new \Mollie\Api\Resources\RefundCollection($this->client, $count, $_links);
     }
     /**
      * @param Payment $payment

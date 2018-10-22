@@ -91,11 +91,12 @@ class ControllerPaymentMollieBase extends Controller
 				"CREATE TABLE IF NOT EXISTS `%smollie_payments` (
 					`order_id` int(11) unsigned NOT NULL,
 					`method` enum('idl') NOT NULL DEFAULT 'idl',
+					`mollie_order_id` varchar(32) NOT NULL,
 					`transaction_id` varchar(32) NOT NULL,
 					`bank_account` varchar(15) NOT NULL,
 					`bank_status` varchar(20) NOT NULL,
 					PRIMARY KEY (`order_id`),
-					UNIQUE KEY `transaction_id` (`transaction_id`)
+					UNIQUE KEY `mollie_order_id` (`mollie_order_id`)
 				) ENGINE=InnoDB DEFAULT CHARSET=utf8",
 				DB_PREFIX
 			));
@@ -105,6 +106,17 @@ class ControllerPaymentMollieBase extends Controller
 		// Just install all modules while we're at it.
 		$this->installAllModules();
 		$this->cleanUp();
+
+		//Add event to create shipment
+		$modelEvent = Util::load()->model('extension/event');
+		if (MollieHelper::isOpenCart3x()) {
+			$modelEvent->deleteEventByCode('mollie_create_shipment');
+		}
+		else {
+			$modelEvent->deleteEvent('mollie_create_shipment');
+		}
+
+		$modelEvent->addEvent('mollie_create_shipment', 'catalog/model/checkout/order/addOrderHistory/after', 'payment/mollie/base/createShipment');
 	}
 
 	/**
@@ -121,27 +133,61 @@ class ControllerPaymentMollieBase extends Controller
 			unlink($adminThemeDir . 'payment/mollie_2.tpl');
 		}
 
+		//Remove 'mistercash' files from old version
+		$adminControllerDir   = DIR_APPLICATION . 'controller/';
+		$adminLanguageDir     = DIR_APPLICATION . 'language/';
+		$catalogControllerDir = DIR_CATALOG . 'controller/';
+		$catalogModelDir      = DIR_CATALOG . 'model/';
+
+		if(file_exists($adminControllerDir . 'extension/payment/mistercash.php')) {
+			unlink($adminControllerDir . 'extension/payment/mistercash.php');
+			$languageFiles = glob($adminLanguageDir .'*/extension/payment/mistercash.php');
+			foreach($languageFiles as $file) {
+				unlink($file);
+			}
+
+			unlink($catalogControllerDir .'extension/payment/mistercash.php');
+			unlink($catalogModelDir .'extension/payment/mistercash.php');
+		}
+
+		if(file_exists($adminControllerDir . 'payment/mistercash.php')) {
+			unlink($adminControllerDir . 'payment/mistercash.php');
+			$languageFiles = glob($adminLanguageDir .'*/payment/mistercash.php');
+			foreach($languageFiles as $file) {
+				unlink($file);
+			}
+
+			unlink($catalogControllerDir .'payment/mistercash.php');
+			unlink($catalogModelDir .'payment/mistercash.php');
+		}
+
 		if (MollieHelper::isOpenCart3x()) {
-			unlink($adminThemeDir . 'extension/payment/mollie(max_1.5.6.4).tpl');
-			unlink($adminThemeDir . 'payment/mollie(max_1.5.6.4).tpl');
-			unlink($catalogThemeDir . 'extension/payment/mollie_return.tpl');
-			unlink($catalogThemeDir . 'payment/mollie_return.tpl');
-			unlink($catalogThemeDir . 'extension/payment/mollie_checkout_form.tpl');
-			unlink($catalogThemeDir . 'payment/mollie_checkout_form.tpl');
+			if(file_exists($adminThemeDir . 'extension/payment/mollie(max_1.5.6.4).tpl')) {
+				unlink($adminThemeDir . 'extension/payment/mollie(max_1.5.6.4).tpl');
+				unlink($adminThemeDir . 'payment/mollie(max_1.5.6.4).tpl');
+				unlink($catalogThemeDir . 'extension/payment/mollie_return.tpl');
+				unlink($catalogThemeDir . 'payment/mollie_return.tpl');
+				unlink($catalogThemeDir . 'extension/payment/mollie_checkout_form.tpl');
+				unlink($catalogThemeDir . 'payment/mollie_checkout_form.tpl');
+			}
 		} elseif (MollieHelper::isOpenCart2x()) {
-			unlink($adminThemeDir . 'extension/payment/mollie(max_1.5.6.4).tpl');
-			unlink($adminThemeDir . 'payment/mollie(max_1.5.6.4).tpl');
-			unlink($catalogThemeDir . 'extension/payment/mollie_return.twig');
-			unlink($catalogThemeDir . 'payment/mollie_return.twig');
-			unlink($catalogThemeDir . 'extension/payment/mollie_checkout_form.twig');
-			unlink($catalogThemeDir . 'payment/mollie_checkout_form.twig');
+			if(file_exists($adminThemeDir . 'extension/payment/mollie(max_1.5.6.4).tpl')) {
+				unlink($adminThemeDir . 'extension/payment/mollie(max_1.5.6.4).tpl');
+				unlink($adminThemeDir . 'payment/mollie(max_1.5.6.4).tpl');
+				unlink($catalogThemeDir . 'extension/payment/mollie_return.twig');
+				unlink($catalogThemeDir . 'payment/mollie_return.twig');
+				unlink($catalogThemeDir . 'extension/payment/mollie_checkout_form.twig');
+				unlink($catalogThemeDir . 'payment/mollie_checkout_form.twig');
+			}
 		} else {
-			unlink($adminThemeDir . 'extension/payment/mollie.tpl');
-			unlink($adminThemeDir . 'payment/mollie.tpl');
-			unlink($catalogThemeDir . 'extension/payment/mollie_return.twig');
-			unlink($catalogThemeDir . 'payment/mollie_return.twig');
-			unlink($catalogThemeDir . 'extension/payment/mollie_checkout_form.twig');
-			unlink($catalogThemeDir . 'payment/mollie_checkout_form.twig');
+			if(file_exists($adminThemeDir . 'extension/payment/mollie.tpl')) {
+				unlink($adminThemeDir . 'extension/payment/mollie.tpl');
+				unlink($adminThemeDir . 'payment/mollie.tpl');
+				unlink($catalogThemeDir . 'extension/payment/mollie_return.twig');
+				unlink($catalogThemeDir . 'payment/mollie_return.twig');
+				unlink($catalogThemeDir . 'extension/payment/mollie_checkout_form.twig');
+				unlink($catalogThemeDir . 'payment/mollie_checkout_form.twig');
+			}
 		}
 	}
 
@@ -191,22 +237,38 @@ class ControllerPaymentMollieBase extends Controller
 		}
 	}
 
+	//Delete old 'mistercash' data from setting
+	public function clearData() {
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "setting WHERE `key` LIKE '%mistercash%'");
+		if($query->num_rows > 0) {
+			$this->db->query("DELETE FROM " . DB_PREFIX . "setting WHERE `key` LIKE '%mistercash%'");
+		}
+	}
+
 	/**
 	 * Render the payment method's settings page.
 	 */
 	public function index ()
 	{
 		// Double-check if clean-up has been done - For upgrades
-		$adminThemeDir = DIR_APPLICATION . 'view/template/extension/payment/';
+		$adminThemeDir = DIR_APPLICATION . 'view/template/';
 		if (MollieHelper::isOpenCart3x() || MollieHelper::isOpenCart2x()) {
-			if(file_exists($adminThemeDir . 'mollie(max_1.5.6.4).tpl')) {
+			if(file_exists($adminThemeDir . 'extension/payment/mollie(max_1.5.6.4).tpl')) {
 				$this->cleanUp();
 			}
 		} else {
-			if(file_exists($adminThemeDir . 'mollie.tpl')) {
+			if(file_exists($adminThemeDir . 'extension/payment/mollie.tpl')) {
 				$this->cleanUp();
 			}
 		}
+
+		$adminControllerDir   = DIR_APPLICATION . 'controller/';
+		if(file_exists($adminControllerDir . 'extension/payment/mistercash.php') || file_exists($adminControllerDir . 'payment/mistercash.php')) {
+			$this->cleanUp();
+		}
+
+		//Also delete data related to 'mistercash' from setting
+		$this->clearData();
 
 		//Load language data
 		$data = array("version" => MOLLIE_RELEASE);
@@ -265,7 +327,7 @@ class ControllerPaymentMollieBase extends Controller
         	$paymentGeoZone[] 	= $code . '_' . $module_name . '_geo_zone';
 		}
 
-        $fields = array("show_icons", "show_order_canceled_page", "ideal_description", "api_key", "ideal_processing_status_id", "ideal_expired_status_id", "ideal_canceled_status_id", "ideal_failed_status_id", "ideal_pending_status_id");
+        $fields = array("show_icons", "show_order_canceled_page", "ideal_description", "api_key", "ideal_processing_status_id", "ideal_expired_status_id", "ideal_canceled_status_id", "ideal_failed_status_id", "ideal_pending_status_id", "ideal_shipping_status_id", "create_shipment_status_id", "create_shipment");
         $settingFields = Util::arrayHelper()->prefixAllValues($code . '_', $fields);
 
         $storeFormFields = array_merge($settingFields, $paymentStatus, $paymentSortOrder, $paymentGeoZone);
@@ -311,6 +373,9 @@ class ControllerPaymentMollieBase extends Controller
 			$code . "_ideal_canceled_status_id"   => 7,
 			$code . "_ideal_failed_status_id"     => 10,
 			$code . "_ideal_expired_status_id"    => 14,
+			$code . "_ideal_shipping_status_id"   => 3,
+			$code . "_create_shipment_status_id"  => 3,
+			$code . "_create_shipment"  		  => FALSE,
 		);
 
 		foreach($data['shops'] as &$store)
@@ -346,7 +411,7 @@ class ControllerPaymentMollieBase extends Controller
 			$allowed_methods = array();
 			try
 			{
-				$api_methods = $this->getAPIClient()->methods->all();
+				$api_methods = $this->getAPIClient()->methods->all(array('resource' => 'orders'));
 
 				foreach ($api_methods as $api_method)
 				{

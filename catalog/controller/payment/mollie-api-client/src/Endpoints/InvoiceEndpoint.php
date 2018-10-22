@@ -15,7 +15,7 @@ class InvoiceEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
      */
     protected function getResourceObject()
     {
-        return new \Mollie\Api\Resources\Invoice($this->api);
+        return new \Mollie\Api\Resources\Invoice($this->client);
     }
     /**
      * Get the collection object that is used by this API. Every API uses one type of collection object.
@@ -27,7 +27,7 @@ class InvoiceEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
      */
     protected function getResourceCollectionObject($count, $_links)
     {
-        return new \Mollie\Api\Resources\InvoiceCollection($this->api, $count, $_links);
+        return new \Mollie\Api\Resources\InvoiceCollection($this->client, $count, $_links);
     }
     /**
      * Retrieve an Invoice from Mollie.

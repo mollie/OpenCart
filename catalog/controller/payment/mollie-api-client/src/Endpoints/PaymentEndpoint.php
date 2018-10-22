@@ -19,7 +19,7 @@ class PaymentEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
      */
     protected function getResourceObject()
     {
-        return new \Mollie\Api\Resources\Payment($this->api);
+        return new \Mollie\Api\Resources\Payment($this->client);
     }
     /**
      * Get the collection object that is used by this API endpoint. Every API endpoint uses one type of collection object.
@@ -31,7 +31,7 @@ class PaymentEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
      */
     protected function getResourceCollectionObject($count, $_links)
     {
-        return new \Mollie\Api\Resources\PaymentCollection($this->api, $count, $_links);
+        return new \Mollie\Api\Resources\PaymentCollection($this->client, $count, $_links);
     }
     /**
      * Creates a payment in Mollie.
@@ -71,12 +71,13 @@ class PaymentEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
      *
      * @param string $paymentId
      *
+     * @param array $data
      * @return Payment
      * @throws ApiException
      */
-    public function delete($paymentId)
+    public function delete($paymentId, array $data = [])
     {
-        return $this->rest_delete($paymentId);
+        return $this->rest_delete($paymentId, $data);
     }
     /**
      * Cancel the given Payment. This is just an alias of the 'delete' method.
@@ -86,12 +87,13 @@ class PaymentEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
      *
      * @param string $paymentId
      *
+     * @param array $data
      * @return Payment
      * @throws ApiException
      */
-    public function cancel($paymentId)
+    public function cancel($paymentId, array $data = [])
     {
-        return $this->rest_delete($paymentId);
+        return $this->rest_delete($paymentId, $data);
     }
     /**
      * Retrieves a collection of Payments from Mollie.
@@ -126,7 +128,7 @@ class PaymentEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
         if (\count($data) > 0) {
             $body = \json_encode($data);
         }
-        $result = $this->api->performHttpCall(self::REST_CREATE, $resource, $body);
-        return \Mollie\Api\Resources\ResourceFactory::createFromApiResult($result, new \Mollie\Api\Resources\Refund($this->api));
+        $result = $this->client->performHttpCall(self::REST_CREATE, $resource, $body);
+        return \Mollie\Api\Resources\ResourceFactory::createFromApiResult($result, new \Mollie\Api\Resources\Refund($this->client));
     }
 }

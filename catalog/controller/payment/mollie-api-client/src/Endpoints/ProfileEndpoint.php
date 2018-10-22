@@ -15,7 +15,7 @@ class ProfileEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
      */
     protected function getResourceObject()
     {
-        return new \Mollie\Api\Resources\Profile($this->api);
+        return new \Mollie\Api\Resources\Profile($this->client);
     }
     /**
      * Get the collection object that is used by this API endpoint. Every API endpoint uses one type of collection object.
@@ -27,7 +27,7 @@ class ProfileEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
      */
     protected function getResourceCollectionObject($count, $_links)
     {
-        return new \Mollie\Api\Resources\ProfileCollection($this->api, $count, $_links);
+        return new \Mollie\Api\Resources\ProfileCollection($this->client, $count, $_links);
     }
     /**
      * Creates a Profile in Mollie.
@@ -65,12 +65,13 @@ class ProfileEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
      *
      * @param string $profileId
      *
+     * @param array $data
      * @return Profile
      * @throws ApiException
      */
-    public function delete($profileId)
+    public function delete($profileId, array $data = [])
     {
-        return $this->rest_delete($profileId);
+        return $this->rest_delete($profileId, $data);
     }
     /**
      * Retrieves a collection of Profiles from Mollie.
