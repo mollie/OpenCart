@@ -36,7 +36,7 @@
 					<h3 class="panel-title"><i class="fa fa-pencil"></i> <?php echo $text_edit; ?></h3>
 				</div>
 				<div class="panel-body">
-					<ul class="nav nav-tabs">
+					<ul id="tabs<?php echo $shop['store_id']; ?>" class="nav nav-tabs">
 						<?php foreach ($shops as $shop) { ?>
 							<li class="<?php echo $shop['store_id'] === 0 ? 'active' : ''; ?>"><a data-toggle="tab" href="#store<?php echo $shop['store_id']; ?>"><?php echo $shop['name']; ?></a></li>
 						<?php } ?>
@@ -445,6 +445,10 @@
 			elem.onchange = function(){
 			    hiddenDiv.style.display = (this.value == "1") ? "none":"block";
 			};
+			
+			$('.settings').click(function(){
+		      $('#tabs<?php echo $shop["store_id"] ?> a[href=#mollie-options-<?php echo $shop["store_id"] ?>]').tab('show');
+		    });
 
 		<?php } ?>
 

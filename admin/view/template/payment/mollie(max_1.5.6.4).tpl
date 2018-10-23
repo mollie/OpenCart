@@ -36,7 +36,7 @@
 			<form action="<?php echo $action; ?>" method="post" enctype="multipart/form-data" id="form" class="form-horizontal">
 				<?php foreach ($shops as $shop) { ?>
 					<div id="store<?php echo $shop['store_id']; ?>" class="<?php echo $shop['store_id'] === 0 ? 'active' : ''; ?>">
-						<div class="vtabs">
+						<div id="tabs<?php echo $shop['store_id']; ?>" class="vtabs">
 							<a class="active" href="#payment-methods-<?php echo $shop['store_id']; ?>"><?php echo $entry_payment_method; ?></a>
 							<a href="#payment-statuses-<?php echo $shop['store_id']; ?>"><?php echo $title_payment_status; ?></a>
 							<a href="#mollie-options-<?php echo $shop['store_id']; ?>"><?php echo $title_global_options; ?></a>
@@ -406,6 +406,10 @@
 		elem.onchange = function(){
 		    hiddenDiv.style.display = (this.value == "1") ? "none":"block";
 		};
+		
+		$('.settings').click(function(){
+		  $('#tabs<?php echo $shop["store_id"] ?> a[href=#mollie-options-<?php echo $shop["store_id"] ?>]').tab('show');
+		});
 
 		<?php } ?>
 
