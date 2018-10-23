@@ -75,6 +75,24 @@ class ModelPaymentMollieBase extends Model
 
 			return NULL;
 		}
+		
+		//Get payment methods allowed for this amount and currency
+		$allowed_methods = array();
+		$currency = $this->session->data['currency'];
+		$data = array(
+            "amount" => ["value" => (string)number_format((float)$total, 2, '.', ''), "currency" => $currency,],
+            "resource" => "orders"
+        );
+		$payment_methods = $this->getAPIClient()->methods->all($data);
+
+		foreach ($payment_methods as $allowed_method)
+		{
+			$allowed_methods[] = $allowed_method->id;
+		}
+		
+		if(!in_array($payment_method->id, $allowed_methods)) {
+			return NULL;
+		}
 
 		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "zone_to_geo_zone WHERE geo_zone_id = '" . (int)$this->config->get($moduleCode . "_" . static::MODULE_NAME . "_geo_zone") . "' AND country_id = '" . (int)$address['country_id'] . "' AND (zone_id = '" . (int)$address['zone_id'] . "' OR zone_id = '0')");
 
