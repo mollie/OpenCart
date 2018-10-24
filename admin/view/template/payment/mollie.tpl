@@ -289,7 +289,7 @@
 									<div class="form-group">
 										<label class="col-sm-2 control-label"><?php echo $entry_comm_status; ?></label>
 										<div class="col-sm-10">
-											<p class="form-control-static" data-communication-status><i class="fa fa-spinner fa-spin"></i></p>
+											<p class="form-control-static" data-communication-status><?php echo $shop['entry_cstatus']; ?></p>
 										</div>
 									</div>
 									<div class="form-group">
