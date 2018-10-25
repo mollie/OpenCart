@@ -81,7 +81,7 @@ $_['name_mollie_klarnasliceit']  = 'Klarna Slice It';
 $_['text_edit']                    = "Corregir Mollie";
 $_['text_payment']                 = "Pago";
 $_['text_success']                 = "Realizado con éxito: ¡los ajustes para el módulo han sido modificados!";
-$_['text_missing_api_key']         = "Escriba la clave API.";
+$_['text_missing_api_key']         = "Por favor, complete su clave API en la pestaña <a data-toggle='tab' href='#' class='settings'>Configuración</a>.";
 $_['text_activate_payment_method'] = 'Active esta forma de pago a través del <a href="https://www.mollie.com/beheer/account/profielen/" target="_blank">panel de control de Mollie</a>.';
 $_['text_no_status_id']            = "- No cambiar de estado (no recomendado) -";
 
