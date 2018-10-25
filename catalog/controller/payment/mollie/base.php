@@ -165,6 +165,12 @@ class ControllerPaymentMollieBase extends Controller
         return Util::load()->view('payment/mollie_checkout_form', $data);
     }
 
+    protected function convertCurrency($amount) {
+        $currency = $this->session->data['currency'];
+        $configCurrency = $this->config->get("config_currency");
+        return $this->currency->convert($amount, $configCurrency, $currency);
+    }
+
     /**
      * The payment action creates the payment and redirects the customer to the selected bank.
      *
@@ -191,7 +197,7 @@ class ControllerPaymentMollieBase extends Controller
         $order = $this->getOpenCartOrder($order_id);
 
         $currency = $this->session->data['currency'];
-        $amount = $this->currency->convert($order['total'], $this->config->get("config_currency"), $currency);
+        $amount = $this->convertCurrency($order['total']);
         $description = str_replace("%", $order['order_id'], html_entity_decode($this->config->get(MollieHelper::getModuleCode() . "_ideal_description"), ENT_QUOTES, "UTF-8"));
         $return_url = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/callback&order_id=" . $order['order_id'], "", "SSL");
         $issuer = $this->getIssuer();
@@ -221,10 +227,10 @@ class ControllerPaymentMollieBase extends Controller
                     'type'          =>  'physical',
                     'name'          =>  $orderProduct['name'],
                     'quantity'      =>  $orderProduct['quantity'],
-                    'unitPrice'     =>  ["currency" => $currency, "value" => (string)number_format((float)($orderProduct['price'] + $orderProduct['tax']), 2, '.', '')],
-                    'totalAmount'   =>  ["currency" => $currency, "value" => (string)number_format((float)$total, 2, '.', '')],
+                    'unitPrice'     =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($orderProduct['price'] + $orderProduct['tax']), 2, '.', '')],
+                    'totalAmount'   =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($total), 2, '.', '')],
                     'vatRate'       =>  (string)number_format((float)$vatRate, 2, '.', ''),
-                    'vatAmount'     =>  ["currency" => $currency, "value" => (string)number_format((float)$vatAmount, 2, '.', '')]
+                    'vatAmount'     =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($vatAmount), 2, '.', '')]
                 );
             }
 
@@ -239,10 +245,10 @@ class ControllerPaymentMollieBase extends Controller
                     'type'          =>  'shipping_fee',
                     'name'          =>  $title,
                     'quantity'      =>  1,
-                    'unitPrice'     =>  ["currency" => $currency, "value" => (string)number_format((float)$costWithTax, 2, '.', '')],
-                    'totalAmount'   =>  ["currency" => $currency, "value" => (string)number_format((float)$costWithTax, 2, '.', '')],
+                    'unitPrice'     =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($costWithTax), 2, '.', '')],
+                    'totalAmount'   =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($costWithTax), 2, '.', '')],
                     'vatRate'       =>  (string)number_format((float)$vatRate, 2, '.', ''),
-                    'vatAmount'     =>  ["currency" => $currency, "value" => (string)number_format((float)$shippingVATAmount, 2, '.', '')]
+                    'vatAmount'     =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($shippingVATAmount), 2, '.', '')]
                 );
 
                 $lines = array_merge($lines, $lineForShipping);
@@ -259,10 +265,10 @@ class ControllerPaymentMollieBase extends Controller
                     'type'          =>  'store_credit',
                     'name'          =>  $coupon['title'],
                     'quantity'      =>  1,
-                    'unitPrice'     =>  ["currency" => $currency, "value" => (string)number_format((float)$unitPriceWithTax, 2, '.', '')],
-                    'totalAmount'   =>  ["currency" => $currency, "value" => (string)number_format((float)$unitPriceWithTax, 2, '.', '')],
+                    'unitPrice'     =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($unitPriceWithTax), 2, '.', '')],
+                    'totalAmount'   =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($unitPriceWithTax), 2, '.', '')],
                     'vatRate'       =>  (string)number_format((float)$vatRate, 2, '.', ''),
-                    'vatAmount'     =>  ["currency" => $currency, "value" => (string)number_format((float)$couponVATAmount, 2, '.', '')]
+                    'vatAmount'     =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($couponVATAmount), 2, '.', '')]
                 );
 
                 $lines = array_merge($lines, $lineForCoupon);
