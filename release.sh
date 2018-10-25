@@ -1,14 +1,12 @@
 #!/bin/bash
 
 echo "Retrieving Mollie API client v2..."
-git submodule update --init
-rm -rf ./catalog/controller/extension/payment/mollie-api-client/examples
-rm -rf ./catalog/controller/extension/payment/mollie-api-client/tests
+#git submodule update --init
 
-composer --working-dir=catalog/controller/extension/payment/mollie-api-client/ update
+#composer --working-dir=catalog/controller/extension/payment/mollie-api-client/ update
 
 echo "1/8 Create temporary zip..."
-zip -9 -rq temp.zip admin catalog
+zip -9 -rq temp.zip admin catalog system vqmod
 echo "2/8 Create temporary upload dir..."
 rm -rf ./upload
 mkdir ./upload
@@ -55,14 +53,14 @@ echo "5/8 Move files for legacy support (2.2 and lower)..."
 #rmdir ./upload/catalog/language/fr-fr/extension
 #rmdir ./upload/catalog/view/theme/default/template/extension
 
-echo "6/8 Adjust files for legacy support (2.2 and lower)..."
-echo "--------------------------------------------------------------------";
+#echo "6/8 Adjust files for legacy support (2.2 and lower)..."
+#echo "--------------------------------------------------------------------";
 #sh ./editFiles.sh
-echo "--------------------------------------------------------------------";
+#echo "--------------------------------------------------------------------";
 
-echo "7/8 Create zip for legacy support (2.2 and lower)..."
-rm mollie-opencart-2.2-and-lower.ocmod.zip
-zip -9 -rq mollie-opencart-2.2-and-lower.ocmod.zip upload LICENSE readme.md -x *.git* *.DS_Store
+#echo "7/8 Create zip for legacy support (2.2 and lower)..."
+#rm mollie-opencart-2.2-and-lower.ocmod.zip
+#zip -9 -rq mollie-opencart-2.2-and-lower.ocmod.zip upload LICENSE readme.md -x *.git* *.DS_Store
 
 echo "8/8 Cleanup..."
 rm -rf ./upload
