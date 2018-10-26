@@ -114,15 +114,16 @@ class ControllerPaymentMollieBase extends Controller
 		$this->cleanUp();
 
 		//Add event to create shipment
-		$modelEvent = Util::load()->model('extension/event');
-		if (MollieHelper::isOpenCart3x()) {
-			$modelEvent->deleteEventByCode('mollie_create_shipment');
-		}
-		else {
-			$modelEvent->deleteEvent('mollie_create_shipment');
-		}
+		if (Util::version()->isMinimal(2.2)) { // Events were added in OC2.2
+			$modelEvent = Util::load()->model('extension/event');
+			if (MollieHelper::isOpenCart3x()) {
+				$modelEvent->deleteEventByCode('mollie_create_shipment');
+			} else {
+				$modelEvent->deleteEvent('mollie_create_shipment');
+			}
 
-		$modelEvent->addEvent('mollie_create_shipment', 'catalog/model/checkout/order/addOrderHistory/after', 'payment/mollie/base/createShipment');
+			$modelEvent->addEvent('mollie_create_shipment', 'catalog/model/checkout/order/addOrderHistory/after', 'payment/mollie/base/createShipment');
+		}
 	}
 
 	/**
@@ -132,6 +133,12 @@ class ControllerPaymentMollieBase extends Controller
 	{
 		$adminThemeDir = DIR_APPLICATION . 'view/template/';
 		$catalogThemeDir = DIR_CATALOG . 'view/theme/default/template/';
+
+		// Add new column if it doesn't exist yet
+		$mollie_order_id_column = $this->db->query("SHOW COLUMNS FROM " . DB_PREFIX . "mollie_payments LIKE 'mollie_order_id'");
+		if (!$mollie_order_id_column->num_rows) {
+			$this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_payments` ADD COLUMN `mollie_order_id` VARCHAR(32) NOT NULL");
+		}
 
 		// Remove old template from previous version.
 		if (file_exists($adminThemeDir . 'extension/payment/mollie_2.tpl')) {
@@ -257,6 +264,11 @@ class ControllerPaymentMollieBase extends Controller
 	public function index ()
 	{
 		// Double-check if clean-up has been done - For upgrades
+		if (empty($this->config->get('payment_mollie_version')) || $this->config->get('payment_mollie_version') < MOLLIE_VERSION) {
+			$this->cleanUp();
+			Util::config(0)->set('payment_mollie', 'payment_mollie_version', MOLLIE_VERSION);
+		}
+
 		$adminThemeDir = DIR_APPLICATION . 'view/template/';
 		if (MollieHelper::isOpenCart3x() || MollieHelper::isOpenCart2x()) {
 			if(file_exists($adminThemeDir . 'extension/payment/mollie(max_1.5.6.4).tpl')) {

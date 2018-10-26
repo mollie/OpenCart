@@ -5,17 +5,17 @@ class Load
 {
     function library($library)
     {
-        if(is_array($library)){
-            $libraries=$library;
-            $result=[];
-            foreach($libraries as $library){
-                $result[$library]=$this->library($library);
+        if (is_array($library)) {
+            $libraries = $library;
+            $result = [];
+            foreach ($libraries as $library) {
+                $result[$library] = $this->library($library);
             }
             return $result;
         };
 
-        static $singletons=[];
-        if(!isset($singletons[$library])){
+        static $singletons = [];
+        if (!isset($singletons[$library])) {
             $className = lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $library))));
             $className = $className;
             $libDir = DIR_SYSTEM . "library/";
@@ -28,12 +28,12 @@ class Load
                 }
             }
 
-            if(class_exists($className)) {
+            if (class_exists($className)) {
                 $result = new $className(Util::registry());
                 Util::registry()->set(Util::stringHelper()->ccToUnderline($className), $result);
-                $singletons[$library]=$result;
-            }else{
-                $singletons[$library]=false;
+                $singletons[$library] = $result;
+            } else {
+                $singletons[$library] = false;
             }
 
         }
@@ -93,12 +93,12 @@ class Load
 
     function model($model)
     {
-        $model=$this->rewriteModel($model);
-        if(is_array($model)){
-            $models=$model;
-            $result=[];
-            foreach($models as $model){
-                $result[$model]=$this->model($model);
+        $model = $this->rewriteModel($model);
+        if (is_array($model)) {
+            $models = $model;
+            $result = [];
+            foreach ($models as $model) {
+                $result[$model] = $this->model($model);
             }
             return $result;
         };
@@ -114,7 +114,7 @@ class Load
             }
         }
 
-        if(class_exists($className)) {
+        if (class_exists($className)) {
             $result = new $className(Util::registry());
             Util::registry()->set(Util::stringHelper()->ccToUnderline($className), $result);
             return $result;
@@ -128,7 +128,7 @@ class Load
 
         $fileRoute = "";
         $method = "";
-        $params=[];
+        $params = [];
         while ($parts) {
             $file = $dir . implode('/', $parts) . '.php';
 
@@ -136,7 +136,7 @@ class Load
                 $fileRoute = implode('/', $parts);
                 break;
             } else {
-                if($method) {
+                if ($method) {
                     $params[] = $method;
                 }
                 $method = array_pop($parts);
@@ -156,7 +156,7 @@ class Load
             "file" => $bestOption["name"],
             "class" => $className,
             "method" => $method,
-            "params"=>$params
+            "params" => $params
         );
     }
 
@@ -164,12 +164,12 @@ class Load
     {
         if (Util::version()->isMinimal("3.0")) {
             $extension = "twig";
-            $view=str_replace(".tpl",".twig",$view);
+            $view = str_replace(".tpl", ".twig", $view);
         } else {
             $extension = "tpl";
         }
 
-        if (Util::info()->IsInAdmin()) {
+        if (Util::info()->isInAdmin()) {
             $bestOption = $this->findBestOption(DIR_TEMPLATE, $view, $extension);
         } else {
             $bestOption1 = $this->findBestOption(DIR_TEMPLATE . "default/template/", $view, $extension);
@@ -184,30 +184,37 @@ class Load
         $view = $bestOption["name"];
 
         $registry = Util::registry();
-        if(Util::version()->isMinimal(3.0)){
-            try{
+        if (Util::version()->isMinimal(3.0)) {
+            try {
+                $view = str_replace(".twig", "", $view);
                 return $registry->get("load")->view($view, $data);
-            }catch (\Exception $ex){
+            } catch (\Exception $ex) {
                 return $this->tplFallback($view, $data);
             }
-        }
-        elseif (Util::version()->isMinimal(2.0)) {
-            if (Util::version()->isMinimal("2.2") || Util::version()->isMinimal("2") && Util::info()->IsInAdmin()) {
+        } elseif (Util::version()->isMinimal(2.0)) {
+            if (Util::version()->isMinimal("2.2") || Util::version()->isMinimal("2") && Util::info()->isInAdmin()) {
                 if (Util::version()->isMaximal("2.1.0.2")) { // must be 2.0 or 2.1; both versions don't add tpl in the loader
                     $view .= "." . $extension;
                 } else {
                     $view = str_replace("." . $extension, "", $view);
                 }
                 return $registry->get("load")->view($view, $data);
-            } else if (Util::version()->isMaximal("2.1.0.2")) {
-                $view .= "." . $extension;
-                return $registry->get("load")->view($view, $data);
             } else {
+                if (Util::version()->isMaximal("2.1.0.2")) {
+                    $view .= "." . $extension;
+                }
+
                 if (file_exists(DIR_TEMPLATE . Util::info()->theme() . '/template/' . $view)) {
                     return $registry->get("load")->view(Util::info()->theme() . "/template/" . $view, $data);
                 } else {
                     return $registry->get("load")->view('default/template/' . $view, $data);
                 }
+            }
+        } elseif (Util::version()->isMinimal(1.5)) {
+            if (file_exists(DIR_TEMPLATE . Util::info()->theme() . '/template/' . $view)) {
+                return $registry->get("load")->view(Util::info()->theme() . "/template/" . $view, $data);
+            } else {
+                return $registry->get("load")->view('default/template/' . $view, $data);
             }
         }
 
@@ -222,14 +229,15 @@ class Load
         return $result;
     }
 
-    public function tplFallback($view, $_data = array()) {
-        $view=str_replace(".twig",".tpl",$view);
+    public function tplFallback($view, $_data = array())
+    {
+        $view = str_replace(".twig", ".tpl", $view);
 
-        if (Util::info()->IsInAdmin()) {
+        if (Util::info()->isInAdmin()) {
             $bestOption = $this->findBestOption(DIR_TEMPLATE, $view, "tpl");
         } else {
-            $bestOption1 = $this->findBestOption(DIR_TEMPLATE . "default/template/", $view,  "tpl");
-            $bestOption2 = $this->findBestOption(DIR_TEMPLATE . Util::info()->theme() . "/template/", $view,  "tpl");
+            $bestOption1 = $this->findBestOption(DIR_TEMPLATE . "default/template/", $view, "tpl");
+            $bestOption2 = $this->findBestOption(DIR_TEMPLATE . Util::info()->theme() . "/template/", $view, "tpl");
             if ($bestOption1["version"] && !$bestOption2["version"]) {
                 $bestOption = $bestOption1;
             } else {
@@ -241,6 +249,10 @@ class Load
 
         $file = DIR_TEMPLATE . $view;
 
+        if (!substr($file, -4) != ".tpl") {
+            $file .= ".tpl";
+        }
+
         if (is_file($file)) {
             extract($_data);
             ob_start();
@@ -250,22 +262,22 @@ class Load
 
     }
 
-    function language($file, &$data = array(),$language=false)
+    function language($file, &$data = array(), $language = false)
     {
-        if(is_array($file)){
-            $files=$file;
-            $result=[];
-            foreach($files as $file){
-                $result=array_merge($result,$this->language($file,$data));
+        if (is_array($file)) {
+            $files = $file;
+            $result = [];
+            foreach ($files as $file) {
+                $result = array_merge($result, $this->language($file, $data));
             }
             return $result;
         };
 
-        $file=$this->rewriteLanguage($file);
+        $file = $this->rewriteLanguage($file);
 
         $registry = Util::registry();
-        if($language){
-          $language->load($file);
+        if ($language) {
+            $language->load($file);
         } else {
             $result = $registry->get("load")->language($file);
         }
@@ -285,11 +297,11 @@ class Load
     function controller($controller)
     {
 
-        if(is_array($controller)){
-            $controllers=$controller;
-            $result=[];
-            foreach($controllers as $controller){
-                $result[$controller]=$this->controller($controller);
+        if (is_array($controller)) {
+            $controllers = $controller;
+            $result = [];
+            foreach ($controllers as $controller) {
+                $result[$controller] = $this->controller($controller);
             }
             return $result;
         };
@@ -306,16 +318,16 @@ class Load
             }
         }
 
-        if(class_exists($className)) {
+        if (class_exists($className)) {
             $rc = new \ReflectionClass($className);
             if ($rc->isInstantiable()) {
                 $method = $route["method"] ? $route["method"] : "index";
                 $controller = new $className(Util::registry());
                 $mr = new \ReflectionMethod($className, $method);
                 $mr->setAccessible(true);
-                if(!empty($route["params"])) {
+                if (!empty($route["params"])) {
                     $result = $mr->invokeArgs($controller, $route["params"]);
-                }else{
+                } else {
                     $result = $mr->invoke($controller);
                 }
 
@@ -336,32 +348,32 @@ class Load
 
     private function rewriteModel($model)
     {
-    return   Util::stringHelper()->rewriteForVersion($model,
-           [
-               [
-                   ""=>"sale/custom_field",
-                   "2.1"=>"customer/custom_field"
-               ],
-               [
-                    ""=>"extension/extension",
-                    "3.0"=>"setting/extension"
-               ],
-               [
-                    ""=>"extension/event",
-                    "3.0"=>"setting/event"
-               ]
-           ]
-       );
+        return Util::stringHelper()->rewriteForVersion($model,
+            [
+                [
+                    "" => "sale/custom_field",
+                    "2.1" => "customer/custom_field"
+                ],
+                [
+                    "" => "extension/extension",
+                    "3.0" => "setting/extension"
+                ],
+				[
+                    "" => "extension/event",
+                    "3.0" => "setting/event"
+                ]
+            ]
+        );
     }
 
 
     private function rewriteLanguage($model)
     {
-       return Util::stringHelper()->rewriteForVersion($model,
+        return Util::stringHelper()->rewriteForVersion($model,
             [
                 [
-                    ""=>"payment/",
-                    "2.3"=>"extension/payment/"
+                    "" => "payment/",
+                    "2.3" => "extension/payment/"
                 ]
             ]
         );
