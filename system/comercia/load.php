@@ -358,6 +358,10 @@ class Load
                     "" => "extension/extension",
                     "3.0" => "setting/extension"
                 ],
+                [
+                    "" => "extension/extension",
+                    "1.5" => "setting/extension"
+                ],
 				[
                     "" => "extension/event",
                     "3.0" => "setting/event"
