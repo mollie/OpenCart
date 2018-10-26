@@ -1,7 +1,4 @@
 <?php
-
-include_once(DIR_SYSTEM."/comercia/util.php");
-use comercia\Util;
 use Mollie\Api\MollieApiClient;
 
 class MollieHelper
@@ -44,9 +41,7 @@ class MollieHelper
 		self::MODULE_NAME_GIFTCARD,
 		self::MODULE_NAME_INGHOMEPAY,
 		self::MODULE_NAME_EPS,
-		self::MODULE_NAME_GIROPAY,
-		self::MODULE_NAME_KLARNAPAYLATER,
-		self::MODULE_NAME_KLARNASLICEIT
+		self::MODULE_NAME_GIROPAY
 	);
 
 	static protected $api_client;
@@ -56,7 +51,7 @@ class MollieHelper
 	 */
 	public static function apiClientFound ()
 	{
-		return file_exists(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/payment/mollie-api-client/");
+		return file_exists(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/extension/payment/mollie-api-client/");
 	}
 
 	/**
@@ -70,7 +65,7 @@ class MollieHelper
 	{
 		if (!self::$api_client && self::apiClientFound())
 		{
-			require_once(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/payment/mollie-api-client/vendor/autoload.php");
+			require_once(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/extension/payment/mollie-api-client/vendor/autoload.php");
 			$mollie = new MollieApiClient;
 
 			$mollie->setApiKey($config->get(self::getModuleCode() . '_api_key'));
@@ -93,7 +88,7 @@ class MollieHelper
 	 */
 	public static function getAPIClientAdmin ($config)
 	{
-		require_once(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/payment/mollie-api-client/vendor/autoload.php");
+		require_once(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/extension/payment/mollie-api-client/vendor/autoload.php");
 		$mollie = new MollieApiClient;
 
 		$mollie->setApiKey(isset($config[self::getModuleCode() . '_api_key']) ? $config[self::getModuleCode() . '_api_key'] : null);
@@ -106,7 +101,7 @@ class MollieHelper
 
 	public static function getAPIClientForKey($key = null)
 	{
-		require_once(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/payment/mollie-api-client/vendor/autoload.php");
+		require_once(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/extension/payment/mollie-api-client/vendor/autoload.php");
 		$mollie = new MollieApiClient;
 
 		$mollie->setApiKey(!empty($key) ? $key : null);
@@ -122,7 +117,11 @@ class MollieHelper
 	 */
 	public static function getModuleCode()
 	{
-		return Util::info()->getModuleCode('mollie', 'payment');
+		if (self::isOpenCart3x()) {
+			return 'payment_mollie';
+		}
+
+		return 'mollie';
 	}
 
 	/**
@@ -130,7 +129,7 @@ class MollieHelper
 	 */
 	public static function isOpenCart3x()
 	{
-		return Util::version()->isMinimal('3.0.0');
+		return version_compare(VERSION, '3.0.0', '>=');
 	}
 
 	/**
@@ -138,7 +137,7 @@ class MollieHelper
 	 */
 	public static function isOpenCart23x()
 	{
-		return Util::version()->isMinimal('2.3.0');
+		return version_compare(VERSION, '2.3.0', '>=');
 	}
 
 	/**
@@ -146,6 +145,6 @@ class MollieHelper
 	 */
 	public static function isOpenCart2x()
 	{
-		return Util::version()->isMinimal('2');
+		return version_compare(VERSION, '2', '>=');
 	}
 }
