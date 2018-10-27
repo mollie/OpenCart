@@ -210,14 +210,14 @@ class Load
                     return $registry->get("load")->view('default/template/' . $view, $data);
                 }
             }
-        } elseif (Util::version()->isMinimal(1.5)) {
+        } elseif (Util::version()->isMinimal(1.5) && !Util::info()->isInAdmin()) {
+            $view .= "." . $extension;
             if (file_exists(DIR_TEMPLATE . Util::info()->theme() . '/template/' . $view)) {
-                return $registry->get("load")->view(Util::info()->theme() . "/template/" . $view, $data);
+                $view = DIR_TEMPLATE . Util::info()->theme() . '/template/' . $view;
             } else {
-                return $registry->get("load")->view('default/template/' . $view, $data);
+                $view = 'default/template/' . $view;
             }
         }
-
         $fakeControllerFile = __DIR__ . "/fakeController.php";
         if (class_exists("VQMod")) {
             require_once(\VQMod::modCheck($fakeControllerFile));
@@ -355,12 +355,9 @@ class Load
                     "2.1" => "customer/custom_field"
                 ],
                 [
-                    "" => "extension/extension",
+                    "" => "setting/extension",
+                    "2.0" => "extension/extension",
                     "3.0" => "setting/extension"
-                ],
-                [
-                    "" => "extension/extension",
-                    "1.5" => "setting/extension"
                 ],
 				[
                     "" => "extension/event",

@@ -162,6 +162,9 @@ class ControllerPaymentMollieBase extends Controller
         $data['set_issuer_url'] = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/set_issuer", "", "SSL");
 
         // Return HTML output - it will get appended to confirm.tpl.
+        if (Util::version()->isMaximal("1.5.6.4")) {
+            return $this->renderTemplate('mollie_checkout_form', $data, array(), false);
+        }
         return Util::load()->view('payment/mollie_checkout_form', $data);
     }
 
@@ -799,12 +802,15 @@ class ControllerPaymentMollieBase extends Controller
      */
     protected function renderTemplate($template, $data, $common_children = array(), $echo = true)
     {
-        if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/' . $template)) {
-            $template = $this->config->get('config_template') . '/template/payment/' . $template;
-        } else if (file_exists(DIR_TEMPLATE . 'default/template/payment/' . $template)) {
+        if(Util::version()->isMaximal("1.5.6.4")) {
+            if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/' . $template . '.tpl')) {
+                $template = $this->config->get('config_template') . '/template/payment/' . $template;
+            } else {
+                $template = 'default/template/payment/' . $template;
+            }
+        }
+        else {
             $template = 'payment/' . $template;
-        } else {
-            $template = 'extension/payment/' . $template;
         }
 
         if (MollieHelper::isOpenCart2x()) {
@@ -815,7 +821,7 @@ class ControllerPaymentMollieBase extends Controller
             $html = Util::load()->view($template, $data);
 
         } else {
-            $this->template = $template;
+            $this->template = $template . '.tpl';
             $this->children = array();
 
             foreach ($data as $field => $value) {
