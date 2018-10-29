@@ -125,6 +125,12 @@ class ControllerPaymentMollieBase extends Controller
 			$modelEvent->addEvent('mollie_create_shipment', 'catalog/model/checkout/order/addOrderHistory/after', 'payment/mollie/base/createShipment');
 		}
 	}
+	
+	//Check for patch
+	public function patch()
+    {
+        Util::patch()->runPatchesFromFolder('mollie', __FILE__);
+    }
 
 	/**
 	 * Clean up files that are not needed for the running version of OC.
@@ -135,10 +141,7 @@ class ControllerPaymentMollieBase extends Controller
 		$catalogThemeDir = DIR_CATALOG . 'view/theme/default/template/';
 
 		// Add new column if it doesn't exist yet
-		$mollie_order_id_column = $this->db->query("SHOW COLUMNS FROM " . DB_PREFIX . "mollie_payments LIKE 'mollie_order_id'");
-		if (!$mollie_order_id_column->num_rows) {
-			$this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_payments` ADD COLUMN `mollie_order_id` VARCHAR(32) NOT NULL");
-		}
+		$this->patch();
 
 		// Remove old template from previous version.
 		if (file_exists($adminThemeDir . 'extension/payment/mollie_2.tpl')) {
