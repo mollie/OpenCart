@@ -210,7 +210,7 @@ class ControllerPaymentMollieBase extends Controller
                 "amount" => ["currency" => $currency, "value" => (string)number_format((float)$amount, 2, '.', '')],
                 "orderNumber" => $order['order_id'],
                 "redirectUrl" => $return_url,
-                "webhookUrl" => $this->getWebhookUrl(),
+                //"webhookUrl" => $this->getWebhookUrl(),
                 "metadata" => array("order_id" => $order['order_id'], "description" => $description),
                 "method" => static::MODULE_NAME,
             );
@@ -492,14 +492,28 @@ class ControllerPaymentMollieBase extends Controller
     }
 
     //Create shipment after the order reach to a specific status
-    public function createShipment(&$route, &$data) {
-
-        $order_id = $data[0];
-        $order_status_id = $data[1];
+    public function createShipment(&$route, &$data, $orderID = "", $orderStatusID = "") {
+        
+        if (!empty($data)) {
+            $order_id = $data[0];
+            $order_status_id = $data[1];
+        }
+        else {
+            $order_id = $orderID;
+            $order_status_id = $orderStatusID;
+        }
+        
         $moduleCode = MollieHelper::getModuleCode();
 
-        $orderModel = Util::load()->model("checkout/order");
-        $mollieModel = Util::load()->model('payment/mollie/base');
+        if (Util::version()->isMaximal("1.5.6.4")) {
+            $orderModel = Util::load()->model("sale/order");
+            $mollieModel = $orderModel;
+        }
+        else {
+            $orderModel = Util::load()->model("checkout/order");
+            $mollieModel = Util::load()->model('payment/mollie/base');
+        }
+        
         Util::load()->language("payment/mollie");
 
         //Get order_id of this transaction from db
