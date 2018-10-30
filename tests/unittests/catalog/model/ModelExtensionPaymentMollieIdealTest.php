@@ -1,9 +1,9 @@
 <?php
 
-class ModelExtensionPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
+class ModelPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
 {
 	/**
-	 * @var ModelExtensionPaymentMollieIdeal
+	 * @var ModelPaymentMollieIdeal
 	 */
 	protected $model;
 
@@ -13,7 +13,7 @@ class ModelExtensionPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
 	{
 		parent::setUp();
 
-		$this->model = $this->getMock("ModelExtensionPaymentMollieBase", array("getAPIClient", "getIssuers", "getCurrentDate"));
+		$this->model = $this->getMock("ModelPaymentMollieBase", array("getAPIClient", "getIssuers", "getCurrentDate"));
 		$this->model->db = $this->getMock("stub", array("query", "escape", "countAffected"));
 
 		// Mock API client.
