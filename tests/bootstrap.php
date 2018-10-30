@@ -4,7 +4,7 @@ date_default_timezone_set('CET');
 define("DIR_APPLICATION", realpath(dirname(__FILE__) . "/.."));
 define("DIR_SYSTEM",      DIR_APPLICATION . "/system");
 define("DIR_TEMPLATE",    DIR_APPLICATION . "/catalog/view/theme");
-define("VERSION",         '8.2.3');
+define("VERSION",         '9.0.0');
 
 
 date_default_timezone_set("Europe/Amsterdam");
@@ -15,8 +15,8 @@ spl_autoload_register(function($className)
 
 	$map = array(
 		"MollieHelper"                         => "$project_dir/catalog/controller/payment/mollie/helper.php",
-		"ControllerExtensionPaymentMollieBase" => "$project_dir/catalog/controller/payment/mollie/base.php",
-		"ModelExtensionPaymentMollieBase"      => "$project_dir/catalog/model/payment/mollie/base.php",
+		"ControllerPaymentMollieBase" => "$project_dir/catalog/controller/payment/mollie/base.php",
+		"ModelPaymentMollieBase"      => "$project_dir/catalog/model/payment/mollie/base.php",
 	);
 
 	if (isset($map[$className]))

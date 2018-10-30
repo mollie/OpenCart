@@ -77,3 +77,4 @@ Contact Mollie: [www.mollie.com/nl/about](https://www.mollie.com/nl/about) — i
 + [More info on Giropay via Mollie](https://www.mollie.com/payments/giropay/)
 + [More info on Klarna Pay Later via Mollie](https://www.mollie.com/payments/klarna-pay-later/)
 + [More info on Klarna Slite It via Mollie](https://www.mollie.com/payments/klarna-slice-it/)
+

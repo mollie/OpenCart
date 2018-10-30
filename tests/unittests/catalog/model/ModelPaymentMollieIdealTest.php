@@ -63,7 +63,7 @@ class ModelPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
 	{
 		$this->model->db->expects($this->once())
 			->method("query")
-			->with("REPLACE INTO `prefix_mollie_payments` (`order_id` ,`transaction_id`, `method`)
+			->with("REPLACE INTO `prefix_mollie_payments` (`order_id` ,`mollie_order_id`, `method`)
 					 VALUES ('1337', '1bba1d8fdbd8103b46151634bdbe0a60', 'idl')");
 
 		$this->model->db->expects($this->once())
@@ -77,7 +77,7 @@ class ModelPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
 	{
 		$this->model->db->expects($this->once())
 			->method("query")
-			->with("REPLACE INTO `prefix_mollie_payments` (`order_id` ,`transaction_id`, `method`)
+			->with("REPLACE INTO `prefix_mollie_payments` (`order_id` ,`mollie_order_id`, `method`)
 					 VALUES ('1337', '1bba1d8fdbd8103b46151634bdbe0a60', 'idl')");
 
 		$this->model->db->expects($this->once())
