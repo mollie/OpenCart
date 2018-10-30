@@ -84,3 +84,6 @@ $_['method_eps']                        = 'Giropay';
 $_['method_giropay']                    = 'EPS';
 $_['method_klarnapaylater'] 			= 'Klarna Pay Later';
 $_['method_klarnasliceit']  			= 'Klarna Slice It';
+
+//Round Off Description
+$_['roundoff_description']  = 'Dû à la conversion de devise, il se peut qu’il y ait un écart d’arrondi';

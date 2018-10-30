@@ -302,7 +302,7 @@ class ControllerPaymentMollieBase extends Controller
             if(($orderTotal > $orderLineTotal) && (number_format(($orderTotal - $orderLineTotal), 2, '.', '') == 0.01)) {
                 $lineForDiscount[] = array(
                     'type'          =>  'discount',
-                    'name'          =>  'Discount',
+                    'name'          =>  $this->language->get("roundoff_description"),
                     'quantity'      =>  1,
                     'unitPrice'     =>  ["currency" => $currency, "value" => "0.01"],
                     'totalAmount'   =>  ["currency" => $currency, "value" => "0.01"],
@@ -316,7 +316,7 @@ class ControllerPaymentMollieBase extends Controller
             if(($orderTotal < $orderLineTotal) && (number_format(($orderLineTotal - $orderTotal), 2, '.', '') == 0.01)) {
                 $lineForSurcharge[] = array(
                     'type'          =>  'surcharge',
-                    'name'          =>  'Surcharge',
+                    'name'          =>  $this->language->get("roundoff_description"),
                     'quantity'      =>  1,
                     'unitPrice'     =>  ["currency" => $currency, "value" => "-0.01"],
                     'totalAmount'   =>  ["currency" => $currency, "value" => "-0.01"],
