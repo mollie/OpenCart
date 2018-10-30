@@ -277,8 +277,57 @@ class ControllerPaymentMollieBase extends Controller
                 $lines = array_merge($lines, $lineForCoupon);
             }
 
-            $data['lines'] = $lines;
+            //Check for rounding off issue
+            $orderTotal = number_format($amount, 2, '.', '');
+            $productTotal = 0;
+            $shippingTotal = 0;
+            $couponTotal = 0; 
 
+            $productTotalArray = array();
+            foreach($orderProducts as $orderProduct) {
+                $total = $orderProduct['total'] + ($orderProduct['tax'] * $orderProduct['quantity']);
+                $productTotalArray[] = $this->convertCurrency($total);
+            }
+            $productTotal = number_format(array_sum($productTotalArray), 2, '.', '');
+
+            if(isset($costWithTax)) {
+                $shippingTotal = number_format($this->convertCurrency($costWithTax), 2, '.', '');
+            }
+            if(isset($unitPriceWithTax)) {
+                $couponTotal = number_format($this->convertCurrency($unitPriceWithTax), 2, '.', '');
+            }
+
+            $orderLineTotal = number_format($productTotal + $shippingTotal + $couponTotal, 2, '.', '');
+            
+            if(($orderTotal > $orderLineTotal) && (number_format(($orderTotal - $orderLineTotal), 2, '.', '') == 0.01)) {
+                $lineForDiscount[] = array(
+                    'type'          =>  'discount',
+                    'name'          =>  'Discount',
+                    'quantity'      =>  1,
+                    'unitPrice'     =>  ["currency" => $currency, "value" => "0.01"],
+                    'totalAmount'   =>  ["currency" => $currency, "value" => "0.01"],
+                    'vatRate'       =>  "0",
+                    'vatAmount'     =>  ["currency" => $currency, "value" => "0.00"]
+                );
+
+                $lines = array_merge($lines, $lineForDiscount);
+            }
+
+            if(($orderTotal < $orderLineTotal) && (number_format(($orderLineTotal - $orderTotal), 2, '.', '') == 0.01)) {
+                $lineForSurcharge[] = array(
+                    'type'          =>  'surcharge',
+                    'name'          =>  'Surcharge',
+                    'quantity'      =>  1,
+                    'unitPrice'     =>  ["currency" => $currency, "value" => "-0.01"],
+                    'totalAmount'   =>  ["currency" => $currency, "value" => "-0.01"],
+                    'vatRate'       =>  "0",
+                    'vatAmount'     =>  ["currency" => $currency, "value" => "0.00"]
+                );
+
+                $lines = array_merge($lines, $lineForSurcharge);
+            }
+
+            $data['lines'] = $lines;
                 /*
                  * This data is sent along for credit card payments / fraud checks. You can remove this but you will
                  * have a higher conversion if you leave it here.

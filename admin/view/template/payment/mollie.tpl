@@ -36,7 +36,7 @@
 					<h3 class="panel-title"><i class="fa fa-pencil"></i> <?php echo $text_edit; ?></h3>
 				</div>
 				<div class="panel-body">
-					<ul id="tabs<?php echo $shop['store_id']; ?>" class="nav nav-tabs">
+					<ul class="nav nav-tabs">
 						<?php foreach ($shops as $shop) { ?>
 							<li class="<?php echo $shop['store_id'] === 0 ? 'active' : ''; ?>"><a data-toggle="tab" href="#store<?php echo $shop['store_id']; ?>"><?php echo $shop['name']; ?></a></li>
 						<?php } ?>
@@ -45,7 +45,7 @@
 					<div class="tab-content">
 						<?php foreach ($shops as $shop) { ?>
 						<div id="store<?php echo $shop['store_id']; ?>" class="tab-pane fade in <?php echo $shop['store_id'] === 0 ? 'active' : ''; ?>">
-							<ul class="nav nav-tabs">
+							<ul id="tabs<?php echo $shop['store_id']; ?>" class="nav nav-tabs">
 								<li class="active"><a data-toggle="tab" href="#payment-methods-<?php echo $shop['store_id']; ?>"><?php echo $entry_payment_method; ?></a></li>
 								<li><a data-toggle="tab" href="#payment-statuses-<?php echo $shop['store_id']; ?>"><?php echo $title_payment_status; ?></a></li>
 								<li><a data-toggle="tab" href="#mollie-options-<?php echo $shop['store_id']; ?>"><?php echo $title_global_options; ?></a></li>

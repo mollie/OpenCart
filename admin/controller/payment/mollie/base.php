@@ -186,6 +186,13 @@ class ControllerPaymentMollieBase extends Controller
 				unlink($catalogThemeDir . 'extension/payment/mollie_checkout_form.tpl');
 				unlink($catalogThemeDir . 'payment/mollie_checkout_form.tpl');
 			}
+			//Remove twig file from old version
+			if(file_exists($adminThemeDir . 'extension/payment/mollie.twig')) {
+				unlink($adminThemeDir . 'extension/payment/mollie.twig');
+			}
+			if(file_exists($adminThemeDir . 'payment/mollie.twig')) {
+				unlink($adminThemeDir . 'payment/mollie.twig');
+			}
 		} elseif (MollieHelper::isOpenCart2x()) {
 			if(file_exists($adminThemeDir . 'extension/payment/mollie(max_1.5.6.4).tpl')) {
 				unlink($adminThemeDir . 'extension/payment/mollie(max_1.5.6.4).tpl');
@@ -274,7 +281,7 @@ class ControllerPaymentMollieBase extends Controller
 
 		$adminThemeDir = DIR_APPLICATION . 'view/template/';
 		if (MollieHelper::isOpenCart3x() || MollieHelper::isOpenCart2x()) {
-			if(file_exists($adminThemeDir . 'extension/payment/mollie(max_1.5.6.4).tpl')) {
+			if(file_exists($adminThemeDir . 'extension/payment/mollie(max_1.5.6.4).tpl') || file_exists($adminThemeDir . 'extension/payment/mollie.twig') || file_exists($adminThemeDir . 'payment/mollie.twig')) {
 				$this->cleanUp();
 			}
 		} else {

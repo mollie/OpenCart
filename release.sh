@@ -1,17 +1,16 @@
 echo "Retrieving Mollie API client v2..."
-echo "1/6 Create temporary zip..."
+echo "1/5 Create temporary zip..."
 zip -9 -rq temp.zip admin catalog system vqmod
-echo "2/6 Create temporary upload dir..."
+echo "2/5 Create temporary upload dir..."
 rm -rf ./upload
 mkdir ./upload
-echo "3/6 Unzip temporary zip to upload dir..."
+echo "3/5 Unzip temporary zip to upload dir..."
 unzip -q temp.zip -d upload
-echo "4/6 Create opencart installable zip..."
+echo "4/5 Create opencart installable zip..."
 rm mollie-opencart-2.3-and-up.ocmod.zip
-zip -9 -rq mollie-opencart-2.3-and-up.ocmod.zip upload LICENSE readme.md -x *.git* *.DS_Store
+zip -9 -rq mollie-opencart-1.5-and-up.vqmod.zip upload LICENSE readme.md -x *.git* *.DS_Store
 
-echo "5/6 Move files for legacy support (2.2 and lower)..."
-echo "6/6 Cleanup..."
+echo "5/5 Cleanup..."
 rm -rf ./upload
 rm -rf ./temp.zip
 
