@@ -1,7 +1,5 @@
 <?php
-require_once(dirname(__FILE__) . "/mollie/base.php");
-
-class ModelExtensionPaymentMollieINGHOMEPAY extends ModelExtensionPaymentMollieBase
+include_once(__DIR__."/../../payment/mollie_inghomepay.php");
+class ModelExtensionPaymentMollieINGHOMEPAY extends ModelPaymentMollieINGHOMEPAY
 {
-	const MODULE_NAME = MollieHelper::MODULE_NAME_INGHOMEPAY;
 }

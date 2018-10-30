@@ -27,7 +27,6 @@ class TranslationTest extends PHPUnit_Framework_TestCase
 		{
 			$lang_path = $path .
                 DIRECTORY_SEPARATOR . $language .
-                DIRECTORY_SEPARATOR . "extension" .
                 DIRECTORY_SEPARATOR . "payment" .
                 DIRECTORY_SEPARATOR . "mollie.php";
 			$_         = array();
