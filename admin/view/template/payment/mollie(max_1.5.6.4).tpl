@@ -283,7 +283,7 @@
 							</div>
 							<div class="form-group">
 								<div class="col-sm-offset-2 col-sm-10">
-									<a href="https://www.mollie.com/" target="_blank"><img src="https://www.mollie.com/images/badge-powered-medium.png" width="135" height="87" border="0" alt="Mollie"/></a><br/><br/>
+									<a href="https://www.mollie.com/" target="_blank"><img src=" https://www.mollie.com/images/logo.png" border="0" alt="Mollie"/></a><br/><br/>
 									&copy; 2004-<?php echo date('Y'); ?> Mollie
 									B.V. <?php echo $footer_text; ?>
 								</div>

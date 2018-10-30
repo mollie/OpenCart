@@ -1,10 +1,11 @@
 <?php
+
 use comercia\Util;
 use Mollie\Api\MollieApiClient;
 
 class MollieHelper
 {
-	const PLUGIN_VERSION = "8.4.0";
+	const PLUGIN_VERSION = "9.0.0";
 
 	// All available modules. These should correspond to the Mollie_API_Object_Method constants.
 	const MODULE_NAME_BANKTRANSFER  = "banktransfer";

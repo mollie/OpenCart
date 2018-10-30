@@ -162,6 +162,9 @@ class ControllerPaymentMollieBase extends Controller
         $data['set_issuer_url'] = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/set_issuer", "", "SSL");
 
         // Return HTML output - it will get appended to confirm.tpl.
+        if (Util::version()->isMaximal("1.5.6.4")) {
+            return $this->renderTemplate('mollie_checkout_form', $data, array(), false);
+        }
         return Util::load()->view('payment/mollie_checkout_form', $data);
     }
 
@@ -274,8 +277,57 @@ class ControllerPaymentMollieBase extends Controller
                 $lines = array_merge($lines, $lineForCoupon);
             }
 
-            $data['lines'] = $lines;
+            //Check for rounding off issue
+            $orderTotal = number_format($amount, 2, '.', '');
+            $productTotal = 0;
+            $shippingTotal = 0;
+            $couponTotal = 0; 
 
+            $productTotalArray = array();
+            foreach($orderProducts as $orderProduct) {
+                $total = $orderProduct['total'] + ($orderProduct['tax'] * $orderProduct['quantity']);
+                $productTotalArray[] = $this->convertCurrency($total);
+            }
+            $productTotal = number_format(array_sum($productTotalArray), 2, '.', '');
+
+            if(isset($costWithTax)) {
+                $shippingTotal = number_format($this->convertCurrency($costWithTax), 2, '.', '');
+            }
+            if(isset($unitPriceWithTax)) {
+                $couponTotal = number_format($this->convertCurrency($unitPriceWithTax), 2, '.', '');
+            }
+
+            $orderLineTotal = number_format($productTotal + $shippingTotal + $couponTotal, 2, '.', '');
+            
+            if(($orderTotal > $orderLineTotal) && (number_format(($orderTotal - $orderLineTotal), 2, '.', '') == 0.01)) {
+                $lineForDiscount[] = array(
+                    'type'          =>  'discount',
+                    'name'          =>  $this->language->get("roundoff_description"),
+                    'quantity'      =>  1,
+                    'unitPrice'     =>  ["currency" => $currency, "value" => "0.01"],
+                    'totalAmount'   =>  ["currency" => $currency, "value" => "0.01"],
+                    'vatRate'       =>  "0",
+                    'vatAmount'     =>  ["currency" => $currency, "value" => "0.00"]
+                );
+
+                $lines = array_merge($lines, $lineForDiscount);
+            }
+
+            if(($orderTotal < $orderLineTotal) && (number_format(($orderLineTotal - $orderTotal), 2, '.', '') == 0.01)) {
+                $lineForSurcharge[] = array(
+                    'type'          =>  'surcharge',
+                    'name'          =>  $this->language->get("roundoff_description"),
+                    'quantity'      =>  1,
+                    'unitPrice'     =>  ["currency" => $currency, "value" => "-0.01"],
+                    'totalAmount'   =>  ["currency" => $currency, "value" => "-0.01"],
+                    'vatRate'       =>  "0",
+                    'vatAmount'     =>  ["currency" => $currency, "value" => "0.00"]
+                );
+
+                $lines = array_merge($lines, $lineForSurcharge);
+            }
+
+            $data['lines'] = $lines;
                 /*
                  * This data is sent along for credit card payments / fraud checks. You can remove this but you will
                  * have a higher conversion if you leave it here.
@@ -489,14 +541,28 @@ class ControllerPaymentMollieBase extends Controller
     }
 
     //Create shipment after the order reach to a specific status
-    public function createShipment(&$route, &$data) {
-
-        $order_id = $data[0];
-        $order_status_id = $data[1];
+    public function createShipment(&$route, &$data, $orderID = "", $orderStatusID = "") {
+        
+        if (!empty($data)) {
+            $order_id = $data[0];
+            $order_status_id = $data[1];
+        }
+        else {
+            $order_id = $orderID;
+            $order_status_id = $orderStatusID;
+        }
+        
         $moduleCode = MollieHelper::getModuleCode();
 
-        $orderModel = Util::load()->model("checkout/order");
-        $mollieModel = Util::load()->model('payment/mollie/base');
+        if (Util::version()->isMaximal("1.5.6.4")) {
+            $orderModel = Util::load()->model("sale/order");
+            $mollieModel = $orderModel;
+        }
+        else {
+            $orderModel = Util::load()->model("checkout/order");
+            $mollieModel = Util::load()->model('payment/mollie/base');
+        }
+        
         Util::load()->language("payment/mollie");
 
         //Get order_id of this transaction from db
@@ -799,16 +865,15 @@ class ControllerPaymentMollieBase extends Controller
      */
     protected function renderTemplate($template, $data, $common_children = array(), $echo = true)
     {
-        if (!MollieHelper::isOpenCart3x()) {
-            $template .= '.tpl';
+        if(Util::version()->isMaximal("1.5.6.4")) {
+            if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/' . $template . '.tpl')) {
+                $template = $this->config->get('config_template') . '/template/payment/' . $template;
+            } else {
+                $template = 'default/template/payment/' . $template;
+            }
         }
-
-        if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/' . $template)) {
-            $template = $this->config->get('config_template') . '/template/payment/' . $template;
-        } else if (file_exists(DIR_TEMPLATE . 'default/template/payment/' . $template)) {
+        else {
             $template = 'payment/' . $template;
-        } else {
-            $template = 'extension/payment/' . $template;
         }
 
         if (MollieHelper::isOpenCart2x()) {
@@ -819,7 +884,7 @@ class ControllerPaymentMollieBase extends Controller
             $html = Util::load()->view($template, $data);
 
         } else {
-            $this->template = $template;
+            $this->template = $template . '.tpl';
             $this->children = array();
 
             foreach ($data as $field => $value) {

@@ -45,6 +45,8 @@ $_['text_mollie_paypal']        = $method_list_logo;
 $_['text_mollie_paysafecard']   = $method_list_logo;
 $_['text_mollie_sofort']        = $method_list_logo;
 $_['text_mollie_giftcard']      = $method_list_logo;
+$_['text_mollie_eps']    = $method_list_logo;
+$_['text_mollie_giropay']    = $method_list_logo;
 $_['text_mollie_inghomepay']    = $method_list_logo;
 $_['text_mollie_klarnapaylater'] = $method_list_logo;
 $_['text_mollie_klarnasliceit']  = $method_list_logo;
@@ -74,6 +76,7 @@ $_['name_mollie_eps']           = 'EPS';
 $_['name_mollie_giropay']       = 'Giropay';
 $_['name_mollie_klarnapaylater'] = 'Klarna Pay Later';
 $_['name_mollie_klarnasliceit']  = 'Klarna Slice It';
+$_['name_mollie_mistercash']  = 'Mistercash';
 
 // Text
 $_['text_edit']                    = "Edit";

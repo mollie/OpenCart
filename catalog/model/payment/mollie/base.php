@@ -78,10 +78,12 @@ class ModelPaymentMollieBase extends Model
 		
 		//Get payment methods allowed for this amount and currency
 		$allowed_methods = array();
-		$currency = $this->session->data['currency'];
+		$currency 		 = $this->session->data['currency'];
+		$country 		 = $this->session->data['payment_address']['iso_code_2'];
 		$data = array(
-            "amount" => ["value" => (string)number_format((float)$total, 2, '.', ''), "currency" => $currency,],
-            "resource" => "orders"
+            "amount" 		 => ["value" => (string)number_format((float)$total, 2, '.', ''), "currency" => $currency,],
+            "resource" 		 => "orders",
+			"billingCountry" => $country
         );
 		$payment_methods = $this->getAPIClient()->methods->all($data);
 

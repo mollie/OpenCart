@@ -17,7 +17,7 @@ class ArrayObject
 
     function get($name)
     {
-        return @$this->data[$name] ?: "";
+        return @isset($this->data[$name]) ? $this->data[$name] : "";
     }
 
     function __set($name, $value)
