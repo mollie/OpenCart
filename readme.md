@@ -59,7 +59,7 @@ this plugin.
 Copyright (c) 2018, Mollie B.V.
 
 # SUPPORT #
-Module developed by Comercia: [www.comercia.nl](https://www.comercia.nl) — info@comercia.nl — +31 85-7733618
+Module developed by Comercia: [www.comercia.nl](https://www.comercia.nl) — info@comercia.nl — +31 85-7733618 <br />
 Contact Mollie: [www.mollie.com/nl/about](https://www.mollie.com/nl/about) — info@mollie.com — +31 20-612 88 55
 
 + [More info on iDEAL via Mollie](https://www.mollie.com/payments/ideal/)
