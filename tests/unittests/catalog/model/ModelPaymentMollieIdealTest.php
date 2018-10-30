@@ -1,9 +1,9 @@
 <?php
 
-class ModelExtensionPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
+class ModelPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
 {
 	/**
-	 * @var ModelExtensionPaymentMollieIdeal
+	 * @var ModelPaymentMollieIdeal
 	 */
 	protected $model;
 
@@ -13,7 +13,7 @@ class ModelExtensionPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
 	{
 		parent::setUp();
 
-		$this->model = $this->getMock("ModelExtensionPaymentMollieBase", array("getAPIClient", "getIssuers", "getCurrentDate"));
+		$this->model = $this->getMock("ModelPaymentMollieBase", array("getAPIClient", "getIssuers", "getCurrentDate"));
 		$this->model->db = $this->getMock("stub", array("query", "escape", "countAffected"));
 
 		// Mock API client.
@@ -63,7 +63,7 @@ class ModelExtensionPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
 	{
 		$this->model->db->expects($this->once())
 			->method("query")
-			->with("REPLACE INTO `prefix_mollie_payments` (`order_id` ,`transaction_id`, `method`)
+			->with("REPLACE INTO `prefix_mollie_payments` (`order_id` ,`mollie_order_id`, `method`)
 					 VALUES ('1337', '1bba1d8fdbd8103b46151634bdbe0a60', 'idl')");
 
 		$this->model->db->expects($this->once())
@@ -77,7 +77,7 @@ class ModelExtensionPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
 	{
 		$this->model->db->expects($this->once())
 			->method("query")
-			->with("REPLACE INTO `prefix_mollie_payments` (`order_id` ,`transaction_id`, `method`)
+			->with("REPLACE INTO `prefix_mollie_payments` (`order_id` ,`mollie_order_id`, `method`)
 					 VALUES ('1337', '1bba1d8fdbd8103b46151634bdbe0a60', 'idl')");
 
 		$this->model->db->expects($this->once())
