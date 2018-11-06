@@ -1,6 +1,9 @@
-![Mollie](https://www.mollie.com/files/Mollie-Logo-Style-Small.png)
+<p align="center">
+  <img src="https://info.mollie.com/hubfs/github/opencart/logo.png" width="128" height="128"/>
+</p>
+<h1 align="center">Mollie for OpenCart</h1>
 
-# INSTALLATION [![Build Status](https://travis-ci.org/mollie/OpenCart.png)](https://travis-ci.org/mollie/OpenCart) #
+# Installation [![Build Status](https://travis-ci.org/mollie/OpenCart.png)](https://travis-ci.org/mollie/OpenCart) #
 + Download the latest release on the [OpenCart Releases](https://github.com/mollie/OpenCart/releases)-page.
 + Upload all files from the "upload" folder in the zip to the root of your opencart shop.
 + For this module to work correctly you need to have vQmod installed, you can find the latest version on the vQmod [Releases page](https://github.com/vqmod/vqmod/releases).
