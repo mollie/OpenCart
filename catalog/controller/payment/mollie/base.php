@@ -128,11 +128,15 @@ class ControllerPaymentMollieBase extends Controller
     }
 
     //Get tax rate
-    protected function getTaxRate()
+    protected function getTaxRate($tax_rates = array())
     {
-        $model = Util::load()->model("payment/mollie_" . static::MODULE_NAME);
-
-        return $model->getTaxRate();
+        $rates = array();
+        if(!empty($tax_rates)) {
+            foreach($tax_rates as $tax) {
+                $rates[] = $tax['rate'];
+            }
+        }
+        return $rates;
     }
 
     //Get Coupon Details
@@ -210,7 +214,7 @@ class ControllerPaymentMollieBase extends Controller
                 "amount" => ["currency" => $currency, "value" => (string)number_format((float)$amount, 2, '.', '')],
                 "orderNumber" => $order['order_id'],
                 "redirectUrl" => $return_url,
-                "webhookUrl" => $this->getWebhookUrl(),
+                //"webhookUrl" => $this->getWebhookUrl(),
                 "metadata" => array("order_id" => $order['order_id'], "description" => $description),
                 "method" => static::MODULE_NAME,
             );
@@ -221,9 +225,14 @@ class ControllerPaymentMollieBase extends Controller
             $orderProducts = $this->getOrderProducts($order['order_id']);
             $lines = array();
 
-            //Get VAT rate
-            $vatRate = $this->getTaxRate();
+            $productModel = Util::load()->model('catalog/product');
             foreach($orderProducts as $orderProduct) {
+                $productDetails = $productModel->getProduct($orderProduct['product_id']);
+                $tax_rates = $this->tax->getRates($orderProduct['price'], $productDetails['tax_class_id']);
+                $rates = $this->getTaxRate($tax_rates);
+                //Since Mollie only supports VAT so '$rates' must contains only one(VAT) rate.
+                $vatRate = $rates[0];
+
                 $total = $orderProduct['total'] + ($orderProduct['tax'] * $orderProduct['quantity']);
                 $vatAmount = $total * ( $vatRate / (100 +  $vatRate));
                 $lines[] = array(
@@ -242,6 +251,9 @@ class ControllerPaymentMollieBase extends Controller
                 $title = $this->session->data['shipping_method']['title'];
                 $cost = $this->session->data['shipping_method']['cost'];
                 $taxClass = $this->session->data['shipping_method']['tax_class_id'];
+                $tax_rates = $this->tax->getRates($cost, $taxClass);
+                $rates = $this->getTaxRate($tax_rates);
+                $vatRate = $rates[0];
                 $costWithTax = $this->tax->calculate($cost, $taxClass, $this->config->get('config_tax'));
                 $shippingVATAmount = $costWithTax * ( $vatRate / (100 +  $vatRate));
                 $lineForShipping[] = array(
@@ -262,6 +274,9 @@ class ControllerPaymentMollieBase extends Controller
                 //Get coupon data
                 $coupon = $this->getCouponDetails($order['order_id']);
                 $taxClass = $this->session->data['shipping_method']['tax_class_id'];
+                $tax_rates = $this->tax->getRates($cost, $taxClass);
+                $rates = $this->getTaxRate($tax_rates);
+                $vatRate = $rates[0];
                 $unitPriceWithTax = $this->tax->calculate($coupon['value'], $taxClass, $this->config->get('config_tax'));
                 $couponVATAmount = $unitPriceWithTax * ( $vatRate / (100 +  $vatRate));
                 $lineForCoupon[] = array(
@@ -326,7 +341,6 @@ class ControllerPaymentMollieBase extends Controller
 
                 $lines = array_merge($lines, $lineForSurcharge);
             }
-
             $data['lines'] = $lines;
                 /*
                  * This data is sent along for credit card payments / fraud checks. You can remove this but you will
