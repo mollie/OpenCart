@@ -214,7 +214,7 @@ class ControllerPaymentMollieBase extends Controller
                 "amount" => ["currency" => $currency, "value" => (string)number_format((float)$amount, 2, '.', '')],
                 "orderNumber" => $order['order_id'],
                 "redirectUrl" => $return_url,
-                //"webhookUrl" => $this->getWebhookUrl(),
+                "webhookUrl" => $this->getWebhookUrl(),
                 "metadata" => array("order_id" => $order['order_id'], "description" => $description),
                 "method" => static::MODULE_NAME,
             );
