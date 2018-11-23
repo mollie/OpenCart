@@ -318,15 +318,23 @@ class ControllerPaymentMollieBase extends Controller
 			$redirect = true;
             $stores = Util::info()->stores();
             foreach ($stores as $store) {
-            	if ($this->validate($store["store_id"])) {
+            	if(count($stores) > 1) {
             		$configSet = Util::request()->post()->allPrefixed($store["store_id"] . "_");
 	                if (!$store["store_id"]) {
 	                    $configSet = array_merge($configSet, Util::request()->post()->allPrefixed($code, false));
 	                }
 	                Util::config($store["store_id"])->set($code, $configSet);
-            	}
-            	else {
-            		$redirect = false;
+            	} else {
+            		if ($this->validate($store["store_id"])) {
+	            		$configSet = Util::request()->post()->allPrefixed($store["store_id"] . "_");
+		                if (!$store["store_id"]) {
+		                    $configSet = array_merge($configSet, Util::request()->post()->allPrefixed($code, false));
+		                }
+		                Util::config($store["store_id"])->set($code, $configSet);
+	            	}
+	            	else {
+	            		$redirect = false;
+	            	}
             	}
             }
 
@@ -366,6 +374,13 @@ class ControllerPaymentMollieBase extends Controller
             Util::form($store, $store["store_id"])
                 ->fillFromPost($storeFormFields)
                 ->fillFromConfig($storeFormFields);
+        }
+
+        //API key not required for multistores
+        $data['api_required'] = true;
+        
+        if(count($data['shops']) > 1) {
+        	$data['api_required'] = false;
         }
 
         //Breadcrumb
