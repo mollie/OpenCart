@@ -53,7 +53,6 @@ class Config
             $key = [$key => $value];
         }
         $items = Util::arrayHelper()->allPrefixed($key, $code, false);
-        $items=array_merge($this->getGroup($code),$items);
         $this->model->editSetting($code, $items, $this->store_id);
         foreach ($items as $key => $val) {
             $this->data[$key] = $val;
