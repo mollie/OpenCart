@@ -191,7 +191,7 @@
 
 						<div id="mollie-options-<?php echo $shop['store_id']; ?>" class="vtabs-content">
 							<div class="form-group">
-								<label class="col-sm-2 control-label" for="<?php echo $code; ?>_api_key"><span class="required">*</span> <?php echo $entry_api_key; ?><br /><span class="help"><?php echo $help_api_key; ?></span></label>
+								<label class="col-sm-2 control-label" for="<?php echo $code; ?>_api_key"> <?php echo $api_required ? '<span class="required">*</span>' : '' ?> <?php echo $entry_api_key; ?><br /><span class="help"><?php echo $help_api_key; ?></span></label>
 								<div class="col-sm-10">
 									<div class="input-group message-block">
 										<input type="text" name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_api_key" value="<?php echo $shop[$code . '_api_key']; ?>" placeholder="live_..." id="<?php echo $code; ?>_api_key" class="form-control" store="<?php echo $shop['store_id']; ?>" <?php echo $shop['store_id']; ?>-data-payment-mollie-api-key/>

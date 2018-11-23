@@ -200,7 +200,7 @@
 								</div>
 
 								<div id="mollie-options-<?php echo $shop['store_id']; ?>" class="tab-pane fade in">
-									<div class="form-group required">
+									<div class="form-group <?php echo $api_required ? 'required' : '' ?>">
 										<label class="col-sm-2 control-label" for="<?php echo $code; ?>_api_key"><span data-toggle="tooltip" title="<?php echo $help_api_key; ?>"><?php echo $entry_api_key; ?></span></label>
 										<div class="col-sm-10">
 											<div class="input-group">
