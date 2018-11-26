@@ -6,17 +6,21 @@
 			<?php echo $i > 0 ? ':: ' : ''; ?><a href="<?php echo $breadcrumb['href']; ?>"><?php echo $breadcrumb['text']; ?></a>
 		<?php } ?>
 	</div>
-
+	<?php $api_key = false; ?>
 	<?php foreach ($shops as $shop) { ?>
 		<?php if ($error_warning) { ?>
 			<div class="success">
 				<?php echo $shop['name']; ?>: <?php echo $error_warning; ?>
 			</div>
-		<?php } elseif (empty($stores[$shop['store_id']][$code . '_api_key'])) { ?>
-			<div class="attention">
-				<i><?php echo $shop['name']; ?>: </i> <?php echo $help_view_profile; ?>
-			</div>
 		<?php } ?>
+		<?php if (!empty($shop[$code . '_api_key'])) { ?>
+			<?php $api_key = true; ?>
+		<?php } ?>
+	<?php } ?>
+	<?php if(!$api_key) { ?>
+	<div class="attention">
+		 <?php echo $help_view_profile; ?>
+	</div>
 	<?php } ?>
 
 	<div class="box">

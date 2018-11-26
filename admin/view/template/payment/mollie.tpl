@@ -15,6 +15,7 @@
 	</div>
 	<div class="container-fluid">
 		<form action="<?php echo $action; ?>" method="post" enctype="multipart/form-data" id="form-mollie" class="form-horizontal">
+			<?php $api_key = false; ?>
 			<?php foreach ($shops as $shop) { ?>
 				<?php if ($error_warning) { ?>
 				<div class="alert alert-danger alert-dismissable">
@@ -23,13 +24,16 @@
 					<button type="button" class="close" data-dismiss="alert">&times;
 					</button>
 				</div>
-				<?php } elseif (!empty($shop[$code . '_api_key'])) { ?>
-				<div class="alert alert-info alert-dismissable">
-					<i class="fa fa-info-circle"></i>
-					<i><?php echo $shop['name']; ?>: </i> <?php echo $help_view_profile; ?>
-					<button type="button" class="close" data-dismiss="alert">&times;</button>
-				</div>
 				<?php } ?>
+				<?php if (!empty($shop[$code . '_api_key'])) { ?>
+					<?php $api_key = true; ?>
+				<?php } ?>
+			<?php } ?>
+			<?php if(!$api_key) { ?>
+			<div class="alert alert-info alert-dismissable">
+				<i class="fa fa-info-circle"></i> <?php echo $help_view_profile; ?>
+				<button type="button" class="close" data-dismiss="alert">&times;</button>
+			</div>
 			<?php } ?>
 			<div class="panel panel-default">
 				<div class="panel-heading">
