@@ -223,4 +223,14 @@ class ModelPaymentMollieBase extends Model
 		return $query->row;
 	}
 
+	public function getVoucherDetails($orderID) {
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "order_total WHERE order_id = '" . (int)$orderID . "' AND code = 'voucher'");
+		return $query->row;		
+	}
+
+	public function getRewardPointDetails($orderID) {
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "order_total WHERE order_id = '" . (int)$orderID . "' AND code = 'reward'");
+		return $query->row;		
+	}
+
 }

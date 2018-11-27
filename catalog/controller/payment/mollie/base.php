@@ -143,6 +143,21 @@ class ControllerPaymentMollieBase extends Controller
         return $model->getCouponDetails($orderID);
     }
 
+    //Get Voucher Details
+    protected function getVoucherDetails($orderID) {
+        $model = Util::load()->model("payment/mollie_" . static::MODULE_NAME);
+
+        return $model->getVoucherDetails($orderID);
+    }
+
+
+    //Get Reward Point Details
+    protected function getRewardPointDetails($orderID) {
+        $model = Util::load()->model("payment/mollie_" . static::MODULE_NAME);
+
+        return $model->getRewardPointDetails($orderID);
+    }
+
     /**
      * This gets called by OpenCart at the final checkout step and should generate a confirmation button.
      * @return string
@@ -277,6 +292,56 @@ class ControllerPaymentMollieBase extends Controller
                 $lines = array_merge($lines, $lineForCoupon);
             }
 
+            //Check if gift card applied
+            if(isset($this->session->data['voucher'])) {
+                //Get voucher data
+                $voucher = $this->getVoucherDetails($order['order_id']);
+                $lineForVoucher[] = array(
+                    'type'          =>  'gift_card',
+                    'name'          =>  $voucher['title'],
+                    'quantity'      =>  1,
+                    'unitPrice'     =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($voucher['value']), 2, '.', '')],
+                    'totalAmount'   =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($voucher['value']), 2, '.', '')],
+                    'vatRate'       =>  "0.00",
+                    'vatAmount'     =>  ["currency" => $currency, "value" => "0.00"]
+                );
+
+                $lines = array_merge($lines, $lineForVoucher);
+            }
+
+            //Check for reward points
+            if(isset($this->session->data['reward'])) {
+                //Get reward point data
+                $rewardPoints = $this->getRewardPointDetails($order['order_id']);
+
+                foreach ($this->cart->getProducts() as $product) {    
+                    if ($product['points']) {
+                        if ($product['tax_class_id']) {
+                            $taxClass = $product['tax_class_id'];
+                            $tax_rates = $this->tax->getRates($rewardPoints['value'], $taxClass);
+                            $rates = $this->getTaxRate($tax_rates);
+                            $vatRate = $rates[0];
+                            break;
+                        }
+                    }
+                }
+
+                $unitPriceWithTax = $this->tax->calculate($rewardPoints['value'], $taxClass, $this->config->get('config_tax'));
+                $rewardVATAmount = $unitPriceWithTax * ( $vatRate / (100 +  $vatRate));
+
+                $lineForRewardPoints[] = array(
+                    'type'          =>  'discount',
+                    'name'          =>  $rewardPoints['title'],
+                    'quantity'      =>  1,
+                    'unitPrice'     =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($unitPriceWithTax), 2, '.', '')],
+                    'totalAmount'   =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($unitPriceWithTax), 2, '.', '')],
+                    'vatRate'       =>  (string)number_format((float)$vatRate, 2, '.', ''),
+                    'vatAmount'     =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($rewardVATAmount), 2, '.', '')]
+                );
+
+                $lines = array_merge($lines, $lineForRewardPoints);
+            }
+            
             //Check for rounding off issue
             $orderTotal = number_format($amount, 2, '.', '');
             $productTotal = 0;
