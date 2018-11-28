@@ -126,6 +126,11 @@ $_['entry_expired_status']   = "Status betaling verlopen";
 $_['entry_processing_status']= "Status betaling succesvol";
 
 $_['entry_shipping_status']   = "Status bestelling verzonden";
-$_['entry_shipment']       			 = "Maak direct verzending aan";
+$_['entry_shipment']       			 = "Maak verzending";
 $_['entry_create_shipment_status']   = "Maak verzending aan na order status";
 $_['help_shipment'] 				 = "Verzending (alleen voor Klarna-methoden) wordt direct na het maken van de bestelling gemaakt. Selecteer 'Nee' om een ​​zending te creëren wanneer de order een specifieke status bereikt en selecteer de bestelstatus van onder.";
+
+$_['text_create_shipment_automatically']            = "Maak automatisch een zending bij het maken van de bestelling";
+$_['text_create_shipment_on_status']                = "Maak verzending bij het plaatsen van de bestelling naar deze status";
+$_['text_create_shipment_on_order_complete']        = "Maak verzending bij het plaatsen van bestelling om de volledige status te bestellen";
+$_['entry_create_shipment_on_order_complete'] 		= "Maak verzending bij bestelling compleet";

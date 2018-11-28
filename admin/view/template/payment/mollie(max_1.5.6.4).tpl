@@ -242,12 +242,22 @@
 										<label class="col-sm-2 control-label" for="input-status"><span data-toggle="tooltip" title="<?php echo $help_shipment; ?>"><?php echo $entry_shipment; ?></span></label>
 										<div class="col-sm-10">
 											<select name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_create_shipment" id="<?php echo $shop['store_id']; ?>-create-shipment" class="form-control">
-												<?php if ($shop[$code . '_create_shipment']) { ?>
-												<option value="1" selected="selected"><?php echo $text_yes; ?></option>
-												<option value="0"><?php echo $text_no; ?></option>
+												<?php if ($shop[$code . '_create_shipment'] == 1) { ?>
+												<option value="1" selected="selected"><?php echo $text_create_shipment_automatically; ?></option>
+												<option value="2"><?php echo $text_create_shipment_on_status; ?></option>
+												<?php if($is_order_complete_status) { ?>
+												<option value="3"><?php echo $text_create_shipment_on_order_complete; ?></option>
+												<?php } ?>
+												<?php } elseif ($shop[$code . '_create_shipment'] == 2) { ?>
+												<option value="1"><?php echo $text_create_shipment_automatically; ?></option>
+												<option value="2" selected="selected"><?php echo $text_create_shipment_on_status; ?></option>
+												<?php if($is_order_complete_status) { ?>
+												<option value="3"><?php echo $text_create_shipment_on_order_complete; ?></option>
+												<?php } ?>
 												<?php } else { ?>
-												<option value="1"><?php echo $text_yes; ?></option>
-												<option value="0" selected="selected"><?php echo $text_no; ?></option>
+												<option value="1"><?php echo $text_create_shipment_automatically; ?></option>
+												<option value="2" selected="selected"><?php echo $text_create_shipment_on_status; ?></option>
+												<option value="3" selected="selected"><?php echo $text_create_shipment_on_order_complete; ?></option>
 												<?php } ?>
 											</select>
 										</div>
@@ -258,6 +268,20 @@
 											<select name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_create_shipment_status_id" id="<?php echo $code; ?>_create_shipment_status_id" class="form-control">
 												<?php foreach ($order_statuses as $order_status) { ?>
 													<?php if ($order_status['order_status_id'] == $shop[$code . '_create_shipment_status_id']) { ?>
+													<option value="<?php echo $order_status['order_status_id']; ?>" selected="selected"><?php echo $order_status['name']; ?></option>
+													<?php } else { ?>
+													<option value="<?php echo $order_status['order_status_id']; ?>"><?php echo $order_status['name']; ?></option>
+													<?php } ?>
+												<?php } ?>
+											</select>
+										</div>
+									</div>
+									<div class="form-group" id="<?php echo $shop['store_id']; ?>-create-shipment-order-complete">
+										<label class="col-sm-2 control-label" for="<?php echo $code; ?>_create_shipping_status_id"><?php echo $entry_create_shipment_on_order_complete; ?></label>
+										<div class="col-sm-10">
+											<select name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_create_shipment_order_complete_status_id" id="<?php echo $code; ?>_create_shipment_status_id" class="form-control">
+												<?php foreach ($order_complete_statuses as $order_status) { ?>
+													<?php if ($order_status['order_status_id'] == $shop[$code . '_create_shipment_order_complete_status_id']) { ?>
 													<option value="<?php echo $order_status['order_status_id']; ?>" selected="selected"><?php echo $order_status['name']; ?></option>
 													<?php } else { ?>
 													<option value="<?php echo $order_status['order_status_id']; ?>"><?php echo $order_status['name']; ?></option>
@@ -398,13 +422,31 @@
 		});
 
 		var elem = document.getElementById('<?php echo $shop["store_id"] ?>-create-shipment');
-		var hiddenDiv = document.getElementById('<?php echo $shop["store_id"] ?>-create-shipment-status');
+		var hiddenDiv1 = document.getElementById('<?php echo $shop["store_id"] ?>-create-shipment-status');
+		var hiddenDiv2 = document.getElementById('<?php echo $shop["store_id"] ?>-create-shipment-order-complete');
 		if(elem.value == 1) {
-			hiddenDiv.style.display = "none";
+			hiddenDiv1.style.display = "none";
+			hiddenDiv2.style.display = "none";
+		} else if(elem.value == 2) {
+			hiddenDiv2.style.display = "none";
+		} else if(elem.value == 3) {
+			hiddenDiv1.style.display = "none";
 		}
 		
 		elem.onchange = function(){
-		    hiddenDiv.style.display = (this.value == "1") ? "none":"block";
+			var hiddenDiv1 = document.getElementById('<?php echo $shop["store_id"] ?>-create-shipment-status');
+			var hiddenDiv2 = document.getElementById('<?php echo $shop["store_id"] ?>-create-shipment-order-complete');
+
+		    if(this.value == 1) {
+				hiddenDiv1.style.display = "none";
+				hiddenDiv2.style.display = "none";
+			} else if(this.value == 2) {
+				hiddenDiv1.style.display = "block";
+				hiddenDiv2.style.display = "none";
+			} else if(this.value == 3) {
+				hiddenDiv1.style.display = "none";
+				hiddenDiv2.style.display = "block";
+			}
 		};
 		
 		$('.settings').click(function(){

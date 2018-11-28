@@ -1,28 +1,28 @@
 <?php
 /**
  * Copyright (c) 2012-2015, Mollie B.V.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * - Redistributions of source code must retain the above copyright notice,
+ * All rights reserved. 
+ * 
+ * Redistribution and use in source and binary forms, with or without 
+ * modification, are permitted provided that the following conditions are met: 
+ * 
+ * - Redistributions of source code must retain the above copyright notice, 
  *    this list of conditions and the following disclaimer.
- * - Redistributions in binary form must reproduce the above copyright
+ * - Redistributions in binary form must reproduce the above copyright 
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND ANY 
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+ * DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE FOR ANY 
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY 
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH 
+ * DAMAGE. 
  *
  * @package     Mollie
  * @license     Berkeley Software Distribution License (BSD-License 2) http://www.opensource.org/licenses/bsd-license.php
@@ -45,9 +45,9 @@ $_['text_mollie_paypal']        = $method_list_logo;
 $_['text_mollie_paysafecard']   = $method_list_logo;
 $_['text_mollie_sofort']        = $method_list_logo;
 $_['text_mollie_giftcard']      = $method_list_logo;
-$_['text_mollie_eps']    = $method_list_logo;
-$_['text_mollie_giropay']    = $method_list_logo;
 $_['text_mollie_inghomepay']    = $method_list_logo;
+$_['text_mollie_eps']           = $method_list_logo;
+$_['text_mollie_giropay']       = $method_list_logo;
 $_['text_mollie_klarnapaylater'] = $method_list_logo;
 $_['text_mollie_klarnasliceit']  = $method_list_logo;
 
@@ -76,7 +76,6 @@ $_['name_mollie_eps']           = 'EPS';
 $_['name_mollie_giropay']       = 'Giropay';
 $_['name_mollie_klarnapaylater'] = 'Klarna Pay Later';
 $_['name_mollie_klarnasliceit']  = 'Klarna Slice It';
-$_['name_mollie_mistercash']  = 'Mistercash';
 
 // Text
 $_['text_edit']                    = "Edit";
@@ -126,7 +125,12 @@ $_['entry_canceled_status']   = "Payment canceled status";
 $_['entry_expired_status']    = "Payment expired status";
 $_['entry_processing_status'] = "Payment successful status";
 
-$_['entry_shipping_status']   = "Order shipped status";
-$_['entry_shipment']       			 = "Create shipment immediately";
+$_['entry_shipping_status']   		 = "Order shipped status";
+$_['entry_shipment']       			 = "Create shipment";
 $_['entry_create_shipment_status']   = "Create shipment after order status";
 $_['help_shipment'] 				 = "Shipment(For klarna methods only) will be created right after creating order. Select 'No' to create shipment when order reach to a specific status and select the order status from below.";
+
+$_['text_create_shipment_automatically']            = "Create shipment automatically upon order creation";
+$_['text_create_shipment_on_status']                = "Create shipment upon setting order to this status";
+$_['text_create_shipment_on_order_complete']        = "Create shipment upon setting order to order complete status";
+$_['entry_create_shipment_on_order_complete'] 		= "Create shipment upon order complete";

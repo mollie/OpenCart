@@ -580,19 +580,28 @@ class ControllerPaymentMollieBase extends Controller
         }
 
          $mollieOrder = $this->getAPIClient()->orders->get($mollie_order_id);
-         if($mollieOrder->isAuthorized() && !$this->config->get($moduleCode . "_create_shipment") && ($order_status_id == $this->config->get($moduleCode . "_create_shipment_status_id"))) {
-            //Shipment lines
-            $shipmentLine = array();
-            foreach($mollieOrder->lines as $line) {
-                $shipmentLine[] = array(
-                    'id'        =>  $line->id,
-                    'quantity'  =>  $line->quantity
-                );
+         if($mollieOrder->isAuthorized() && ($this->config->get($moduleCode . "_create_shipment") != 1)) {
+            if($this->config->get($moduleCode . "_create_shipment") == 2) {
+                $shipment_status_id = $this->config->get($moduleCode . "_create_shipment_status_id");
+            }
+            else {
+                $shipment_status_id = $this->config->get($moduleCode . "_create_shipment_order_complete_status_id");
             }
 
-            $shipmentData['lines'] = $shipmentLine;
-            $mollieShipment = $mollieOrder->createShipment($shipmentData);
-            $this->writeToMollieLog("Shipment created for order-".$order_id);
+            if($order_status_id == $shipment_status_id) {
+                //Shipment lines
+                $shipmentLine = array();
+                foreach($mollieOrder->lines as $line) {
+                    $shipmentLine[] = array(
+                        'id'        =>  $line->id,
+                        'quantity'  =>  $line->quantity
+                    );
+                }
+
+                $shipmentData['lines'] = $shipmentLine;
+                $mollieShipment = $mollieOrder->createShipment($shipmentData);
+                $this->writeToMollieLog("Shipment created for order-".$order_id);
+            }
          }
     }
 
@@ -654,7 +663,7 @@ class ControllerPaymentMollieBase extends Controller
         }
 
         //Check for immediate shipment creation
-        if($orderDetails->isAuthorized() && $this->config->get($moduleCode . "_create_shipment")) {
+        if($orderDetails->isAuthorized() && ($this->config->get($moduleCode . "_create_shipment")) == 1) {
             //Shipment lines
             $shipmentLine = array();
             foreach($orderDetails->lines as $line) {

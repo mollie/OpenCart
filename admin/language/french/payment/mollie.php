@@ -125,6 +125,11 @@ $_['entry_expired_status']    = "État de paiement expiré";
 $_['entry_processing_status'] = "État de paiement traitement";
 
 $_['entry_shipping_status']   = "Statut de la commande expédiée";
-$_['entry_shipment']       			 = "Créer un envoi immédiatement";
+$_['entry_shipment']       			 = "Créer un envoi";
 $_['entry_create_shipment_status']   = "Créer un envoi après le statut de la commande";
 $_['help_shipment'] 				 = "Envoi (pour les méthodes klarna uniquement) sera créé juste après la création de la commande. Sélectionnez «Non» pour créer une expédition lorsque la commande atteint un statut spécifique et sélectionnez le statut de la commande ci-dessous.";
+
+$_['text_create_shipment_automatically']            = "Créer automatiquement l'envoi lors de la création de la commande";
+$_['text_create_shipment_on_status']                = "Créer un envoi lors du réglage de la commande à ce statut";
+$_['text_create_shipment_on_order_complete']        = "Créer une expédition lors du paramétrage de la commande pour passer à la commande";
+$_['entry_create_shipment_on_order_complete'] 		= "Créer une expédition à la fin de la commande";

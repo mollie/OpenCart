@@ -125,7 +125,12 @@ $_['entry_canceled_status']   = "Payment canceled status";
 $_['entry_expired_status']    = "Payment expired status";
 $_['entry_processing_status'] = "Payment successful status";
 
-$_['entry_shipping_status']   = "Order shipped status";
-$_['entry_shipment']       			 = "Create shipment immediately";
+$_['entry_shipping_status']   		 = "Order shipped status";
+$_['entry_shipment']       			 = "Create shipment";
 $_['entry_create_shipment_status']   = "Create shipment after order status";
 $_['help_shipment'] 				 = "Shipment(For klarna methods only) will be created right after creating order. Select 'No' to create shipment when order reach to a specific status and select the order status from below.";
+
+$_['text_create_shipment_automatically']            = "Create shipment automatically upon order creation";
+$_['text_create_shipment_on_status']                = "Create shipment upon setting order to this status";
+$_['text_create_shipment_on_order_complete']        = "Create shipment upon setting order to order complete status";
+$_['entry_create_shipment_on_order_complete'] 		= "Create shipment upon order complete";
