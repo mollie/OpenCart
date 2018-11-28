@@ -273,8 +273,20 @@ class ControllerPaymentMollieBase extends Controller
             if(isset($this->session->data['coupon'])) {
                 //Get coupon data
                 $coupon = $this->getCouponDetails($order['order_id']);
-                $taxClass = $this->session->data['shipping_method']['tax_class_id'];
-                $tax_rates = $this->tax->getRates($cost, $taxClass);
+
+                if (isset($this->session->data['shipping_method']) && !empty($this->session->data['shipping_method']['tax_class_id'])) {
+                    $taxClass = $this->session->data['shipping_method']['tax_class_id'];
+                }
+                else {
+                    foreach ($this->cart->getProducts() as $product) {
+                        if ($product['tax_class_id']) {
+                            $taxClass = $product['tax_class_id'];
+                            break;
+                        }
+                    }
+                }
+
+                $tax_rates = $this->tax->getRates($coupon['value'], $taxClass);
                 $rates = $this->getTaxRate($tax_rates);
                 $vatRate = $rates[0];
                 $unitPriceWithTax = $this->tax->calculate($coupon['value'], $taxClass, $this->config->get('config_tax'));
