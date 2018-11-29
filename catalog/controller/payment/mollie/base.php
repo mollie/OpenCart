@@ -265,7 +265,7 @@ class ControllerPaymentMollieBase extends Controller
                 $unitPriceWithTax = $this->tax->calculate($coupon['value'], $taxClass, $this->config->get('config_tax'));
                 $couponVATAmount = $unitPriceWithTax * ( $vatRate / (100 +  $vatRate));
                 $lineForCoupon[] = array(
-                    'type'          =>  'store_credit',
+                    'type'          =>  'discount',
                     'name'          =>  $coupon['title'],
                     'quantity'      =>  1,
                     'unitPrice'     =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($unitPriceWithTax), 2, '.', '')],
