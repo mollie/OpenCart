@@ -341,6 +341,51 @@ class ControllerPaymentMollieBase extends Controller
 
                 $lines = array_merge($lines, $lineForRewardPoints);
             }
+
+            //Check for other totals (if any)
+            $otherOrderTotals = $model->getOtherOrderTotals($order['order_id']);
+            if(!empty($otherOrderTotals)) {
+                $otherTotals = array();
+
+                foreach($otherOrderTotals as $orderTotals) {
+
+                    if($orderTotals['code'] == 'handling') {
+                        $taxClass = $this->config->get('handling_tax_class_id');
+                    } elseif($orderTotals['code'] == 'low_order_fee') {
+                        $taxClass = $this->config->get('low_order_fee_tax_class_id');
+                    } else {
+                        foreach ($this->cart->getProducts() as $product) {
+                            if ($product['tax_class_id']) {
+                                $taxClass = $product['tax_class_id'];
+                                break;
+                            }
+                        }
+                    }
+
+                    $tax_rates = $this->tax->getRates($orderTotals['value'], $taxClass);
+                    $rates = $this->getTaxRate($tax_rates);
+                    $vatRate = $rates[0];
+                    $unitPriceWithTax = $this->tax->calculate($orderTotals['value'], $taxClass, $this->config->get('config_tax'));
+                    $totalsVATAmount = $unitPriceWithTax * ( $vatRate / (100 +  $vatRate));
+
+                    $type = 'discount';
+                    if($orderTotals['value'] > 0) {
+                        $type = 'surcharge';
+                    }
+
+                    $otherTotals[] = array(
+                        'type'          =>  $type,
+                        'name'          =>  $orderTotals['title'],
+                        'quantity'      =>  1,
+                        'unitPrice'     =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($unitPriceWithTax), 2, '.', '')],
+                        'totalAmount'   =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($unitPriceWithTax), 2, '.', '')],
+                        'vatRate'       =>  (string)number_format((float)$vatRate, 2, '.', ''),
+                        'vatAmount'     =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($totalsVATAmount), 2, '.', '')]
+                    );
+                }
+
+                $lines = array_merge($lines, $otherTotals);
+            }
             
             //Check for rounding off issue
             $orderTotal = number_format($amount, 2, '.', '');

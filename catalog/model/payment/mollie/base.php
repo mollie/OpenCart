@@ -233,4 +233,10 @@ class ModelPaymentMollieBase extends Model
 		return $query->row;		
 	}
 
+	public function getOtherOrderTotals($orderID) {
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "order_total WHERE order_id = '" . (int)$orderID . "' AND code != 'shipping' AND code != 'tax' AND code != 'voucher' AND code != 'sub_total' AND code != 'coupon' AND code != 'reward' AND code != 'total'");
+
+		return $query->rows;
+	}
+
 }
