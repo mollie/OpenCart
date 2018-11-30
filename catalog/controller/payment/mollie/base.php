@@ -578,6 +578,13 @@ class ControllerPaymentMollieBase extends Controller
             $this->writeToMollieLog("Could not find mollie reference order id.");
             return;
         }
+        
+        /*Check if shipment is not created already at the time of order creation
+        $this->config->get($moduleCode . "_create_shipment")
+        -> '!= 1' (Shipment is not created already)
+        -> '== 2' (Shipment needs to be created after one of the statuses set in the module setting)
+        -> else, (Shipment needs to be created after one of the 'Order Complete Statuses' set in the module setting)
+        */
 
          $mollieOrder = $this->getAPIClient()->orders->get($mollie_order_id);
          if($mollieOrder->isAuthorized() && ($this->config->get($moduleCode . "_create_shipment") != 1)) {
@@ -662,7 +669,10 @@ class ControllerPaymentMollieBase extends Controller
             $order['order_status_id'] = $paid_status_id;
         }
 
-        //Check for immediate shipment creation
+        /* Check module module setting for shipment creation,
+        $this->config->get($moduleCode . "_create_shipment")) == 1,
+        satisfies the 'Create shipment immediately after order creation' condition. */
+        
         if($orderDetails->isAuthorized() && ($this->config->get($moduleCode . "_create_shipment")) == 1) {
             //Shipment lines
             $shipmentLine = array();
