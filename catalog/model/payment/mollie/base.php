@@ -79,7 +79,20 @@ class ModelPaymentMollieBase extends Model
 		//Get payment methods allowed for this amount and currency
 		$allowed_methods = array();
 		$currency 		 = $this->session->data['currency'];
-		$country 		 = $this->session->data['payment_address']['iso_code_2'];
+		
+		if (isset($this->session->data['payment_address'])) {
+			$country = $this->session->data['payment_address']['iso_code_2'];
+		} else {
+			if ($this->customer->isLogged() && isset($this->session->data['payment_address_id'])) {
+				$modelAddress = Util::load()->model('account/address');
+				$payment_address = $modelAddress->getAddress($this->session->data['payment_address_id']);
+				$country = $payment_address['iso_code_2'];	
+			} elseif (isset($this->session->data['guest'])) {
+				$payment_address = $this->session->data['guest']['payment'];
+				$country = $payment_address['iso_code_2'];
+			}
+		}
+		
 		$data = array(
             "amount" 		 => ["value" => (string)number_format((float)$total, 2, '.', ''), "currency" => $currency,],
             "resource" 		 => "orders",
@@ -207,15 +220,6 @@ class ModelPaymentMollieBase extends Model
 		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "order_product WHERE order_id = '" . (int)$order_id . "'");
 
 		return $query->rows;
-	}
-
-	public function getTaxRate() {
-		$query = $this->db->query("SELECT rate FROM " . DB_PREFIX . "tax_rate WHERE name LIKE '%VAT%'");
-
-		if($query->num_rows != 0) {
-			return $query->row['rate'];
-		}
-		return 0;
 	}
 
 	public function getCouponDetails($orderID) {
