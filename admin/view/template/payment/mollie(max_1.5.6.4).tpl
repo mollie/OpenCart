@@ -296,7 +296,7 @@
 								<div class="row">
 									<label class="col-sm-2">Comercia</label>
 									<div class="col-sm-10">
-										Rijksstraatweg 90<br>7391MV Twello<br>the Netherlands<br><br>tel: +31 (0)85-7733618<br>E-mail: <a href="mailto:support@comercia.nl">support@comercia.nl</a><br>Internet: <a href="https://www.comercia.nl" target="_blank">www.comercia.nl</a>
+										Rijksstraatweg 90<br>7391MV Twello<br>the Netherlands<br><br>tel: +31 (0)85-7733618<br>E-mail: <a href="mailto:mollie@support.comercia.nl">mollie@support.comercia.nl</a><br>Internet: <a href="https://www.comercia.nl" target="_blank">www.comercia.nl</a>
 									</div>
 								</div>
 								<legend>Mollie - Support</legend>
