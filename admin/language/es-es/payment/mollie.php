@@ -128,6 +128,11 @@ $_['entry_expired_status']   = "Estado del pago cancelado";
 $_['entry_processing_status']= "Estado del pago vencido";
 
 $_['entry_shipping_status']   = "Estado del pedido enviado";
-$_['entry_shipment']       			 = "Crear envío inmediatamente";
+$_['entry_shipment']       			 = "Crear envío";
 $_['entry_create_shipment_status']   = "Crear envío después del estado del pedido";
 $_['help_shipment'] 				 = "El envío (solo para los métodos de klarna) se creará justo después de crear el pedido. Seleccione 'No' para crear el envío cuando el pedido llegue a un estado específico y seleccione el estado del pedido a continuación.";
+
+$_['text_create_shipment_automatically']            = "Crear envío automáticamente al crear el pedido";
+$_['text_create_shipment_on_status']                = "Crear envío al establecer orden a este estado";
+$_['text_create_shipment_on_order_complete']        = "Crear envío al establecer orden para ordenar estado completo";
+$_['entry_create_shipment_on_order_complete'] 		= "Crear envío al completar el pedido";

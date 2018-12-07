@@ -363,7 +363,7 @@ class ControllerPaymentMollieBase extends Controller
         	$paymentGeoZone[] 	= $code . '_' . $module_name . '_geo_zone';
 		}
 
-        $fields = array("show_icons", "show_order_canceled_page", "ideal_description", "api_key", "ideal_processing_status_id", "ideal_expired_status_id", "ideal_canceled_status_id", "ideal_failed_status_id", "ideal_pending_status_id", "ideal_shipping_status_id", "create_shipment_status_id", "create_shipment");
+        $fields = array("show_icons", "show_order_canceled_page", "ideal_description", "api_key", "ideal_processing_status_id", "ideal_expired_status_id", "ideal_canceled_status_id", "ideal_failed_status_id", "ideal_pending_status_id", "ideal_shipping_status_id", "create_shipment_status_id", "create_shipment_order_complete_status_id", "create_shipment");
         $settingFields = Util::arrayHelper()->prefixAllValues($code . '_', $fields);
 
         $storeFormFields = array_merge($settingFields, $paymentStatus, $paymentSortOrder, $paymentGeoZone);
@@ -407,19 +407,35 @@ class ControllerPaymentMollieBase extends Controller
 
 		// Load global settings. Some are prefixed with mollie_ideal_ for legacy reasons.
 		$settings = array(
-			$code . "_api_key"                    => NULL,
-			$code . "_ideal_description"          => "Order %",
-			$code . "_show_icons"                 => FALSE,
-			$code . "_show_order_canceled_page"   => TRUE,
-			$code . "_ideal_pending_status_id"    => 1,
-			$code . "_ideal_processing_status_id" => 2,
-			$code . "_ideal_canceled_status_id"   => 7,
-			$code . "_ideal_failed_status_id"     => 10,
-			$code . "_ideal_expired_status_id"    => 14,
-			$code . "_ideal_shipping_status_id"   => 3,
-			$code . "_create_shipment_status_id"  => 3,
-			$code . "_create_shipment"  		  => FALSE,
+			$code . "_api_key"                    				=> NULL,
+			$code . "_ideal_description"          				=> "Order %",
+			$code . "_show_icons"                 				=> FALSE,
+			$code . "_show_order_canceled_page"   				=> TRUE,
+			$code . "_ideal_pending_status_id"    				=> 1,
+			$code . "_ideal_processing_status_id" 				=> 2,
+			$code . "_ideal_canceled_status_id"   				=> 7,
+			$code . "_ideal_failed_status_id"     				=> 10,
+			$code . "_ideal_expired_status_id"    				=> 14,
+			$code . "_ideal_shipping_status_id"   				=> 3,
+			$code . "_create_shipment_status_id"  				=> 3,
+			$code . "_create_shipment_order_complete_status_id" => 5,
+			$code . "_create_shipment"  		  				=> 1,
 		);
+
+		// Check if order complete status is defined in store setting
+		$data['is_order_complete_status'] = true;
+		$data['order_complete_statuses'] = array();
+		if((null == Util::config()->get('config_complete_status')) && (Util::config()->get('config_complete_status_id')) == '') {
+			$data['is_order_complete_status'] = false;
+		}
+
+		if($data['is_order_complete_status']) {
+			$statuses = Util::config()->get('config_complete_status') ?: (array)Util::config()->get('config_complete_status_id');
+			foreach($statuses as $status_id) {
+				$statusDetails = $modelOrderStatus->getOrderStatus($status_id);
+				$data['order_complete_statuses'][] = $statusDetails;
+			}
+		}
 
 		foreach($data['shops'] as &$store)
 		{
