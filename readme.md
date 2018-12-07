@@ -1,6 +1,9 @@
-![Mollie](https://www.mollie.com/files/Mollie-Logo-Style-Small.png)
+<p align="center">
+  <img src="https://info.mollie.com/hubfs/github/opencart/logo.png" width="128" height="128"/>
+</p>
+<h1 align="center">Mollie for OpenCart</h1>
 
-# INSTALLATION [![Build Status](https://travis-ci.org/mollie/OpenCart.png)](https://travis-ci.org/mollie/OpenCart) #
+# Installation [![Build Status](https://travis-ci.org/mollie/OpenCart.png)](https://travis-ci.org/mollie/OpenCart) #
 + Download the latest release on the [OpenCart Releases](https://github.com/mollie/OpenCart/releases)-page.
 + Upload all files from the "upload" folder in the zip to the root of your opencart shop.
 + For this module to work correctly you need to have vQmod installed, you can find the latest version on the vQmod [Releases page](https://github.com/vqmod/vqmod/releases).
@@ -21,7 +24,7 @@ them ready-made into your OpenCart webshop with this powerful plugin.
 - Added reliability through multiple acquiring banks.
 - Free machine learning fraud protection and 3-D Secure.
 
-# PAYMENT METHODS #
+# Payment methods #
 - Credit Cards (Visa / MasterCard &amp; American Express)
 - SOFORT banking
 - PayPal
@@ -46,7 +49,7 @@ Please go to the signup page to create a new Mollie account and start receivin
 a couple of minutes. Contact info@mollie.com if you have any questions or comments about
 this plugin.
 
-# FEATURES #
+# Features #
 - Support for all available Mollie payment methods
 - Multiple translations: English, Dutch and French
 - Event log for debugging purposes
@@ -54,11 +57,11 @@ this plugin.
 - Multi-Language support
 - Supports OC 1.5 and higher
 
-# LICENSE #
+# License #
 [BSD (Berkeley Software Distribution) License](http://www.opensource.org/licenses/bsd-license.php).
 Copyright (c) 2018, Mollie B.V.
 
-# SUPPORT #
+# Support #
 Module developed by Comercia: [www.comercia.nl](https://www.comercia.nl) — info@comercia.nl — +31 85-7733618 <br />
 Contact Mollie: [www.mollie.com/nl/about](https://www.mollie.com/nl/about) — info@mollie.com — +31 20-612 88 55
 
@@ -77,4 +80,3 @@ Contact Mollie: [www.mollie.com/nl/about](https://www.mollie.com/nl/about) — i
 + [More info on Giropay via Mollie](https://www.mollie.com/payments/giropay/)
 + [More info on Klarna Pay Later via Mollie](https://www.mollie.com/payments/klarna-pay-later/)
 + [More info on Klarna Slite It via Mollie](https://www.mollie.com/payments/klarna-slice-it/)
-
