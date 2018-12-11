@@ -41,6 +41,7 @@
  * @property URL $url
  */
 require_once(dirname(DIR_SYSTEM) . "/catalog/controller/payment/mollie/helper.php");
+use comercia\Util;
 
 class ModelPaymentMollieBase extends Model
 {
@@ -79,17 +80,40 @@ class ModelPaymentMollieBase extends Model
 		//Get payment methods allowed for this amount and currency
 		$allowed_methods = array();
 		$currency 		 = $this->session->data['currency'];
-		
-		if (isset($this->session->data['payment_address'])) {
-			$country = $this->session->data['payment_address']['iso_code_2'];
-		} else {
-			if ($this->customer->isLogged() && isset($this->session->data['payment_address_id'])) {
-				$modelAddress = Util::load()->model('account/address');
-				$payment_address = $modelAddress->getAddress($this->session->data['payment_address_id']);
-				$country = $payment_address['iso_code_2'];	
-			} elseif (isset($this->session->data['guest'])) {
+
+		// Get billing country
+		if(!$this->customer->isLogged()) {
+			if (isset($this->session->data['payment_address'])) {
+				if(isset($this->session->data['payment_address']['iso_code_2'])) {
+					$country = $this->session->data['payment_address']['iso_code_2'];
+				} else {
+					$modelCountry = Util::load()->model('localisation/country');
+					$countryDetails = $modelCountry->getCountry($this->session->data['payment_address']['country_id']);
+					$country = $countryDetails['iso_code_2'];
+				}
+			} else {
 				$payment_address = $this->session->data['guest']['payment'];
 				$country = $payment_address['iso_code_2'];
+			}
+		} else {
+			if (isset($this->session->data['payment_address_id'])) {
+				$address_id = $this->session->data['payment_address_id'];
+			} elseif (isset($this->session->data['payment_address']['address_id']) && !isset($this->request->get['address_id'])) {
+				$address_id = $this->session->data['payment_address']['address_id'];
+			} elseif (isset($this->request->get['address_id'])) {
+				$address_id = $this->request->get['address_id'];
+			} else {
+				$address_id = $this->customer->getAddressId();
+			}
+
+			$modelAddress = Util::load()->model('account/address');
+			$payment_address = $modelAddress->getAddress($address_id);
+			$country = $payment_address['iso_code_2'];
+
+			// If new address selected
+			if (isset($this->request->post['country_id'])) {
+				$country_info = $this->model_localisation_country->getCountry($this->request->post['country_id']);
+				$country = $country_info['iso_code_2'];
 			}
 		}
 		
