@@ -82,12 +82,14 @@ class ModelPaymentMollieBase extends Model
 		$currency 		 = $this->session->data['currency'];
 
 		// Get billing country
+		$modelAddress = Util::load()->model('account/address');
+		$modelCountry = Util::load()->model('localisation/country');
+
 		if(!$this->customer->isLogged()) {
 			if (isset($this->session->data['payment_address'])) {
 				if(isset($this->session->data['payment_address']['iso_code_2'])) {
 					$country = $this->session->data['payment_address']['iso_code_2'];
 				} else {
-					$modelCountry = Util::load()->model('localisation/country');
 					$countryDetails = $modelCountry->getCountry($this->session->data['payment_address']['country_id']);
 					$country = $countryDetails['iso_code_2'];
 				}
@@ -106,13 +108,12 @@ class ModelPaymentMollieBase extends Model
 				$address_id = $this->customer->getAddressId();
 			}
 
-			$modelAddress = Util::load()->model('account/address');
 			$payment_address = $modelAddress->getAddress($address_id);
 			$country = $payment_address['iso_code_2'];
 
 			// If new address selected
 			if (isset($this->request->post['country_id'])) {
-				$country_info = $this->model_localisation_country->getCountry($this->request->post['country_id']);
+				$country_info = $modelCountry->getCountry($this->request->post['country_id']);
 				$country = $country_info['iso_code_2'];
 			}
 		}
