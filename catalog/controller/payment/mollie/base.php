@@ -193,6 +193,11 @@ class ControllerPaymentMollieBase extends Controller
         return $this->currency->convert($amount, $configCurrency, $currency);
     }
 
+    //Format text
+    protected function formatText($text) {
+        return html_entity_decode($text, ENT_QUOTES, 'UTF-8');
+    }
+
     /**
      * The payment action creates the payment and redirects the customer to the selected bank.
      *
@@ -228,13 +233,13 @@ class ControllerPaymentMollieBase extends Controller
             $data = array(
                 "amount" => ["currency" => $currency, "value" => (string)number_format((float)$amount, 2, '.', '')],
                 "orderNumber" => $order['order_id'],
-                "redirectUrl" => $return_url,
+                "redirectUrl" => $this->formatText($return_url),
                 "webhookUrl" => $this->getWebhookUrl(),
-                "metadata" => array("order_id" => $order['order_id'], "description" => $description),
+                "metadata" => array("order_id" => $order['order_id'], "description" => $this->formatText($description)),
                 "method" => static::MODULE_NAME,
             );
 
-            $data['payment'] = ["issuer" => $issuer];
+            $data['payment'] = ["issuer" => $this->formatText($issuer)];
 
             //Order line data
             $orderProducts = $this->getOrderProducts($order['order_id']);
@@ -252,7 +257,7 @@ class ControllerPaymentMollieBase extends Controller
                 $vatAmount = $total * ( $vatRate / (100 +  $vatRate));
                 $lines[] = array(
                     'type'          =>  'physical',
-                    'name'          =>  $orderProduct['name'],
+                    'name'          =>  $this->formatText($orderProduct['name']),
                     'quantity'      =>  $orderProduct['quantity'],
                     'unitPrice'     =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($orderProduct['price'] + $orderProduct['tax']), 2, '.', '')],
                     'totalAmount'   =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($total), 2, '.', '')],
@@ -273,7 +278,7 @@ class ControllerPaymentMollieBase extends Controller
                 $shippingVATAmount = $costWithTax * ( $vatRate / (100 +  $vatRate));
                 $lineForShipping[] = array(
                     'type'          =>  'shipping_fee',
-                    'name'          =>  $title,
+                    'name'          =>  $this->formatText($title),
                     'quantity'      =>  1,
                     'unitPrice'     =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($costWithTax), 2, '.', '')],
                     'totalAmount'   =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($costWithTax), 2, '.', '')],
@@ -308,7 +313,7 @@ class ControllerPaymentMollieBase extends Controller
                 $couponVATAmount = $unitPriceWithTax * ( $vatRate / (100 +  $vatRate));
                 $lineForCoupon[] = array(
                     'type'          =>  'discount',
-                    'name'          =>  $coupon['title'],
+                    'name'          =>  $this->formatText($coupon['title']),
                     'quantity'      =>  1,
                     'unitPrice'     =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($unitPriceWithTax), 2, '.', '')],
                     'totalAmount'   =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($unitPriceWithTax), 2, '.', '')],
@@ -325,7 +330,7 @@ class ControllerPaymentMollieBase extends Controller
                 $voucher = $this->getVoucherDetails($order['order_id']);
                 $lineForVoucher[] = array(
                     'type'          =>  'gift_card',
-                    'name'          =>  $voucher['title'],
+                    'name'          =>  $this->formatText($voucher['title']),
                     'quantity'      =>  1,
                     'unitPrice'     =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($voucher['value']), 2, '.', '')],
                     'totalAmount'   =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($voucher['value']), 2, '.', '')],
@@ -358,7 +363,7 @@ class ControllerPaymentMollieBase extends Controller
 
                 $lineForRewardPoints[] = array(
                     'type'          =>  'discount',
-                    'name'          =>  $rewardPoints['title'],
+                    'name'          =>  $this->formatText($rewardPoints['title']),
                     'quantity'      =>  1,
                     'unitPrice'     =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($unitPriceWithTax), 2, '.', '')],
                     'totalAmount'   =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($unitPriceWithTax), 2, '.', '')],
@@ -402,7 +407,7 @@ class ControllerPaymentMollieBase extends Controller
 
                     $otherTotals[] = array(
                         'type'          =>  $type,
-                        'name'          =>  $orderTotals['title'],
+                        'name'          =>  $this->formatText($orderTotals['title']),
                         'quantity'      =>  1,
                         'unitPrice'     =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($unitPriceWithTax), 2, '.', '')],
                         'totalAmount'   =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($unitPriceWithTax), 2, '.', '')],
@@ -439,7 +444,7 @@ class ControllerPaymentMollieBase extends Controller
             if(($orderTotal > $orderLineTotal) && (number_format(($orderTotal - $orderLineTotal), 2, '.', '') == 0.01)) {
                 $lineForDiscount[] = array(
                     'type'          =>  'discount',
-                    'name'          =>  $this->language->get("roundoff_description"),
+                    'name'          =>  $this->formatText($this->language->get("roundoff_description")),
                     'quantity'      =>  1,
                     'unitPrice'     =>  ["currency" => $currency, "value" => "0.01"],
                     'totalAmount'   =>  ["currency" => $currency, "value" => "0.01"],
@@ -453,7 +458,7 @@ class ControllerPaymentMollieBase extends Controller
             if(($orderTotal < $orderLineTotal) && (number_format(($orderLineTotal - $orderTotal), 2, '.', '') == 0.01)) {
                 $lineForSurcharge[] = array(
                     'type'          =>  'surcharge',
-                    'name'          =>  $this->language->get("roundoff_description"),
+                    'name'          =>  $this->formatText($this->language->get("roundoff_description")),
                     'quantity'      =>  1,
                     'unitPrice'     =>  ["currency" => $currency, "value" => "-0.01"],
                     'totalAmount'   =>  ["currency" => $currency, "value" => "-0.01"],
@@ -470,26 +475,26 @@ class ControllerPaymentMollieBase extends Controller
                  */
 
            $data["billingAddress"] = [
-                "givenName"     =>   $order['payment_firstname'],
-                "familyName"    =>   $order['payment_lastname'],
-                "email"         =>   $order['email'],
-                "streetAndNumber" => $order['payment_address_1'] . ' ' . $order['payment_address_2'],
-                "city" => $order['payment_city'],
-                "region" => $order['payment_zone'],
-                "postalCode" => $order['payment_postcode'],
-                "country" => $order['payment_iso_code_2']
+                "givenName"     =>   $this->formatText($order['payment_firstname']),
+                "familyName"    =>   $this->formatText($order['payment_lastname']),
+                "email"         =>   $this->formatText($order['email']),
+                "streetAndNumber" => $this->formatText($order['payment_address_1'] . ' ' . $order['payment_address_2']),
+                "city" => $this->formatText($order['payment_city']),
+                "region" => $this->formatText($order['payment_zone']),
+                "postalCode" => $this->formatText($order['payment_postcode']),
+                "country" => $this->formatText($order['payment_iso_code_2'])
             ];
 
             if (!empty($order['shipping_firstname']) || !empty($order['shipping_lastname'])) {
                 $data["shippingAddress"] = [
-                    "givenName"     =>   $order['shipping_firstname'],
-                    "familyName"    =>   $order['shipping_lastname'],
-                    "email"         =>   $order['email'],
-                    "streetAndNumber" => $order['shipping_address_1'] . ' ' . $order['shipping_address_2'],
-                    "city" => $order['shipping_city'],
-                    "region" => $order['shipping_zone'],
-                    "postalCode" => $order['shipping_postcode'],
-                    "country" => $order['shipping_iso_code_2']
+                    "givenName"     =>   $this->formatText($order['shipping_firstname']),
+                    "familyName"    =>   $this->formatText($order['shipping_lastname']),
+                    "email"         =>   $this->formatText($order['email']),
+                    "streetAndNumber" => $this->formatText($order['shipping_address_1'] . ' ' . $order['shipping_address_2']),
+                    "city" => $this->formatText($order['shipping_city']),
+                    "region" => $this->formatText($order['shipping_zone']),
+                    "postalCode" => $this->formatText($order['shipping_postcode']),
+                    "country" => $this->formatText($order['shipping_iso_code_2'])
                 ];
             } else {
                 $data["shippingAddress"] = $data["billingAddress"];
