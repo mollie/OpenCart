@@ -82,40 +82,20 @@ class ModelPaymentMollieBase extends Model
 		$currency 		 = $this->session->data['currency'];
 
 		// Get billing country
-		$modelAddress = Util::load()->model('account/address');
 		$modelCountry = Util::load()->model('localisation/country');
 
-		if(!$this->customer->isLogged()) {
-			if (isset($this->session->data['payment_address'])) {
-				if(isset($this->session->data['payment_address']['iso_code_2'])) {
-					$country = $this->session->data['payment_address']['iso_code_2'];
-				} else {
-					$countryDetails = $modelCountry->getCountry($this->session->data['payment_address']['country_id']);
-					$country = $countryDetails['iso_code_2'];
-				}
+		if (isset($this->session->data['payment_address'])) {
+			if(isset($this->session->data['payment_address']['iso_code_2']) && !empty($this->session->data['payment_address']['iso_code_2'])) {
+				$country = $this->session->data['payment_address']['iso_code_2'];
 			} else {
-				$payment_address = $this->session->data['guest']['payment'];
-				$country = $payment_address['iso_code_2'];
+				$countryDetails = $modelCountry->getCountry($this->session->data['payment_address']['country_id']);
+				$country = $countryDetails['iso_code_2'];
 			}
 		} else {
-			if (isset($this->session->data['payment_address_id'])) {
-				$address_id = $this->session->data['payment_address_id'];
-			} elseif (isset($this->session->data['payment_address']['address_id']) && !isset($this->request->get['address_id'])) {
-				$address_id = $this->session->data['payment_address']['address_id'];
-			} elseif (isset($this->request->get['address_id'])) {
-				$address_id = $this->request->get['address_id'];
-			} else {
-				$address_id = $this->customer->getAddressId();
-			}
-
-			$payment_address = $modelAddress->getAddress($address_id);
-			$country = $payment_address['iso_code_2'];
-
-			// If new address selected
-			if (isset($this->request->post['country_id'])) {
-				$country_info = $modelCountry->getCountry($this->request->post['country_id']);
-				$country = $country_info['iso_code_2'];
-			}
+			// Get billing country from store address
+			$country_id = $this->config->get('config_country_id');
+			$countryDetails = $modelCountry->getCountry($country_id);
+			$country = $countryDetails['iso_code_2'];
 		}
 		
 		$data = array(
