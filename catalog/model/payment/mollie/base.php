@@ -41,6 +41,7 @@
  * @property URL $url
  */
 require_once(dirname(DIR_SYSTEM) . "/catalog/controller/payment/mollie/helper.php");
+use comercia\Util;
 
 class ModelPaymentMollieBase extends Model
 {
@@ -79,18 +80,22 @@ class ModelPaymentMollieBase extends Model
 		//Get payment methods allowed for this amount and currency
 		$allowed_methods = array();
 		$currency 		 = $this->session->data['currency'];
-		
+
+		// Get billing country
+		$modelCountry = Util::load()->model('localisation/country');
+
 		if (isset($this->session->data['payment_address'])) {
-			$country = $this->session->data['payment_address']['iso_code_2'];
-		} else {
-			if ($this->customer->isLogged() && isset($this->session->data['payment_address_id'])) {
-				$modelAddress = Util::load()->model('account/address');
-				$payment_address = $modelAddress->getAddress($this->session->data['payment_address_id']);
-				$country = $payment_address['iso_code_2'];	
-			} elseif (isset($this->session->data['guest'])) {
-				$payment_address = $this->session->data['guest']['payment'];
-				$country = $payment_address['iso_code_2'];
+			if(isset($this->session->data['payment_address']['iso_code_2']) && !empty($this->session->data['payment_address']['iso_code_2'])) {
+				$country = $this->session->data['payment_address']['iso_code_2'];
+			} else {
+				$countryDetails = $modelCountry->getCountry($this->session->data['payment_address']['country_id']);
+				$country = $countryDetails['iso_code_2'];
 			}
+		} else {
+			// Get billing country from store address
+			$country_id = $this->config->get('config_country_id');
+			$countryDetails = $modelCountry->getCountry($country_id);
+			$country = $countryDetails['iso_code_2'];
 		}
 		
 		$data = array(
