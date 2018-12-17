@@ -66,6 +66,12 @@ class ModelPaymentMollieBase extends Model
 	 */
 	public function getMethod($address, $total)
 	{
+		// Check total for minimum amount
+		$standardTotal = $this->currency->convert($total, $this->config->get("config_currency"), 'EUR');
+		if($standardTotal <= 0.01) {
+			return NULL;
+		}
+		
 		$moduleCode = MollieHelper::getModuleCode();
 		try {
 			$payment_method = $this->getAPIClient()->methods->get(static::MODULE_NAME);
