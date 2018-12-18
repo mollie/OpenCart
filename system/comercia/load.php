@@ -119,10 +119,11 @@ class Load
             //Check for events
             if(Util::version()->isMinimal("2.2")) {
                 $result = new \Proxy();
+				
+				$r = new \ReflectionMethod('Loader', 'callback');
+                $r->setAccessible(true);
 
                 foreach (get_class_methods($className) as $method) {
-                    $r = new \ReflectionMethod('Loader', 'callback');
-                    $r->setAccessible(true);
                     $result->{$method} = $r->invoke(new \Loader(Util::registry()), Util::registry(), $route["file"] . '/' . $method);
                 }
             } else {
