@@ -115,7 +115,21 @@ class Load
         }
 
         if (class_exists($className)) {
-            $result = new $className(Util::registry());
+
+            //Check for events
+            if(Util::version()->isMinimal("2.2")) {
+                $result = new \Proxy();
+				
+				$r = new \ReflectionMethod('Loader', 'callback');
+                $r->setAccessible(true);
+
+                foreach (get_class_methods($className) as $method) {
+                    $result->{$method} = $r->invoke(new \Loader(Util::registry()), Util::registry(), $route["file"] . '/' . $method);
+                }
+            } else {
+                $result = new $className(Util::registry());
+            }
+            
             Util::registry()->set(Util::stringHelper()->ccToUnderline($className), $result);
             return $result;
         }

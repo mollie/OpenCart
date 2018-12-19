@@ -255,6 +255,16 @@ class Util
         require_once(__DIR__ . "/validation.php");
         return new Validation($data, $store_id, $error);
     }
+
+    static function proxy()
+    {
+        static $proxy = false;
+        if (!$proxy) {
+            require_once(__DIR__ . "/proxy.php");
+            $proxy = new Proxy();
+        }
+        return $proxy;
+    }
 }
 
 ?>
