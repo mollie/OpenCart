@@ -280,20 +280,6 @@
 											</select>
 										</div>
 									</div>
-									<div class="form-group" id="<?php echo $shop['store_id']; ?>-create-shipment-order-complete">
-										<label class="col-sm-2 control-label" for="<?php echo $code; ?>_create_shipping_status_id"><?php echo $entry_create_shipment_on_order_complete; ?></label>
-										<div class="col-sm-10">
-											<select name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_create_shipment_order_complete_status_id" id="<?php echo $code; ?>_create_shipment_status_id" class="form-control">
-												<?php foreach ($order_complete_statuses as $order_status) { ?>
-													<?php if ($order_status['order_status_id'] == $shop[$code . '_create_shipment_order_complete_status_id']) { ?>
-													<option value="<?php echo $order_status['order_status_id']; ?>" selected="selected"><?php echo $order_status['name']; ?></option>
-													<?php } else { ?>
-													<option value="<?php echo $order_status['order_status_id']; ?>"><?php echo $order_status['name']; ?></option>
-													<?php } ?>
-												<?php } ?>
-											</select>
-										</div>
-									</div>
 						</div>
 
 						<div id="about-module-<?php echo $shop['store_id']; ?>" class="vtabs-content">
@@ -426,30 +412,20 @@
 		});
 
 		var elem = document.getElementById('<?php echo $shop["store_id"] ?>-create-shipment');
-		var hiddenDiv1 = document.getElementById('<?php echo $shop["store_id"] ?>-create-shipment-status');
-		var hiddenDiv2 = document.getElementById('<?php echo $shop["store_id"] ?>-create-shipment-order-complete');
-		if(elem.value == 1) {
-			hiddenDiv1.style.display = "none";
-			hiddenDiv2.style.display = "none";
-		} else if(elem.value == 2) {
-			hiddenDiv2.style.display = "none";
-		} else if(elem.value == 3) {
-			hiddenDiv1.style.display = "none";
+		var hiddenDiv = document.getElementById('<?php echo $shop["store_id"] ?>-create-shipment-status');
+		if(elem.value == 2) {
+			hiddenDiv.style.display = "block";
+		} else {
+			hiddenDiv.style.display = "none";
 		}
 		
 		elem.onchange = function(){
-			var hiddenDiv1 = document.getElementById('<?php echo $shop["store_id"] ?>-create-shipment-status');
-			var hiddenDiv2 = document.getElementById('<?php echo $shop["store_id"] ?>-create-shipment-order-complete');
+			var hiddenDiv = document.getElementById('<?php echo $shop["store_id"] ?>-create-shipment-status');
 
-		    if(this.value == 1) {
-				hiddenDiv1.style.display = "none";
-				hiddenDiv2.style.display = "none";
-			} else if(this.value == 2) {
-				hiddenDiv1.style.display = "block";
-				hiddenDiv2.style.display = "none";
-			} else if(this.value == 3) {
-				hiddenDiv1.style.display = "none";
-				hiddenDiv2.style.display = "block";
+			if(this.value == 2) {
+				hiddenDiv.style.display = "block";
+			} else {
+				hiddenDiv.style.display = "none";
 			}
 		};
 		

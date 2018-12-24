@@ -724,7 +724,7 @@ class ControllerPaymentMollieBase extends Controller
         $this->config->get($moduleCode . "_create_shipment")
         -> '!= 1' (Shipment is not created already)
         -> '== 2' (Shipment needs to be created after one of the statuses set in the module setting)
-        -> else, (Shipment needs to be created after one of the 'Order Complete Statuses' set in the module setting)
+        -> else, (Shipment needs to be created after one of the 'Order Complete Statuses' set in the store setting)
         */
 
          $mollieOrder = $this->getAPIClient()->orders->get($mollie_order_id);
@@ -733,10 +733,14 @@ class ControllerPaymentMollieBase extends Controller
                 $shipment_status_id = $this->config->get($moduleCode . "_create_shipment_status_id");
             }
             else {
-                $shipment_status_id = $this->config->get($moduleCode . "_create_shipment_order_complete_status_id");
+                $order_complete_statuses = array();
+                $statuses = $this->config->get('config_complete_status') ?: (array)$this->config->get('config_complete_status_id');
+                foreach($statuses as $status_id) {
+                    $order_complete_statuses[] = $status_id;
+                }
             }
 
-            if($order_status_id == $shipment_status_id) {
+            if(((isset($shipment_status_id) && $order_status_id == $shipment_status_id)) || ((isset($order_complete_statuses) && in_array($order_status_id, $order_complete_statuses)))) {
                 //Shipment lines
                 $shipmentLine = array();
                 foreach($mollieOrder->lines as $line) {

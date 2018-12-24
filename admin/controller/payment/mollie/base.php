@@ -363,7 +363,7 @@ class ControllerPaymentMollieBase extends Controller
         	$paymentGeoZone[] 	= $code . '_' . $module_name . '_geo_zone';
 		}
 
-        $fields = array("show_icons", "show_order_canceled_page", "ideal_description", "api_key", "ideal_processing_status_id", "ideal_expired_status_id", "ideal_canceled_status_id", "ideal_failed_status_id", "ideal_pending_status_id", "ideal_shipping_status_id", "create_shipment_status_id", "create_shipment_order_complete_status_id", "create_shipment");
+        $fields = array("show_icons", "show_order_canceled_page", "ideal_description", "api_key", "ideal_processing_status_id", "ideal_expired_status_id", "ideal_canceled_status_id", "ideal_failed_status_id", "ideal_pending_status_id", "ideal_shipping_status_id", "create_shipment_status_id", "create_shipment");
         $settingFields = Util::arrayHelper()->prefixAllValues($code . '_', $fields);
 
         $storeFormFields = array_merge($settingFields, $paymentStatus, $paymentSortOrder, $paymentGeoZone);
@@ -418,7 +418,6 @@ class ControllerPaymentMollieBase extends Controller
 			$code . "_ideal_expired_status_id"    				=> 14,
 			$code . "_ideal_shipping_status_id"   				=> 3,
 			$code . "_create_shipment_status_id"  				=> 3,
-			$code . "_create_shipment_order_complete_status_id" => 5,
 			$code . "_create_shipment"  		  				=> 1,
 		);
 
@@ -427,14 +426,6 @@ class ControllerPaymentMollieBase extends Controller
 		$data['order_complete_statuses'] = array();
 		if((null == Util::config()->get('config_complete_status')) && (Util::config()->get('config_complete_status_id')) == '') {
 			$data['is_order_complete_status'] = false;
-		}
-
-		if($data['is_order_complete_status']) {
-			$statuses = Util::config()->get('config_complete_status') ?: (array)Util::config()->get('config_complete_status_id');
-			foreach($statuses as $status_id) {
-				$statusDetails = $modelOrderStatus->getOrderStatus($status_id);
-				$data['order_complete_statuses'][] = $statusDetails;
-			}
 		}
 
 		foreach($data['shops'] as &$store)
