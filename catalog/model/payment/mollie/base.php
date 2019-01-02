@@ -41,6 +41,7 @@
  * @property URL $url
  */
 require_once(dirname(DIR_SYSTEM) . "/catalog/controller/payment/mollie/helper.php");
+use comercia\Util;
 
 class ModelPaymentMollieBase extends Model
 {
@@ -65,6 +66,12 @@ class ModelPaymentMollieBase extends Model
 	 */
 	public function getMethod($address, $total)
 	{
+		// Check total for minimum amount
+		$standardTotal = $this->currency->convert($total, $this->config->get("config_currency"), 'EUR');
+		if($standardTotal <= 0.01) {
+			return NULL;
+		}
+		
 		$moduleCode = MollieHelper::getModuleCode();
 		try {
 			$payment_method = $this->getAPIClient()->methods->get(static::MODULE_NAME);
@@ -79,7 +86,24 @@ class ModelPaymentMollieBase extends Model
 		//Get payment methods allowed for this amount and currency
 		$allowed_methods = array();
 		$currency 		 = $this->session->data['currency'];
-		$country 		 = $this->session->data['payment_address']['iso_code_2'];
+
+		// Get billing country
+		$modelCountry = Util::load()->model('localisation/country');
+
+		if (isset($this->session->data['payment_address'])) {
+			if(isset($this->session->data['payment_address']['iso_code_2']) && !empty($this->session->data['payment_address']['iso_code_2'])) {
+				$country = $this->session->data['payment_address']['iso_code_2'];
+			} else {
+				$countryDetails = $modelCountry->getCountry($this->session->data['payment_address']['country_id']);
+				$country = $countryDetails['iso_code_2'];
+			}
+		} else {
+			// Get billing country from store address
+			$country_id = $this->config->get('config_country_id');
+			$countryDetails = $modelCountry->getCountry($country_id);
+			$country = $countryDetails['iso_code_2'];
+		}
+		
 		$data = array(
             "amount" 		 => ["value" => (string)number_format((float)$total, 2, '.', ''), "currency" => $currency,],
             "resource" 		 => "orders",
@@ -209,18 +233,25 @@ class ModelPaymentMollieBase extends Model
 		return $query->rows;
 	}
 
-	public function getTaxRate() {
-		$query = $this->db->query("SELECT rate FROM " . DB_PREFIX . "tax_rate WHERE name LIKE '%VAT%'");
-
-		if($query->num_rows != 0) {
-			return $query->row['rate'];
-		}
-		return 0;
-	}
-
 	public function getCouponDetails($orderID) {
 		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "order_total WHERE order_id = '" . (int)$orderID . "' AND code = 'coupon'");
 		return $query->row;
+	}
+
+	public function getVoucherDetails($orderID) {
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "order_total WHERE order_id = '" . (int)$orderID . "' AND code = 'voucher'");
+		return $query->row;		
+	}
+
+	public function getRewardPointDetails($orderID) {
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "order_total WHERE order_id = '" . (int)$orderID . "' AND code = 'reward'");
+		return $query->row;		
+	}
+
+	public function getOtherOrderTotals($orderID) {
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "order_total WHERE order_id = '" . (int)$orderID . "' AND code != 'shipping' AND code != 'tax' AND code != 'voucher' AND code != 'sub_total' AND code != 'coupon' AND code != 'reward' AND code != 'total'");
+
+		return $query->rows;
 	}
 
 }

@@ -15,6 +15,7 @@
 	</div>
 	<div class="container-fluid">
 		<form action="<?php echo $action; ?>" method="post" enctype="multipart/form-data" id="form-mollie" class="form-horizontal">
+			<?php $api_key = false; ?>
 			<?php foreach ($shops as $shop) { ?>
 				<?php if ($error_warning) { ?>
 				<div class="alert alert-danger alert-dismissable">
@@ -23,13 +24,16 @@
 					<button type="button" class="close" data-dismiss="alert">&times;
 					</button>
 				</div>
-				<?php } elseif (!empty($shop[$code . '_api_key'])) { ?>
-				<div class="alert alert-info alert-dismissable">
-					<i class="fa fa-info-circle"></i>
-					<i><?php echo $shop['name']; ?>: </i> <?php echo $help_view_profile; ?>
-					<button type="button" class="close" data-dismiss="alert">&times;</button>
-				</div>
 				<?php } ?>
+				<?php if (!empty($shop[$code . '_api_key'])) { ?>
+					<?php $api_key = true; ?>
+				<?php } ?>
+			<?php } ?>
+			<?php if(!$api_key) { ?>
+			<div class="alert alert-info alert-dismissable">
+				<i class="fa fa-info-circle"></i> <?php echo $help_view_profile; ?>
+				<button type="button" class="close" data-dismiss="alert">&times;</button>
+			</div>
 			<?php } ?>
 			<div class="panel panel-default">
 				<div class="panel-heading">
@@ -200,7 +204,7 @@
 								</div>
 
 								<div id="mollie-options-<?php echo $shop['store_id']; ?>" class="tab-pane fade in">
-									<div class="form-group required">
+									<div class="form-group <?php echo $api_required ? 'required' : '' ?>">
 										<label class="col-sm-2 control-label" for="<?php echo $code; ?>_api_key"><span data-toggle="tooltip" title="<?php echo $help_api_key; ?>"><?php echo $entry_api_key; ?></span></label>
 										<div class="col-sm-10">
 											<div class="input-group">
@@ -253,12 +257,22 @@
 										<label class="col-sm-2 control-label" for="input-status"><span data-toggle="tooltip" title="<?php echo $help_shipment; ?>"><?php echo $entry_shipment; ?></span></label>
 										<div class="col-sm-10">
 											<select name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_create_shipment" id="<?php echo $shop['store_id']; ?>-create-shipment" class="form-control">
-												<?php if ($shop[$code . '_create_shipment']) { ?>
-												<option value="1" selected="selected"><?php echo $text_yes; ?></option>
-												<option value="0"><?php echo $text_no; ?></option>
+												<?php if ($shop[$code . '_create_shipment'] == 1) { ?>
+												<option value="1" selected="selected"><?php echo $text_create_shipment_automatically; ?></option>
+												<option value="2"><?php echo $text_create_shipment_on_status; ?></option>
+												<?php if($is_order_complete_status) { ?>
+												<option value="3"><?php echo $text_create_shipment_on_order_complete; ?></option>
+												<?php } ?>
+												<?php } elseif ($shop[$code . '_create_shipment'] == 2) { ?>
+												<option value="1"><?php echo $text_create_shipment_automatically; ?></option>
+												<option value="2" selected="selected"><?php echo $text_create_shipment_on_status; ?></option>
+												<?php if($is_order_complete_status) { ?>
+												<option value="3"><?php echo $text_create_shipment_on_order_complete; ?></option>
+												<?php } ?>
 												<?php } else { ?>
-												<option value="1"><?php echo $text_yes; ?></option>
-												<option value="0" selected="selected"><?php echo $text_no; ?></option>
+												<option value="1"><?php echo $text_create_shipment_automatically; ?></option>
+												<option value="2" selected="selected"><?php echo $text_create_shipment_on_status; ?></option>
+												<option value="3" selected="selected"><?php echo $text_create_shipment_on_order_complete; ?></option>
 												<?php } ?>
 											</select>
 										</div>
@@ -307,7 +321,7 @@
 										<div class="row">
 											<label class="col-sm-2">Comercia</label>
 											<div class="col-sm-10">
-												Rijksstraatweg 90<br>7391MV Twello<br>the Netherlands<br><br>tel: +31 (0)85-7733618<br>E-mail: <a href="mailto:support@comercia.nl">support@comercia.nl</a><br>Internet: <a href="https://www.comercia.nl" target="_blank">www.comercia.nl</a>
+												Rijksstraatweg 90<br>7391MV Twello<br>the Netherlands<br><br>tel: +31 (0)85-7733618<br>E-mail: <a href="mailto:mollie@support.comercia.nl">mollie@support.comercia.nl</a><br>Internet: <a href="https://www.comercia.nl" target="_blank">www.comercia.nl</a>
 											</div>
 										</div>
 										<legend>Mollie - Support</legend>
@@ -438,12 +452,20 @@
 
 			var elem = document.getElementById('<?php echo $shop["store_id"] ?>-create-shipment');
 			var hiddenDiv = document.getElementById('<?php echo $shop["store_id"] ?>-create-shipment-status');
-			if(elem.value == 1) {
+			if(elem.value == 2) {
+				hiddenDiv.style.display = "block";
+			} else {
 				hiddenDiv.style.display = "none";
 			}
 			
 			elem.onchange = function(){
-			    hiddenDiv.style.display = (this.value == "1") ? "none":"block";
+				var hiddenDiv = document.getElementById('<?php echo $shop["store_id"] ?>-create-shipment-status');
+
+			    if(this.value == 2) {
+					hiddenDiv.style.display = "block";
+				} else {
+					hiddenDiv.style.display = "none";
+				}
 			};
 			
 			$('.settings').click(function(){

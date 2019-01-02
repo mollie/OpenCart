@@ -318,15 +318,23 @@ class ControllerPaymentMollieBase extends Controller
 			$redirect = true;
             $stores = Util::info()->stores();
             foreach ($stores as $store) {
-            	if ($this->validate($store["store_id"])) {
+            	if(count($stores) > 1) {
             		$configSet = Util::request()->post()->allPrefixed($store["store_id"] . "_");
 	                if (!$store["store_id"]) {
 	                    $configSet = array_merge($configSet, Util::request()->post()->allPrefixed($code, false));
 	                }
 	                Util::config($store["store_id"])->set($code, $configSet);
-            	}
-            	else {
-            		$redirect = false;
+            	} else {
+            		if ($this->validate($store["store_id"])) {
+	            		$configSet = Util::request()->post()->allPrefixed($store["store_id"] . "_");
+		                if (!$store["store_id"]) {
+		                    $configSet = array_merge($configSet, Util::request()->post()->allPrefixed($code, false));
+		                }
+		                Util::config($store["store_id"])->set($code, $configSet);
+	            	}
+	            	else {
+	            		$redirect = false;
+	            	}
             	}
             }
 
@@ -368,6 +376,13 @@ class ControllerPaymentMollieBase extends Controller
                 ->fillFromConfig($storeFormFields);
         }
 
+        //API key not required for multistores
+        $data['api_required'] = true;
+        
+        if(count($data['shops']) > 1) {
+        	$data['api_required'] = false;
+        }
+
         //Breadcrumb
         Util::breadcrumb($data)
             ->add("text_home", "common/home")
@@ -392,19 +407,26 @@ class ControllerPaymentMollieBase extends Controller
 
 		// Load global settings. Some are prefixed with mollie_ideal_ for legacy reasons.
 		$settings = array(
-			$code . "_api_key"                    => NULL,
-			$code . "_ideal_description"          => "Order %",
-			$code . "_show_icons"                 => FALSE,
-			$code . "_show_order_canceled_page"   => TRUE,
-			$code . "_ideal_pending_status_id"    => 1,
-			$code . "_ideal_processing_status_id" => 2,
-			$code . "_ideal_canceled_status_id"   => 7,
-			$code . "_ideal_failed_status_id"     => 10,
-			$code . "_ideal_expired_status_id"    => 14,
-			$code . "_ideal_shipping_status_id"   => 3,
-			$code . "_create_shipment_status_id"  => 3,
-			$code . "_create_shipment"  		  => FALSE,
+			$code . "_api_key"                    				=> NULL,
+			$code . "_ideal_description"          				=> "Order %",
+			$code . "_show_icons"                 				=> FALSE,
+			$code . "_show_order_canceled_page"   				=> TRUE,
+			$code . "_ideal_pending_status_id"    				=> 1,
+			$code . "_ideal_processing_status_id" 				=> 2,
+			$code . "_ideal_canceled_status_id"   				=> 7,
+			$code . "_ideal_failed_status_id"     				=> 10,
+			$code . "_ideal_expired_status_id"    				=> 14,
+			$code . "_ideal_shipping_status_id"   				=> 3,
+			$code . "_create_shipment_status_id"  				=> 3,
+			$code . "_create_shipment"  		  				=> 1,
 		);
+
+		// Check if order complete status is defined in store setting
+		$data['is_order_complete_status'] = true;
+		$data['order_complete_statuses'] = array();
+		if((null == Util::config()->get('config_complete_status')) && (Util::config()->get('config_complete_status_id')) == '') {
+			$data['is_order_complete_status'] = false;
+		}
 
 		foreach($data['shops'] as &$store)
 		{

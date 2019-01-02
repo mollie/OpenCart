@@ -126,6 +126,11 @@ $_['entry_expired_status']   = "Status Zahlung verstrichen";
 $_['entry_processing_status']= "Status Zahlung erfolgreich";
 
 $_['entry_shipping_status']   = "Versandstatus der Bestellung";
-$_['entry_shipment']       			 = "Erstellen Sie sofort eine Sendung";
+$_['entry_shipment']       			 = "Sendung erstellen";
 $_['entry_create_shipment_status']   = "Erstellen Sie eine Sendung nach dem Bestellstatus";
 $_['help_shipment'] 				 = "Versand (nur für Klarna-Methoden) wird direkt nach dem Erstellen der Bestellung erstellt. Wählen Sie 'Nein', um die Sendung zu erstellen, wenn die Bestellung einen bestimmten Status erreicht, und wählen Sie den Bestellstatus von unten aus.";
+
+$_['text_create_shipment_automatically']            = "Erstellen Sie den Versand automatisch bei der Auftragserstellung";
+$_['text_create_shipment_on_status']                = "Legen Sie eine Sendung an, wenn Sie den Auftrag auf diesen Status setzen";
+$_['text_create_shipment_on_order_complete']        = "Erstellen Sie eine Sendung, nachdem Sie den Status zum Bestellen der Bestellung festgelegt haben";
+$_['entry_create_shipment_on_order_complete'] 		= "Erstellen Sie den Versand nach Abschluss der Bestellung";

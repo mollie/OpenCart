@@ -128,11 +128,15 @@ class ControllerPaymentMollieBase extends Controller
     }
 
     //Get tax rate
-    protected function getTaxRate()
+    protected function getTaxRate($tax_rates = array())
     {
-        $model = Util::load()->model("payment/mollie_" . static::MODULE_NAME);
-
-        return $model->getTaxRate();
+        $rates = array();
+        if(!empty($tax_rates)) {
+            foreach($tax_rates as $tax) {
+                $rates[] = $tax['rate'];
+            }
+        }
+        return $rates;
     }
 
     //Get Coupon Details
@@ -141,6 +145,21 @@ class ControllerPaymentMollieBase extends Controller
         $model = Util::load()->model("payment/mollie_" . static::MODULE_NAME);
 
         return $model->getCouponDetails($orderID);
+    }
+
+    //Get Voucher Details
+    protected function getVoucherDetails($orderID) {
+        $model = Util::load()->model("payment/mollie_" . static::MODULE_NAME);
+
+        return $model->getVoucherDetails($orderID);
+    }
+
+
+    //Get Reward Point Details
+    protected function getRewardPointDetails($orderID) {
+        $model = Util::load()->model("payment/mollie_" . static::MODULE_NAME);
+
+        return $model->getRewardPointDetails($orderID);
     }
 
     /**
@@ -172,6 +191,11 @@ class ControllerPaymentMollieBase extends Controller
         $currency = $this->session->data['currency'];
         $configCurrency = $this->config->get("config_currency");
         return $this->currency->convert($amount, $configCurrency, $currency);
+    }
+
+    //Format text
+    protected function formatText($text) {
+        return html_entity_decode($text, ENT_QUOTES, 'UTF-8');
     }
 
     /**
@@ -209,26 +233,31 @@ class ControllerPaymentMollieBase extends Controller
             $data = array(
                 "amount" => ["currency" => $currency, "value" => (string)number_format((float)$amount, 2, '.', '')],
                 "orderNumber" => $order['order_id'],
-                "redirectUrl" => $return_url,
+                "redirectUrl" => $this->formatText($return_url),
                 "webhookUrl" => $this->getWebhookUrl(),
-                "metadata" => array("order_id" => $order['order_id'], "description" => $description),
+                "metadata" => array("order_id" => $order['order_id'], "description" => $this->formatText($description)),
                 "method" => static::MODULE_NAME,
             );
 
-            $data['payment'] = ["issuer" => $issuer];
+            $data['payment'] = ["issuer" => $this->formatText($issuer)];
 
             //Order line data
             $orderProducts = $this->getOrderProducts($order['order_id']);
             $lines = array();
 
-            //Get VAT rate
-            $vatRate = $this->getTaxRate();
+            $productModel = Util::load()->model('catalog/product');
             foreach($orderProducts as $orderProduct) {
+                $productDetails = $productModel->getProduct($orderProduct['product_id']);
+                $tax_rates = $this->tax->getRates($orderProduct['price'], $productDetails['tax_class_id']);
+                $rates = $this->getTaxRate($tax_rates);
+                //Since Mollie only supports VAT so '$rates' must contains only one(VAT) rate.
+                $vatRate = $rates[0];
+
                 $total = $orderProduct['total'] + ($orderProduct['tax'] * $orderProduct['quantity']);
                 $vatAmount = $total * ( $vatRate / (100 +  $vatRate));
                 $lines[] = array(
                     'type'          =>  'physical',
-                    'name'          =>  $orderProduct['name'],
+                    'name'          =>  $this->formatText($orderProduct['name']),
                     'quantity'      =>  $orderProduct['quantity'],
                     'unitPrice'     =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($orderProduct['price'] + $orderProduct['tax']), 2, '.', '')],
                     'totalAmount'   =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($total), 2, '.', '')],
@@ -242,11 +271,14 @@ class ControllerPaymentMollieBase extends Controller
                 $title = $this->session->data['shipping_method']['title'];
                 $cost = $this->session->data['shipping_method']['cost'];
                 $taxClass = $this->session->data['shipping_method']['tax_class_id'];
+                $tax_rates = $this->tax->getRates($cost, $taxClass);
+                $rates = $this->getTaxRate($tax_rates);
+                $vatRate = $rates[0];
                 $costWithTax = $this->tax->calculate($cost, $taxClass, $this->config->get('config_tax'));
                 $shippingVATAmount = $costWithTax * ( $vatRate / (100 +  $vatRate));
                 $lineForShipping[] = array(
                     'type'          =>  'shipping_fee',
-                    'name'          =>  $title,
+                    'name'          =>  $this->formatText($title),
                     'quantity'      =>  1,
                     'unitPrice'     =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($costWithTax), 2, '.', '')],
                     'totalAmount'   =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($costWithTax), 2, '.', '')],
@@ -261,12 +293,27 @@ class ControllerPaymentMollieBase extends Controller
             if(isset($this->session->data['coupon'])) {
                 //Get coupon data
                 $coupon = $this->getCouponDetails($order['order_id']);
-                $taxClass = $this->session->data['shipping_method']['tax_class_id'];
+
+                if (isset($this->session->data['shipping_method']) && !empty($this->session->data['shipping_method']['tax_class_id'])) {
+                    $taxClass = $this->session->data['shipping_method']['tax_class_id'];
+                }
+                else {
+                    foreach ($this->cart->getProducts() as $product) {
+                        if ($product['tax_class_id']) {
+                            $taxClass = $product['tax_class_id'];
+                            break;
+                        }
+                    }
+                }
+
+                $tax_rates = $this->tax->getRates($coupon['value'], $taxClass);
+                $rates = $this->getTaxRate($tax_rates);
+                $vatRate = $rates[0];
                 $unitPriceWithTax = $this->tax->calculate($coupon['value'], $taxClass, $this->config->get('config_tax'));
                 $couponVATAmount = $unitPriceWithTax * ( $vatRate / (100 +  $vatRate));
                 $lineForCoupon[] = array(
-                    'type'          =>  'store_credit',
-                    'name'          =>  $coupon['title'],
+                    'type'          =>  'discount',
+                    'name'          =>  $this->formatText($coupon['title']),
                     'quantity'      =>  1,
                     'unitPrice'     =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($unitPriceWithTax), 2, '.', '')],
                     'totalAmount'   =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($unitPriceWithTax), 2, '.', '')],
@@ -277,6 +324,101 @@ class ControllerPaymentMollieBase extends Controller
                 $lines = array_merge($lines, $lineForCoupon);
             }
 
+            //Check if gift card applied
+            if(isset($this->session->data['voucher'])) {
+                //Get voucher data
+                $voucher = $this->getVoucherDetails($order['order_id']);
+                $lineForVoucher[] = array(
+                    'type'          =>  'gift_card',
+                    'name'          =>  $this->formatText($voucher['title']),
+                    'quantity'      =>  1,
+                    'unitPrice'     =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($voucher['value']), 2, '.', '')],
+                    'totalAmount'   =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($voucher['value']), 2, '.', '')],
+                    'vatRate'       =>  "0.00",
+                    'vatAmount'     =>  ["currency" => $currency, "value" => "0.00"]
+                );
+
+                $lines = array_merge($lines, $lineForVoucher);
+            }
+
+            //Check for reward points
+            if(isset($this->session->data['reward'])) {
+                //Get reward point data
+                $rewardPoints = $this->getRewardPointDetails($order['order_id']);
+
+                foreach ($this->cart->getProducts() as $product) {    
+                    if ($product['points']) {
+                        if ($product['tax_class_id']) {
+                            $taxClass = $product['tax_class_id'];
+                            $tax_rates = $this->tax->getRates($rewardPoints['value'], $taxClass);
+                            $rates = $this->getTaxRate($tax_rates);
+                            $vatRate = $rates[0];
+                            break;
+                        }
+                    }
+                }
+
+                $unitPriceWithTax = $this->tax->calculate($rewardPoints['value'], $taxClass, $this->config->get('config_tax'));
+                $rewardVATAmount = $unitPriceWithTax * ( $vatRate / (100 +  $vatRate));
+
+                $lineForRewardPoints[] = array(
+                    'type'          =>  'discount',
+                    'name'          =>  $this->formatText($rewardPoints['title']),
+                    'quantity'      =>  1,
+                    'unitPrice'     =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($unitPriceWithTax), 2, '.', '')],
+                    'totalAmount'   =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($unitPriceWithTax), 2, '.', '')],
+                    'vatRate'       =>  (string)number_format((float)$vatRate, 2, '.', ''),
+                    'vatAmount'     =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($rewardVATAmount), 2, '.', '')]
+                );
+
+                $lines = array_merge($lines, $lineForRewardPoints);
+            }
+
+            //Check for other totals (if any)
+            $otherOrderTotals = $model->getOtherOrderTotals($order['order_id']);
+            if(!empty($otherOrderTotals)) {
+                $otherTotals = array();
+
+                foreach($otherOrderTotals as $orderTotals) {
+
+                    if($orderTotals['code'] == 'handling') {
+                        $taxClass = $this->config->get('handling_tax_class_id');
+                    } elseif($orderTotals['code'] == 'low_order_fee') {
+                        $taxClass = $this->config->get('low_order_fee_tax_class_id');
+                    } else {
+                        foreach ($this->cart->getProducts() as $product) {
+                            if ($product['tax_class_id']) {
+                                $taxClass = $product['tax_class_id'];
+                                break;
+                            }
+                        }
+                    }
+
+                    $tax_rates = $this->tax->getRates($orderTotals['value'], $taxClass);
+                    $rates = $this->getTaxRate($tax_rates);
+                    $vatRate = $rates[0];
+                    $unitPriceWithTax = $this->tax->calculate($orderTotals['value'], $taxClass, $this->config->get('config_tax'));
+                    $totalsVATAmount = $unitPriceWithTax * ( $vatRate / (100 +  $vatRate));
+
+                    $type = 'discount';
+                    if($orderTotals['value'] > 0) {
+                        $type = 'surcharge';
+                    }
+
+                    $otherTotals[] = array(
+                        'type'          =>  $type,
+                        'name'          =>  $this->formatText($orderTotals['title']),
+                        'quantity'      =>  1,
+                        'unitPrice'     =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($unitPriceWithTax), 2, '.', '')],
+                        'totalAmount'   =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($unitPriceWithTax), 2, '.', '')],
+                        'vatRate'       =>  (string)number_format((float)$vatRate, 2, '.', ''),
+                        'vatAmount'     =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($totalsVATAmount), 2, '.', '')]
+                    );
+                }
+
+                $lines = array_merge($lines, $otherTotals);
+            }
+            
             //Check for rounding off issue
             $orderTotal = number_format($amount, 2, '.', '');
             $productTotal = 0;
@@ -302,7 +444,7 @@ class ControllerPaymentMollieBase extends Controller
             if(($orderTotal > $orderLineTotal) && (number_format(($orderTotal - $orderLineTotal), 2, '.', '') == 0.01)) {
                 $lineForDiscount[] = array(
                     'type'          =>  'discount',
-                    'name'          =>  $this->language->get("roundoff_description"),
+                    'name'          =>  $this->formatText($this->language->get("roundoff_description")),
                     'quantity'      =>  1,
                     'unitPrice'     =>  ["currency" => $currency, "value" => "0.01"],
                     'totalAmount'   =>  ["currency" => $currency, "value" => "0.01"],
@@ -316,7 +458,7 @@ class ControllerPaymentMollieBase extends Controller
             if(($orderTotal < $orderLineTotal) && (number_format(($orderLineTotal - $orderTotal), 2, '.', '') == 0.01)) {
                 $lineForSurcharge[] = array(
                     'type'          =>  'surcharge',
-                    'name'          =>  $this->language->get("roundoff_description"),
+                    'name'          =>  $this->formatText($this->language->get("roundoff_description")),
                     'quantity'      =>  1,
                     'unitPrice'     =>  ["currency" => $currency, "value" => "-0.01"],
                     'totalAmount'   =>  ["currency" => $currency, "value" => "-0.01"],
@@ -326,7 +468,6 @@ class ControllerPaymentMollieBase extends Controller
 
                 $lines = array_merge($lines, $lineForSurcharge);
             }
-
             $data['lines'] = $lines;
                 /*
                  * This data is sent along for credit card payments / fraud checks. You can remove this but you will
@@ -334,26 +475,26 @@ class ControllerPaymentMollieBase extends Controller
                  */
 
            $data["billingAddress"] = [
-                "givenName"     =>   $order['payment_firstname'],
-                "familyName"    =>   $order['payment_lastname'],
-                "email"         =>   $order['email'],
-                "streetAndNumber" => $order['payment_address_1'] . ' ' . $order['payment_address_2'],
-                "city" => $order['payment_city'],
-                "region" => $order['payment_zone'],
-                "postalCode" => $order['payment_postcode'],
-                "country" => $order['payment_iso_code_2']
+                "givenName"     =>   $this->formatText($order['payment_firstname']),
+                "familyName"    =>   $this->formatText($order['payment_lastname']),
+                "email"         =>   $this->formatText($order['email']),
+                "streetAndNumber" => $this->formatText($order['payment_address_1'] . ' ' . $order['payment_address_2']),
+                "city" => $this->formatText($order['payment_city']),
+                "region" => $this->formatText($order['payment_zone']),
+                "postalCode" => $this->formatText($order['payment_postcode']),
+                "country" => $this->formatText($order['payment_iso_code_2'])
             ];
 
             if (!empty($order['shipping_firstname']) || !empty($order['shipping_lastname'])) {
                 $data["shippingAddress"] = [
-                    "givenName"     =>   $order['shipping_firstname'],
-                    "familyName"    =>   $order['shipping_lastname'],
-                    "email"         =>   $order['email'],
-                    "streetAndNumber" => $order['shipping_address_1'] . ' ' . $order['shipping_address_2'],
-                    "city" => $order['shipping_city'],
-                    "region" => $order['shipping_zone'],
-                    "postalCode" => $order['shipping_postcode'],
-                    "country" => $order['shipping_iso_code_2']
+                    "givenName"     =>   $this->formatText($order['shipping_firstname']),
+                    "familyName"    =>   $this->formatText($order['shipping_lastname']),
+                    "email"         =>   $this->formatText($order['email']),
+                    "streetAndNumber" => $this->formatText($order['shipping_address_1'] . ' ' . $order['shipping_address_2']),
+                    "city" => $this->formatText($order['shipping_city']),
+                    "region" => $this->formatText($order['shipping_zone']),
+                    "postalCode" => $this->formatText($order['shipping_postcode']),
+                    "country" => $this->formatText($order['shipping_iso_code_2'])
                 ];
             } else {
                 $data["shippingAddress"] = $data["billingAddress"];
@@ -578,21 +719,41 @@ class ControllerPaymentMollieBase extends Controller
             $this->writeToMollieLog("Could not find mollie reference order id.");
             return;
         }
+        
+        /*Check if shipment is not created already at the time of order creation
+        $this->config->get($moduleCode . "_create_shipment")
+        -> '!= 1' (Shipment is not created already)
+        -> '== 2' (Shipment needs to be created after one of the statuses set in the module setting)
+        -> else, (Shipment needs to be created after one of the 'Order Complete Statuses' set in the store setting)
+        */
 
          $mollieOrder = $this->getAPIClient()->orders->get($mollie_order_id);
-         if($mollieOrder->isAuthorized() && !$this->config->get($moduleCode . "_create_shipment") && ($order_status_id == $this->config->get($moduleCode . "_create_shipment_status_id"))) {
-            //Shipment lines
-            $shipmentLine = array();
-            foreach($mollieOrder->lines as $line) {
-                $shipmentLine[] = array(
-                    'id'        =>  $line->id,
-                    'quantity'  =>  $line->quantity
-                );
+         if($mollieOrder->isAuthorized() && ($this->config->get($moduleCode . "_create_shipment") != 1)) {
+            if($this->config->get($moduleCode . "_create_shipment") == 2) {
+                $shipment_status_id = $this->config->get($moduleCode . "_create_shipment_status_id");
+            }
+            else {
+                $order_complete_statuses = array();
+                $statuses = $this->config->get('config_complete_status') ?: (array)$this->config->get('config_complete_status_id');
+                foreach($statuses as $status_id) {
+                    $order_complete_statuses[] = $status_id;
+                }
             }
 
-            $shipmentData['lines'] = $shipmentLine;
-            $mollieShipment = $mollieOrder->createShipment($shipmentData);
-            $this->writeToMollieLog("Shipment created for order-".$order_id);
+            if(((isset($shipment_status_id) && $order_status_id == $shipment_status_id)) || ((isset($order_complete_statuses) && in_array($order_status_id, $order_complete_statuses)))) {
+                //Shipment lines
+                $shipmentLine = array();
+                foreach($mollieOrder->lines as $line) {
+                    $shipmentLine[] = array(
+                        'id'        =>  $line->id,
+                        'quantity'  =>  $line->quantity
+                    );
+                }
+
+                $shipmentData['lines'] = $shipmentLine;
+                $mollieShipment = $mollieOrder->createShipment($shipmentData);
+                $this->writeToMollieLog("Shipment created for order-".$order_id);
+            }
          }
     }
 
@@ -653,8 +814,11 @@ class ControllerPaymentMollieBase extends Controller
             $order['order_status_id'] = $paid_status_id;
         }
 
-        //Check for immediate shipment creation
-        if($orderDetails->isAuthorized() && $this->config->get($moduleCode . "_create_shipment")) {
+        /* Check module module setting for shipment creation,
+        $this->config->get($moduleCode . "_create_shipment")) == 1,
+        satisfies the 'Create shipment immediately after order creation' condition. */
+        
+        if($orderDetails->isAuthorized() && ($this->config->get($moduleCode . "_create_shipment")) == 1) {
             //Shipment lines
             $shipmentLine = array();
             foreach($orderDetails->lines as $line) {
