@@ -55,7 +55,7 @@ use Mollie\Api\MollieApiClient;
 require_once(dirname(DIR_SYSTEM) . "/catalog/controller/payment/mollie/helper.php");
 
 define("MOLLIE_VERSION", MollieHelper::PLUGIN_VERSION);
-define("MOLLIE_RELEASE", MOLLIE_VERSION . ".5");
+define("MOLLIE_RELEASE", "v" . MOLLIE_VERSION);
 define("MOLLIE_VERSION_URL", "https://api.github.com/repos/mollie/OpenCart/releases/latest");
 
 if (!defined("MOLLIE_TMP")) {
