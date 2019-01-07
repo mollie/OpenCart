@@ -22,9 +22,9 @@ class Load
             $bestOption = $this->findBestOption($libDir, $library, "php");
             if (!class_exists($className)) {
                 if (class_exists("VQMod")) {
-                    @include_once(\VQMod::modCheck($libDir . $bestOption["name"] . ".php"));
+                    @include_once(\VQMod::modCheck(modification($libDir . $bestOption["name"] . ".php"), $libDir . $bestOption["name"] . ".php"));
                 } else {
-                    @include_once($libDir . $bestOption["name"] . ".php");
+                    @include_once(modification($libDir . $bestOption["name"] . ".php"));
                 }
             }
 
@@ -108,9 +108,9 @@ class Load
         $className = $route["class"];
         if (!class_exists($className)) {
             if (class_exists("VQMod")) {
-                @include_once(\VQMod::modCheck($modelDir . $route["file"] . ".php"));
+                @include_once(\VQMod::modCheck(modification($modelDir . $route["file"] . ".php"), $modelDir . $route["file"] . ".php"));
             } else {
-                @include_once($modelDir . $route["file"] . ".php");
+                @include_once(modification($modelDir . $route["file"] . ".php"));
             }
         }
 
@@ -234,9 +234,9 @@ class Load
         }
         $fakeControllerFile = __DIR__ . "/fakeController.php";
         if (class_exists("VQMod")) {
-            require_once(\VQMod::modCheck($fakeControllerFile));
+            require_once(\VQMod::modCheck(modification($fakeControllerFile), $fakeControllerFile));
         } else {
-            require_once($fakeControllerFile);
+            require_once(modification($fakeControllerFile));
         }
         $controller = new FakeController($registry);
         $result = $controller->getView($view, $data);
@@ -326,9 +326,9 @@ class Load
         $className = $route["class"];
         if (!class_exists($className)) {
             if (class_exists("VQMod")) {
-                @include_once(\VQMod::modCheck($controllerDir . $route["file"] . ".php"));
+                @include_once(\VQMod::modCheck(modification($controllerDir . $route["file"] . ".php"), $controllerDir . $route["file"] . ".php"));
             } else {
-                @include_once($controllerDir . $route["file"] . ".php");
+                @include_once(modification($controllerDir . $route["file"] . ".php"));
             }
         }
 
@@ -392,6 +392,27 @@ class Load
                 ]
             ]
         );
+    }
+	
+	// Modification Override
+    function modification($filename) {
+        if (defined('DIR_CATALOG')) {
+            $file = DIR_MODIFICATION . 'admin/' .  substr($filename, strlen(DIR_APPLICATION));
+        } elseif (defined('DIR_OPENCART')) {
+            $file = DIR_MODIFICATION . 'install/' .  substr($filename, strlen(DIR_APPLICATION));
+        } else {
+            $file = DIR_MODIFICATION . 'catalog/' . substr($filename, strlen(DIR_APPLICATION));
+        }
+
+        if (substr($filename, 0, strlen(DIR_SYSTEM)) == DIR_SYSTEM) {
+            $file = DIR_MODIFICATION . 'system/' . substr($filename, strlen(DIR_SYSTEM));
+        }
+
+        if (is_file($file)) {
+            return $file;
+        }
+
+        return $filename;
     }
 }
 
