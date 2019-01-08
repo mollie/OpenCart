@@ -274,9 +274,9 @@ class ControllerPaymentMollieBase extends Controller
 	public function index ()
 	{
 		// Double-check if clean-up has been done - For upgrades
-		if (empty($this->config->get('payment_mollie_version')) || $this->config->get('payment_mollie_version') < MOLLIE_VERSION) {
+		if (empty($this->config->get('mollie_payment_version')) || $this->config->get('mollie_payment_version') < MOLLIE_VERSION) {
 			$this->cleanUp();
-			Util::config(0)->set('payment_mollie', 'payment_mollie_version', MOLLIE_VERSION);
+			Util::config(0)->set('mollie_payment', 'mollie_payment_version', MOLLIE_VERSION);
 		}
 
 		$adminThemeDir = DIR_APPLICATION . 'view/template/';
