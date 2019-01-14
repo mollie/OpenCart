@@ -134,3 +134,6 @@ $_['text_create_shipment_automatically']            = "Create shipment automatic
 $_['text_create_shipment_on_status']                = "Create shipment upon setting order to this status";
 $_['text_create_shipment_on_order_complete']        = "Create shipment upon setting order to order complete status";
 $_['entry_create_shipment_on_order_complete'] 		= "Create shipment upon order complete";
+
+//Button
+$_['button_update'] = "Update";

@@ -134,3 +134,6 @@ $_['text_create_shipment_automatically']            = "Maak automatisch een zend
 $_['text_create_shipment_on_status']                = "Maak verzending bij het plaatsen van de bestelling naar deze status";
 $_['text_create_shipment_on_order_complete']        = "Maak verzending bij het plaatsen van bestelling om de volledige status te bestellen";
 $_['entry_create_shipment_on_order_complete'] 		= "Maak verzending bij bestelling compleet";
+
+//Button
+$_['button_update'] = "Bijwerken";
