@@ -133,3 +133,6 @@ $_['text_create_shipment_automatically']            = "Créer automatiquement l'
 $_['text_create_shipment_on_status']                = "Créer un envoi lors du réglage de la commande à ce statut";
 $_['text_create_shipment_on_order_complete']        = "Créer une expédition lors du paramétrage de la commande pour passer à la commande";
 $_['entry_create_shipment_on_order_complete'] 		= "Créer une expédition à la fin de la commande";
+
+//Button
+$_['button_update'] = "Mettre à jour";
