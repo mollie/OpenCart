@@ -422,27 +422,13 @@ class ControllerPaymentMollieBase extends Controller
                 $lines = array_merge($lines, $otherTotals);
             }
             
-            //Check for rounding off issue
+            //Check for rounding off issue in a general way (for all possible totals)
             $orderTotal = number_format($amount, 2, '.', '');
-            $productTotal = 0;
-            $shippingTotal = 0;
-            $couponTotal = 0; 
+            $orderLineTotal = 0;
 
-            $productTotalArray = array();
-            foreach($orderProducts as $orderProduct) {
-                $total = $orderProduct['total'] + ($orderProduct['tax'] * $orderProduct['quantity']);
-                $productTotalArray[] = $this->convertCurrency($total);
+            foreach($lines as $line) {
+                $orderLineTotal += $line['totalAmount']['value'];
             }
-            $productTotal = number_format(array_sum($productTotalArray), 2, '.', '');
-
-            if(isset($costWithTax)) {
-                $shippingTotal = number_format($this->convertCurrency($costWithTax), 2, '.', '');
-            }
-            if(isset($unitPriceWithTax)) {
-                $couponTotal = number_format($this->convertCurrency($unitPriceWithTax), 2, '.', '');
-            }
-
-            $orderLineTotal = number_format($productTotal + $shippingTotal + $couponTotal, 2, '.', '');
             
             if(($orderTotal > $orderLineTotal) && (number_format(($orderTotal - $orderLineTotal), 2, '.', '') == 0.01)) {
                 $lineForDiscount[] = array(
