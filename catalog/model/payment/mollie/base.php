@@ -188,17 +188,19 @@ class ModelPaymentMollieBase extends Model
 	 *
 	 * @return bool
 	 */
-	public function updatePayment($transaction_id, $payment_status, $consumer = NULL)
+	public function updatePayment($order_id, $mollie_order_id, $data, $consumer = NULL)
 	{
-		if (!empty($transaction_id) && !empty($payment_status)) {
+		if (!empty($order_id) && !empty($mollie_order_id)) {
 			$this->db->query(
 				sprintf(
 					"UPDATE `%smollie_payments` 
-					 SET `bank_status` = '%s'
-					 WHERE `transaction_id` = '%s';",
+					 SET `transaction_id` = '%s', `bank_status` = '%s'
+					 WHERE `order_id` = '%s' AND `mollie_order_id` = '%s';",
 					DB_PREFIX,
-					$this->db->escape($payment_status),
-					$this->db->escape($transaction_id)
+					$this->db->escape($data['payment_id']),
+					$this->db->escape($data['status']),
+					$this->db->escape($order_id),
+					$this->db->escape($mollie_order_id)
 				)
 			);
 
