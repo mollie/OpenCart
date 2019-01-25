@@ -155,26 +155,42 @@ class ControllerPaymentMollieBase extends Controller
 		$catalogControllerDir = DIR_CATALOG . 'controller/';
 		$catalogModelDir      = DIR_CATALOG . 'model/';
 
-		if(file_exists($adminControllerDir . 'extension/payment/mistercash.php')) {
-			unlink($adminControllerDir . 'extension/payment/mistercash.php');
-			$languageFiles = glob($adminLanguageDir .'*/extension/payment/mistercash.php');
-			foreach($languageFiles as $file) {
-				unlink($file);
-			}
-
-			unlink($catalogControllerDir .'extension/payment/mistercash.php');
-			unlink($catalogModelDir .'extension/payment/mistercash.php');
+		if(file_exists($adminControllerDir . 'extension/payment/mollie_mistercash.php')) {
+			unlink($adminControllerDir . 'extension/payment/mollie_mistercash.php');
 		}
 
-		if(file_exists($adminControllerDir . 'payment/mistercash.php')) {
-			unlink($adminControllerDir . 'payment/mistercash.php');
-			$languageFiles = glob($adminLanguageDir .'*/payment/mistercash.php');
-			foreach($languageFiles as $file) {
+		$languageFiles = glob($adminLanguageDir .'*/extension/payment/mollie_mistercash.php');
+		foreach($languageFiles as $file) {
+			if(file_exists($file)) {
 				unlink($file);
 			}
+		}
 
-			unlink($catalogControllerDir .'payment/mistercash.php');
-			unlink($catalogModelDir .'payment/mistercash.php');
+		if(file_exists($catalogControllerDir .'extension/payment/mollie_mistercash.php')) {
+			unlink($catalogControllerDir .'extension/payment/mollie_mistercash.php');
+		}
+
+		if(file_exists($catalogModelDir .'extension/payment/mollie_mistercash.php')) {
+			unlink($catalogModelDir .'extension/payment/mollie_mistercash.php');
+		}
+
+		if(file_exists($adminControllerDir . 'payment/mollie_mistercash.php')) {
+			unlink($adminControllerDir . 'payment/mollie_mistercash.php');
+		}
+
+		$languageFiles = glob($adminLanguageDir .'*/payment/mollie_mistercash.php');
+		foreach($languageFiles as $file) {
+			if(file_exists($file)) {
+				unlink($file);
+			}
+		}
+
+		if(file_exists($catalogControllerDir .'payment/mollie_mistercash.php')) {
+			unlink($catalogControllerDir .'payment/mollie_mistercash.php');
+		}
+
+		if(file_exists($catalogModelDir .'payment/mollie_mistercash.php')) {
+			unlink($catalogModelDir .'payment/mollie_mistercash.php');
 		}
 
 		if (MollieHelper::isOpenCart3x()) {
@@ -291,7 +307,7 @@ class ControllerPaymentMollieBase extends Controller
 		}
 
 		$adminControllerDir   = DIR_APPLICATION . 'controller/';
-		if(file_exists($adminControllerDir . 'extension/payment/mistercash.php') || file_exists($adminControllerDir . 'payment/mistercash.php')) {
+		if(file_exists($adminControllerDir . 'extension/payment/mollie_mistercash.php') || file_exists($adminControllerDir . 'payment/mollie_mistercash.php')) {
 			$this->cleanUp();
 		}
 
