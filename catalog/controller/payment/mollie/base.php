@@ -582,11 +582,25 @@ class ControllerPaymentMollieBase extends Controller
 
         // Load essentials
         Util::load()->model("checkout/order");
-        $this->getModuleModel();
+        $model = $this->getModuleModel();
         Util::load()->language("payment/mollie");
 
         //Get order_id of this transaction from db
         $order = $this->model_checkout_order->getOrder($mollieOrder->metadata->order_id);
+
+        //Set transaction ID
+        $data = array();
+
+        if($molliePayment) {
+            $data = array(
+                'payment_id' => $payment_id,
+                'status'     => $molliePayment->status
+            );
+        }
+
+        if(!empty($data)) {
+            $model->updatePayment($mollieOrder->metadata->order_id, $mollieOrderId, $data);
+        }
 
         if (empty($order)) {
             header("HTTP/1.0 404 Not Found");
@@ -890,6 +904,14 @@ class ControllerPaymentMollieBase extends Controller
         if (($orderDetails->isPaid() || $orderDetails->isAuthorized()) && $order['order_status_id'] != $paid_status_id) {
             $this->addOrderHistory($order, $paid_status_id, $this->language->get("response_success"), true);
             $order['order_status_id'] = $paid_status_id;
+        } else if(!empty($orderDetails->_embedded->payments)) {
+
+            $payment = $orderDetails->_embedded->payments[0];
+            if (($payment->status == 'paid') && ($order['order_status_id'] != $paid_status_id)) {
+                $this->addOrderHistory($order, $paid_status_id, $this->language->get("response_success"), true);
+                $order['order_status_id'] = $paid_status_id;
+            }
+            
         }
 
         /* Check module module setting for shipment creation,
