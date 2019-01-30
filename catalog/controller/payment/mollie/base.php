@@ -239,7 +239,10 @@ class ControllerPaymentMollieBase extends Controller
                 "method" => static::MODULE_NAME,
             );
 
-            $data['payment'] = ["issuer" => $this->formatText($issuer)];
+            $data['payment'] = array(
+                "issuer" => $this->formatText($issuer),
+                "webhookUrl" => $this->getWebhookUrl()
+            );
 
             //Order line data
             $orderProducts = $this->getOrderProducts($order['order_id']);
@@ -419,27 +422,13 @@ class ControllerPaymentMollieBase extends Controller
                 $lines = array_merge($lines, $otherTotals);
             }
             
-            //Check for rounding off issue
+            //Check for rounding off issue in a general way (for all possible totals)
             $orderTotal = number_format($amount, 2, '.', '');
-            $productTotal = 0;
-            $shippingTotal = 0;
-            $couponTotal = 0; 
+            $orderLineTotal = 0;
 
-            $productTotalArray = array();
-            foreach($orderProducts as $orderProduct) {
-                $total = $orderProduct['total'] + ($orderProduct['tax'] * $orderProduct['quantity']);
-                $productTotalArray[] = $this->convertCurrency($total);
+            foreach($lines as $line) {
+                $orderLineTotal += $line['totalAmount']['value'];
             }
-            $productTotal = number_format(array_sum($productTotalArray), 2, '.', '');
-
-            if(isset($costWithTax)) {
-                $shippingTotal = number_format($this->convertCurrency($costWithTax), 2, '.', '');
-            }
-            if(isset($unitPriceWithTax)) {
-                $couponTotal = number_format($this->convertCurrency($unitPriceWithTax), 2, '.', '');
-            }
-
-            $orderLineTotal = number_format($productTotal + $shippingTotal + $couponTotal, 2, '.', '');
             
             if(($orderTotal > $orderLineTotal) && (number_format(($orderTotal - $orderLineTotal), 2, '.', '') == 0.01)) {
                 $lineForDiscount[] = array(
@@ -567,8 +556,111 @@ class ControllerPaymentMollieBase extends Controller
             return;
         }
 
+        // Check webhook for order/payment
+        $id = $this->request->post['id'];
+        $temp = explode('_', $id);
+        $idPrefix = $temp[0];
+        if($idPrefix == 'ord') {
+            $this->webhookForOrder($id);
+        } else {
+            $this->webhookForPayment($id);
+        }
+
+    }
+
+    private function webhookForPayment($payment_id) {
+
         $moduleCode = MollieHelper::getModuleCode();
-        $order_id = $this->request->post['id'];
+
+        $this->writeToMollieLog("Received webhook for payment_id " . $payment_id);
+
+        $molliePayment = $this->getAPIClient()->payments->get($payment_id);
+
+        $mollieOrderId = $molliePayment->orderId;
+
+        $mollieOrder = $this->getAPIClient()->orders->get($mollieOrderId);
+
+        // Load essentials
+        Util::load()->model("checkout/order");
+        $model = $this->getModuleModel();
+        Util::load()->language("payment/mollie");
+
+        //Get order_id of this transaction from db
+        $order = $this->model_checkout_order->getOrder($mollieOrder->metadata->order_id);
+
+        //Set transaction ID
+        $data = array();
+
+        if($molliePayment) {
+            $data = array(
+                'payment_id' => $payment_id,
+                'status'     => $molliePayment->status
+            );
+        }
+
+        if(!empty($data)) {
+            $model->updatePayment($mollieOrder->metadata->order_id, $mollieOrderId, $data);
+        }
+
+        if (empty($order)) {
+            header("HTTP/1.0 404 Not Found");
+            echo "Could not find order.";
+            return;
+        }
+
+        if($order['order_status_id'] != 0) {
+            return;
+        }
+
+        // Only process the status if the order is stateless or in 'pending' status.
+        if (!empty($order['order_status_id']) && $order['order_status_id'] != $this->config->get($moduleCode . "_ideal_pending_status_id")) {
+            $this->writeToMollieLog("The order was already processed before (order status ID: " . intval($order['order_status_id']) . ")");
+            return;
+        }
+
+        // Payment cancelled.
+        if ($molliePayment->status == PaymentStatus::STATUS_CANCELED) {
+            $new_status_id = intval($this->config->get($moduleCode . "_ideal_canceled_status_id"));
+
+            if (!$new_status_id) {
+                $this->writeToMollieLog("The payment was cancelled. No 'cancelled' status ID is configured, so the order status could not be updated.", true);
+                return;
+            }
+            $this->addOrderHistory($order, $new_status_id, $this->language->get("response_cancelled"), false);
+            $this->writeToMollieLog("The payment was cancelled and the order was moved to the 'cancelled' status (new status ID: {$new_status_id}).", true);
+            return;
+        }
+
+        // Payment expired.
+        if ($molliePayment->status == PaymentStatus::STATUS_EXPIRED) {
+            $new_status_id = intval($this->config->get($moduleCode . "_ideal_expired_status_id"));
+
+            if (!$new_status_id) {
+                $this->writeToMollieLog("The payment expired. No 'expired' status ID is configured, so the order status could not be updated.", true);
+                return;
+            }
+            $this->addOrderHistory($order, $new_status_id, $this->language->get("response_expired"), false);
+            $this->writeToMollieLog("The payment expired and the order was moved to the 'expired' status (new status ID: {$new_status_id}).", true);
+            return;
+        }
+
+        // Otherwise, payment failed.
+        $new_status_id = intval($this->config->get($moduleCode . "_ideal_failed_status_id"));
+
+        if (!$new_status_id) {
+            $this->writeToMollieLog("The payment failed. No 'failed' status ID is configured, so the order status could not be updated.", true);
+            return;
+        }
+        $this->addOrderHistory($order, $new_status_id, $this->language->get("response_unknown"), false);
+        $this->writeToMollieLog("The payment failed for an unknown reason and the order was moved to the 'failed' status (new status ID: {$new_status_id}).", true);
+        return;
+
+    }
+
+    private function webhookForOrder($order_id) {
+
+        $moduleCode = MollieHelper::getModuleCode();
+
         $this->writeToMollieLog("Received webhook for order_id " . $order_id);
 
         $mollieOrder = $this->getAPIClient()->orders->get($order_id);
@@ -624,7 +716,7 @@ class ControllerPaymentMollieBase extends Controller
         }
 
         // Order expired.
-        if ($mollieOrder->status == PaymentStatus::STATUS_CANCELED) {
+        if ($mollieOrder->status == PaymentStatus::STATUS_EXPIRED) {
             $new_status_id = intval($this->config->get($moduleCode . "_ideal_expired_status_id"));
 
             if (!$new_status_id) {
@@ -812,6 +904,14 @@ class ControllerPaymentMollieBase extends Controller
         if (($orderDetails->isPaid() || $orderDetails->isAuthorized()) && $order['order_status_id'] != $paid_status_id) {
             $this->addOrderHistory($order, $paid_status_id, $this->language->get("response_success"), true);
             $order['order_status_id'] = $paid_status_id;
+        } else if(!empty($orderDetails->_embedded->payments)) {
+
+            $payment = $orderDetails->_embedded->payments[0];
+            if (($payment->status == 'paid') && ($order['order_status_id'] != $paid_status_id)) {
+                $this->addOrderHistory($order, $paid_status_id, $this->language->get("response_success"), true);
+                $order['order_status_id'] = $paid_status_id;
+            }
+            
         }
 
         /* Check module module setting for shipment creation,

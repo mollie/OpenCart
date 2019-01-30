@@ -135,3 +135,6 @@ $_['text_create_shipment_automatically']            = "Erstellen Sie den Versand
 $_['text_create_shipment_on_status']                = "Legen Sie eine Sendung an, wenn Sie den Auftrag auf diesen Status setzen";
 $_['text_create_shipment_on_order_complete']        = "Erstellen Sie eine Sendung, nachdem Sie den Status zum Bestellen der Bestellung festgelegt haben";
 $_['entry_create_shipment_on_order_complete'] 		= "Erstellen Sie den Versand nach Abschluss der Bestellung";
+
+//Button
+$_['button_update'] = "Aktualisieren";
