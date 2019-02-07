@@ -30,7 +30,6 @@ them ready-made into your OpenCart webshop with this powerful plugin.
 - PayPal
 - SEPA Direct Debits
 - SEPA Bank Transfer
-- Bitcoin
 - iDeal
 - Bancontact
 - Paysafecard
