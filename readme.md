@@ -70,7 +70,6 @@ Contact Mollie: [www.mollie.com/nl/about](https://www.mollie.com/nl/about) — i
 + [More info on SOFORT Banking via Mollie](https://www.mollie.com/payments/sofort/)
 + [More info on SEPA Bank transfer via Mollie](https://www.mollie.com/payments/banktransfer/)
 + [More info on SEPA Direct debit via Mollie](https://www.mollie.com/payments/directdebit/)
-+ [More info on Bitcoin via Mollie](https://www.mollie.com/payments/bitcoin/)
 + [More info on PayPal via Mollie](https://www.mollie.com/payments/paypal/)
 + [More info on Belfius Direct Net via Mollie](https://www.mollie.com/payments/belfiusdirectnet/)
 + [More info on paysafecard via Mollie](https://www.mollie.com/payments/paysafecard/)
