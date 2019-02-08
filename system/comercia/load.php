@@ -22,9 +22,9 @@ class Load
             $bestOption = $this->findBestOption($libDir, $library, "php");
             if (!class_exists($className)) {
                 if (class_exists("VQMod")) {
-                    @include_once(\VQMod::modCheck(modification($libDir . $bestOption["name"] . ".php"), $libDir . $bestOption["name"] . ".php"));
+                    @include_once(\VQMod::modCheck($this->modification($libDir . $bestOption["name"] . ".php"), $libDir . $bestOption["name"] . ".php"));
                 } else {
-                    @include_once(modification($libDir . $bestOption["name"] . ".php"));
+                    @include_once($this->modification($libDir . $bestOption["name"] . ".php"));
                 }
             }
 
@@ -108,9 +108,9 @@ class Load
         $className = $route["class"];
         if (!class_exists($className)) {
             if (class_exists("VQMod")) {
-                @include_once(\VQMod::modCheck(modification($modelDir . $route["file"] . ".php"), $modelDir . $route["file"] . ".php"));
+                @include_once(\VQMod::modCheck($this->modification($modelDir . $route["file"] . ".php"), $modelDir . $route["file"] . ".php"));
             } else {
-                @include_once(modification($modelDir . $route["file"] . ".php"));
+                @include_once($this->modification($modelDir . $route["file"] . ".php"));
             }
         }
 
@@ -119,8 +119,8 @@ class Load
             //Check for events
             if(Util::version()->isMinimal("2.2")) {
                 $result = new \Proxy();
-				
-				$r = new \ReflectionMethod('Loader', 'callback');
+
+                $r = new \ReflectionMethod('Loader', 'callback');
                 $r->setAccessible(true);
 
                 foreach (get_class_methods($className) as $method) {
@@ -129,7 +129,7 @@ class Load
             } else {
                 $result = new $className(Util::registry());
             }
-            
+
             Util::registry()->set(Util::stringHelper()->ccToUnderline($className), $result);
             return $result;
         }
@@ -234,9 +234,9 @@ class Load
         }
         $fakeControllerFile = __DIR__ . "/fakeController.php";
         if (class_exists("VQMod")) {
-            require_once(\VQMod::modCheck(modification($fakeControllerFile), $fakeControllerFile));
+            require_once(\VQMod::modCheck($this->modification($fakeControllerFile), $fakeControllerFile));
         } else {
-            require_once(modification($fakeControllerFile));
+            require_once($this->modification($fakeControllerFile));
         }
         $controller = new FakeController($registry);
         $result = $controller->getView($view, $data);
@@ -326,9 +326,9 @@ class Load
         $className = $route["class"];
         if (!class_exists($className)) {
             if (class_exists("VQMod")) {
-                @include_once(\VQMod::modCheck(modification($controllerDir . $route["file"] . ".php"), $controllerDir . $route["file"] . ".php"));
+                @include_once(\VQMod::modCheck($this->modification($controllerDir . $route["file"] . ".php"), $controllerDir . $route["file"] . ".php"));
             } else {
-                @include_once(modification($controllerDir . $route["file"] . ".php"));
+                @include_once($this->modification($controllerDir . $route["file"] . ".php"));
             }
         }
 
@@ -369,11 +369,15 @@ class Load
                     "2.1" => "customer/custom_field"
                 ],
                 [
+                    "" => "sale/customer_group",
+                    "2.1" => "customer/customer_group"
+                ],
+                [
                     "" => "setting/extension",
                     "2.0" => "extension/extension",
                     "3.0" => "setting/extension"
                 ],
-				[
+                [
                     "" => "extension/event",
                     "3.0" => "setting/event"
                 ]
@@ -393,23 +397,25 @@ class Load
             ]
         );
     }
-	
-	// Modification Override
+
+    // Modification Override
     function modification($filename) {
-        if (defined('DIR_CATALOG')) {
-            $file = DIR_MODIFICATION . 'admin/' .  substr($filename, strlen(DIR_APPLICATION));
-        } elseif (defined('DIR_OPENCART')) {
-            $file = DIR_MODIFICATION . 'install/' .  substr($filename, strlen(DIR_APPLICATION));
-        } else {
-            $file = DIR_MODIFICATION . 'catalog/' . substr($filename, strlen(DIR_APPLICATION));
-        }
+        if (Util::version()->isMinimal(2.0)) {
+            if (defined('DIR_CATALOG')) {
+                $file = DIR_MODIFICATION . 'admin/' . substr($filename, strlen(DIR_APPLICATION));
+            } elseif (defined('DIR_OPENCART')) {
+                $file = DIR_MODIFICATION . 'install/' . substr($filename, strlen(DIR_APPLICATION));
+            } else {
+                $file = DIR_MODIFICATION . 'catalog/' . substr($filename, strlen(DIR_APPLICATION));
+            }
 
-        if (substr($filename, 0, strlen(DIR_SYSTEM)) == DIR_SYSTEM) {
-            $file = DIR_MODIFICATION . 'system/' . substr($filename, strlen(DIR_SYSTEM));
-        }
+            if (substr($filename, 0, strlen(DIR_SYSTEM)) == DIR_SYSTEM) {
+                $file = DIR_MODIFICATION . 'system/' . substr($filename, strlen(DIR_SYSTEM));
+            }
 
-        if (is_file($file)) {
-            return $file;
+            if (is_file($file)) {
+                return $file;
+            }
         }
 
         return $filename;
