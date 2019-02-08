@@ -2,6 +2,69 @@
 
 # Changelog #
 
+#### Changes in release 9.0.4
+  + Added conditional checking for OC 1.5, so OCMod checks are not attempted on a version that doesn't support it.
+
+#### Changes in release 9.0.3
+  + Fixed settings randomly disappearing from admin.
+  + Added support for VQMod/OCMod combinations.
+  + Rounding fix.
+  + Fixed missing translation button label.
+  + Fixed cleanup function.
+  + Send webhook URL on order creation.
+  + Check payment status on success page.
+
+#### Changes in release 9.0.2
+  + Fixed a bug in the module update functionality.
+
+#### Changes in release 9.0.1
+  + Correctly calculate taxes.
+  + Unselect payment method for store is possible again.
+  + Fixed "Undefined index: iso_code_2" in one page checkouts.
+  + Less warnings about adding an API key in the backend.
+  + "Amount is lower than minimum" bugfix.
+  + Fixed loading Belfius controller (thanks @KevinJDurant).
+  + Fixed switched translations for EPS and Giropay (thanks @pvdptje).
+  + Added support for 3rd party totals.
+  + Minor improvements to documentation.
+  + Removed possibility of sending html entities to Mollie API.
+  + Made API key a mandatory field.
+  + Added support for OC events in the versions that support it.
+  + Added "shipping after complete status" functionality.
+
+#### Changes in release 9.0.0
+  + Added version support for OpenCart 1.5.x to 3.x in one module, no need to download a separate version anymore;
+  + Added Klarna payment methods;
+  + Added Mollie Order API and Shipment API;
+  + Added update functionality right from the module itself, linked to new Github releases;
+  + Added multi currency support;
+  + Improved payment method display based on Mollie settings;
+  + Bugfixes: fixed amount.value errors with totals over 1000 EU, errors when checking out with USD, setting price limits, entering API key.
+
+#### Changes in release 8.4.2
+  + Fixed error in total price that gave a amount.value error on totals over 1000 eu.
+
+#### Changes in release 8.4.1
+  + Fixed the error with rounded order totals in 2.2-and-lower version giving the following error: "Error executing API call (422: Unprocessable Entity): The amount contains an invalid value. Field: amount.value."
+  + Fixed language file switch of EPS and Giropay payment methods.
+  + Removed remaining Mistercash language files from the admin dir for the 2.3+ version.
+
+#### Changes in release 8.4.0
+  + Added support for Mollie API v2.
+  + Added German (DE) and Spanish (ES) language support in the module.
+  + Added EPS and Giropay payment methods.
+  + Renamed MisterCash to Bancontact according to Mollie specifications.
+
+#### Changes in release 8.3.2
+  + Bugfix in the array with available Locale
+
+#### Changes in release 8.3.1
+  + Locale: use en_US if user Locale is not supported
+
+#### Changes in release 8.3.0
+  + ING Home'Pay added as payment method
+  + Cleanup check for already installed modules that are updated
+
 #### Changes in release 8.2.3
   + Improved logging for future debugging
   + Minor bug fixes.
