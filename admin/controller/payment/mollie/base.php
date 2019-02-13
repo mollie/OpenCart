@@ -714,7 +714,7 @@ class ControllerPaymentMollieBase extends Controller
         //save tmp file
         $temp_file = MOLLIE_TMP . "/mollieUpdate.zip";
         $handle = fopen($temp_file, "w+");
-        $content = $client->get($info["zipball_url"], false, false);
+		$content = $client->get($info["assets"][0]["browser_download_url"], false, false);
         fwrite($handle, $content);
         fclose($handle);
 
