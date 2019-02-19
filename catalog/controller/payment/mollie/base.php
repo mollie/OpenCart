@@ -254,7 +254,7 @@ class ControllerPaymentMollieBase extends Controller
                 $tax_rates = $this->tax->getRates($orderProduct['price'], $productDetails['tax_class_id']);
                 $rates = $this->getTaxRate($tax_rates);
                 //Since Mollie only supports VAT so '$rates' must contains only one(VAT) rate.
-                $vatRate = $rates[0];
+                $vatRate = isset($rates[0]) ? $rates[0] : 0;
 
                 $total = $orderProduct['total'] + ($orderProduct['tax'] * $orderProduct['quantity']);
                 $vatAmount = $total * ( $vatRate / (100 +  $vatRate));
@@ -276,7 +276,7 @@ class ControllerPaymentMollieBase extends Controller
                 $taxClass = $this->session->data['shipping_method']['tax_class_id'];
                 $tax_rates = $this->tax->getRates($cost, $taxClass);
                 $rates = $this->getTaxRate($tax_rates);
-                $vatRate = $rates[0];
+                $vatRate = isset($rates[0]) ? $rates[0] : 0;
                 $costWithTax = $this->tax->calculate($cost, $taxClass, $this->config->get('config_tax'));
                 $shippingVATAmount = $costWithTax * ( $vatRate / (100 +  $vatRate));
                 $lineForShipping[] = array(
@@ -311,7 +311,7 @@ class ControllerPaymentMollieBase extends Controller
 
                 $tax_rates = $this->tax->getRates($coupon['value'], $taxClass);
                 $rates = $this->getTaxRate($tax_rates);
-                $vatRate = $rates[0];
+                $vatRate = isset($rates[0]) ? $rates[0] : 0;
                 $unitPriceWithTax = $this->tax->calculate($coupon['value'], $taxClass, $this->config->get('config_tax'));
                 $couponVATAmount = $unitPriceWithTax * ( $vatRate / (100 +  $vatRate));
                 $lineForCoupon[] = array(
@@ -361,6 +361,10 @@ class ControllerPaymentMollieBase extends Controller
                     }
                 }
 
+                if(!isset($vatRate) || empty($vatRate)) {
+                    $vatRate = 0;
+                }
+
                 $unitPriceWithTax = $this->tax->calculate($rewardPoints['value'], $taxClass, $this->config->get('config_tax'));
                 $rewardVATAmount = $unitPriceWithTax * ( $vatRate / (100 +  $vatRate));
 
@@ -399,7 +403,7 @@ class ControllerPaymentMollieBase extends Controller
 
                     $tax_rates = $this->tax->getRates($orderTotals['value'], $taxClass);
                     $rates = $this->getTaxRate($tax_rates);
-                    $vatRate = $rates[0];
+                    $vatRate = isset($rates[0]) ? $rates[0] : 0;
                     $unitPriceWithTax = $this->tax->calculate($orderTotals['value'], $taxClass, $this->config->get('config_tax'));
                     $totalsVATAmount = $unitPriceWithTax * ( $vatRate / (100 +  $vatRate));
 
