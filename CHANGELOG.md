@@ -2,6 +2,10 @@
 
 # Changelog #
 
+#### Changes in release 9.0.5
+  + Fixed notice error when shipping method is used that isn't linked to a tax class.
+  + Fixed update functionality.
+
 #### Changes in release 9.0.4
   + Added conditional checking for OC 1.5, so OCMod checks are not attempted on a version that doesn't support it.
 

@@ -8,6 +8,7 @@ echo "3/5 Unzip temporary zip to upload dir..."
 unzip -q temp.zip -d upload
 echo "4/5 Create opencart installable zip..."
 rm mollie-opencart-2.3-and-up.ocmod.zip
+rm mollie-opencart-1.5-and-up.vqmod.zip
 zip -9 -rq mollie-opencart-1.5-and-up.vqmod.zip upload LICENSE readme.md -x *.git* *.DS_Store
 
 echo "5/5 Cleanup..."
