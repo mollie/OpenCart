@@ -277,7 +277,7 @@ class ControllerPaymentMollieBase extends Controller
                 $tax_rates = $this->tax->getRates($cost, $taxClass);
                 $rates = $this->getTaxRate($tax_rates);
                 $vatRate = isset($rates[0]) ? $rates[0] : 0;
-                $costWithTax = $this->tax->calculate($cost, $taxClass, $this->config->get('config_tax'));
+                $costWithTax = $this->tax->calculate($cost, $taxClass, $vatRate);
                 $shippingVATAmount = $costWithTax * ( $vatRate / (100 +  $vatRate));
                 $lineForShipping[] = array(
                     'type'          =>  'shipping_fee',
