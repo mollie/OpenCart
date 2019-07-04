@@ -18,6 +18,7 @@
             <directory>.</directory>
             <directory>../admin/language</directory>
             <directory>../catalog/language</directory>
+            <directory>../catalog/controller/payment/mollie-api-client</directory>
         </blacklist>
         <whitelist addUncoveredFilesFromWhitelist="true">
             <directory>../admin</directory>

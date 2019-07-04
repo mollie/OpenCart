@@ -1,5 +1,6 @@
 .DS_Store
 .idea
+desktop.ini
 /build/coverage
 /build/clover
 /build/logs

@@ -1,7 +1,6 @@
 <?php
-require_once(dirname(__FILE__) . "/mollie/base.php");
+include_once(__DIR__."/../../payment/mollie_bitcoin.php");
 
-class ControllerExtensionPaymentMollieBitcoin extends ControllerExtensionPaymentMollieBase
+class ControllerExtensionPaymentMollieBitcoin extends ControllerPaymentMollieBitcoin
 {
-	const MODULE_NAME = MollieHelper::MODULE_NAME_BITCOIN;
 }

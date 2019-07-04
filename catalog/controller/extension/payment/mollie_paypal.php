@@ -1,7 +1,5 @@
 <?php
-require_once(dirname(__FILE__) . "/mollie/base.php");
-
-class ControllerExtensionPaymentMolliePayPal extends ControllerExtensionPaymentMollieBase
+include_once(__DIR__."/../../payment/mollie_paypal.php");
+class ControllerExtensionPaymentMolliePayPal extends ControllerPaymentMolliePayPal
 {
-	const MODULE_NAME = MollieHelper::MODULE_NAME_PAYPAL;
 }

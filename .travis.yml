@@ -1,11 +1,10 @@
 language: php
 
 php:
-- 5.4
-- 5.5
 - 5.6
 - 7.0
 - 7.1
+- 7.2
 
 sudo: false
 
@@ -18,5 +17,17 @@ install:
 
 script:
 - composer validate --strict
-- find admin catalog tests -name *.php | xargs -n 1 -P4 php -l
+- find admin catalog -path catalog/controller/payment/mollie-api-client -prune -o -name '*.php' | xargs -n 1 -P4 php -l
 - vendor/bin/phpunit -c tests/phpunit.xml
+
+before_deploy:
+- bash release.sh
+
+deploy:
+  provider: releases
+  api_key:
+    secure: "N9Gtz2Cyxo8LPsMOKMcuGViL7Tn+vu0C2AkUzo6+mvEqYx8Vl8VisKCapjNnCPBGz084YVQ6yIj2q3jDrRPqHwkhc5Hvd5tFVVsrxZhxo7z4EDujkA21i8uTVtXr4a/DL/JfE1dEzdu+LP0DniR0TIn+fAJcgmqAUCLkhqclNDQ="
+  file: mollie-opencart-1.5-and-up.vqmod.zip
+  skip_cleanup: true
+  on:
+    tags: true

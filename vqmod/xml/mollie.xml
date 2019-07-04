@@ -1,0 +1,64 @@
+<modification>
+    <id>Mollie</id>
+    <version>1.0.0</version>
+    <vqmver>2.3.0</vqmver>
+    <author>Comercia - Pradeep Mishra</author>
+
+    <file name="catalog/controller/event/compatibility.php" error="skip">
+        <operation>
+            <search position="replace"><![CDATA['model/' . $route . '.php']]></search>
+            <add><![CDATA['model/'.((strpos($route,'get') !== false) ? dirname($route) : $route).'.php']]></add>
+        </operation>
+    </file>
+    <file name="admin/controller/event/compatibility.php" error="skip">
+        <operation>
+            <search position="after" index="1"><![CDATA[$route = $part[1] . '/' . $part[2];]]></search>
+            <add><![CDATA[if(array_key_exists(3, $part)) {
+                $route = $part[1] . '/' . $part[2] . '/' . $part[3];
+            }]]></add>
+        </operation>
+    </file>
+
+    <!-- Shipment creation for Klarna method for versions older than 2.2 -->
+    <file name="admin/model/sale/order.php" error="skip">
+        <operation error="skip">
+            <search position="before"><![CDATA[public function getOrderHistories($order_id, $start = 0, $limit = 10) {]]></search>
+            <add><![CDATA[//Get order reference id for mollie payment
+    public function getOrderID($order_id)
+    {
+        if (!empty($order_id)) {
+            $results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `order_id` = '" . $order_id . "'");
+            if($results->num_rows == 0) return FALSE;
+            return $results->row['mollie_order_id'];
+        }
+        return FALSE;
+    }]]></add>
+        </operation>
+    </file>
+    <file name="catalog/controller/api/order.php" error="skip">
+        <operation error="skip">
+            <search position="after" index="3"><![CDATA[$this->model_checkout_order->addOrderHistory]]></search>
+            <add><![CDATA[// Shipment creation for Klarna for versions older than 2.2
+                if(VERSION < "2.2") {
+                    $orderdata = array("0" => $order_id, "1" => $this->request->post['order_status_id']);
+                    $route = null;
+                    require(DIR_APPLICATION . "controller/payment/mollie/base.php");
+                    $controller = new ControllerPaymentMollieBase($this->registry);
+                    $controller->createShipment($route, $orderdata, "", "");
+                } ]]></add>
+        </operation>
+    </file>
+    <file name="admin/controller/sale/order.php" error="skip">
+        <operation error="skip">
+            <search position="before" index="4"><![CDATA[$this->data['success']]]></search>
+            <add><![CDATA[// Shipment creation for Klarna for versions older than 2.2
+                if(VERSION <= "1.5.6.4") {
+                    $orderdata = array("0" => $this->request->get['order_id'], "1" => $this->request->post['order_status_id']);
+                    $route = null;
+                    require(DIR_CATALOG . "controller/payment/mollie/base.php");
+                    $controller = new ControllerPaymentMollieBase($this->registry);
+                    $controller->createShipment($route, $orderdata, "", "");
+                } ]]></add>
+        </operation>
+    </file>
+</modification>

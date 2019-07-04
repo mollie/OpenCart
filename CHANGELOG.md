@@ -2,6 +2,118 @@
 
 # Changelog #
 
+#### Changes in release 9.0.6
+  + Added Przelewy24 support.
+  + Added additional check on order_id in webhook.
+  + Update cleanup function to include cleanup for < 9.x modules.
+  + Remove Bitcoin.
+  + Fix double payment bug.
+  + Fix voucher support.
+  + Fix Amount invalid bug for all currencies.
+  + Fix non-integer qty support.
+
+#### Changes in release 9.0.5
+  + Fixed notice error when shipping method is used that isn't linked to a tax class.
+  + Fixed update functionality.
+
+#### Changes in release 9.0.4
+  + Added conditional checking for OC 1.5, so OCMod checks are not attempted on a version that doesn't support it.
+
+#### Changes in release 9.0.3
+  + Fixed settings randomly disappearing from admin.
+  + Added support for VQMod/OCMod combinations.
+  + Rounding fix.
+  + Fixed missing translation button label.
+  + Fixed cleanup function.
+  + Send webhook URL on order creation.
+  + Check payment status on success page.
+
+#### Changes in release 9.0.2
+  + Fixed a bug in the module update functionality.
+
+#### Changes in release 9.0.1
+  + Correctly calculate taxes.
+  + Unselect payment method for store is possible again.
+  + Fixed "Undefined index: iso_code_2" in one page checkouts.
+  + Less warnings about adding an API key in the backend.
+  + "Amount is lower than minimum" bugfix.
+  + Fixed loading Belfius controller (thanks @KevinJDurant).
+  + Fixed switched translations for EPS and Giropay (thanks @pvdptje).
+  + Added support for 3rd party totals.
+  + Minor improvements to documentation.
+  + Removed possibility of sending html entities to Mollie API.
+  + Made API key a mandatory field.
+  + Added support for OC events in the versions that support it.
+  + Added "shipping after complete status" functionality.
+
+#### Changes in release 9.0.0
+  + Added version support for OpenCart 1.5.x to 3.x in one module, no need to download a separate version anymore;
+  + Added Klarna payment methods;
+  + Added Mollie Order API and Shipment API;
+  + Added update functionality right from the module itself, linked to new Github releases;
+  + Added multi currency support;
+  + Improved payment method display based on Mollie settings;
+  + Bugfixes: fixed amount.value errors with totals over 1000 EU, errors when checking out with USD, setting price limits, entering API key.
+
+#### Changes in release 8.4.2
+  + Fixed error in total price that gave a amount.value error on totals over 1000 eu.
+
+#### Changes in release 8.4.1
+  + Fixed the error with rounded order totals in 2.2-and-lower version giving the following error: "Error executing API call (422: Unprocessable Entity): The amount contains an invalid value. Field: amount.value."
+  + Fixed language file switch of EPS and Giropay payment methods.
+  + Removed remaining Mistercash language files from the admin dir for the 2.3+ version.
+
+#### Changes in release 8.4.0
+  + Added support for Mollie API v2.
+  + Added German (DE) and Spanish (ES) language support in the module.
+  + Added EPS and Giropay payment methods.
+  + Renamed MisterCash to Bancontact according to Mollie specifications.
+
+#### Changes in release 8.3.2
+  + Bugfix in the array with available Locale
+
+#### Changes in release 8.3.1
+  + Locale: use en_US if user Locale is not supported
+
+#### Changes in release 8.3.0
+  + ING Home'Pay added as payment method
+  + Cleanup check for already installed modules that are updated
+
+#### Changes in release 8.2.3
+  + Improved logging for future debugging
+  + Minor bug fixes.
+
+#### Changes in release 8.2.2
+  + Fixed a bug where quick checkouts would not validate properly
+  + Added missing translation
+  
+#### Changes in release 8.2.1
+  + Fixed a bug where Bancontact would be displayed as Mister Cash
+
+#### Changes in release 8.2.0
+  + New features are now available for OpenCart 1.5 and 2.x!
+  + Fix a bug where a payment method would not always be displayed correctly in the order email when using payment images.
+  + Minor issues solved.
+
+#### Changes in release 8.1.0
+  + Added 6 new payment methods (Gift cards)!
+    + fashioncheque
+    + Nationale EntertainmentCard
+    + Podium Cadeaukaart
+    + VVV Giftcard
+    + YourGift
+    + Webshop Giftcard
+
+#### Changes in release 8.0.0
+  + Convert module to work with OpenCart 3.x.x.x only (soon to be backported).
+  + Addition of geo-zone selection per payment method.
+  + Adjusted admin interface to declutter the view.
+
+#### Changes in release 7.2.0
+  + Add helpful method: `getPaymentID()`
+  + Double check payment status in callback - uses new `getPaymentID()` method
+  + Update mollie_return_2.tpl - some themes are using HTML 'id' attributes on container divs
+
 #### Changes in release 7.1.1
   + Update bundled cacert.pem file. Follows Mozilla's recommendations on invalid certificates.
 
@@ -134,7 +246,7 @@
 
 #### Wijzigigen in versie 5.0
   + De module gebruikt nu de nieuwe betalings-API van Mollie. Dit betekent dat de module naast [iDEAL](https://www.mollie.com/ideal/), nu
-  ook [creditcard](https://www.mollie.com/creditcard/), [Mister Cash](https://www.mollie.com/mistercash/) en [paysafecard](https://www.mollie.com/paysafecard/)
+  ook [creditcard](https://www.mollie.com/creditcard/), [Mister Cash](https://www.mollie.com/bancontact/) en [paysafecard](https://www.mollie.com/paysafecard/)
   ondersteunt. Mocht een betaling om wat voor reden dan ook niet lukken, dat kan uw klant het gelijk nog een keer proberen. U hoeft hiervoor niets extra's
   te implementeren. In de toekomst zullen ook nog nieuwe betaalmethodes toegevoegd worden. Deze zijn dan direct beschikbaar in uw webshop.
   + Het instellingenscherm in de admin toont nu gelijk of de module correct kan communiceren met de Mollie API. Hierdoor kunnen we u beter helpen wanneer
