@@ -6,7 +6,7 @@ use Mollie\Api\Resources\BaseCollection;
 use Mollie\Api\Resources\Customer;
 use Mollie\Api\Resources\Mandate;
 use Mollie\Api\Resources\MandateCollection;
-class MandateEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
+class MandateEndpoint extends \Mollie\Api\Endpoints\CollectionEndpointAbstract
 {
     protected $resourcePath = "customers_mandates";
     /**
@@ -35,11 +35,24 @@ class MandateEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
      * @param array $options
      * @param array $filters
      *
-     * @return Mandate
+     * @return \Mollie\Api\Resources\Mandate
+     * @throws \Mollie\Api\Exceptions\ApiException
      */
     public function createFor(\Mollie\Api\Resources\Customer $customer, array $options = [], array $filters = [])
     {
-        $this->parentId = $customer->id;
+        return $this->createForId($customer->id, $options, $filters);
+    }
+    /**
+     * @param string $customerId
+     * @param array $options
+     * @param array $filters
+     *
+     * @return \Mollie\Api\Resources\BaseResource|\Mollie\Api\Resources\Mandate
+     * @throws \Mollie\Api\Exceptions\ApiException
+     */
+    public function createForId($customerId, array $options = [], array $filters = [])
+    {
+        $this->parentId = $customerId;
         return parent::rest_create($options, $filters);
     }
     /**
@@ -47,11 +60,24 @@ class MandateEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
      * @param string $mandateId
      * @param array $parameters
      *
-     * @return Mandate
+     * @return \Mollie\Api\Resources\BaseResource|\Mollie\Api\Resources\Mandate
+     * @throws \Mollie\Api\Exceptions\ApiException
      */
     public function getFor(\Mollie\Api\Resources\Customer $customer, $mandateId, array $parameters = [])
     {
-        $this->parentId = $customer->id;
+        return $this->getForId($customer->id, $mandateId, $parameters);
+    }
+    /**
+     * @param string $customerId
+     * @param string $mandateId
+     * @param array $parameters
+     * 
+     * @return \Mollie\Api\Resources\BaseResource
+     * @throws \Mollie\Api\Exceptions\ApiException
+     */
+    public function getForId($customerId, $mandateId, array $parameters = [])
+    {
+        $this->parentId = $customerId;
         return parent::rest_read($mandateId, $parameters);
     }
     /**
@@ -60,24 +86,50 @@ class MandateEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
      * @param int $limit
      * @param array $parameters
      *
-     * @return MandateCollection
+     * @return \Mollie\Api\Resources\BaseCollection|\Mollie\Api\Resources\MandateCollection
+     * @throws \Mollie\Api\Exceptions\ApiException
      */
     public function listFor(\Mollie\Api\Resources\Customer $customer, $from = null, $limit = null, array $parameters = [])
     {
-        $this->parentId = $customer->id;
+        return $this->listForId($customer->id, $from, $limit, $parameters);
+    }
+    /**
+     * @param string $customerId
+     * @param null $from
+     * @param null $limit
+     * @param array $parameters
+     *
+     * @return \Mollie\Api\Resources\BaseCollection
+     * @throws \Mollie\Api\Exceptions\ApiException
+     */
+    public function listForId($customerId, $from = null, $limit = null, array $parameters = [])
+    {
+        $this->parentId = $customerId;
         return parent::rest_list($from, $limit, $parameters);
     }
     /**
      * @param Customer $customer
      * @param string $mandateId
-     *
      * @param array $data
+     *
      * @return null
      * @throws \Mollie\Api\Exceptions\ApiException
      */
     public function revokeFor(\Mollie\Api\Resources\Customer $customer, $mandateId, $data = [])
     {
-        $this->parentId = $customer->id;
+        return $this->revokeForId($customer->id, $mandateId, $data);
+    }
+    /**
+     * @param string $customerId
+     * @param string $mandateId
+     * @param array $data
+     *
+     * @return null
+     * @throws \Mollie\Api\Exceptions\ApiException
+     */
+    public function revokeForId($customerId, $mandateId, $data = [])
+    {
+        $this->parentId = $customerId;
         return parent::rest_delete($mandateId, $data);
     }
 }

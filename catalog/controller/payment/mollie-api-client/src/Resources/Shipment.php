@@ -82,16 +82,13 @@ class Shipment extends \Mollie\Api\Resources\BaseResource
      */
     public function lines()
     {
-        $lines = new \Mollie\Api\Resources\OrderLineCollection(\count($this->lines), null);
-        foreach ($this->lines as $line) {
-            $lines->append(\Mollie\Api\Resources\ResourceFactory::createFromApiResult($line, new \Mollie\Api\Resources\OrderLine($this->client)));
-        }
-        return $lines;
+        return \Mollie\Api\Resources\ResourceFactory::createBaseResourceCollection($this->client, $this->lines, \Mollie\Api\Resources\OrderLine::class);
     }
     /**
      * Get the Order object for this shipment
      *
      * @return Order
+     * @throws \Mollie\Api\Exceptions\ApiException
      */
     public function order()
     {

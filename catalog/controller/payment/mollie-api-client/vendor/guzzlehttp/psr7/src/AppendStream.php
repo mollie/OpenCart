@@ -1,21 +1,20 @@
 <?php
 
-namespace _PhpScoper5bbb1f4b001f3\GuzzleHttp\Psr7;
+namespace _PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7;
 
-use _PhpScoper5bbb1f4b001f3\Psr\Http\Message\StreamInterface;
+use _PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInterface;
 /**
  * Reads from multiple streams, one after the other.
  *
  * This is a read-only stream decorator.
  */
-class AppendStream implements \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\StreamInterface
+class AppendStream implements \_PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInterface
 {
     /** @var StreamInterface[] Streams being decorated */
     private $streams = [];
     private $seekable = \true;
     private $current = 0;
     private $pos = 0;
-    private $detached = \false;
     /**
      * @param StreamInterface[] $streams Streams to decorate. Each stream must
      *                                   be readable.
@@ -42,7 +41,7 @@ class AppendStream implements \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\StreamIn
      *
      * @throws \InvalidArgumentException if the stream is not readable
      */
-    public function addStream(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\StreamInterface $stream)
+    public function addStream(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInterface $stream)
     {
         if (!$stream->isReadable()) {
             throw new \InvalidArgumentException('Each stream must be readable');
@@ -65,20 +64,27 @@ class AppendStream implements \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\StreamIn
     public function close()
     {
         $this->pos = $this->current = 0;
+        $this->seekable = \true;
         foreach ($this->streams as $stream) {
             $stream->close();
         }
         $this->streams = [];
     }
     /**
-     * Detaches each attached stream
+     * Detaches each attached stream.
+     *
+     * Returns null as it's not clear which underlying stream resource to return.
      *
      * {@inheritdoc}
      */
     public function detach()
     {
-        $this->close();
-        $this->detached = \true;
+        $this->pos = $this->current = 0;
+        $this->seekable = \true;
+        foreach ($this->streams as $stream) {
+            $stream->detach();
+        }
+        $this->streams = [];
     }
     public function tell()
     {

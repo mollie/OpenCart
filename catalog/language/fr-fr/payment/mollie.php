@@ -65,6 +65,8 @@ $_['response_failed']    = 'Malheureusement une erreur s\'est produite. S\'il vo
 $_['response_expired']   = 'Le paiement a expiré';
 $_['response_unknown']   = 'Une erreur inconnue s\'est produite';
 $_['shipment_success']   = 'L\'envoi est créé';
+$_['refund_cancelled']   = 'Le remboursement a été annulé.';
+$_['refund_success'] 	 = 'Le remboursement a été traité avec succès!';
 
 // Methods
 $_['method_ideal']                      = 'iDEAL';

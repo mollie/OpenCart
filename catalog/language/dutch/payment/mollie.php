@@ -65,6 +65,8 @@ $_['response_failed']    = 'De betaling is helaas mislukt. Probeer het alstublie
 $_['response_expired']   = 'De betaling is verlopen';
 $_['response_unknown']   = 'Er is een onbekende fout opgetreden';
 $_['shipment_success']   = 'Zending is gemaakt';
+$_['refund_cancelled']   = 'Restitutie is geannuleerd.';
+$_['refund_success'] 	 = 'Terugbetaling is succesvol verwerkt!';
 
 // Methods
 $_['method_ideal']        = 'iDEAL';

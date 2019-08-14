@@ -1,6 +1,7 @@
 .DS_Store
 .idea
 desktop.ini
+php.ini
 /build/coverage
 /build/clover
 /build/logs
@@ -8,3 +9,4 @@ desktop.ini
 /composer.phar
 /vendor
 /*.zip
+/upload/tests/

@@ -50,6 +50,7 @@ $_['text_mollie_giropay']       = $method_list_logo;
 $_['text_mollie_klarnapaylater'] = $method_list_logo;
 $_['text_mollie_klarnasliceit']  = $method_list_logo;
 $_['text_mollie_przelewy24']  	 = $method_list_logo;
+$_['text_mollie_applepay']  	 = $method_list_logo;
 
 // Heading
 $_['heading_title']         = "Mollie";
@@ -76,14 +77,24 @@ $_['name_mollie_giropay']       = 'Giropay';
 $_['name_mollie_klarnapaylater'] = 'Klarna Pay Later';
 $_['name_mollie_klarnasliceit']  = 'Klarna Slice It';
 $_['name_mollie_przelewy24']  	 = 'P24';
+$_['name_mollie_applepay']  	 = 'Apple Pay';
 
 // Text
 $_['text_edit']                    = "Bewerk Mollie";
 $_['text_payment']                 = "Betaling";
 $_['text_success']                 = "Gelukt: de instellingen voor de module zijn aangepast!";
 $_['text_missing_api_key']         = "Vul uw API-key in bij de <a data-toggle='tab' href='#' class='settings'>Instellingen</a>.";
-$_['text_activate_payment_method'] = 'Activeer deze betaalmethode via het <a href="https://www.mollie.com/beheer/account/profielen/" target="_blank">Mollie-dashboard</a>.';
+$_['text_enable_payment_method']   = 'Activeer deze betaalmethode via het <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank">Mollie-dashboard</a>.';
+$_['text_activate_payment_method'] = 'Activeer via het <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank">Mollie dashboard</a>, of stel de App in via de instellingen van deze module om deze pagina te activeren.';
 $_['text_no_status_id']            = "- Status niet wijzigen (niet aanbevolen) -";
+$_['text_enable']             = "Activeren";
+$_['text_disable']            = "Deactiveren";
+$_['text_connection_success'] = "Succes: verbinding met Mollie gelukt!";
+$_['text_error'] 			  = "Waarschuwing: er is iets misgegaan. Probeer het later opnieuw!";
+$_['text_creditcard_required'] = "Credit Card verplicht";
+$_['text_mollie_api'] = "Mollie API";
+$_['text_mollie_app'] = "Mollie App";
+$_['text_general'] 	  = "Algemeen";
 
 // Entry
 $_['entry_payment_method']           = "Betaalmethode";
@@ -94,14 +105,21 @@ $_['entry_description']              = "Omschrijving";
 $_['entry_show_icons']               = "Toon icoontjes";
 $_['entry_show_order_canceled_page'] = "Toon melding bij geannuleerde betalingen";
 $_['entry_geo_zone']                 = "Geo Zone";
+$_['entry_client_id']                = "Client ID";
+$_['entry_client_secret']            = "Client Secret";
+$_['entry_redirect_uri']             = "Redirect URI";
+$_['entry_payment_screen_language']  = "Standaardtaal betaalscherm";
 
 // Help
-$_['help_view_profile']             = 'U kunt uw API-sleutel vinden bij <a href="https://www.mollie.com/beheer/account/profielen/" target="_blank" class="alert-link">uw Mollie-websiteprofielen</a>.';
+$_['help_view_profile']             = 'U kunt uw API-sleutel vinden bij <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank" class="alert-link">uw Mollie-websiteprofielen</a>.';
 $_['help_status']                   = "Activeer de module";
 $_['help_api_key']                  = "Voer hier de <code>api_key</code> van het websiteprofiel in dat u wilt gebruiken. De API-sleutel begint met <code>test_</code> of <code>live_</code>.";
 $_['help_description']              = "De omschrijving zal op het bankafschrift van uw klant verschijnen en kunt u terugvinden in het Mollie beheer. U kunt maximaal 29 tekens gebruiken. TIP: Gebruik <code>%</code>, dit zal vervangen worden door het ordernummer. Het ordernummer kan zelf ook meerdere tekens lang zijn!";
 $_['help_show_icons']               = "Toon icoontjes naast de betaalmethodes van Mollie op de betaalpagina.";
 $_['help_show_order_canceled_page'] = "Toon een melding aan de klant als een betaling geannuleerd wordt, alvorens de klant terug naar het winkelmandje te verwijzen.";
+$_['help_redirect_uri']				= 'URI omleiden in uw mollie-dashboard moet overeenkomen met deze URI.';
+$_['help_mollie_app']				= 'Door uw module te registreren als een app op het Mollie-dashboard, ontgrendeld u extra functionaliteiten. Dit is niet vereist om Mollie-betalingen te gebruiken.';
+$_['help_apple_pay']				= 'Voor Apple Pay dient credit card betaling geactiveerd te zijn op uw Mollie profiel. Activeer Credit Cards eerst.';
 
 // Info
 $_['entry_module']          = "Module";
@@ -124,6 +142,7 @@ $_['entry_failed_status']    = "Status betaling mislukt";
 $_['entry_canceled_status']  = "Status betaling geannuleerd";
 $_['entry_expired_status']   = "Status betaling verlopen";
 $_['entry_processing_status']= "Status betaling succesvol";
+$_['entry_refund_status']	  = "Status betaling terugbetaling";
 
 $_['entry_shipping_status']   = "Status bestelling verzonden";
 $_['entry_shipment']       			 = "Maak verzending";
@@ -137,3 +156,10 @@ $_['entry_create_shipment_on_order_complete'] 		= "Maak verzending bij bestellin
 
 //Button
 $_['button_update'] = "Bijwerken";
+$_['button_mollie_connect'] = "Connect via Mollie";
+
+//Error log
+$_['text_log_success']	   = 'Succes: u hebt met succes uw foutenlogboek gewist!';
+$_['text_log_list']        = 'Foutenlijst';
+$_['error_log_warning']	   = 'Waarschuwing: uw foutenlogbestand %s is %s!';
+$_['button_download']	   = 'Download';

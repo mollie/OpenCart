@@ -5,7 +5,7 @@ namespace Mollie\Api\Endpoints;
 use Mollie\Api\Resources\Chargeback;
 use Mollie\Api\Resources\ChargebackCollection;
 use Mollie\Api\Resources\Payment;
-class PaymentChargebackEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
+class PaymentChargebackEndpoint extends \Mollie\Api\Endpoints\CollectionEndpointAbstract
 {
     protected $resourcePath = "payments_chargebacks";
     /**
@@ -35,10 +35,23 @@ class PaymentChargebackEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
      * @param array $parameters
      *
      * @return Chargeback
+     * @throws \Mollie\Api\Exceptions\ApiException
      */
     public function getFor(\Mollie\Api\Resources\Payment $payment, $chargebackId, array $parameters = [])
     {
-        $this->parentId = $payment->id;
+        return $this->getForId($payment->id, $chargebackId, $parameters);
+    }
+    /**
+     * @param string $paymentId
+     * @param string $chargebackId
+     * @param array $parameters
+     *
+     * @return Chargeback
+     * @throws \Mollie\Api\Exceptions\ApiException
+     */
+    public function getForId($paymentId, $chargebackId, array $parameters = [])
+    {
+        $this->parentId = $paymentId;
         return parent::rest_read($chargebackId, $parameters);
     }
 }

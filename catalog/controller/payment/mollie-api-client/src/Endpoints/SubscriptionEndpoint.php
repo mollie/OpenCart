@@ -7,7 +7,7 @@ use Mollie\Api\Resources\BaseResource;
 use Mollie\Api\Resources\Customer;
 use Mollie\Api\Resources\Subscription;
 use Mollie\Api\Resources\SubscriptionCollection;
-class SubscriptionEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
+class SubscriptionEndpoint extends \Mollie\Api\Endpoints\CollectionEndpointAbstract
 {
     protected $resourcePath = "customers_subscriptions";
     /**

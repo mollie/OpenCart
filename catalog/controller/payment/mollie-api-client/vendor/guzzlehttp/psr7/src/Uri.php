@@ -1,8 +1,8 @@
 <?php
 
-namespace _PhpScoper5bbb1f4b001f3\GuzzleHttp\Psr7;
+namespace _PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7;
 
-use _PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface;
+use _PhpScoper5ce26f1fe2920\Psr\Http\Message\UriInterface;
 /**
  * PSR-7 URI implementation.
  *
@@ -10,7 +10,7 @@ use _PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface;
  * @author Tobias Schultze
  * @author Matthew Weier O'Phinney
  */
-class Uri implements \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface
+class Uri implements \_PhpScoper5ce26f1fe2920\Psr\Http\Message\UriInterface
 {
     /**
      * Absolute http and https URIs require a host per RFC 7230 Section 2.7
@@ -110,7 +110,7 @@ class Uri implements \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface
      *
      * @return bool
      */
-    public static function isDefaultPort(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface $uri)
+    public static function isDefaultPort(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\UriInterface $uri)
     {
         return $uri->getPort() === null || isset(self::$defaultPorts[$uri->getScheme()]) && $uri->getPort() === self::$defaultPorts[$uri->getScheme()];
     }
@@ -132,7 +132,7 @@ class Uri implements \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface
      * @see Uri::isRelativePathReference
      * @link https://tools.ietf.org/html/rfc3986#section-4
      */
-    public static function isAbsolute(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface $uri)
+    public static function isAbsolute(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\UriInterface $uri)
     {
         return $uri->getScheme() !== '';
     }
@@ -146,7 +146,7 @@ class Uri implements \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface
      * @return bool
      * @link https://tools.ietf.org/html/rfc3986#section-4.2
      */
-    public static function isNetworkPathReference(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface $uri)
+    public static function isNetworkPathReference(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\UriInterface $uri)
     {
         return $uri->getScheme() === '' && $uri->getAuthority() !== '';
     }
@@ -160,7 +160,7 @@ class Uri implements \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface
      * @return bool
      * @link https://tools.ietf.org/html/rfc3986#section-4.2
      */
-    public static function isAbsolutePathReference(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface $uri)
+    public static function isAbsolutePathReference(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\UriInterface $uri)
     {
         return $uri->getScheme() === '' && $uri->getAuthority() === '' && isset($uri->getPath()[0]) && $uri->getPath()[0] === '/';
     }
@@ -174,7 +174,7 @@ class Uri implements \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface
      * @return bool
      * @link https://tools.ietf.org/html/rfc3986#section-4.2
      */
-    public static function isRelativePathReference(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface $uri)
+    public static function isRelativePathReference(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\UriInterface $uri)
     {
         return $uri->getScheme() === '' && $uri->getAuthority() === '' && (!isset($uri->getPath()[0]) || $uri->getPath()[0] !== '/');
     }
@@ -191,10 +191,10 @@ class Uri implements \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface
      * @return bool
      * @link https://tools.ietf.org/html/rfc3986#section-4.4
      */
-    public static function isSameDocumentReference(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface $uri, \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface $base = null)
+    public static function isSameDocumentReference(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\UriInterface $uri, \_PhpScoper5ce26f1fe2920\Psr\Http\Message\UriInterface $base = null)
     {
         if ($base !== null) {
-            $uri = \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Psr7\UriResolver::resolve($base, $uri);
+            $uri = \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\UriResolver::resolve($base, $uri);
             return $uri->getScheme() === $base->getScheme() && $uri->getAuthority() === $base->getAuthority() && $uri->getPath() === $base->getPath() && $uri->getQuery() === $base->getQuery();
         }
         return $uri->getScheme() === '' && $uri->getAuthority() === '' && $uri->getPath() === '' && $uri->getQuery() === '';
@@ -211,7 +211,7 @@ class Uri implements \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface
      */
     public static function removeDotSegments($path)
     {
-        return \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Psr7\UriResolver::removeDotSegments($path);
+        return \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\UriResolver::removeDotSegments($path);
     }
     /**
      * Converts the relative URI into a new URI that is resolved against the base URI.
@@ -224,12 +224,12 @@ class Uri implements \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface
      * @deprecated since version 1.4. Use UriResolver::resolve instead.
      * @see UriResolver::resolve
      */
-    public static function resolve(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface $base, $rel)
+    public static function resolve(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\UriInterface $base, $rel)
     {
-        if (!$rel instanceof \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface) {
+        if (!$rel instanceof \_PhpScoper5ce26f1fe2920\Psr\Http\Message\UriInterface) {
             $rel = new self($rel);
         }
-        return \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Psr7\UriResolver::resolve($base, $rel);
+        return \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\UriResolver::resolve($base, $rel);
     }
     /**
      * Creates a new URI with a specific query string value removed.
@@ -242,16 +242,9 @@ class Uri implements \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface
      *
      * @return UriInterface
      */
-    public static function withoutQueryValue(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface $uri, $key)
+    public static function withoutQueryValue(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\UriInterface $uri, $key)
     {
-        $current = $uri->getQuery();
-        if ($current === '') {
-            return $uri;
-        }
-        $decodedKey = \rawurldecode($key);
-        $result = \array_filter(\explode('&', $current), function ($part) use($decodedKey) {
-            return \rawurldecode(\explode('=', $part)[0]) !== $decodedKey;
-        });
+        $result = self::getFilteredQueryString($uri, [$key]);
         return $uri->withQuery(\implode('&', $result));
     }
     /**
@@ -269,25 +262,27 @@ class Uri implements \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface
      *
      * @return UriInterface
      */
-    public static function withQueryValue(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface $uri, $key, $value)
+    public static function withQueryValue(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\UriInterface $uri, $key, $value)
     {
-        $current = $uri->getQuery();
-        if ($current === '') {
-            $result = [];
-        } else {
-            $decodedKey = \rawurldecode($key);
-            $result = \array_filter(\explode('&', $current), function ($part) use($decodedKey) {
-                return \rawurldecode(\explode('=', $part)[0]) !== $decodedKey;
-            });
-        }
-        // Query string separators ("=", "&") within the key or value need to be encoded
-        // (while preventing double-encoding) before setting the query string. All other
-        // chars that need percent-encoding will be encoded by withQuery().
-        $key = \strtr($key, self::$replaceQuery);
-        if ($value !== null) {
-            $result[] = $key . '=' . \strtr($value, self::$replaceQuery);
-        } else {
-            $result[] = $key;
+        $result = self::getFilteredQueryString($uri, [$key]);
+        $result[] = self::generateQueryString($key, $value);
+        return $uri->withQuery(\implode('&', $result));
+    }
+    /**
+     * Creates a new URI with multiple specific query string values.
+     *
+     * It has the same behavior as withQueryValue() but for an associative array of key => value.
+     *
+     * @param UriInterface $uri           URI to use as a base.
+     * @param array        $keyValueArray Associative array of key and values
+     *
+     * @return UriInterface
+     */
+    public static function withQueryValues(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\UriInterface $uri, array $keyValueArray)
+    {
+        $result = self::getFilteredQueryString($uri, \array_keys($keyValueArray));
+        foreach ($keyValueArray as $key => $value) {
+            $result[] = self::generateQueryString($key, $value);
         }
         return $uri->withQuery(\implode('&', $result));
     }
@@ -491,6 +486,40 @@ class Uri implements \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface
             throw new \InvalidArgumentException(\sprintf('Invalid port: %d. Must be between 1 and 65535', $port));
         }
         return $port;
+    }
+    /**
+     * @param UriInterface $uri
+     * @param array        $keys
+     * 
+     * @return array
+     */
+    private static function getFilteredQueryString(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\UriInterface $uri, array $keys)
+    {
+        $current = $uri->getQuery();
+        if ($current === '') {
+            return [];
+        }
+        $decodedKeys = \array_map('rawurldecode', $keys);
+        return \array_filter(\explode('&', $current), function ($part) use($decodedKeys) {
+            return !\in_array(\rawurldecode(\explode('=', $part)[0]), $decodedKeys, \true);
+        });
+    }
+    /**
+     * @param string      $key
+     * @param string|null $value
+     * 
+     * @return string
+     */
+    private static function generateQueryString($key, $value)
+    {
+        // Query string separators ("=", "&") within the key or value need to be encoded
+        // (while preventing double-encoding) before setting the query string. All other
+        // chars that need percent-encoding will be encoded by withQuery().
+        $queryString = \strtr($key, self::$replaceQuery);
+        if ($value !== null) {
+            $queryString .= '=' . \strtr($value, self::$replaceQuery);
+        }
+        return $queryString;
     }
     private function removeDefaultPort()
     {

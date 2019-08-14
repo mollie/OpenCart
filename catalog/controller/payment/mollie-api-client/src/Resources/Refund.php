@@ -112,7 +112,7 @@ class Refund extends \Mollie\Api\Resources\BaseResource
      * Returns null if successful.
      *
      * @return null
-     * @throws ApiException
+     * @throws \Mollie\Api\Exceptions\ApiException
      */
     public function cancel()
     {

@@ -1,13 +1,13 @@
 <?php
 
-namespace _PhpScoper5bbb1f4b001f3\GuzzleHttp\Psr7;
+namespace _PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7;
 
-use _PhpScoper5bbb1f4b001f3\Psr\Http\Message\MessageInterface;
-use _PhpScoper5bbb1f4b001f3\Psr\Http\Message\RequestInterface;
-use _PhpScoper5bbb1f4b001f3\Psr\Http\Message\ResponseInterface;
-use _PhpScoper5bbb1f4b001f3\Psr\Http\Message\ServerRequestInterface;
-use _PhpScoper5bbb1f4b001f3\Psr\Http\Message\StreamInterface;
-use _PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface;
+use _PhpScoper5ce26f1fe2920\Psr\Http\Message\MessageInterface;
+use _PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface;
+use _PhpScoper5ce26f1fe2920\Psr\Http\Message\ResponseInterface;
+use _PhpScoper5ce26f1fe2920\Psr\Http\Message\ServerRequestInterface;
+use _PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInterface;
+use _PhpScoper5ce26f1fe2920\Psr\Http\Message\UriInterface;
 /**
  * Returns the string representation of an HTTP message.
  *
@@ -15,14 +15,14 @@ use _PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface;
  *
  * @return string
  */
-function str(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\MessageInterface $message)
+function str(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\MessageInterface $message)
 {
-    if ($message instanceof \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\RequestInterface) {
+    if ($message instanceof \_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface) {
         $msg = \trim($message->getMethod() . ' ' . $message->getRequestTarget()) . ' HTTP/' . $message->getProtocolVersion();
         if (!$message->hasHeader('host')) {
             $msg .= "\r\nHost: " . $message->getUri()->getHost();
         }
-    } elseif ($message instanceof \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\ResponseInterface) {
+    } elseif ($message instanceof \_PhpScoper5ce26f1fe2920\Psr\Http\Message\ResponseInterface) {
         $msg = 'HTTP/' . $message->getProtocolVersion() . ' ' . $message->getStatusCode() . ' ' . $message->getReasonPhrase();
     } else {
         throw new \InvalidArgumentException('Unknown message type');
@@ -46,10 +46,10 @@ function str(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\MessageInterface $message
  */
 function uri_for($uri)
 {
-    if ($uri instanceof \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\UriInterface) {
+    if ($uri instanceof \_PhpScoper5ce26f1fe2920\Psr\Http\Message\UriInterface) {
         return $uri;
     } elseif (\is_string($uri)) {
-        return new \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Psr7\Uri($uri);
+        return new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\Uri($uri);
     }
     throw new \InvalidArgumentException('URI must be a string or UriInterface');
 }
@@ -60,10 +60,10 @@ function uri_for($uri)
  * - metadata: Array of custom metadata.
  * - size: Size of the stream.
  *
- * @param resource|string|null|int|float|bool|StreamInterface|callable $resource Entity body data
- * @param array                                                        $options  Additional options
+ * @param resource|string|null|int|float|bool|StreamInterface|callable|\Iterator $resource Entity body data
+ * @param array                                                                  $options  Additional options
  *
- * @return Stream
+ * @return StreamInterface
  * @throws \InvalidArgumentException if the $resource arg is not valid.
  */
 function stream_for($resource = '', array $options = [])
@@ -74,16 +74,16 @@ function stream_for($resource = '', array $options = [])
             \fwrite($stream, $resource);
             \fseek($stream, 0);
         }
-        return new \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Psr7\Stream($stream, $options);
+        return new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\Stream($stream, $options);
     }
     switch (\gettype($resource)) {
         case 'resource':
-            return new \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Psr7\Stream($resource, $options);
+            return new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\Stream($resource, $options);
         case 'object':
-            if ($resource instanceof \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\StreamInterface) {
+            if ($resource instanceof \_PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInterface) {
                 return $resource;
             } elseif ($resource instanceof \Iterator) {
-                return new \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Psr7\PumpStream(function () use($resource) {
+                return new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\PumpStream(function () use($resource) {
                     if (!$resource->valid()) {
                         return \false;
                     }
@@ -96,10 +96,10 @@ function stream_for($resource = '', array $options = [])
             }
             break;
         case 'NULL':
-            return new \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Psr7\Stream(\fopen('php://temp', 'r+'), $options);
+            return new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\Stream(\fopen('php://temp', 'r+'), $options);
     }
     if (\is_callable($resource)) {
-        return new \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Psr7\PumpStream($resource, $options);
+        return new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\PumpStream($resource, $options);
     }
     throw new \InvalidArgumentException('Invalid resource type: ' . \gettype($resource));
 }
@@ -179,7 +179,7 @@ function normalize_header($header)
  *
  * @return RequestInterface
  */
-function modify_request(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\RequestInterface $request, array $changes)
+function modify_request(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, array $changes)
 {
     if (!$changes) {
         return $request;
@@ -211,10 +211,10 @@ function modify_request(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\RequestInterfa
     if (isset($changes['query'])) {
         $uri = $uri->withQuery($changes['query']);
     }
-    if ($request instanceof \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\ServerRequestInterface) {
-        return new \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Psr7\ServerRequest(isset($changes['method']) ? $changes['method'] : $request->getMethod(), $uri, $headers, isset($changes['body']) ? $changes['body'] : $request->getBody(), isset($changes['version']) ? $changes['version'] : $request->getProtocolVersion(), $request->getServerParams());
+    if ($request instanceof \_PhpScoper5ce26f1fe2920\Psr\Http\Message\ServerRequestInterface) {
+        return (new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\ServerRequest(isset($changes['method']) ? $changes['method'] : $request->getMethod(), $uri, $headers, isset($changes['body']) ? $changes['body'] : $request->getBody(), isset($changes['version']) ? $changes['version'] : $request->getProtocolVersion(), $request->getServerParams()))->withParsedBody($request->getParsedBody())->withQueryParams($request->getQueryParams())->withCookieParams($request->getCookieParams())->withUploadedFiles($request->getUploadedFiles());
     }
-    return new \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Psr7\Request(isset($changes['method']) ? $changes['method'] : $request->getMethod(), $uri, $headers, isset($changes['body']) ? $changes['body'] : $request->getBody(), isset($changes['version']) ? $changes['version'] : $request->getProtocolVersion());
+    return new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\Request(isset($changes['method']) ? $changes['method'] : $request->getMethod(), $uri, $headers, isset($changes['body']) ? $changes['body'] : $request->getBody(), isset($changes['version']) ? $changes['version'] : $request->getProtocolVersion());
 }
 /**
  * Attempts to rewind a message body and throws an exception on failure.
@@ -226,7 +226,7 @@ function modify_request(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\RequestInterfa
  *
  * @throws \RuntimeException
  */
-function rewind_body(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\MessageInterface $message)
+function rewind_body(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\MessageInterface $message)
 {
     $body = $message->getBody();
     if ($body->tell()) {
@@ -269,7 +269,7 @@ function try_fopen($filename, $mode)
  * @return string
  * @throws \RuntimeException on error.
  */
-function copy_to_string(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\StreamInterface $stream, $maxLen = -1)
+function copy_to_string(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInterface $stream, $maxLen = -1)
 {
     $buffer = '';
     if ($maxLen === -1) {
@@ -306,7 +306,7 @@ function copy_to_string(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\StreamInterfac
  *
  * @throws \RuntimeException on error.
  */
-function copy_to_stream(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\StreamInterface $source, \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\StreamInterface $dest, $maxLen = -1)
+function copy_to_stream(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInterface $source, \_PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInterface $dest, $maxLen = -1)
 {
     $bufferSize = 8192;
     if ($maxLen === -1) {
@@ -338,7 +338,7 @@ function copy_to_stream(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\StreamInterfac
  * @return string Returns the hash of the stream
  * @throws \RuntimeException on error.
  */
-function hash(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\StreamInterface $stream, $algo, $rawOutput = \false)
+function hash(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInterface $stream, $algo, $rawOutput = \false)
 {
     $pos = $stream->tell();
     if ($pos > 0) {
@@ -358,9 +358,9 @@ function hash(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\StreamInterface $stream,
  * @param StreamInterface $stream    Stream to read from
  * @param int             $maxLength Maximum buffer length
  *
- * @return string|bool
+ * @return string
  */
-function readline(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\StreamInterface $stream, $maxLength = null)
+function readline(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInterface $stream, $maxLength = null)
 {
     $buffer = '';
     $size = 0;
@@ -393,7 +393,7 @@ function parse_request($message)
     }
     $parts = \explode(' ', $data['start-line'], 3);
     $version = isset($parts[2]) ? \explode('/', $parts[2])[1] : '1.1';
-    $request = new \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Psr7\Request($parts[0], $matches[1] === '/' ? _parse_request_uri($parts[1], $data['headers']) : $parts[1], $data['headers'], $data['body'], $version);
+    $request = new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\Request($parts[0], $matches[1] === '/' ? _parse_request_uri($parts[1], $data['headers']) : $parts[1], $data['headers'], $data['body'], $version);
     return $matches[1] === '/' ? $request : $request->withRequestTarget($parts[1]);
 }
 /**
@@ -410,10 +410,10 @@ function parse_response($message)
     // between status-code and reason-phrase is required. But browsers accept
     // responses without space and reason as well.
     if (!\preg_match('/^HTTP\\/.* [0-9]{3}( .*|$)/', $data['start-line'])) {
-        throw new \InvalidArgumentException('Invalid response string');
+        throw new \InvalidArgumentException('Invalid response string: ' . $data['start-line']);
     }
     $parts = \explode(' ', $data['start-line'], 3);
-    return new \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Psr7\Response($parts[1], $data['headers'], $data['body'], \explode('/', $parts[0])[1], isset($parts[2]) ? $parts[2] : null);
+    return new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\Response($parts[1], $data['headers'], $data['body'], \explode('/', $parts[0])[1], isset($parts[2]) ? $parts[2] : null);
 }
 /**
  * Parse a query string into an associative array.
@@ -423,8 +423,8 @@ function parse_response($message)
  * PHP style arrays into an associative array (e.g., foo[a]=1&foo[b]=2 will
  * be parsed into ['foo[a]' => '1', 'foo[b]' => '2']).
  *
- * @param string      $str         Query string to parse
- * @param bool|string $urlEncoding How the query string is encoded
+ * @param string   $str         Query string to parse
+ * @param int|bool $urlEncoding How the query string is encoded
  *
  * @return array
  */
@@ -438,9 +438,9 @@ function parse_query($str, $urlEncoding = \true)
         $decoder = function ($value) {
             return \rawurldecode(\str_replace('+', ' ', $value));
         };
-    } elseif ($urlEncoding == \PHP_QUERY_RFC3986) {
+    } elseif ($urlEncoding === \PHP_QUERY_RFC3986) {
         $decoder = 'rawurldecode';
-    } elseif ($urlEncoding == \PHP_QUERY_RFC1738) {
+    } elseif ($urlEncoding === \PHP_QUERY_RFC1738) {
         $decoder = 'urldecode';
     } else {
         $decoder = function ($str) {
@@ -533,7 +533,7 @@ function mimetype_from_filename($filename)
  */
 function mimetype_from_extension($extension)
 {
-    static $mimetypes = ['7z' => 'application/x-7z-compressed', 'aac' => 'audio/x-aac', 'ai' => 'application/postscript', 'aif' => 'audio/x-aiff', 'asc' => 'text/plain', 'asf' => 'video/x-ms-asf', 'atom' => 'application/atom+xml', 'avi' => 'video/x-msvideo', 'bmp' => 'image/bmp', 'bz2' => 'application/x-bzip2', 'cer' => 'application/pkix-cert', 'crl' => 'application/pkix-crl', 'crt' => 'application/x-x509-ca-cert', 'css' => 'text/css', 'csv' => 'text/csv', 'cu' => 'application/cu-seeme', 'deb' => 'application/x-debian-package', 'doc' => 'application/msword', 'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'dvi' => 'application/x-dvi', 'eot' => 'application/vnd.ms-fontobject', 'eps' => 'application/postscript', 'epub' => 'application/epub+zip', 'etx' => 'text/x-setext', 'flac' => 'audio/flac', 'flv' => 'video/x-flv', 'gif' => 'image/gif', 'gz' => 'application/gzip', 'htm' => 'text/html', 'html' => 'text/html', 'ico' => 'image/x-icon', 'ics' => 'text/calendar', 'ini' => 'text/plain', 'iso' => 'application/x-iso9660-image', 'jar' => 'application/java-archive', 'jpe' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'jpg' => 'image/jpeg', 'js' => 'text/javascript', 'json' => 'application/json', 'latex' => 'application/x-latex', 'log' => 'text/plain', 'm4a' => 'audio/mp4', 'm4v' => 'video/mp4', 'mid' => 'audio/midi', 'midi' => 'audio/midi', 'mov' => 'video/quicktime', 'mp3' => 'audio/mpeg', 'mp4' => 'video/mp4', 'mp4a' => 'audio/mp4', 'mp4v' => 'video/mp4', 'mpe' => 'video/mpeg', 'mpeg' => 'video/mpeg', 'mpg' => 'video/mpeg', 'mpg4' => 'video/mp4', 'oga' => 'audio/ogg', 'ogg' => 'audio/ogg', 'ogv' => 'video/ogg', 'ogx' => 'application/ogg', 'pbm' => 'image/x-portable-bitmap', 'pdf' => 'application/pdf', 'pgm' => 'image/x-portable-graymap', 'png' => 'image/png', 'pnm' => 'image/x-portable-anymap', 'ppm' => 'image/x-portable-pixmap', 'ppt' => 'application/vnd.ms-powerpoint', 'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'ps' => 'application/postscript', 'qt' => 'video/quicktime', 'rar' => 'application/x-rar-compressed', 'ras' => 'image/x-cmu-raster', 'rss' => 'application/rss+xml', 'rtf' => 'application/rtf', 'sgm' => 'text/sgml', 'sgml' => 'text/sgml', 'svg' => 'image/svg+xml', 'swf' => 'application/x-shockwave-flash', 'tar' => 'application/x-tar', 'tif' => 'image/tiff', 'tiff' => 'image/tiff', 'torrent' => 'application/x-bittorrent', 'ttf' => 'application/x-font-ttf', 'txt' => 'text/plain', 'wav' => 'audio/x-wav', 'webm' => 'video/webm', 'wma' => 'audio/x-ms-wma', 'wmv' => 'video/x-ms-wmv', 'woff' => 'application/x-font-woff', 'wsdl' => 'application/wsdl+xml', 'xbm' => 'image/x-xbitmap', 'xls' => 'application/vnd.ms-excel', 'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'xml' => 'application/xml', 'xpm' => 'image/x-xpixmap', 'xwd' => 'image/x-xwindowdump', 'yaml' => 'text/yaml', 'yml' => 'text/yaml', 'zip' => 'application/zip'];
+    static $mimetypes = ['3gp' => 'video/3gpp', '7z' => 'application/x-7z-compressed', 'aac' => 'audio/x-aac', 'ai' => 'application/postscript', 'aif' => 'audio/x-aiff', 'asc' => 'text/plain', 'asf' => 'video/x-ms-asf', 'atom' => 'application/atom+xml', 'avi' => 'video/x-msvideo', 'bmp' => 'image/bmp', 'bz2' => 'application/x-bzip2', 'cer' => 'application/pkix-cert', 'crl' => 'application/pkix-crl', 'crt' => 'application/x-x509-ca-cert', 'css' => 'text/css', 'csv' => 'text/csv', 'cu' => 'application/cu-seeme', 'deb' => 'application/x-debian-package', 'doc' => 'application/msword', 'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'dvi' => 'application/x-dvi', 'eot' => 'application/vnd.ms-fontobject', 'eps' => 'application/postscript', 'epub' => 'application/epub+zip', 'etx' => 'text/x-setext', 'flac' => 'audio/flac', 'flv' => 'video/x-flv', 'gif' => 'image/gif', 'gz' => 'application/gzip', 'htm' => 'text/html', 'html' => 'text/html', 'ico' => 'image/x-icon', 'ics' => 'text/calendar', 'ini' => 'text/plain', 'iso' => 'application/x-iso9660-image', 'jar' => 'application/java-archive', 'jpe' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'jpg' => 'image/jpeg', 'js' => 'text/javascript', 'json' => 'application/json', 'latex' => 'application/x-latex', 'log' => 'text/plain', 'm4a' => 'audio/mp4', 'm4v' => 'video/mp4', 'mid' => 'audio/midi', 'midi' => 'audio/midi', 'mov' => 'video/quicktime', 'mkv' => 'video/x-matroska', 'mp3' => 'audio/mpeg', 'mp4' => 'video/mp4', 'mp4a' => 'audio/mp4', 'mp4v' => 'video/mp4', 'mpe' => 'video/mpeg', 'mpeg' => 'video/mpeg', 'mpg' => 'video/mpeg', 'mpg4' => 'video/mp4', 'oga' => 'audio/ogg', 'ogg' => 'audio/ogg', 'ogv' => 'video/ogg', 'ogx' => 'application/ogg', 'pbm' => 'image/x-portable-bitmap', 'pdf' => 'application/pdf', 'pgm' => 'image/x-portable-graymap', 'png' => 'image/png', 'pnm' => 'image/x-portable-anymap', 'ppm' => 'image/x-portable-pixmap', 'ppt' => 'application/vnd.ms-powerpoint', 'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'ps' => 'application/postscript', 'qt' => 'video/quicktime', 'rar' => 'application/x-rar-compressed', 'ras' => 'image/x-cmu-raster', 'rss' => 'application/rss+xml', 'rtf' => 'application/rtf', 'sgm' => 'text/sgml', 'sgml' => 'text/sgml', 'svg' => 'image/svg+xml', 'swf' => 'application/x-shockwave-flash', 'tar' => 'application/x-tar', 'tif' => 'image/tiff', 'tiff' => 'image/tiff', 'torrent' => 'application/x-bittorrent', 'ttf' => 'application/x-font-ttf', 'txt' => 'text/plain', 'wav' => 'audio/x-wav', 'webm' => 'video/webm', 'wma' => 'audio/x-ms-wma', 'wmv' => 'video/x-ms-wmv', 'woff' => 'application/x-font-woff', 'wsdl' => 'application/wsdl+xml', 'xbm' => 'image/x-xbitmap', 'xls' => 'application/vnd.ms-excel', 'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'xml' => 'application/xml', 'xpm' => 'image/x-xpixmap', 'xwd' => 'image/x-xwindowdump', 'yaml' => 'text/yaml', 'yml' => 'text/yaml', 'zip' => 'application/zip'];
     $extension = \strtolower($extension);
     return isset($mimetypes[$extension]) ? $mimetypes[$extension] : null;
 }
@@ -554,27 +554,38 @@ function _parse_message($message)
     if (!$message) {
         throw new \InvalidArgumentException('Invalid message');
     }
-    // Iterate over each line in the message, accounting for line endings
-    $lines = \preg_split('/(\\r?\\n)/', $message, -1, \PREG_SPLIT_DELIM_CAPTURE);
-    $result = ['start-line' => \array_shift($lines), 'headers' => [], 'body' => ''];
-    \array_shift($lines);
-    for ($i = 0, $totalLines = \count($lines); $i < $totalLines; $i += 2) {
-        $line = $lines[$i];
-        // If two line breaks were encountered, then this is the end of body
-        if (empty($line)) {
-            if ($i < $totalLines - 1) {
-                $result['body'] = \implode('', \array_slice($lines, $i + 2));
-            }
-            break;
-        }
-        if (\strpos($line, ':')) {
-            $parts = \explode(':', $line, 2);
-            $key = \trim($parts[0]);
-            $value = isset($parts[1]) ? \trim($parts[1]) : '';
-            $result['headers'][$key][] = $value;
-        }
+    $message = \ltrim($message, "\r\n");
+    $messageParts = \preg_split("/\r?\n\r?\n/", $message, 2);
+    if ($messageParts === \false || \count($messageParts) !== 2) {
+        throw new \InvalidArgumentException('Invalid message: Missing header delimiter');
     }
-    return $result;
+    list($rawHeaders, $body) = $messageParts;
+    $rawHeaders .= "\r\n";
+    // Put back the delimiter we split previously
+    $headerParts = \preg_split("/\r?\n/", $rawHeaders, 2);
+    if ($headerParts === \false || \count($headerParts) !== 2) {
+        throw new \InvalidArgumentException('Invalid message: Missing status line');
+    }
+    list($startLine, $rawHeaders) = $headerParts;
+    if (\preg_match("/(?:^HTTP\\/|^[A-Z]+ \\S+ HTTP\\/)(\\d+(?:\\.\\d+)?)/i", $startLine, $matches) && $matches[1] === '1.0') {
+        // Header folding is deprecated for HTTP/1.1, but allowed in HTTP/1.0
+        $rawHeaders = \preg_replace(\_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\Rfc7230::HEADER_FOLD_REGEX, ' ', $rawHeaders);
+    }
+    /** @var array[] $headerLines */
+    $count = \preg_match_all(\_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\Rfc7230::HEADER_REGEX, $rawHeaders, $headerLines, \PREG_SET_ORDER);
+    // If these aren't the same, then one line didn't match and there's an invalid header.
+    if ($count !== \substr_count($rawHeaders, "\n")) {
+        // Folding is deprecated, see https://tools.ietf.org/html/rfc7230#section-3.2.4
+        if (\preg_match(\_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\Rfc7230::HEADER_FOLD_REGEX, $rawHeaders)) {
+            throw new \InvalidArgumentException('Invalid header syntax: Obsolete line folding');
+        }
+        throw new \InvalidArgumentException('Invalid header syntax');
+    }
+    $headers = [];
+    foreach ($headerLines as $headerLine) {
+        $headers[$headerLine[1]][] = $headerLine[2];
+    }
+    return ['start-line' => $startLine, 'headers' => $headers, 'body' => $body];
 }
 /**
  * Constructs a URI for an HTTP request message.
@@ -597,6 +608,38 @@ function _parse_request_uri($path, array $headers)
     $host = $headers[\reset($hostKey)][0];
     $scheme = \substr($host, -4) === ':443' ? 'https' : 'http';
     return $scheme . '://' . $host . '/' . \ltrim($path, '/');
+}
+/**
+ * Get a short summary of the message body
+ *
+ * Will return `null` if the response is not printable.
+ *
+ * @param MessageInterface $message    The message to get the body summary
+ * @param int              $truncateAt The maximum allowed size of the summary
+ *
+ * @return null|string
+ */
+function get_message_body_summary(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\MessageInterface $message, $truncateAt = 120)
+{
+    $body = $message->getBody();
+    if (!$body->isSeekable() || !$body->isReadable()) {
+        return null;
+    }
+    $size = $body->getSize();
+    if ($size === 0) {
+        return null;
+    }
+    $summary = $body->read($truncateAt);
+    $body->rewind();
+    if ($size > $truncateAt) {
+        $summary .= ' (truncated...)';
+    }
+    // Matches any printable character, including unicode characters:
+    // letters, marks, numbers, punctuation, spacing, and separators.
+    if (\preg_match('/[^\\pL\\pM\\pN\\pP\\pS\\pZ\\n\\r\\t]/', $summary)) {
+        return null;
+    }
+    return $summary;
 }
 /** @internal */
 function _caseless_remove($keys, array $data)

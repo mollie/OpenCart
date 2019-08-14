@@ -153,7 +153,8 @@ class OrderLine extends \Mollie\Api\Resources\BaseResource
         return $this->status === \Mollie\Api\Types\OrderLineStatus::STATUS_CANCELED;
     }
     /**
-     * Is this order line refunded?
+     * (Deprecated) Is this order line refunded?
+     * @deprecated 2018-11-27
      *
      * @return bool
      */

@@ -65,6 +65,8 @@ $_['response_failed']    = 'Unfortunately something went wrong. Please retry the
 $_['response_expired']   = 'The payment has expired';
 $_['response_unknown']   = 'An unknown error occurred';
 $_['shipment_success']   = 'Shipment is created';
+$_['refund_cancelled']   = 'Refund has been cancelled.';
+$_['refund_success'] 	 = 'Refund has been processed successfully!';
 
 // Methods
 $_['method_ideal']        = 'iDEAL';

@@ -125,11 +125,13 @@ class Order extends \Mollie\Api\Resources\BaseResource
     public $createdAt;
     /**
      * The order lines contain the actual things the customer bought.
+     *
      * @var array|object[]
      */
     public $lines;
     /**
      * An object with several URL objects relevant to the customer. Every URL object will contain an href and a type field.
+     *
      * @var object[]
      */
     public $_links;
@@ -170,7 +172,8 @@ class Order extends \Mollie\Api\Resources\BaseResource
         return $this->status === \Mollie\Api\Types\OrderStatus::STATUS_CANCELED;
     }
     /**
-     * Is this order refunded?
+     * (Deprecated) Is this order refunded?
+     * @deprecated 2018-11-27
      *
      * @return bool
      */
@@ -206,6 +209,15 @@ class Order extends \Mollie\Api\Resources\BaseResource
         return $this->status === \Mollie\Api\Types\OrderStatus::STATUS_EXPIRED;
     }
     /**
+     * Is this order completed?
+     *
+     * @return bool
+     */
+    public function isPending()
+    {
+        return $this->status === \Mollie\Api\Types\OrderStatus::STATUS_PENDING;
+    }
+    /**
      * Cancels this order.
      * If the order was partially shipped, the status will be "completed" instead of
      * "canceled".
@@ -213,7 +225,7 @@ class Order extends \Mollie\Api\Resources\BaseResource
      * be found.
      *
      * @return Order
-     * @throws ApiException
+     * @throws \Mollie\Api\Exceptions\ApiException
      */
     public function cancel()
     {
@@ -227,6 +239,7 @@ class Order extends \Mollie\Api\Resources\BaseResource
      *
      * @param  array|null $data
      * @return null
+     * @throws \Mollie\Api\Exceptions\ApiException
      */
     public function cancelLines(array $data)
     {
@@ -238,6 +251,7 @@ class Order extends \Mollie\Api\Resources\BaseResource
      *
      * @param  array|null $data
      * @return null
+     * @throws \Mollie\Api\Exceptions\ApiException
      */
     public function cancelAllLines($data = [])
     {
@@ -251,11 +265,7 @@ class Order extends \Mollie\Api\Resources\BaseResource
      */
     public function lines()
     {
-        $lines = new \Mollie\Api\Resources\OrderLineCollection(\count($this->lines), null);
-        foreach ($this->lines as $line) {
-            $lines->append(\Mollie\Api\Resources\ResourceFactory::createFromApiResult($line, new \Mollie\Api\Resources\OrderLine($this->client)));
-        }
-        return $lines;
+        return \Mollie\Api\Resources\ResourceFactory::createBaseResourceCollection($this->client, $this->lines, \Mollie\Api\Resources\OrderLine::class);
     }
     /**
      * Create a shipment for some order lines. You can provide an empty array for the
@@ -341,7 +351,7 @@ class Order extends \Mollie\Api\Resources\BaseResource
      * Retrieves all refunds associated with this order
      *
      * @return RefundCollection
-     * @throws ApiException
+     * @throws \Mollie\Api\Exceptions\ApiException
      */
     public function refunds()
     {
@@ -349,10 +359,46 @@ class Order extends \Mollie\Api\Resources\BaseResource
             return new \Mollie\Api\Resources\RefundCollection($this->client, 0, null);
         }
         $result = $this->client->performHttpCallToFullUrl(\Mollie\Api\MollieApiClient::HTTP_GET, $this->_links->refunds->href);
-        $resourceCollection = new \Mollie\Api\Resources\RefundCollection($this->client, $result->count, $result->_links);
-        foreach ($result->_embedded->refunds as $dataResult) {
-            $resourceCollection[] = \Mollie\Api\Resources\ResourceFactory::createFromApiResult($dataResult, new \Mollie\Api\Resources\Refund($this->client));
+        return \Mollie\Api\Resources\ResourceFactory::createCursorResourceCollection($this->client, $result->_embedded->refunds, \Mollie\Api\Resources\Refund::class, $result->_links);
+    }
+    /**
+     * Saves the order's updated billingAddress and/or shippingAddress.
+     *
+     * @return \Mollie\Api\Resources\BaseResource|\Mollie\Api\Resources\Order
+     * @throws \Mollie\Api\Exceptions\ApiException
+     */
+    public function update()
+    {
+        if (!isset($this->_links->self->href)) {
+            return $this;
         }
-        return $resourceCollection;
+        $body = \json_encode(array("billingAddress" => $this->billingAddress, "shippingAddress" => $this->shippingAddress));
+        $result = $this->client->performHttpCallToFullUrl(\Mollie\Api\MollieApiClient::HTTP_PATCH, $this->_links->self->href, $body);
+        return \Mollie\Api\Resources\ResourceFactory::createFromApiResult($result, new \Mollie\Api\Resources\Order($this->client));
+    }
+    /**
+     * Create a new payment for this Order.
+     *
+     * @param $data
+     * @param array $filters
+     * @return \Mollie\Api\Resources\BaseResource|\Mollie\Api\Resources\Payment
+     * @throws \Mollie\Api\Exceptions\ApiException
+     */
+    public function createPayment($data, $filters = [])
+    {
+        return $this->client->orderPayments->createFor($this, $data, $filters);
+    }
+    /**
+     * Retrieve the payments for this order.
+     * Requires the order to be retrieved using the embed payments parameter.
+     *
+     * @return null|\Mollie\Api\Resources\PaymentCollection
+     */
+    public function payments()
+    {
+        if (!isset($this->_embedded, $this->_embedded->payments)) {
+            return null;
+        }
+        return \Mollie\Api\Resources\ResourceFactory::createCursorResourceCollection($this->client, $this->_embedded->payments, \Mollie\Api\Resources\Payment::class);
     }
 }

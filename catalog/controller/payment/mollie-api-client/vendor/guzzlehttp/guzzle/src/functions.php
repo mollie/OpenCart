@@ -1,11 +1,11 @@
 <?php
 
-namespace _PhpScoper5bbb1f4b001f3\GuzzleHttp;
+namespace _PhpScoper5ce26f1fe2920\GuzzleHttp;
 
-use _PhpScoper5bbb1f4b001f3\GuzzleHttp\Handler\CurlHandler;
-use _PhpScoper5bbb1f4b001f3\GuzzleHttp\Handler\CurlMultiHandler;
-use _PhpScoper5bbb1f4b001f3\GuzzleHttp\Handler\Proxy;
-use _PhpScoper5bbb1f4b001f3\GuzzleHttp\Handler\StreamHandler;
+use _PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\CurlHandler;
+use _PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\CurlMultiHandler;
+use _PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\Proxy;
+use _PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\StreamHandler;
 /**
  * Expands a URI template
  *
@@ -18,12 +18,12 @@ function uri_template($template, array $variables)
 {
     if (\extension_loaded('uri_template')) {
         // @codeCoverageIgnoreStart
-        return \_PhpScoper5bbb1f4b001f3\uri_template($template, $variables);
+        return \_PhpScoper5ce26f1fe2920\uri_template($template, $variables);
         // @codeCoverageIgnoreEnd
     }
     static $uriTemplate;
     if (!$uriTemplate) {
-        $uriTemplate = new \_PhpScoper5bbb1f4b001f3\GuzzleHttp\UriTemplate();
+        $uriTemplate = new \_PhpScoper5ce26f1fe2920\GuzzleHttp\UriTemplate();
     }
     return $uriTemplate->expand($template, $variables);
 }
@@ -93,14 +93,14 @@ function choose_handler()
 {
     $handler = null;
     if (\function_exists('curl_multi_exec') && \function_exists('curl_exec')) {
-        $handler = \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Handler\Proxy::wrapSync(new \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Handler\CurlMultiHandler(), new \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Handler\CurlHandler());
+        $handler = \_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\Proxy::wrapSync(new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\CurlMultiHandler(), new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\CurlHandler());
     } elseif (\function_exists('curl_exec')) {
-        $handler = new \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Handler\CurlHandler();
+        $handler = new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\CurlHandler();
     } elseif (\function_exists('curl_multi_exec')) {
-        $handler = new \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Handler\CurlMultiHandler();
+        $handler = new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\CurlMultiHandler();
     }
     if (\ini_get('allow_url_fopen')) {
-        $handler = $handler ? \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Handler\Proxy::wrapStreaming($handler, new \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Handler\StreamHandler()) : new \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Handler\StreamHandler();
+        $handler = $handler ? \_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\Proxy::wrapStreaming($handler, new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\StreamHandler()) : new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\StreamHandler();
     } elseif (!$handler) {
         throw new \RuntimeException('GuzzleHttp requires cURL, the ' . 'allow_url_fopen ini setting, or a custom HTTP handler.');
     }
@@ -115,7 +115,7 @@ function default_user_agent()
 {
     static $defaultAgent = '';
     if (!$defaultAgent) {
-        $defaultAgent = 'GuzzleHttp/' . \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Client::VERSION;
+        $defaultAgent = 'GuzzleHttp/' . \_PhpScoper5ce26f1fe2920\GuzzleHttp\Client::VERSION;
         if (\extension_loaded('curl') && \function_exists('curl_version')) {
             $defaultAgent .= ' curl/' . \curl_version()['version'];
         }

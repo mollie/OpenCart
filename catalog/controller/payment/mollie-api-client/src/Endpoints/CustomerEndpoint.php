@@ -5,7 +5,7 @@ namespace Mollie\Api\Endpoints;
 use Mollie\Api\Exceptions\ApiException;
 use Mollie\Api\Resources\Customer;
 use Mollie\Api\Resources\CustomerCollection;
-class CustomerEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
+class CustomerEndpoint extends \Mollie\Api\Endpoints\CollectionEndpointAbstract
 {
     protected $resourcePath = "customers";
     /**

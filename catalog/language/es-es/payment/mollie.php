@@ -65,6 +65,8 @@ $_['response_failed']    = 'Lamentablemente, no se ha efectuado el pago. Por fav
 $_['response_expired']   = 'El pago ha caducado';
 $_['response_unknown']   = 'Se ha producido un error desconocido';
 $_['shipment_success']   = 'Se crea el envio';
+$_['refund_cancelled']   = 'El reembolso ha sido cancelado.';
+$_['refund_success'] 	 = '¡El reembolso ha sido procesado con éxito!';
 
 // Methods
 $_['method_ideal']                      = 'iDEAL';

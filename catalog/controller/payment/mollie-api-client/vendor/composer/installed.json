@@ -1,17 +1,17 @@
 [
     {
         "name": "composer\/ca-bundle",
-        "version": "1.1.2",
-        "version_normalized": "1.1.2.0",
+        "version": "1.1.4",
+        "version_normalized": "1.1.4.0",
         "source": {
             "type": "git",
             "url": "https:\/\/github.com\/composer\/ca-bundle.git",
-            "reference": "46afded9720f40b9dc63542af4e3e43a1177acb0"
+            "reference": "558f321c52faeb4828c03e7dc0cfe39a09e09a2d"
         },
         "dist": {
             "type": "zip",
-            "url": "https:\/\/api.github.com\/repos\/composer\/ca-bundle\/zipball\/46afded9720f40b9dc63542af4e3e43a1177acb0",
-            "reference": "46afded9720f40b9dc63542af4e3e43a1177acb0",
+            "url": "https:\/\/api.github.com\/repos\/composer\/ca-bundle\/zipball\/558f321c52faeb4828c03e7dc0cfe39a09e09a2d",
+            "reference": "558f321c52faeb4828c03e7dc0cfe39a09e09a2d",
             "shasum": ""
         },
         "require": {
@@ -24,7 +24,7 @@
             "psr\/log": "^1.0",
             "symfony\/process": "^2.5 || ^3.0 || ^4.0"
         },
-        "time": "2018-08-08T08:57:40+00:00",
+        "time": "2019-01-28T09:30:10+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -34,7 +34,7 @@
         "installation-source": "dist",
         "autoload": {
             "psr-4": {
-                "_PhpScoper5bbb1f4b001f3\\Composer\\CaBundle\\": "src"
+                "_PhpScoper5ce26f1fe2920\\Composer\\CaBundle\\": "src"
             }
         },
         "notification-url": "https:\/\/packagist.org\/downloads\/",
@@ -98,7 +98,7 @@
                 "src\/functions_include.php"
             ],
             "psr-4": {
-                "_PhpScoper5bbb1f4b001f3\\GuzzleHttp\\": "src\/"
+                "_PhpScoper5ce26f1fe2920\\GuzzleHttp\\": "src\/"
             }
         },
         "notification-url": "https:\/\/packagist.org\/downloads\/",
@@ -155,7 +155,7 @@
         "installation-source": "dist",
         "autoload": {
             "psr-4": {
-                "_PhpScoper5bbb1f4b001f3\\GuzzleHttp\\Promise\\": "src\/"
+                "_PhpScoper5ce26f1fe2920\\GuzzleHttp\\Promise\\": "src\/"
             },
             "files": [
                 "src\/functions_include.php"
@@ -179,40 +179,41 @@
     },
     {
         "name": "guzzlehttp\/psr7",
-        "version": "1.4.2",
-        "version_normalized": "1.4.2.0",
+        "version": "1.5.2",
+        "version_normalized": "1.5.2.0",
         "source": {
             "type": "git",
             "url": "https:\/\/github.com\/guzzle\/psr7.git",
-            "reference": "f5b8a8512e2b58b0071a7280e39f14f72e05d87c"
+            "reference": "9f83dded91781a01c63574e387eaa769be769115"
         },
         "dist": {
             "type": "zip",
-            "url": "https:\/\/api.github.com\/repos\/guzzle\/psr7\/zipball\/f5b8a8512e2b58b0071a7280e39f14f72e05d87c",
-            "reference": "f5b8a8512e2b58b0071a7280e39f14f72e05d87c",
+            "url": "https:\/\/api.github.com\/repos\/guzzle\/psr7\/zipball\/9f83dded91781a01c63574e387eaa769be769115",
+            "reference": "9f83dded91781a01c63574e387eaa769be769115",
             "shasum": ""
         },
         "require": {
             "php": ">=5.4.0",
-            "psr\/http-message": "~1.0"
+            "psr\/http-message": "~1.0",
+            "ralouphie\/getallheaders": "^2.0.5"
         },
         "provide": {
             "psr\/http-message-implementation": "1.0"
         },
         "require-dev": {
-            "phpunit\/phpunit": "~4.0"
+            "phpunit\/phpunit": "~4.8.36 || ^5.7.27 || ^6.5.8"
         },
-        "time": "2017-03-20T17:10:46+00:00",
+        "time": "2018-12-04T20:46:45+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "1.4-dev"
+                "dev-master": "1.5-dev"
             }
         },
         "installation-source": "dist",
         "autoload": {
             "psr-4": {
-                "_PhpScoper5bbb1f4b001f3\\GuzzleHttp\\Psr7\\": "src\/"
+                "_PhpScoper5ce26f1fe2920\\GuzzleHttp\\Psr7\\": "src\/"
             },
             "files": [
                 "src\/functions_include.php"
@@ -237,6 +238,7 @@
         "keywords": [
             "http",
             "message",
+            "psr-7",
             "request",
             "response",
             "stream",
@@ -272,7 +274,7 @@
         "installation-source": "dist",
         "autoload": {
             "psr-4": {
-                "_PhpScoper5bbb1f4b001f3\\Psr\\Http\\Message\\": "src\/"
+                "_PhpScoper5ce26f1fe2920\\Psr\\Http\\Message\\": "src\/"
             }
         },
         "notification-url": "https:\/\/packagist.org\/downloads\/",
@@ -295,5 +297,47 @@
             "request",
             "response"
         ]
+    },
+    {
+        "name": "ralouphie\/getallheaders",
+        "version": "2.0.5",
+        "version_normalized": "2.0.5.0",
+        "source": {
+            "type": "git",
+            "url": "https:\/\/github.com\/ralouphie\/getallheaders.git",
+            "reference": "5601c8a83fbba7ef674a7369456d12f1e0d0eafa"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https:\/\/api.github.com\/repos\/ralouphie\/getallheaders\/zipball\/5601c8a83fbba7ef674a7369456d12f1e0d0eafa",
+            "reference": "5601c8a83fbba7ef674a7369456d12f1e0d0eafa",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3"
+        },
+        "require-dev": {
+            "phpunit\/phpunit": "~3.7.0",
+            "satooshi\/php-coveralls": ">=1.0"
+        },
+        "time": "2016-02-11T07:05:27+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "src\/getallheaders.php"
+            ]
+        },
+        "notification-url": "https:\/\/packagist.org\/downloads\/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Ralph Khattar",
+                "email": "ralph.khattar@gmail.com"
+            }
+        ],
+        "description": "A polyfill for getallheaders."
     }
 ]
