@@ -9,4 +9,3 @@ php.ini
 /composer.phar
 /vendor
 /*.zip
-/upload/tests/
