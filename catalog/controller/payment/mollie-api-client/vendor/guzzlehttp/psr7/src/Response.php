@@ -1,13 +1,13 @@
 <?php
 
-namespace _PhpScoper5bbb1f4b001f3\GuzzleHttp\Psr7;
+namespace _PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7;
 
-use _PhpScoper5bbb1f4b001f3\Psr\Http\Message\ResponseInterface;
-use _PhpScoper5bbb1f4b001f3\Psr\Http\Message\StreamInterface;
+use _PhpScoper5ce26f1fe2920\Psr\Http\Message\ResponseInterface;
+use _PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInterface;
 /**
  * PSR-7 response implementation.
  */
-class Response implements \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\ResponseInterface
+class Response implements \_PhpScoper5ce26f1fe2920\Psr\Http\Message\ResponseInterface
 {
     use MessageTrait;
     /** @var array Map of standard HTTP status code/reason phrases */
@@ -25,6 +25,9 @@ class Response implements \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\ResponseInte
      */
     public function __construct($status = 200, array $headers = [], $body = null, $version = '1.1', $reason = null)
     {
+        if (\filter_var($status, \FILTER_VALIDATE_INT) === \false) {
+            throw new \InvalidArgumentException('Status code must be an integer value.');
+        }
         $this->statusCode = (int) $status;
         if ($body !== '' && $body !== null) {
             $this->stream = stream_for($body);

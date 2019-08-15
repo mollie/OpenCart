@@ -65,6 +65,8 @@ $_['response_failed']    = 'Die Zahlung ist leider fehlgeschlagen. Versuchen Sie
 $_['response_expired']   = 'Die Zahlung ist verstrichen';
 $_['response_unknown']   = 'Es ist ein unbekannter Fehler aufgetreten';
 $_['shipment_success']   = 'Sendung wird erstellt';
+$_['refund_cancelled']   = 'Die Rückerstattung wurde storniert.';
+$_['refund_success'] 	 = 'Rückerstattung wurde erfolgreich bearbeitet!';
 
 // Methods
 $_['method_ideal']                      = 'iDEAL';

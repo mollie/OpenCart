@@ -1,13 +1,13 @@
 <?php
 
-namespace _PhpScoper5bbb1f4b001f3\GuzzleHttp\Psr7;
+namespace _PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7;
 
-use _PhpScoper5bbb1f4b001f3\Psr\Http\Message\StreamInterface;
+use _PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInterface;
 /**
  * Lazily reads or writes to a file that is opened only after an IO operation
  * take place on the stream.
  */
-class LazyOpenStream implements \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\StreamInterface
+class LazyOpenStream implements \_PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInterface
 {
     use StreamDecoratorTrait;
     /** @var string File to open */

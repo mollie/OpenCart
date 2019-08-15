@@ -2,6 +2,14 @@
 
 # Changelog #
 
+#### Changes in release 9.1.0
+  + Fixed double form post in confirmation template
+  + Fixed bug for rounding differences more than 0.01
+  + Added OAuth support for:
+    + Activate payment methods through module (instead of Mollie dashboard)
+    + See payment status on order info page
+    + Request refund through order info page
+
 #### Changes in release 9.0.6
   + Added Przelewy24 support.
   + Added additional check on order_id in webhook.

@@ -5,7 +5,7 @@ namespace Mollie\Api\Endpoints;
 use Mollie\Api\Exceptions\ApiException;
 use Mollie\Api\Resources\Refund;
 use Mollie\Api\Resources\RefundCollection;
-class RefundEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
+class RefundEndpoint extends \Mollie\Api\Endpoints\CollectionEndpointAbstract
 {
     protected $resourcePath = "refunds";
     /**

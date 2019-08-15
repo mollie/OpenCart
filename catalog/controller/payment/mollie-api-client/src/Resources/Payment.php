@@ -187,6 +187,10 @@ class Payment extends \Mollie\Api\Resources\BaseResource
      */
     public $_links;
     /**
+     * @var object[]
+     */
+    public $_embedded;
+    /**
      * Whether or not this payment can be canceled.
      *
      * @var bool|null
@@ -359,11 +363,7 @@ class Payment extends \Mollie\Api\Resources\BaseResource
             return new \Mollie\Api\Resources\RefundCollection($this->client, 0, null);
         }
         $result = $this->client->performHttpCallToFullUrl(\Mollie\Api\MollieApiClient::HTTP_GET, $this->_links->refunds->href);
-        $resourceCollection = new \Mollie\Api\Resources\RefundCollection($this->client, $result->count, $result->_links);
-        foreach ($result->_embedded->refunds as $dataResult) {
-            $resourceCollection[] = \Mollie\Api\Resources\ResourceFactory::createFromApiResult($dataResult, new \Mollie\Api\Resources\Refund($this->client));
-        }
-        return $resourceCollection;
+        return \Mollie\Api\Resources\ResourceFactory::createCursorResourceCollection($this->client, $result->_embedded->refunds, \Mollie\Api\Resources\Refund::class, $result->_links);
     }
     /**
      * @param string $refundId
@@ -387,11 +387,7 @@ class Payment extends \Mollie\Api\Resources\BaseResource
             return new \Mollie\Api\Resources\CaptureCollection($this->client, 0, null);
         }
         $result = $this->client->performHttpCallToFullUrl(\Mollie\Api\MollieApiClient::HTTP_GET, $this->_links->captures->href);
-        $resourceCollection = new \Mollie\Api\Resources\CaptureCollection($this->client, $result->count, $result->_links);
-        foreach ($result->_embedded->captures as $dataResult) {
-            $resourceCollection[] = \Mollie\Api\Resources\ResourceFactory::createFromApiResult($dataResult, new \Mollie\Api\Resources\Capture($this->client));
-        }
-        return $resourceCollection;
+        return \Mollie\Api\Resources\ResourceFactory::createCursorResourceCollection($this->client, $result->_embedded->captures, \Mollie\Api\Resources\Capture::class, $result->_links);
     }
     /**
      * @param string $captureId
@@ -415,11 +411,7 @@ class Payment extends \Mollie\Api\Resources\BaseResource
             return new \Mollie\Api\Resources\ChargebackCollection($this->client, 0, null);
         }
         $result = $this->client->performHttpCallToFullUrl(\Mollie\Api\MollieApiClient::HTTP_GET, $this->_links->chargebacks->href);
-        $resourceCollection = new \Mollie\Api\Resources\ChargebackCollection($this->client, $result->count, $result->_links);
-        foreach ($result->_embedded->chargebacks as $dataResult) {
-            $resourceCollection[] = \Mollie\Api\Resources\ResourceFactory::createFromApiResult($dataResult, new \Mollie\Api\Resources\Chargeback($this->client));
-        }
-        return $resourceCollection;
+        return \Mollie\Api\Resources\ResourceFactory::createCursorResourceCollection($this->client, $result->_embedded->chargebacks, \Mollie\Api\Resources\Chargeback::class, $result->_links);
     }
     /**
      * Retrieves a specific chargeback for this payment.

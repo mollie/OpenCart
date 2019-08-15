@@ -76,14 +76,24 @@ $_['name_mollie_giropay']       = 'Giropay';
 $_['name_mollie_klarnapaylater'] = 'Klarna Pay Later';
 $_['name_mollie_klarnasliceit']  = 'Klarna Slice It';
 $_['name_mollie_przelewy24']  	 = 'P24';
+$_['name_mollie_applepay']  	 = 'Apple Pay';
 
 // Text
 $_['text_edit']                    = "Mollie bearbeiten";
 $_['text_payment']                 = "Bezahlung";
 $_['text_success']                 = "Erfolg: Die Einstellungen für dieses Modul wurden angepasst!";
 $_['text_missing_api_key']         = "Bitte füllen Sie Ihren API-Schlüssel auf der Registerkarte <a data-toggle='tab' href='#' class='settings'>Einstellungen</a> aus.";
-$_['text_activate_payment_method'] = 'Aktivieren Sie diese Zahlungsart über das <a href="https://www.mollie.com/beheer/account/profielen/" target="_blank">Mollie Dashboard</a>.';
+$_['text_enable_payment_method']   = 'Aktivieren Sie diese Zahlungsart über das <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank">Mollie Dashboard</a>.';
+$_['text_activate_payment_method'] = 'Im <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank">Mollie Dashboard</a> oder die App unter “Einstellungen” konfigurieren, um es auf dieser Seite zu aktivieren.';
 $_['text_no_status_id']            = "- Status nicht ändern (nicht empfohlen) -";
+$_['text_enable']             = "Aktivieren";
+$_['text_disable']            = "Deaktivieren";
+$_['text_connection_success'] = "Erfolg: Verbindung zu Mollie erfolgreich!";
+$_['text_error'] 			  = "Warnung: Es ist ein Fehler aufgetreten. Bitte versuchen Sie es später noch einmal!";
+$_['text_creditcard_required'] = "Kreditkarte erforderlich";
+$_['text_mollie_api'] = "Mollie API";
+$_['text_mollie_app'] = "Mollie App";
+$_['text_general'] 	  = "Allgemeines";
 
 // Entry
 $_['entry_payment_method']           = "Zahlungsart";
@@ -94,14 +104,21 @@ $_['entry_description']              = "Beschreibung";
 $_['entry_show_icons']               = "Icons anzeigen";
 $_['entry_show_order_canceled_page'] = "Meldung bei annullierten Bezahlungen anzeigen";
 $_['entry_geo_zone']                 = "Geo Zone";
+$_['entry_client_id']                = "Client ID";
+$_['entry_client_secret']            = "Client Secret";
+$_['entry_redirect_uri']             = "Redirect URI";
+$_['entry_payment_screen_language']  = "Standardsprache des Zahlungsbildschirms";
 
 // Help
-$_['help_view_profile']             = 'Sie können Ihren API Key auf <a href="https://www.mollie.com/beheer/account/profielen/" target="_blank" class="alert-link">Ihren Mollie-Webseiten-Profilen finden</a>.';
+$_['help_view_profile']             = 'Sie können Ihren API Key auf <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank" class="alert-link">Ihren Mollie-Webseiten-Profilen finden</a>.';
 $_['help_status']                   = "Das Modul aktivieren";
 $_['help_api_key']                  = "Geben Sie hier den <code>api_key</code> des Webseiten-Profils ein, das Sie verwenden wollen. Der API Key beginnt mit <code>test_</code> oder <code>live_</code>.";
 $_['help_description']              = "Die Beschreibung soll auf der Banküberweisung Ihres Kunden erscheinen und Sie können sie in der Mollie Verwaltung sehen. Sie können maximal 29 Zeichen verwenden. TIPP: Verwenden Sie %, dies wird durch die Auftragsnummer ersetzt werden. Die Auftragsnummer selbst kann auch mehrere Zeichen lang sein!";
 $_['help_show_icons']               = "Icons neben den Zahlungsarten von Mollie auf der Zahlungsseite anzeigen.";
 $_['help_show_order_canceled_page'] = "Eine Meldung für den Kunden anzeigen, wenn eine Zahlung annulliert wurde, bevor der Kunde zurück zum Warenkorb verwiesen wird.";
+$_['help_redirect_uri']				= 'Der Redirect-URI in Ihrem Mollie-Dashboard muss mit diesem URI übereinstimmen.';
+$_['help_mollie_app']				= 'Wenn Sie Ihr Modul als App im Mollie-Dashboard registrieren, werden zusätzliche Funktionen freigeschaltet. Dies ist nicht erforderlich, um Mollie-Zahlungen zu verwenden.';
+$_['help_apple_pay']				= 'Apple Pay benötigt die Aktivierung der Kreditkartenzahlung in Ihrem Webprofil. Bitte schalten Sie zunächst die Kreditkarten Methode frei.';
 
 // Info
 $_['entry_module']          = "Module";
@@ -124,6 +141,7 @@ $_['entry_failed_status']    = "Status Zahlung fehlgeschlagen";
 $_['entry_canceled_status']  = "Status Zahlung annulliert";
 $_['entry_expired_status']   = "Status Zahlung verstrichen";
 $_['entry_processing_status']= "Status Zahlung erfolgreich";
+$_['entry_refund_status']	  = "Status Zahlung rückerstattung";
 
 $_['entry_shipping_status']   = "Versandstatus der Bestellung";
 $_['entry_shipment']       			 = "Sendung erstellen";
@@ -137,3 +155,10 @@ $_['entry_create_shipment_on_order_complete'] 		= "Erstellen Sie den Versand nac
 
 //Button
 $_['button_update'] = "Aktualisieren";
+$_['button_mollie_connect'] = "Connect via Mollie";
+
+//Error log
+$_['text_log_success']	   = 'Erfolg: Sie haben Ihr Fehlerprotokoll erfolgreich gelöscht!';
+$_['text_log_list']        = 'Fehlerliste';
+$_['error_log_warning']	   = 'Warnung: Ihre Fehlerprotokolldatei %s ist %s!';
+$_['button_download']	   = 'Herunterladen';

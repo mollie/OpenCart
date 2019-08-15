@@ -31,6 +31,13 @@ class Settlement extends \Mollie\Api\Resources\BaseResource
      */
     public $createdAt;
     /**
+     * The date on which the settlement was settled, in ISO 8601 format. When requesting the open settlement or next settlement the return value is null.
+     *
+     * @example "2013-12-25T10:30:54+00:00"
+     * @var string|null
+     */
+    public $settledAt;
+    /**
      * Status of the settlement.
      *
      * @var string
@@ -106,11 +113,7 @@ class Settlement extends \Mollie\Api\Resources\BaseResource
             return new \Mollie\Api\Resources\PaymentCollection($this->client, 0, null);
         }
         $result = $this->client->performHttpCallToFullUrl(\Mollie\Api\MollieApiClient::HTTP_GET, $this->_links->payments->href);
-        $resourceCollection = new \Mollie\Api\Resources\PaymentCollection($this->client, $result->count, $result->_links);
-        foreach ($result->_embedded->payments as $dataResult) {
-            $resourceCollection[] = \Mollie\Api\Resources\ResourceFactory::createFromApiResult($dataResult, new \Mollie\Api\Resources\Payment($this->client));
-        }
-        return $resourceCollection;
+        return \Mollie\Api\Resources\ResourceFactory::createCursorResourceCollection($this->client, $result->_embedded->payments, \Mollie\Api\Resources\Payment::class, $result->_links);
     }
     /**
      * Retrieves all refunds associated with this settlement
@@ -124,11 +127,7 @@ class Settlement extends \Mollie\Api\Resources\BaseResource
             return new \Mollie\Api\Resources\RefundCollection($this->client, 0, null);
         }
         $result = $this->client->performHttpCallToFullUrl(\Mollie\Api\MollieApiClient::HTTP_GET, $this->_links->refunds->href);
-        $resourceCollection = new \Mollie\Api\Resources\RefundCollection($this->client, $result->count, $result->_links);
-        foreach ($result->_embedded->refunds as $dataResult) {
-            $resourceCollection[] = \Mollie\Api\Resources\ResourceFactory::createFromApiResult($dataResult, new \Mollie\Api\Resources\Refund($this->client));
-        }
-        return $resourceCollection;
+        return \Mollie\Api\Resources\ResourceFactory::createCursorResourceCollection($this->client, $result->_embedded->refunds, \Mollie\Api\Resources\Refund::class, $result->_links);
     }
     /**
      * Retrieves all chargebacks associated with this settlement
@@ -142,10 +141,20 @@ class Settlement extends \Mollie\Api\Resources\BaseResource
             return new \Mollie\Api\Resources\ChargebackCollection($this->client, 0, null);
         }
         $result = $this->client->performHttpCallToFullUrl(\Mollie\Api\MollieApiClient::HTTP_GET, $this->_links->chargebacks->href);
-        $resourceCollection = new \Mollie\Api\Resources\ChargebackCollection($this->client, $result->count, $result->_links);
-        foreach ($result->_embedded->chargebacks as $dataResult) {
-            $resourceCollection[] = \Mollie\Api\Resources\ResourceFactory::createFromApiResult($dataResult, new \Mollie\Api\Resources\Chargeback($this->client));
+        return \Mollie\Api\Resources\ResourceFactory::createCursorResourceCollection($this->client, $result->_embedded->chargebacks, \Mollie\Api\Resources\Chargeback::class, $result->_links);
+    }
+    /**
+     * Retrieves all captures associated with this settlement
+     *
+     * @return CaptureCollection
+     * @throws ApiException
+     */
+    public function captures()
+    {
+        if (!isset($this->_links->captures->href)) {
+            return new \Mollie\Api\Resources\CaptureCollection($this->client, 0, null);
         }
-        return $resourceCollection;
+        $result = $this->client->performHttpCallToFullUrl(\Mollie\Api\MollieApiClient::HTTP_GET, $this->_links->captures->href);
+        return \Mollie\Api\Resources\ResourceFactory::createCursorResourceCollection($this->client, $result->_embedded->captures, \Mollie\Api\Resources\Capture::class, $result->_links);
     }
 }

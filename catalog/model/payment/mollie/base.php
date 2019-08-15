@@ -66,6 +66,13 @@ class ModelPaymentMollieBase extends Model
 	 */
 	public function getMethod($address, $total)
 	{
+		// Return nothing if ApplePay is not available
+		if(static::MODULE_NAME == 'applepay') {
+			if(isset($_COOKIE['applePay']) && ($_COOKIE['applePay'] == 0)) {
+				return NULL;
+			}
+		}
+
 		// Check total for minimum amount
 		$standardTotal = $this->currency->convert($total, $this->config->get("config_currency"), 'EUR');
 		if($standardTotal <= 0.01) {
@@ -107,9 +114,10 @@ class ModelPaymentMollieBase extends Model
 		$data = array(
             "amount" 		 => ["value" => (string)number_format((float)$total, 2, '.', ''), "currency" => $currency,],
             "resource" 		 => "orders",
+            "includeWallets" => "applepay",
 			"billingCountry" => $country
         );
-		$payment_methods = $this->getAPIClient()->methods->all($data);
+		$payment_methods = $this->getAPIClient()->methods->allActive($data);
 
 		foreach ($payment_methods as $allowed_method)
 		{
@@ -194,11 +202,12 @@ class ModelPaymentMollieBase extends Model
 			$this->db->query(
 				sprintf(
 					"UPDATE `%smollie_payments` 
-					 SET `transaction_id` = '%s', `bank_status` = '%s'
+					 SET `transaction_id` = '%s', `bank_status` = '%s', `refund_id` = '%s'
 					 WHERE `order_id` = '%s' AND `mollie_order_id` = '%s';",
 					DB_PREFIX,
 					$this->db->escape($data['payment_id']),
 					$this->db->escape($data['status']),
+					$this->db->escape($data['refund_id']),
 					$this->db->escape($order_id),
 					$this->db->escape($mollie_order_id)
 				)
@@ -254,6 +263,16 @@ class ModelPaymentMollieBase extends Model
 		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "order_total WHERE order_id = '" . (int)$orderID . "' AND code != 'shipping' AND code != 'tax' AND code != 'voucher' AND code != 'sub_total' AND code != 'coupon' AND code != 'reward' AND code != 'total'");
 
 		return $query->rows;
+	}
+
+	public function getPayment($order_id)
+	{
+		if (!empty($order_id)) {
+			$results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `order_id` = '" . $order_id . "'");
+			if($results->num_rows == 0) return FALSE;
+			return $results->row;
+		}
+		return FALSE;
 	}
 
 }

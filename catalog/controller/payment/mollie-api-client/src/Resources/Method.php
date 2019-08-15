@@ -17,6 +17,20 @@ class Method extends \Mollie\Api\Resources\BaseResource
      */
     public $description;
     /**
+     * An object containing value and currency. It represents the minimum payment amount required to use this
+     * payment method.
+     *
+     * @var object
+     */
+    public $minimumAmount;
+    /**
+     * An object containing value and currency. It represents the maximum payment amount allowed when using this
+     * payment method.
+     *
+     * @var object
+     */
+    public $maximumAmount;
+    /**
      * The $image->size1x and $image->size2x to display the payment method logo.
      *
      * @var object
@@ -30,6 +44,13 @@ class Method extends \Mollie\Api\Resources\BaseResource
      */
     public $issuers;
     /**
+     * The pricing for this payment method. Will only be filled when explicitly requested using the query string
+     * `include` parameter.
+     *
+     * @var array|object[]
+     */
+    public $pricing;
+    /**
      * @var object[]
      */
     public $_links;
@@ -40,10 +61,15 @@ class Method extends \Mollie\Api\Resources\BaseResource
      */
     public function issuers()
     {
-        $issuers = new \Mollie\Api\Resources\IssuerCollection(\count($this->issuers), null);
-        foreach ($this->issuers as $issuer) {
-            $issuers->append(\Mollie\Api\Resources\ResourceFactory::createFromApiResult($issuer, new \Mollie\Api\Resources\Issuer($this->client)));
-        }
-        return $issuers;
+        return \Mollie\Api\Resources\ResourceFactory::createBaseResourceCollection($this->client, $this->issuers, \Mollie\Api\Resources\Issuer::class);
+    }
+    /**
+     * Get the method price value objects.
+     *
+     * @return MethodPriceCollection
+     */
+    public function pricing()
+    {
+        return \Mollie\Api\Resources\ResourceFactory::createBaseResourceCollection($this->client, $this->pricing, \Mollie\Api\Resources\MethodPrice::class);
     }
 }

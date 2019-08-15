@@ -1,8 +1,8 @@
 <?php
 
-namespace _PhpScoper5bbb1f4b001f3\GuzzleHttp\Psr7;
+namespace _PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7;
 
-use _PhpScoper5bbb1f4b001f3\Psr\Http\Message\StreamInterface;
+use _PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInterface;
 /**
  * Converts Guzzle streams into PHP stream resources.
  */
@@ -22,7 +22,7 @@ class StreamWrapper
      * @return resource
      * @throws \InvalidArgumentException if stream is not readable or writable
      */
-    public static function getResource(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\StreamInterface $stream)
+    public static function getResource(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInterface $stream)
     {
         self::register();
         if ($stream->isReadable()) {
@@ -32,7 +32,18 @@ class StreamWrapper
         } else {
             throw new \InvalidArgumentException('The stream must be readable, ' . 'writable, or both.');
         }
-        return \fopen('guzzle://stream', $mode, null, \stream_context_create(['guzzle' => ['stream' => $stream]]));
+        return \fopen('guzzle://stream', $mode, null, self::createStreamContext($stream));
+    }
+    /**
+     * Creates a stream context that can be used to open a stream as a php stream resource.
+     *
+     * @param StreamInterface $stream
+     *
+     * @return resource
+     */
+    public static function createStreamContext(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInterface $stream)
+    {
+        return \stream_context_create(['guzzle' => ['stream' => $stream]]);
     }
     /**
      * Registers the stream wrapper if needed
@@ -74,9 +85,18 @@ class StreamWrapper
         $this->stream->seek($offset, $whence);
         return \true;
     }
+    public function stream_cast($cast_as)
+    {
+        $stream = clone $this->stream;
+        return $stream->detach();
+    }
     public function stream_stat()
     {
-        static $modeMap = ['r' => 33060, 'r+' => 33206, 'w' => 33188];
+        static $modeMap = ['r' => 33060, 'rb' => 33060, 'r+' => 33206, 'w' => 33188, 'wb' => 33188];
         return ['dev' => 0, 'ino' => 0, 'mode' => $modeMap[$this->mode], 'nlink' => 0, 'uid' => 0, 'gid' => 0, 'rdev' => 0, 'size' => $this->stream->getSize() ?: 0, 'atime' => 0, 'mtime' => 0, 'ctime' => 0, 'blksize' => 0, 'blocks' => 0];
+    }
+    public function url_stat($path, $flags)
+    {
+        return ['dev' => 0, 'ino' => 0, 'mode' => 0, 'nlink' => 0, 'uid' => 0, 'gid' => 0, 'rdev' => 0, 'size' => 0, 'atime' => 0, 'mtime' => 0, 'ctime' => 0, 'blksize' => 0, 'blocks' => 0];
     }
 }

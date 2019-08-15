@@ -23,6 +23,17 @@
 	</div>
 	<?php } ?>
 
+	<?php if ($success) { ?>
+    <div class="success">
+    	<?php echo $success; ?>
+    </div>
+    <?php } ?>
+    <?php if ($warning) { ?>
+    <div class="attention">
+    	<?php echo $warning; ?>
+    </div>
+    <?php } ?>
+
 	<div class="box">
 		<div class="heading">
 			<h1><img src="view/image/payment.png" alt=""><?php echo $heading_title; ?></h1>
@@ -48,6 +59,10 @@
 							<a href="#support-<?php echo $shop['store_id']; ?>">Support</a>
 						</div>
 
+						<?php if(!empty($shop[$code . '_client_id']) && $shop['show_mollie_connect_button']) { ?>
+							<a href="<?php echo $shop['mollie_connect']; ?>"><img src="<?php echo $image; ?>" alt="<?php echo $button_mollie_connect; ?>" style="width: 152px;height: auto; float: right;" /></a>
+						<?php } ?>
+
 						<div id="payment-methods-<?php echo $shop['store_id']; ?>" class="active vtabs-content">
 							<div class="form-group">
 								<div class="col-sm-4"><strong><?php echo $entry_payment_method; ?></strong></div>
@@ -60,17 +75,30 @@
 									<div class="col-sm-4">
 										<img src="<?php echo $payment_method['icon']; ?>" width="20" style="float:left; margin-right:1em; margin-top:-3px"/>
 										<?php echo $payment_method['name']; ?>
+										<?php if(($payment_method['name'] == 'Apple Pay') && !$store['creditCardEnabled']) { ?>
+											<span data-toggle="tooltip" title="<?php echo $help_apple_pay; ?>" style="border: 1px solid; border-radius: 9px; background: #fff; color: #ffb100; text-transform: uppercase; margin-left: 20px; letter-spacing: .03em; line-height: 17px; padding: 0 6px;"><?php echo $text_creditcard_required; ?></span>
+										<?php } ?>
 									</div>
 									<div class="col-sm-3">
 										<?php $show_checkbox = true ?>
-											<?php if (empty($shop[$code . '_api_key']) || !empty($shop['error_api_key'])) { ?>
-											<?php $show_checkbox = false ?>
-											<?php echo $text_missing_api_key; ?>
-											<?php } elseif (!$payment_method['allowed']) { ?>
-											<?php $show_checkbox = false ?>
-											<?php echo $text_activate_payment_method; ?>
-											<?php } ?>
-										<input type="checkbox" name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_status" <?php echo $payment_method['status'] ? 'checked' : ''; ?> style="cursor:pointer;<?php echo !$show_checkbox ? 'display:none;' : ''; ?>" />
+										<?php if (empty($shop[$code . '_api_key']) || !empty($shop['error_api_key'])) { ?>
+										<?php $show_checkbox = false ?>
+										<?php echo $text_missing_api_key; ?>
+										<?php } elseif (!$payment_method['allowed']) { ?>
+										<?php $show_checkbox = false ?>
+										<?php echo (!$shop['mollie_connection']) ? $text_activate_payment_method : ''; ?>
+										<?php } ?>
+										<input type="checkbox" name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_status" <?php echo $payment_method['status'] ? 'checked' : ''; ?> style="cursor:pointer;<?php echo !$show_checkbox ? 'display: none;' : ''; ?>" />
+										<?php if($shop['mollie_connection'] && !empty($shop[$code . '_api_key']) && empty($shop['error_api_key'])) { ?>
+										<?php if(!$show_checkbox) { ?>
+											<?php $apiExcludedMethods = array("creditcard", "paysafecard", "giftcard", "p24", "paypal"); ?>
+											<?php if(in_array(strtolower($payment_method['name']), $apiExcludedMethods)) { ?>
+											<?php echo $text_enable_payment_method; ?>
+											<?php } else { ?>
+											<a href="<?php echo $payment_method['enable']; ?>" style="<?php echo ((strtolower($payment_method['name']) == 'apple pay') && !$store['creditCardEnabled']) ? 'pointer-events: none; cursor: default; opacity: 0.8;' : ''; ?>"><span class="label label-success"><?php echo $text_enable; ?></span></a>
+										<?php } ?>
+										<?php } ?> 
+										<?php } ?>
 									</div>
 									<div class="col-sm-3">
 										<select name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_geo_zone" class="form-control">
@@ -178,108 +206,168 @@
 								</div>
 							</div>
 							<div class="form-group">
-										<label class="col-sm-2 control-label" for="<?php echo $code; ?>_ideal_shipping_status_id"><?php echo $entry_shipping_status; ?></label>
-										<div class="col-sm-10">
-											<select name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_ideal_shipping_status_id" id="<?php echo $code; ?>_ideal_shipping_status_id" class="form-control">
-												<?php foreach ($order_statuses as $order_status) { ?>
-													<?php if ($order_status['order_status_id'] == $shop[$code . '_ideal_shipping_status_id']) { ?>
-													<option value="<?php echo $order_status['order_status_id']; ?>" selected="selected"><?php echo $order_status['name']; ?></option>
-													<?php } else { ?>
-													<option value="<?php echo $order_status['order_status_id']; ?>"><?php echo $order_status['name']; ?></option>
-													<?php } ?>
-												<?php } ?>
-											</select>
-										</div>
-									</div>
+								<label class="col-sm-2 control-label" for="<?php echo $code; ?>_ideal_shipping_status_id"><?php echo $entry_shipping_status; ?></label>
+								<div class="col-sm-10">
+									<select name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_ideal_shipping_status_id" id="<?php echo $code; ?>_ideal_shipping_status_id" class="form-control">
+										<?php foreach ($order_statuses as $order_status) { ?>
+											<?php if ($order_status['order_status_id'] == $shop[$code . '_ideal_shipping_status_id']) { ?>
+											<option value="<?php echo $order_status['order_status_id']; ?>" selected="selected"><?php echo $order_status['name']; ?></option>
+											<?php } else { ?>
+											<option value="<?php echo $order_status['order_status_id']; ?>"><?php echo $order_status['name']; ?></option>
+											<?php } ?>
+										<?php } ?>
+									</select>
+								</div>
+							</div>
+
+							<div class="form-group">
+								<label class="col-sm-2 control-label" for="<?php echo $code; ?>_ideal_refund_status_id"><?php echo $entry_refund_status; ?></label>
+								<div class="col-sm-10">
+									<select name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_ideal_refund_status_id" id="<?php echo $code; ?>_ideal_refund_status_id" class="form-control">
+										<?php foreach ($order_statuses as $order_status) { ?>
+											<?php if ($order_status['order_status_id'] == $shop[$code . '_ideal_refund_status_id']) { ?>
+											<option value="<?php echo $order_status['order_status_id']; ?>" selected="selected"><?php echo $order_status['name']; ?></option>
+											<?php } else { ?>
+											<option value="<?php echo $order_status['order_status_id']; ?>"><?php echo $order_status['name']; ?></option>
+											<?php } ?>
+										<?php } ?>
+									</select>
+								</div>
+							</div>
 						</div>
 
 						<div id="mollie-options-<?php echo $shop['store_id']; ?>" class="vtabs-content">
-							<div class="form-group">
-								<label class="col-sm-2 control-label" for="<?php echo $code; ?>_api_key"> <?php echo $api_required ? '<span class="required">*</span>' : '' ?> <?php echo $entry_api_key; ?><br /><span class="help"><?php echo $help_api_key; ?></span></label>
-								<div class="col-sm-10">
-									<div class="input-group message-block">
-										<input type="text" name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_api_key" value="<?php echo $shop[$code . '_api_key']; ?>" placeholder="live_..." id="<?php echo $code; ?>_api_key" class="form-control" store="<?php echo $shop['store_id']; ?>" <?php echo $shop['store_id']; ?>-data-payment-mollie-api-key/>
-									</div>
-									<?php if ($shop['error_api_key']) { ?>
-									<div class="text-danger"><?php echo $shop['error_api_key']; ?></div>
-									<?php } ?>
-								</div>
-							</div>
-							<div class="form-group">
-								<label class="col-sm-2 control-label" for="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_ideal_description"><span class="required">*</span> <?php echo $entry_description; ?> <span class="help"><?php echo $help_description; ?></span></label>
-								<div class="col-sm-10">
-									<input type="text" name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_ideal_description" value="<?php echo $shop[$code . '_ideal_description']; ?>" id="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_ideal_description" class="form-control"/>
-									<?php if ($shop['error_description']) { ?>
-									<div class="text-danger"><?php echo $shop['error_description']; ?></div>
-									<?php } ?>
-								</div>
-							</div>
-							<div class="form-group">
-								<label class="col-sm-2 control-label" for="input-status"><span data-toggle="tooltip" title="<?php echo $help_show_icons; ?>"><?php echo $entry_show_icons; ?></span></label>
-								<div class="col-sm-10">
-									<select name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_show_icons" id="input-status" class="form-control">
-										<?php if ($shop[$code . '_show_icons']) { ?>
-										<option value="1" selected="selected"><?php echo $text_yes; ?></option>
-										<option value="0"><?php echo $text_no; ?></option>
-										<?php } else { ?>
-										<option value="1"><?php echo $text_yes; ?></option>
-										<option value="0" selected="selected"><?php echo $text_no; ?></option>
-										<?php } ?>
-									</select>
-								</div>
-							</div>
-							<div class="form-group">
-								<label class="col-sm-2 control-label" for="input-status"><span data-toggle="tooltip" title="<?php echo $help_show_order_canceled_page; ?>"><?php echo $entry_show_order_canceled_page; ?></span></label>
-								<div class="col-sm-10">
-									<select name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_show_order_canceled_page" id="input-status" class="form-control">
-										<?php if ($shop[$code . '_show_order_canceled_page']) { ?>
-										<option value="1" selected="selected"><?php echo $text_yes; ?></option>
-										<option value="0"><?php echo $text_no; ?></option>
-										<?php } else { ?>
-										<option value="1"><?php echo $text_yes; ?></option>
-										<option value="0" selected="selected"><?php echo $text_no; ?></option>
-										<?php } ?>
-									</select>
-								</div>
-							</div>
-							<div class="form-group">
-										<label class="col-sm-2 control-label" for="input-status"><span data-toggle="tooltip" title="<?php echo $help_shipment; ?>"><?php echo $entry_shipment; ?></span></label>
-										<div class="col-sm-10">
-											<select name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_create_shipment" id="<?php echo $shop['store_id']; ?>-create-shipment" class="form-control">
-												<?php if ($shop[$code . '_create_shipment'] == 1) { ?>
-												<option value="1" selected="selected"><?php echo $text_create_shipment_automatically; ?></option>
-												<option value="2"><?php echo $text_create_shipment_on_status; ?></option>
-												<?php if($is_order_complete_status) { ?>
-												<option value="3"><?php echo $text_create_shipment_on_order_complete; ?></option>
-												<?php } ?>
-												<?php } elseif ($shop[$code . '_create_shipment'] == 2) { ?>
-												<option value="1"><?php echo $text_create_shipment_automatically; ?></option>
-												<option value="2" selected="selected"><?php echo $text_create_shipment_on_status; ?></option>
-												<?php if($is_order_complete_status) { ?>
-												<option value="3"><?php echo $text_create_shipment_on_order_complete; ?></option>
-												<?php } ?>
-												<?php } else { ?>
-												<option value="1"><?php echo $text_create_shipment_automatically; ?></option>
-												<option value="2" selected="selected"><?php echo $text_create_shipment_on_status; ?></option>
-												<option value="3" selected="selected"><?php echo $text_create_shipment_on_order_complete; ?></option>
-												<?php } ?>
-											</select>
+							<fieldset>
+								<legend><?php echo $text_mollie_api; ?></legend>
+								<div class="form-group">
+									<label class="col-sm-2 control-label" for="<?php echo $code; ?>_api_key"> <?php echo $api_required ? '<span class="required">*</span>' : '' ?> <?php echo $entry_api_key; ?><br /><span class="help"><?php echo $help_api_key; ?></span></label>
+									<div class="col-sm-10">
+										<div class="input-group message-block">
+											<input type="text" name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_api_key" value="<?php echo $shop[$code . '_api_key']; ?>" placeholder="live_..." id="<?php echo $code; ?>_api_key" class="form-control" store="<?php echo $shop['store_id']; ?>" <?php echo $shop['store_id']; ?>-data-payment-mollie-api-key/>
 										</div>
+										<?php if ($shop['error_api_key']) { ?>
+										<div class="text-danger"><?php echo $shop['error_api_key']; ?></div>
+										<?php } ?>
 									</div>
-									<div class="form-group" id="<?php echo $shop['store_id']; ?>-create-shipment-status">
-										<label class="col-sm-2 control-label" for="<?php echo $code; ?>_create_shipping_status_id"><?php echo $entry_create_shipment_status; ?></label>
-										<div class="col-sm-10">
-											<select name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_create_shipment_status_id" id="<?php echo $code; ?>_create_shipment_status_id" class="form-control">
-												<?php foreach ($order_statuses as $order_status) { ?>
-													<?php if ($order_status['order_status_id'] == $shop[$code . '_create_shipment_status_id']) { ?>
-													<option value="<?php echo $order_status['order_status_id']; ?>" selected="selected"><?php echo $order_status['name']; ?></option>
-													<?php } else { ?>
-													<option value="<?php echo $order_status['order_status_id']; ?>"><?php echo $order_status['name']; ?></option>
+								</div>
+							</fieldset>
+							<fieldset>
+								<legend><?php echo $text_mollie_app; ?></legend>
+								<div class="form-group">
+									<label class="col-sm-2 control-label" for="<?php echo $code; ?>_client_id"><?php echo $entry_client_id; ?><br /><span class="help"><?php echo $help_mollie_app; ?></span></label>
+									<div class="col-sm-10">					
+										<input type="text" name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_client_id" value="<?php echo $shop[$code . '_client_id']; ?>" placeholder="<?php echo $entry_client_id; ?>" id="<?php echo $code; ?>_client_id" class="form-control" store="<?php echo $shop['store_id']; ?>" <?php echo $shop['store_id']; ?>-data-payment-mollie-client-id/>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<label class="col-sm-2 control-label" for="<?php echo $code; ?>_client_secret"><?php echo $entry_client_secret; ?><br /><span class="help"><?php echo $help_mollie_app; ?></span></label>
+									<div class="col-sm-10">				
+										<input type="text" name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_client_secret" value="<?php echo $shop[$code . '_client_secret']; ?>" placeholder="<?php echo $entry_client_secret; ?>" id="<?php echo $code; ?>_client_secret" class="form-control" store="<?php echo $shop['store_id']; ?>" <?php echo $shop['store_id']; ?>-data-payment-mollie-client-secret/>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<label class="col-sm-2 control-label" for="<?php echo $code; ?>_client_secret"><?php echo $entry_redirect_uri; ?><span  class="help"><?php echo $help_redirect_uri; ?></span></label>
+									<div class="col-sm-10">				
+										<input type="text" name="" value="<?php echo $shop['redirect_uri']; ?>" class="form-control" readonly />
+									</div>
+								</div>
+
+								<input type="hidden" name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_refresh_token" value="<?php echo $shop[$code . '_refresh_token']; ?>">
+							</fieldset>
+							<fieldset>
+								<legend><?php echo $text_general; ?></legend>
+								<div class="form-group">
+									<label class="col-sm-2 control-label" for="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_ideal_description"><span class="required">*</span> <?php echo $entry_description; ?> <span class="help"><?php echo $help_description; ?></span></label>
+									<div class="col-sm-10">
+										<input type="text" name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_ideal_description" value="<?php echo $shop[$code . '_ideal_description']; ?>" id="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_ideal_description" class="form-control"/>
+										<?php if ($shop['error_description']) { ?>
+										<div class="text-danger"><?php echo $shop['error_description']; ?></div>
+										<?php } ?>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-sm-2 control-label" for="input-status"><span data-toggle="tooltip" title="<?php echo $help_show_icons; ?>"><?php echo $entry_show_icons; ?></span></label>
+									<div class="col-sm-10">
+										<select name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_show_icons" id="input-status" class="form-control">
+											<?php if ($shop[$code . '_show_icons']) { ?>
+											<option value="1" selected="selected"><?php echo $text_yes; ?></option>
+											<option value="0"><?php echo $text_no; ?></option>
+											<?php } else { ?>
+											<option value="1"><?php echo $text_yes; ?></option>
+											<option value="0" selected="selected"><?php echo $text_no; ?></option>
+											<?php } ?>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-sm-2 control-label" for="input-status"><span data-toggle="tooltip" title="<?php echo $help_show_order_canceled_page; ?>"><?php echo $entry_show_order_canceled_page; ?></span></label>
+									<div class="col-sm-10">
+										<select name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_show_order_canceled_page" id="input-status" class="form-control">
+											<?php if ($shop[$code . '_show_order_canceled_page']) { ?>
+											<option value="1" selected="selected"><?php echo $text_yes; ?></option>
+											<option value="0"><?php echo $text_no; ?></option>
+											<?php } else { ?>
+											<option value="1"><?php echo $text_yes; ?></option>
+											<option value="0" selected="selected"><?php echo $text_no; ?></option>
+											<?php } ?>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-sm-2 control-label" for="input-language"><?php echo $entry_payment_screen_language; ?></label>
+									<div class="col-sm-10">
+										<select name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_payment_screen_language" id="input-language" class="form-control">
+											<?php foreach ($languages as $language) { ?>
+						                    <?php if ($language['code'] == $shop[$code . '_payment_screen_language']) { ?>
+						                    <option value="<?php echo $language['code']; ?>" selected="selected"><?php echo $language['name']; ?></option>
+						                    <?php } else { ?>
+						                    <option value="<?php echo $language['code']; ?>"><?php echo $language['name']; ?></option>
+						                    <?php } ?>
+						                    <?php } ?>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+											<label class="col-sm-2 control-label" for="input-status"><span data-toggle="tooltip" title="<?php echo $help_shipment; ?>"><?php echo $entry_shipment; ?></span></label>
+											<div class="col-sm-10">
+												<select name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_create_shipment" id="<?php echo $shop['store_id']; ?>-create-shipment" class="form-control">
+													<?php if ($shop[$code . '_create_shipment'] == 1) { ?>
+													<option value="1" selected="selected"><?php echo $text_create_shipment_automatically; ?></option>
+													<option value="2"><?php echo $text_create_shipment_on_status; ?></option>
+													<?php if($is_order_complete_status) { ?>
+													<option value="3"><?php echo $text_create_shipment_on_order_complete; ?></option>
 													<?php } ?>
-												<?php } ?>
-											</select>
+													<?php } elseif ($shop[$code . '_create_shipment'] == 2) { ?>
+													<option value="1"><?php echo $text_create_shipment_automatically; ?></option>
+													<option value="2" selected="selected"><?php echo $text_create_shipment_on_status; ?></option>
+													<?php if($is_order_complete_status) { ?>
+													<option value="3"><?php echo $text_create_shipment_on_order_complete; ?></option>
+													<?php } ?>
+													<?php } else { ?>
+													<option value="1"><?php echo $text_create_shipment_automatically; ?></option>
+													<option value="2" selected="selected"><?php echo $text_create_shipment_on_status; ?></option>
+													<option value="3" selected="selected"><?php echo $text_create_shipment_on_order_complete; ?></option>
+													<?php } ?>
+												</select>
+											</div>
 										</div>
-									</div>
+										<div class="form-group" id="<?php echo $shop['store_id']; ?>-create-shipment-status">
+											<label class="col-sm-2 control-label" for="<?php echo $code; ?>_create_shipping_status_id"><?php echo $entry_create_shipment_status; ?></label>
+											<div class="col-sm-10">
+												<select name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_create_shipment_status_id" id="<?php echo $code; ?>_create_shipment_status_id" class="form-control">
+													<?php foreach ($order_statuses as $order_status) { ?>
+														<?php if ($order_status['order_status_id'] == $shop[$code . '_create_shipment_status_id']) { ?>
+														<option value="<?php echo $order_status['order_status_id']; ?>" selected="selected"><?php echo $order_status['name']; ?></option>
+														<?php } else { ?>
+														<option value="<?php echo $order_status['order_status_id']; ?>"><?php echo $order_status['name']; ?></option>
+														<?php } ?>
+													<?php } ?>
+												</select>
+											</div>
+										</div>
+									</fieldset>
 						</div>
 
 						<div id="about-module-<?php echo $shop['store_id']; ?>" class="vtabs-content">
@@ -322,6 +410,15 @@
 									</div>
 								</div>
 							</fieldset>
+							<div class="box" style="margin-top: 10px;">
+							    <div class="heading">
+							      <h1><img src="view/image/log.png" alt="" /> <?php echo $text_log_list; ?></h1>
+							      <div class="buttons"><a href="<?php echo $download; ?>" class="button"><?php echo $button_download; ?></a> <a href="<?php echo $clear; ?>" class="button"><?php echo $button_clear; ?></a></div>
+							    </div>
+							    <div class="content">
+							      <textarea wrap="off" style="width: 98%; height: 300px; padding: 5px; border: 1px solid #CCCCCC; background: #FFFFFF; overflow: scroll;"><?php echo $log; ?></textarea>
+							    </div>
+							  </div>							
 						</div>
 					</div>
 				<?php } ?>

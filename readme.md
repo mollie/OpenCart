@@ -44,6 +44,7 @@ them ready-made into your OpenCart webshop with this powerful plugin.
 - Klarna Pay Later
 - Klarna Slice It
 - Przelewy24
+- Apple Pay
 
 Please go to the signup page to create a new Mollie account and start receiving payments in
 a couple of minutes. Contact info@mollie.com if you have any questions or comments about
@@ -62,7 +63,7 @@ this plugin.
 Copyright (c) 2018, Mollie B.V.
 
 # Support #
-Module developed by Comercia: [www.comercia.nl](https://www.comercia.nl) — mollie@support.comercia.nl — +31 85-7733618 <br />
+Module developed by Comercia: [www.qualityworks.eu](https://www.qualityworks.eu) — mollie.support@qualityworks.eu — +31 85-7430150 <br />
 Contact Mollie: [www.mollie.com/nl/about](https://www.mollie.com/nl/about) — info@mollie.com — +31 20-612 88 55
 
 + [More info on iDEAL via Mollie](https://www.mollie.com/payments/ideal/)
@@ -79,3 +80,5 @@ Contact Mollie: [www.mollie.com/nl/about](https://www.mollie.com/nl/about) — i
 + [More info on Giropay via Mollie](https://www.mollie.com/payments/giropay/)
 + [More info on Klarna Pay Later via Mollie](https://www.mollie.com/payments/klarna-pay-later/)
 + [More info on Klarna Slite It via Mollie](https://www.mollie.com/payments/klarna-slice-it/)
++ [More info on Przelewy24 It via Mollie](https://www.mollie.com/payments/p24/)
++ [More info on Apple Pay via Mollie](https://www.mollie.com/payments/apple-pay/)

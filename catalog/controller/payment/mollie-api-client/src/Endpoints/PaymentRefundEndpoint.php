@@ -5,7 +5,7 @@ namespace Mollie\Api\Endpoints;
 use Mollie\Api\Resources\Payment;
 use Mollie\Api\Resources\Refund;
 use Mollie\Api\Resources\RefundCollection;
-class PaymentRefundEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
+class PaymentRefundEndpoint extends \Mollie\Api\Endpoints\CollectionEndpointAbstract
 {
     protected $resourcePath = "payments_refunds";
     /**
@@ -35,10 +35,23 @@ class PaymentRefundEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
      * @param array $parameters
      *
      * @return Refund
+     * @throws \Mollie\Api\Exceptions\ApiException
      */
     public function getFor(\Mollie\Api\Resources\Payment $payment, $refundId, array $parameters = [])
     {
-        $this->parentId = $payment->id;
+        return $this->getForId($payment->id, $refundId, $parameters);
+    }
+    /**
+     * @param string $paymentId
+     * @param string $refundId
+     * @param array $parameters
+     *
+     * @return \Mollie\Api\Resources\BaseResource|\Mollie\Api\Resources\Refund
+     * @throws \Mollie\Api\Exceptions\ApiException
+     */
+    public function getForId($paymentId, $refundId, array $parameters = [])
+    {
+        $this->parentId = $paymentId;
         return parent::rest_read($refundId, $parameters);
     }
 }

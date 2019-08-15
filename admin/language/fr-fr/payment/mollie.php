@@ -50,6 +50,7 @@ $_['text_mollie_giropay']       = $method_list_logo;
 $_['text_mollie_klarnapaylater'] = $method_list_logo;
 $_['text_mollie_klarnasliceit']  = $method_list_logo;
 $_['text_mollie_przelewy24']  	 = $method_list_logo;
+$_['text_mollie_applepay']  	 = $method_list_logo;
 
 // Heading
 $_['heading_title']           = "Mollie";
@@ -76,14 +77,24 @@ $_['name_mollie_giropay']       = 'Giropay';
 $_['name_mollie_klarnapaylater'] = 'Klarna Pay Later';
 $_['name_mollie_klarnasliceit']  = 'Klarna Slice It';
 $_['name_mollie_przelewy24']  	 = 'P24';
+$_['name_mollie_applepay']  	 = 'Apple Pay';
 
 // Text
 $_['text_edit']                    = "Éditer Mollie";
 $_['text_payment']                 = "Paiement";
 $_['text_success']                 = "Succès: Vous avez réussi à modifier les paramètres Mollie!";
 $_['text_missing_api_key']         = "S'il vous plaît remplir votre clé API dans l'onglet <a data-toggle='tab' href='#' class='settings'>Paramètres</a>.";
-$_['text_activate_payment_method'] = 'Activer ce mode de paiement via le <a href="https://www.mollie.com/beheer/account/profielen/" target="_blank">Mollie dashboard</a>.';
+$_['text_enable_payment_method']   = 'Activer ce mode de paiement via le <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank">Mollie dashboard</a>.';
+$_['text_activate_payment_method'] = 'Activer dans le <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank">tableau de bord Mollie<a/> ou configurer l\'application dans l\'onglet "reglages" pour l\'activer sur cette page.';
 $_['text_no_status_id']            = '- Ne pas mettre à jour le statut (non recommandé) -';
+$_['text_enable']             = "Activer";
+$_['text_disable']            = "Désactiver";
+$_['text_connection_success'] = "Succès: Connexion à Mollie réussie!";
+$_['text_error'] 			  = "Avertissement: quelque chose s'est mal passé. Veuillez réessayer plus tard!";
+$_['text_creditcard_required'] = "Nécessite une carte de crédit";
+$_['text_mollie_api'] = "Mollie API";
+$_['text_mollie_app'] = "Mollie App";
+$_['text_general'] 	  = "Général";
 
 // Entry
 $_['entry_payment_method']           = "Procédé de paiement";
@@ -93,14 +104,22 @@ $_['entry_api_key']                  = "Clé API";
 $_['entry_description']              = "Description";
 $_['entry_show_icons']               = "Afficher des icônes";
 $_['entry_show_order_canceled_page'] = "Afficher un message si le paiement est annulé";
+$_['entry_geo_zone']                 = "Geo Zone";
+$_['entry_client_id']                = "Client ID";
+$_['entry_client_secret']            = "Client Secret";
+$_['entry_redirect_uri']             = "Redirect URI";
+$_['entry_payment_screen_language']  = "Langue par défaut de l'écran de paiement";
 
 // Help
-$_['help_view_profile']             = 'Vous pouvez trouver votre clé API dans <a href="https://www.mollie.com/beheer/account/profielen/" target="_blank" class="alert-link">vos profils de site à Mollie</a>.';
+$_['help_view_profile']             = 'Vous pouvez trouver votre clé API dans <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank" class="alert-link">vos profils de site à Mollie</a>.';
 $_['help_status']                   = "Activer le module";
 $_['help_api_key']                  = 'Entrer ici le <code>api_key</code> du profil que vous souhaitez utiliser. Le cl&eacute; API commence par <code>test_</code> ou <code>live_</code>.';
 $_['help_description']              = 'Cette description apparaîtra sur le relevé bancaire de votre client. Vous pouvez utiliser un maximum de 29 caractères. ASTUCE: Utilisez le <code>%</code>, il sera remplacé par l\'id de la commande du paiement. N\'oubliez pas que <code>%/code> peut devenir plusieurs caractères!';
 $_['help_show_icons']               = 'Afficher les icônes à côté des méthodes de paiement Mollie sur la page de paiement.';
 $_['help_show_order_canceled_page'] = 'Afficher un message au client si un paiement est annulé, avant de rediriger le client vers leur panier.';
+$_['help_redirect_uri']				= 'L\'URI de redirection dans votre tableau de bord mollie doit correspondre à cet URI.';
+$_['help_mollie_app']				= 'En enregistrant votre module en tant qu\'application sur le tableau de bord Mollie, vous débloquerez des fonctionnalités ajoutées. Ce n\'est pas nécessaire pour utiliser les paiements Mollie.';
+$_['help_apple_pay']				= 'Apple Pay nécessite que la carte de crédit soit activée sur le profil de votre site Web. Veuillez activer la méthode de paiement carte de crédit en premier.';
 
 // Info
 $_['entry_module']            = "Module";
@@ -123,6 +142,7 @@ $_['entry_failed_status']     = "État de paiement échoué";
 $_['entry_canceled_status']   = "État de paiement annulé";
 $_['entry_expired_status']    = "État de paiement expiré";
 $_['entry_processing_status'] = "État de paiement traitement";
+$_['entry_refund_status']	  = "État de paiement rembourser";
 
 $_['entry_shipping_status']   = "Statut de la commande expédiée";
 $_['entry_shipment']       			 = "Créer un envoi";
@@ -136,3 +156,10 @@ $_['entry_create_shipment_on_order_complete'] 		= "Créer une expédition à la 
 
 //Button
 $_['button_update'] = "Mettre à jour";
+$_['button_mollie_connect'] = "Connect via Mollie";
+
+//Error log
+$_['text_log_success']	   = 'Succès: vous avez effacé avec succès votre journal des erreurs!';
+$_['text_log_list']        = 'Liste des erreurs';
+$_['error_log_warning']	   = 'Avertissement: votre fichier journal d\'erreur %s est %s!';
+$_['button_download']	   = 'Télécharger';

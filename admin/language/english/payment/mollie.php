@@ -50,6 +50,7 @@ $_['text_mollie_giropay']       = $method_list_logo;
 $_['text_mollie_klarnapaylater'] = $method_list_logo;
 $_['text_mollie_klarnasliceit']  = $method_list_logo;
 $_['text_mollie_przelewy24']  	 = $method_list_logo;
+$_['text_mollie_applepay']  	 = $method_list_logo;
 
 // Heading
 $_['heading_title']           = "Mollie";
@@ -76,14 +77,24 @@ $_['name_mollie_giropay']       = 'Giropay';
 $_['name_mollie_klarnapaylater'] = 'Klarna Pay Later';
 $_['name_mollie_klarnasliceit']  = 'Klarna Slice It';
 $_['name_mollie_przelewy24']  	 = 'P24';
+$_['name_mollie_applepay']  	 = 'Apple Pay';
 
 // Text
 $_['text_edit']                    = "Edit";
 $_['text_payment']                 = "Payment";
 $_['text_success']                 = "Success: You have successfully modified your Mollie settings!";
 $_['text_missing_api_key']         = "Please fill out your API key in the <a data-toggle='tab' href='#' class='settings'>Settings</a> tab.";
-$_['text_activate_payment_method'] = 'Enable this payment method in your <a href="https://www.mollie.com/beheer/account/profielen/" target="_blank">Mollie dashboard</a>.';
+$_['text_enable_payment_method'] = 'Enable this payment method in your <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank">Mollie dashboard</a>.';
+$_['text_activate_payment_method'] = 'Enable in <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank">Mollie dashboard</a>, or configure the App in the <a data-toggle=\'tab\' href=\'#\' class=\'settings\'>Settings</a> tab to enable on this page.';
 $_['text_no_status_id']            = "- Do not update the order status (not recommended) -";
+$_['text_enable']             = "Enable";
+$_['text_disable']            = "Disable";
+$_['text_connection_success'] = "Success: Connection to Mollie successful!";
+$_['text_error'] 			  = "Warning: Something went wrong. Please try again later!";
+$_['text_creditcard_required'] = "Requires Credit Card";
+$_['text_mollie_api'] = "Mollie API";
+$_['text_mollie_app'] = "Mollie App";
+$_['text_general'] 	  = "General";
 
 // Entry
 $_['entry_payment_method']           = "Payment method";
@@ -94,14 +105,21 @@ $_['entry_description']              = "Description";
 $_['entry_show_icons']               = "Show icons";
 $_['entry_show_order_canceled_page'] = "Show message if payment is cancelled";
 $_['entry_geo_zone']                 = "Geo Zone";
+$_['entry_client_id']                = "Client ID";
+$_['entry_client_secret']            = "Client Secret";
+$_['entry_redirect_uri']             = "Redirect URI";
+$_['entry_payment_screen_language']  = "Payment screen default language";
 
 // Help
-$_['help_view_profile']             = 'You can find your API key in <a href="https://www.mollie.com/beheer/account/profielen/" target="_blank" class="alert-link">your Mollie website profiles</a>.';
+$_['help_view_profile']             = 'You can find your API key in <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank" class="alert-link">your Mollie website profiles</a>.';
 $_['help_status']                   = "Activate the module";
 $_['help_api_key']                  = 'Enter the <code>api_key</code> of the website profile you want to use. The API key starts with <code>test_</code> or <code>live_</code>.';
 $_['help_description']              = 'This description will appear on the bank / card statement of your customer. You may use a maximum of 29 characters. TIP: Use <code>%</code>, this will be replaced by the order id of the payment. Don\'t forget <code>%</code> can be multiple characters long!';
 $_['help_show_icons']               = 'Show icons next to the Mollie payment methods on the checkout page.';
 $_['help_show_order_canceled_page'] = 'Show a message to the customer if a payment is cancelled, before redirecting the customer back to their shopping cart.';
+$_['help_redirect_uri']				= 'Redirect URI in your mollie dashboard must match with this URI.';
+$_['help_mollie_app']				= 'By registering your module as an App on the Mollie dashboard, you will unlock added functionalities. This is not required to use Mollie payments.';
+$_['help_apple_pay']				= 'Apple Pay requires credit card to be enabled on your website profile. Please enable credit card method first.';
 
 // Info
 $_['entry_module']            = "Module";
@@ -124,6 +142,7 @@ $_['entry_failed_status']     = "Payment failed status";
 $_['entry_canceled_status']   = "Payment canceled status";
 $_['entry_expired_status']    = "Payment expired status";
 $_['entry_processing_status'] = "Payment successful status";
+$_['entry_refund_status']	  = "Payment refund status";
 
 $_['entry_shipping_status']   		 = "Order shipped status";
 $_['entry_shipment']       			 = "Create shipment";
@@ -137,3 +156,10 @@ $_['entry_create_shipment_on_order_complete'] 		= "Create shipment upon order co
 
 //Button
 $_['button_update'] = "Update";
+$_['button_mollie_connect'] = "Connect via Mollie";
+
+//Error log
+$_['text_log_success']	   = 'Success: You have successfully cleared your mollie log!';
+$_['text_log_list']        = 'Log';
+$_['error_log_warning']	   = 'Warning: Your mollie log file %s is %s!';
+$_['button_download']	   = 'Download';

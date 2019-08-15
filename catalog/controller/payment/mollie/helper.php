@@ -5,7 +5,7 @@ use Mollie\Api\MollieApiClient;
 
 class MollieHelper
 {
-	const PLUGIN_VERSION = "9.0.6";
+	const PLUGIN_VERSION = "9.1.0";
 
 	// All available modules. These should correspond to the Mollie_API_Object_Method constants.
 	const MODULE_NAME_BANKTRANSFER  = "banktransfer";
@@ -25,6 +25,7 @@ class MollieHelper
 	const MODULE_NAME_KLARNAPAYLATER = "klarnapaylater";
 	const MODULE_NAME_KLARNASLICEIT  = "klarnasliceit";
 	const MODULE_NAME_PRZELEWY24  	 = "przelewy24";
+	const MODULE_NAME_APPLEPAY  	 = "applepay";
 
 
 	// List of all available module names.
@@ -45,7 +46,8 @@ class MollieHelper
 		self::MODULE_NAME_GIROPAY,
 		self::MODULE_NAME_KLARNAPAYLATER,
 		self::MODULE_NAME_KLARNASLICEIT,
-		self::MODULE_NAME_PRZELEWY24
+		self::MODULE_NAME_PRZELEWY24,
+		self::MODULE_NAME_APPLEPAY
 	);
 
 	static protected $api_client;
@@ -109,6 +111,18 @@ class MollieHelper
 		$mollie = new MollieApiClient;
 
 		$mollie->setApiKey(!empty($key) ? $key : null);
+
+		$mollie->addVersionString("OpenCart/" . VERSION);
+		$mollie->addVersionString("MollieOpenCart/" . self::PLUGIN_VERSION);
+
+		return $mollie;
+	}
+
+	public static function getAPIClientForAccessToken($accessToken) {
+		require_once(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/payment/mollie-api-client/vendor/autoload.php");
+		$mollie = new MollieApiClient;
+
+		$mollie->setAccessToken(!empty($accessToken) ? $accessToken : null);
 
 		$mollie->addVersionString("OpenCart/" . VERSION);
 		$mollie->addVersionString("MollieOpenCart/" . self::PLUGIN_VERSION);

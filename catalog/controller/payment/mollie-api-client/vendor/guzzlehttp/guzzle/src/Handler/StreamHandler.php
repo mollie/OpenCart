@@ -1,16 +1,16 @@
 <?php
 
-namespace _PhpScoper5bbb1f4b001f3\GuzzleHttp\Handler;
+namespace _PhpScoper5ce26f1fe2920\GuzzleHttp\Handler;
 
-use _PhpScoper5bbb1f4b001f3\GuzzleHttp\Exception\RequestException;
-use _PhpScoper5bbb1f4b001f3\GuzzleHttp\Exception\ConnectException;
-use _PhpScoper5bbb1f4b001f3\GuzzleHttp\Promise\FulfilledPromise;
-use _PhpScoper5bbb1f4b001f3\GuzzleHttp\Promise\PromiseInterface;
-use _PhpScoper5bbb1f4b001f3\GuzzleHttp\Psr7;
-use _PhpScoper5bbb1f4b001f3\GuzzleHttp\TransferStats;
-use _PhpScoper5bbb1f4b001f3\Psr\Http\Message\RequestInterface;
-use _PhpScoper5bbb1f4b001f3\Psr\Http\Message\ResponseInterface;
-use _PhpScoper5bbb1f4b001f3\Psr\Http\Message\StreamInterface;
+use _PhpScoper5ce26f1fe2920\GuzzleHttp\Exception\RequestException;
+use _PhpScoper5ce26f1fe2920\GuzzleHttp\Exception\ConnectException;
+use _PhpScoper5ce26f1fe2920\GuzzleHttp\Promise\FulfilledPromise;
+use _PhpScoper5ce26f1fe2920\GuzzleHttp\Promise\PromiseInterface;
+use _PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7;
+use _PhpScoper5ce26f1fe2920\GuzzleHttp\TransferStats;
+use _PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface;
+use _PhpScoper5ce26f1fe2920\Psr\Http\Message\ResponseInterface;
+use _PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInterface;
 /**
  * HTTP handler that uses PHP's HTTP stream wrapper.
  */
@@ -25,7 +25,7 @@ class StreamHandler
      *
      * @return PromiseInterface
      */
-    public function __invoke(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\RequestInterface $request, array $options)
+    public function __invoke(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, array $options)
     {
         // Sleep if there is a delay specified.
         if (isset($options['delay'])) {
@@ -48,21 +48,21 @@ class StreamHandler
             $message = $e->getMessage();
             // This list can probably get more comprehensive.
             if (\strpos($message, 'getaddrinfo') || \strpos($message, 'Connection refused') || \strpos($message, "couldn't connect to host") || \strpos($message, "connection attempt failed")) {
-                $e = new \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Exception\ConnectException($e->getMessage(), $request, $e);
+                $e = new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Exception\ConnectException($e->getMessage(), $request, $e);
             }
-            $e = \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Exception\RequestException::wrapException($request, $e);
+            $e = \_PhpScoper5ce26f1fe2920\GuzzleHttp\Exception\RequestException::wrapException($request, $e);
             $this->invokeStats($options, $request, $startTime, null, $e);
-            return \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Promise\rejection_for($e);
+            return \_PhpScoper5ce26f1fe2920\GuzzleHttp\Promise\rejection_for($e);
         }
     }
-    private function invokeStats(array $options, \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\RequestInterface $request, $startTime, \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\ResponseInterface $response = null, $error = null)
+    private function invokeStats(array $options, \_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, $startTime, \_PhpScoper5ce26f1fe2920\Psr\Http\Message\ResponseInterface $response = null, $error = null)
     {
         if (isset($options['on_stats'])) {
-            $stats = new \_PhpScoper5bbb1f4b001f3\GuzzleHttp\TransferStats($request, $response, \microtime(\true) - $startTime, $error, []);
+            $stats = new \_PhpScoper5ce26f1fe2920\GuzzleHttp\TransferStats($request, $response, \microtime(\true) - $startTime, $error, []);
             \call_user_func($options['on_stats'], $stats);
         }
     }
-    private function createResponse(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\RequestInterface $request, array $options, $stream, $startTime)
+    private function createResponse(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, array $options, $stream, $startTime)
     {
         $hdrs = $this->lastHeaders;
         $this->lastHeaders = [];
@@ -70,21 +70,21 @@ class StreamHandler
         $ver = \explode('/', $parts[0])[1];
         $status = $parts[1];
         $reason = isset($parts[2]) ? $parts[2] : null;
-        $headers = \_PhpScoper5bbb1f4b001f3\GuzzleHttp\headers_from_lines($hdrs);
+        $headers = \_PhpScoper5ce26f1fe2920\GuzzleHttp\headers_from_lines($hdrs);
         list($stream, $headers) = $this->checkDecode($options, $headers, $stream);
-        $stream = \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Psr7\stream_for($stream);
+        $stream = \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\stream_for($stream);
         $sink = $stream;
         if (\strcasecmp('HEAD', $request->getMethod())) {
             $sink = $this->createSink($stream, $options);
         }
-        $response = new \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Psr7\Response($status, $headers, $sink, $ver, $reason);
+        $response = new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\Response($status, $headers, $sink, $ver, $reason);
         if (isset($options['on_headers'])) {
             try {
                 $options['on_headers']($response);
             } catch (\Exception $e) {
                 $msg = 'An error was encountered during the on_headers event';
-                $ex = new \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Exception\RequestException($msg, $request, $response, $e);
-                return \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Promise\rejection_for($ex);
+                $ex = new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Exception\RequestException($msg, $request, $response, $e);
+                return \_PhpScoper5ce26f1fe2920\GuzzleHttp\Promise\rejection_for($ex);
             }
         }
         // Do not drain when the request is a HEAD request because they have
@@ -93,25 +93,25 @@ class StreamHandler
             $this->drain($stream, $sink, $response->getHeaderLine('Content-Length'));
         }
         $this->invokeStats($options, $request, $startTime, $response, null);
-        return new \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Promise\FulfilledPromise($response);
+        return new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Promise\FulfilledPromise($response);
     }
-    private function createSink(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\StreamInterface $stream, array $options)
+    private function createSink(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInterface $stream, array $options)
     {
         if (!empty($options['stream'])) {
             return $stream;
         }
         $sink = isset($options['sink']) ? $options['sink'] : \fopen('php://temp', 'r+');
-        return \is_string($sink) ? new \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Psr7\LazyOpenStream($sink, 'w+') : \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Psr7\stream_for($sink);
+        return \is_string($sink) ? new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\LazyOpenStream($sink, 'w+') : \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\stream_for($sink);
     }
     private function checkDecode(array $options, array $headers, $stream)
     {
         // Automatically decode responses when instructed.
         if (!empty($options['decode_content'])) {
-            $normalizedKeys = \_PhpScoper5bbb1f4b001f3\GuzzleHttp\normalize_header_keys($headers);
+            $normalizedKeys = \_PhpScoper5ce26f1fe2920\GuzzleHttp\normalize_header_keys($headers);
             if (isset($normalizedKeys['content-encoding'])) {
                 $encoding = $headers[$normalizedKeys['content-encoding']];
                 if ($encoding[0] === 'gzip' || $encoding[0] === 'deflate') {
-                    $stream = new \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Psr7\InflateStream(\_PhpScoper5bbb1f4b001f3\GuzzleHttp\Psr7\stream_for($stream));
+                    $stream = new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\InflateStream(\_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\stream_for($stream));
                     $headers['x-encoded-content-encoding'] = $headers[$normalizedKeys['content-encoding']];
                     // Remove content-encoding header
                     unset($headers[$normalizedKeys['content-encoding']]);
@@ -141,13 +141,13 @@ class StreamHandler
      * @return StreamInterface
      * @throws \RuntimeException when the sink option is invalid.
      */
-    private function drain(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\StreamInterface $source, \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\StreamInterface $sink, $contentLength)
+    private function drain(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInterface $source, \_PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInterface $sink, $contentLength)
     {
         // If a content-length header is provided, then stop reading once
         // that number of bytes has been read. This can prevent infinitely
         // reading from a stream when dealing with servers that do not honor
         // Connection: Close headers.
-        \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Psr7\copy_to_stream($source, $sink, \strlen($contentLength) > 0 && (int) $contentLength > 0 ? (int) $contentLength : -1);
+        \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\copy_to_stream($source, $sink, \strlen($contentLength) > 0 && (int) $contentLength > 0 ? (int) $contentLength : -1);
         $sink->seek(0);
         $source->close();
         return $sink;
@@ -180,7 +180,7 @@ class StreamHandler
         }
         return $resource;
     }
-    private function createStream(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\RequestInterface $request, array $options)
+    private function createStream(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, array $options)
     {
         static $methods;
         if (!$methods) {
@@ -234,27 +234,27 @@ class StreamHandler
             return $resource;
         });
     }
-    private function resolveHost(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\RequestInterface $request, array $options)
+    private function resolveHost(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, array $options)
     {
         $uri = $request->getUri();
         if (isset($options['force_ip_resolve']) && !\filter_var($uri->getHost(), \FILTER_VALIDATE_IP)) {
             if ('v4' === $options['force_ip_resolve']) {
                 $records = \dns_get_record($uri->getHost(), \DNS_A);
                 if (!isset($records[0]['ip'])) {
-                    throw new \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Exception\ConnectException(\sprintf("Could not resolve IPv4 address for host '%s'", $uri->getHost()), $request);
+                    throw new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Exception\ConnectException(\sprintf("Could not resolve IPv4 address for host '%s'", $uri->getHost()), $request);
                 }
                 $uri = $uri->withHost($records[0]['ip']);
             } elseif ('v6' === $options['force_ip_resolve']) {
                 $records = \dns_get_record($uri->getHost(), \DNS_AAAA);
                 if (!isset($records[0]['ipv6'])) {
-                    throw new \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Exception\ConnectException(\sprintf("Could not resolve IPv6 address for host '%s'", $uri->getHost()), $request);
+                    throw new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Exception\ConnectException(\sprintf("Could not resolve IPv6 address for host '%s'", $uri->getHost()), $request);
                 }
                 $uri = $uri->withHost('[' . $records[0]['ipv6'] . ']');
             }
         }
         return $uri;
     }
-    private function getDefaultContext(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\RequestInterface $request)
+    private function getDefaultContext(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request)
     {
         $headers = '';
         foreach ($request->getHeaders() as $name => $value) {
@@ -274,32 +274,32 @@ class StreamHandler
         $context['http']['header'] = \rtrim($context['http']['header']);
         return $context;
     }
-    private function add_proxy(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\RequestInterface $request, &$options, $value, &$params)
+    private function add_proxy(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, &$options, $value, &$params)
     {
         if (!\is_array($value)) {
             $options['http']['proxy'] = $value;
         } else {
             $scheme = $request->getUri()->getScheme();
             if (isset($value[$scheme])) {
-                if (!isset($value['no']) || !\_PhpScoper5bbb1f4b001f3\GuzzleHttp\is_host_in_noproxy($request->getUri()->getHost(), $value['no'])) {
+                if (!isset($value['no']) || !\_PhpScoper5ce26f1fe2920\GuzzleHttp\is_host_in_noproxy($request->getUri()->getHost(), $value['no'])) {
                     $options['http']['proxy'] = $value[$scheme];
                 }
             }
         }
     }
-    private function add_timeout(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\RequestInterface $request, &$options, $value, &$params)
+    private function add_timeout(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, &$options, $value, &$params)
     {
         if ($value > 0) {
             $options['http']['timeout'] = $value;
         }
     }
-    private function add_verify(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\RequestInterface $request, &$options, $value, &$params)
+    private function add_verify(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, &$options, $value, &$params)
     {
         if ($value === \true) {
             // PHP 5.6 or greater will find the system cert by default. When
             // < 5.6, use the Guzzle bundled cacert.
             if (\PHP_VERSION_ID < 50600) {
-                $options['ssl']['cafile'] = \_PhpScoper5bbb1f4b001f3\GuzzleHttp\default_ca_bundle();
+                $options['ssl']['cafile'] = \_PhpScoper5ce26f1fe2920\GuzzleHttp\default_ca_bundle();
             }
         } elseif (\is_string($value)) {
             $options['ssl']['cafile'] = $value;
@@ -317,7 +317,7 @@ class StreamHandler
         $options['ssl']['verify_peer_name'] = \true;
         $options['ssl']['allow_self_signed'] = \false;
     }
-    private function add_cert(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\RequestInterface $request, &$options, $value, &$params)
+    private function add_cert(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, &$options, $value, &$params)
     {
         if (\is_array($value)) {
             $options['ssl']['passphrase'] = $value[1];
@@ -328,7 +328,7 @@ class StreamHandler
         }
         $options['ssl']['local_cert'] = $value;
     }
-    private function add_progress(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\RequestInterface $request, &$options, $value, &$params)
+    private function add_progress(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, &$options, $value, &$params)
     {
         $this->addNotification($params, function ($code, $a, $b, $c, $transferred, $total) use($value) {
             if ($code == \STREAM_NOTIFY_PROGRESS) {
@@ -336,14 +336,14 @@ class StreamHandler
             }
         });
     }
-    private function add_debug(\_PhpScoper5bbb1f4b001f3\Psr\Http\Message\RequestInterface $request, &$options, $value, &$params)
+    private function add_debug(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, &$options, $value, &$params)
     {
         if ($value === \false) {
             return;
         }
         static $map = [\STREAM_NOTIFY_CONNECT => 'CONNECT', \STREAM_NOTIFY_AUTH_REQUIRED => 'AUTH_REQUIRED', \STREAM_NOTIFY_AUTH_RESULT => 'AUTH_RESULT', \STREAM_NOTIFY_MIME_TYPE_IS => 'MIME_TYPE_IS', \STREAM_NOTIFY_FILE_SIZE_IS => 'FILE_SIZE_IS', \STREAM_NOTIFY_REDIRECTED => 'REDIRECTED', \STREAM_NOTIFY_PROGRESS => 'PROGRESS', \STREAM_NOTIFY_FAILURE => 'FAILURE', \STREAM_NOTIFY_COMPLETED => 'COMPLETED', \STREAM_NOTIFY_RESOLVE => 'RESOLVE'];
         static $args = ['severity', 'message', 'message_code', 'bytes_transferred', 'bytes_max'];
-        $value = \_PhpScoper5bbb1f4b001f3\GuzzleHttp\debug_resource($value);
+        $value = \_PhpScoper5ce26f1fe2920\GuzzleHttp\debug_resource($value);
         $ident = $request->getMethod() . ' ' . $request->getUri()->withFragment('');
         $this->addNotification($params, function () use($ident, $value, $map, $args) {
             $passed = \func_get_args();

@@ -1,10 +1,10 @@
 <?php
 
-namespace _PhpScoper5bbb1f4b001f3\GuzzleHttp;
+namespace _PhpScoper5ce26f1fe2920\GuzzleHttp;
 
-use _PhpScoper5bbb1f4b001f3\GuzzleHttp\Promise\PromisorInterface;
-use _PhpScoper5bbb1f4b001f3\Psr\Http\Message\RequestInterface;
-use _PhpScoper5bbb1f4b001f3\GuzzleHttp\Promise\EachPromise;
+use _PhpScoper5ce26f1fe2920\GuzzleHttp\Promise\PromisorInterface;
+use _PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface;
+use _PhpScoper5ce26f1fe2920\GuzzleHttp\Promise\EachPromise;
 /**
  * Sends and iterator of requests concurrently using a capped pool size.
  *
@@ -16,7 +16,7 @@ use _PhpScoper5bbb1f4b001f3\GuzzleHttp\Promise\EachPromise;
  * "request_options" array that should be merged on top of any existing
  * options, and the function MUST then return a wait-able promise.
  */
-class Pool implements \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Promise\PromisorInterface
+class Pool implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\Promise\PromisorInterface
 {
     /** @var EachPromise */
     private $each;
@@ -30,7 +30,7 @@ class Pool implements \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Promise\PromisorInterf
      *     - fulfilled: (callable) Function to invoke when a request completes.
      *     - rejected: (callable) Function to invoke when a request is rejected.
      */
-    public function __construct(\_PhpScoper5bbb1f4b001f3\GuzzleHttp\ClientInterface $client, $requests, array $config = [])
+    public function __construct(\_PhpScoper5ce26f1fe2920\GuzzleHttp\ClientInterface $client, $requests, array $config = [])
     {
         // Backwards compatibility.
         if (isset($config['pool_size'])) {
@@ -44,10 +44,10 @@ class Pool implements \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Promise\PromisorInterf
         } else {
             $opts = [];
         }
-        $iterable = \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Promise\iter_for($requests);
+        $iterable = \_PhpScoper5ce26f1fe2920\GuzzleHttp\Promise\iter_for($requests);
         $requests = function () use($iterable, $client, $opts) {
             foreach ($iterable as $key => $rfn) {
-                if ($rfn instanceof \_PhpScoper5bbb1f4b001f3\Psr\Http\Message\RequestInterface) {
+                if ($rfn instanceof \_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface) {
                     (yield $key => $client->sendAsync($rfn, $opts));
                 } elseif (\is_callable($rfn)) {
                     (yield $key => $rfn($opts));
@@ -56,7 +56,7 @@ class Pool implements \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Promise\PromisorInterf
                 }
             }
         };
-        $this->each = new \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Promise\EachPromise($requests(), $config);
+        $this->each = new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Promise\EachPromise($requests(), $config);
     }
     public function promise()
     {
@@ -79,7 +79,7 @@ class Pool implements \_PhpScoper5bbb1f4b001f3\GuzzleHttp\Promise\PromisorInterf
      *               in the same order that the requests were sent.
      * @throws \InvalidArgumentException if the event format is incorrect.
      */
-    public static function batch(\_PhpScoper5bbb1f4b001f3\GuzzleHttp\ClientInterface $client, $requests, array $options = [])
+    public static function batch(\_PhpScoper5ce26f1fe2920\GuzzleHttp\ClientInterface $client, $requests, array $options = [])
     {
         $res = [];
         self::cmpCallback($options, 'fulfilled', $res);
