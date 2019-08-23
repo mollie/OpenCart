@@ -2,6 +2,11 @@
 
 # Changelog #
 
+#### Changes in release 9.1.1
+  + Small fix for rounding differences
+  + Only show refund button for Mollie payments
+  + Changed search value in vqmod xml due to irregular issues on some servers
+
 #### Changes in release 9.1.0
   + Fixed double form post in confirmation template
   + Fixed bug for rounding differences more than 0.01
