@@ -5,7 +5,7 @@ use Mollie\Api\MollieApiClient;
 
 class MollieHelper
 {
-	const PLUGIN_VERSION = "9.1.0";
+	const PLUGIN_VERSION = "9.1.1";
 
 	// All available modules. These should correspond to the Mollie_API_Object_Method constants.
 	const MODULE_NAME_BANKTRANSFER  = "banktransfer";

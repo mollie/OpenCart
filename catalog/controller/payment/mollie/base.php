@@ -532,6 +532,8 @@ class ControllerPaymentMollieBase extends Controller
             foreach($lines as $line) {
                 $orderLineTotal += $line['totalAmount']['value'];
             }
+			
+			$orderLineTotal = number_format($orderLineTotal, 2, '.', '');
             
             if($orderTotal > $orderLineTotal) {
                 $amountDiff = number_format(($orderTotal - $orderLineTotal), 2, '.', '');
