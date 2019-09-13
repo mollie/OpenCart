@@ -63,17 +63,6 @@
     </file>
 
     <!-- Showing mollie payment status on order info page -->
-    <file name="admin/controller/sale/order.php">
-        <operation error="log">
-            <search position="after" index="2"><![CDATA[$data['payment_method'] = $order_info['payment_method'];]]></search>
-            <add><![CDATA[$data['payment_status'] = $this->model_sale_order->getMolliePayment($this->request->get['order_id'])['bank_status'];]]></add>
-        </operation>
-        <operation error="log">
-            <search position="after" index="2"><![CDATA[$this->data['payment_method'] = $order_info['payment_method'];]]></search>
-            <add><![CDATA[$this->data['payment_status'] = $this->model_sale_order->getMolliePayment($this->request->get['order_id'])['bank_status'];]]></add>
-        </operation>
-    </file>
-
     <file name="admin/model/sale/order.php">
         <operation error="log">
             <search position="before"><![CDATA[public function getOrder($order_id)]]></search>
@@ -85,8 +74,18 @@
         }
 
         return null;
-    }
-]]></add>
+    }]]></add>
+        </operation>
+    </file>
+    
+    <file name="admin/controller/sale/order.php">
+        <operation error="log">
+            <search position="after" index="2"><![CDATA[$data['payment_method'] = $order_info['payment_method'];]]></search>
+            <add><![CDATA[$data['payment_status'] = $this->model_sale_order->getMolliePayment($this->request->get['order_id'])['bank_status'];]]></add>
+        </operation>
+        <operation error="log">
+            <search position="after" index="2"><![CDATA[$this->data['payment_method'] = $order_info['payment_method'];]]></search>
+            <add><![CDATA[$this->data['payment_status'] = $this->model_sale_order->getMolliePayment($this->request->get['order_id'])['bank_status'];]]></add>
         </operation>
     </file>
 
