@@ -90,7 +90,7 @@ class ControllerPaymentMollieBase extends Controller
 	public function mollieConnect() {
 
 		$this->session->data['mollie_connect_store_id'] = $this->request->get['store_id'];
-		if(VERSION >= '2.3') {
+		if(version_compare(VERSION, '2.3.0.2', '>=') == true) {
 			$redirect_uri = HTTPS_SERVER . 'index.php?route=extension/payment/mollie_bancontact/mollieConnectCallback';
 		} else {
 			$redirect_uri = HTTPS_SERVER . 'index.php?route=payment/mollie_bancontact/mollieConnectCallback';
@@ -100,7 +100,7 @@ class ControllerPaymentMollieBase extends Controller
 			'client_id' => $this->request->get['client_id'],
 			'state'		=> isset($this->session->data['user_token']) ? $this->session->data['user_token'] : $this->session->data['token'],
 			'redirect_uri'		=> $redirect_uri,
-			'scope'		=> 'payments.read payments.write customers.read customers.write profiles.read profiles.write orders.read orders.write organizations.read organizations.write',
+			'scope'		=> 'payments.read payments.write customers.read customers.write profiles.read profiles.write orders.read orders.write organizations.read organizations.write settlements.read',
 			'response_type'		=> 'code',
 			'approval_prompt'		=> 'auto'
 		);
@@ -131,7 +131,7 @@ class ControllerPaymentMollieBase extends Controller
 			return new Action('common/login');
 		}
 
-		if(VERSION >= '2.3') {
+		if(version_compare(VERSION, '2.3.0.2', '>=') == true) {
 			$redirect_uri = HTTPS_SERVER . 'index.php?route=extension/payment/mollie_bancontact/mollieConnectCallback';
 		} else {
 			$redirect_uri = HTTPS_SERVER . 'index.php?route=payment/mollie_bancontact/mollieConnectCallback';
@@ -147,12 +147,12 @@ class ControllerPaymentMollieBase extends Controller
 			'redirect_uri'		=> $redirect_uri
 		);
 
-		$result = $this->curlRequest('tokens', $data);
+		$result = MollieHelper::curlRequest('tokens', $data);
 
 		// Save refresh token
 		$this->db->query("DELETE FROM `" . DB_PREFIX . "setting` WHERE `key` = '" . $code . "_refresh_token' AND `store_id` = '" . $this->session->data['mollie_connect_store_id'] . "'");
 
-		if(VERSION < '2.0') {
+		if(version_compare(VERSION, '2.0', '<') == true) {
 			$this->db->query("INSERT INTO " . DB_PREFIX . "setting SET store_id = '" . $this->session->data['mollie_connect_store_id'] . "', `group` = '" . $code . "', `key` = '" . $code . "_refresh_token', `value` = '" . $result->refresh_token . "'");
 		} else {
 			$this->db->query("INSERT INTO " . DB_PREFIX . "setting SET store_id = '" . $this->session->data['mollie_connect_store_id'] . "', `code` = '" . $code . "', `key` = '" . $code . "_refresh_token', `value` = '" . $result->refresh_token . "'");
@@ -171,7 +171,7 @@ class ControllerPaymentMollieBase extends Controller
 		$code = MollieHelper::getModuleCode();
 
 		$method  = $this->request->get['method'];
-		$api_key = $this->getSettingValue($code . '_api_key', $this->request->get['store_id']);
+		$api_key = MollieHelper::getSettingValue($code . '_api_key', $this->request->get['store_id']);
 		try
 			{
 				$api = MollieHelper::getAPIClientForKey($api_key);
@@ -198,7 +198,7 @@ class ControllerPaymentMollieBase extends Controller
 		$code = MollieHelper::getModuleCode();
 
 		$method  = $this->request->get['method'];
-		$api_key = $this->getSettingValue($code . '_api_key', $this->request->get['store_id']);
+		$api_key = MollieHelper::getSettingValue($code . '_api_key', $this->request->get['store_id']);
 		try
 			{
 				$api = MollieHelper::getAPIClientForKey($api_key);
@@ -220,43 +220,6 @@ class ControllerPaymentMollieBase extends Controller
 			}
 	}
 
-	public function refreshToken($store_id) {
-		$code = MollieHelper::getModuleCode();
-
-		$client_id = $this->getSettingValue($code . '_client_id', $store_id);
-		$client_secret = $this->getSettingValue($code . '_client_secret', $store_id);
-		$refresh_token = $this->getSettingValue($code . '_refresh_token', $store_id);
-		if(VERSION >= '2.3') {
-			$redirect_uri = HTTPS_SERVER . 'index.php?route=extension/payment/mollie_bancontact/mollieConnectCallback';
-		} else {
-			$redirect_uri = HTTPS_SERVER . 'index.php?route=payment/mollie_bancontact/mollieConnectCallback';
-		}
-
-		if(!empty($client_id) && !empty($client_secret) && !empty($refresh_token)) {
-			$data = array(
-				'client_id' => $client_id,
-	            'client_secret' => $client_secret,
-	            'refresh_token' => $refresh_token,
-				'grant_type' => 'refresh_token',
-				'redirect_uri'		=> $redirect_uri
-			);
-
-			$result = $this->curlRequest('tokens', $data);
-
-			$this->session->data['mollie_access_token'][$store_id] = $result->access_token;
-		}
-	}
-
-	public function getSettingValue($key, $store_id = 0) {
-		$query = $this->db->query("SELECT value FROM " . DB_PREFIX . "setting WHERE store_id = '" . (int)$store_id . "' AND `key` = '" . $this->db->escape($key) . "'");
-
-		if ($query->num_rows) {
-			return $query->row['value'];
-		} else {
-			return null;	
-		}
-	}
-
 	/**
 	 * This method is executed by OpenCart when the Payment module is installed from the admin. It will create the
 	 * required tables.
@@ -265,20 +228,17 @@ class ControllerPaymentMollieBase extends Controller
 	 */
 	public function install ()
 	{
-		$this->db->query(
-			sprintf(
-				"CREATE TABLE IF NOT EXISTS `%smollie_payments` (
+		$this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "mollie_payments` (
 					`order_id` int(11) unsigned NOT NULL,
-					`method` enum('idl') NOT NULL DEFAULT 'idl',
+					`method`varchar(32) NOT NULL,
 					`mollie_order_id` varchar(32) NOT NULL,
-					`transaction_id` varchar(32) NOT NULL,
-					`bank_account` varchar(15) NOT NULL,
-					`bank_status` varchar(20) NOT NULL,
+					`transaction_id` varchar(32),
+					`bank_account` varchar(15),
+					`bank_status` varchar(20),
+					`refund_id` varchar(32),
 					PRIMARY KEY (`order_id`),
 					UNIQUE KEY `mollie_order_id` (`mollie_order_id`)
-				) ENGINE=InnoDB DEFAULT CHARSET=utf8",
-				DB_PREFIX
-			));
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8");
 
 		$this->db->query("ALTER TABLE `" . DB_PREFIX . "order` MODIFY `payment_method` VARCHAR(255) NOT NULL;");
 
@@ -428,19 +388,6 @@ class ControllerPaymentMollieBase extends Controller
 		if (file_exists($catalogControllerDir . 'extension/payment/mollie-api-client')) {
 			$this->delTree($catalogControllerDir . 'extension/payment/mollie-api-client');
 		}
-
-		// Add 'mollie_order_id' column if not exists(from old extension)
-		$query = $this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "mollie_payments` WHERE Field = 'mollie_order_id'");
-		if($query->num_rows == 0) {
-			$this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_payments` ADD `mollie_order_id` VARCHAR(32) NOT NULL AFTER `bank_status`, ADD UNIQUE `mollie_order_id` (`mollie_order_id`)");
-		}
-
-		// Add 'refund_id' column if not exists
-		$query = $this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "mollie_payments` WHERE Field = 'refund_id'");
-		if($query->num_rows == 0) {
-			$this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_payments` ADD `refund_id` VARCHAR(32) AFTER `bank_status`");
-		}
-
 	}
 
 	public function delTree($dir) {
@@ -507,6 +454,28 @@ class ControllerPaymentMollieBase extends Controller
 		}
 	}
 
+	public function databasePatch() {
+		// Add 'mollie_order_id' column if not exists(from old extension)
+		$query = $this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "mollie_payments` WHERE Field = 'mollie_order_id'");
+		if($query->num_rows == 0) {
+			$this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_payments` ADD `mollie_order_id` VARCHAR(32) NOT NULL AFTER `bank_status`, ADD UNIQUE `mollie_order_id` (`mollie_order_id`)");
+		}
+
+		// Add 'refund_id' column if not exists
+		$query = $this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "mollie_payments` WHERE Field = 'refund_id'");
+		if($query->num_rows == 0) {
+			$this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_payments` ADD `refund_id` VARCHAR(32) AFTER `bank_status`");
+		}
+
+		// Change column type and set NULL=true for some fields
+		$this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_payments`
+					MODIFY `method` varchar(32) NOT NULL,
+					MODIFY `transaction_id` varchar(32),
+					MODIFY `bank_account` varchar(15),
+					MODIFY `bank_status` varchar(20),
+					MODIFY `refund_id` varchar(32)");
+	}
+
 	/**
 	 * Render the payment method's settings page.
 	 */
@@ -546,6 +515,9 @@ class ControllerPaymentMollieBase extends Controller
 		//Also delete data related to deprecated modules from settings
 		$this->clearData();
 
+		// Run database patch
+		$this->databasePatch();
+
 		//Load language data
 		$data = array("version" => MOLLIE_RELEASE);
 		Util::load()->language("payment/mollie", $data);
@@ -584,6 +556,21 @@ class ControllerPaymentMollieBase extends Controller
 	            	else {
 	            		$redirect = false;
 	            	}
+            	}
+
+            	// Remove refresh token if app credentials are changed
+            	$removeToken = false;
+            	$settingData = Util::request()->post()->allPrefixed($store["store_id"] . "_");
+            	if(!empty($this->session->data['app_data'])) {
+            		if(isset($this->session->data['app_data'][$store["store_id"]]['client_id']) && ($this->session->data['app_data'][$store["store_id"]]['client_id'] != $settingData[$code . '_client_id'])) {
+            			$removeToken = true;
+            		} else if (isset($this->session->data['app_data'][$store["store_id"]]['client_secret']) && ($this->session->data['app_data'][$store["store_id"]]['client_secret'] != $settingData[$code . '_client_secret'])) {
+            			$removeToken = true;
+            		}
+            	}
+
+            	if($removeToken) {
+            		$this->db->query("DELETE FROM `" . DB_PREFIX . "setting` WHERE `key` = '" . $code . "_refresh_token' AND `store_id` = '" . $store["store_id"] . "'");
             	}
             }
 
@@ -628,7 +615,8 @@ class ControllerPaymentMollieBase extends Controller
 
         // Generate access token
         foreach ($data['shops'] as &$store) {
-            $this->refreshToken($store["store_id"]);
+            $accessToken = MollieHelper::generateAccessToken($store["store_id"]);
+            $this->session->data['mollie_access_token'][$store["store_id"]] = $accessToken;
         }
 
         //API key not required for multistores
@@ -751,7 +739,7 @@ class ControllerPaymentMollieBase extends Controller
 
 			$data['shops'][$store['store_id']]['mollie_connect'] = Util::url()->link("payment/mollie_" . static::MODULE_NAME . "/mollieConnect", "client_id=" . $this->data[MollieHelper::getModuleCode() . '_client_id'] . "&store_id=" . $store['store_id']);
 
-			if(VERSION >= '2.3') {
+			if(version_compare(VERSION, '2.3.0.2', '>=') == true) {
 				$data['shops'][$store['store_id']]['redirect_uri'] = HTTPS_SERVER . 'index.php?route=extension/payment/mollie_bancontact/mollieConnectCallback';
 			} else {
 				$data['shops'][$store['store_id']]['redirect_uri'] = HTTPS_SERVER . 'index.php?route=payment/mollie_bancontact/mollieConnectCallback';
@@ -868,6 +856,19 @@ class ControllerPaymentMollieBase extends Controller
 				$data['log'] = file_get_contents($file, FILE_USE_INCLUDE_PATH, null);
 			}
 		}
+
+		// Save client_id and client_secret in the session and remove refresh_token from the setting if these cerdentials are changed after save
+		$appData = array();
+		foreach($data['shops'] as $store_id=>$setting_data) {
+			$appData[$store_id] = array(
+				'client_id' => $setting_data[$code . '_client_id'],
+				'client_secret' => $setting_data[$code . '_client_secret']
+			);
+		}
+		
+		$this->session->data['app_data'] = $appData;
+
+		$data['store_email'] = Util::config()->get('config_email');
 
 		Util::response()->view("payment/mollie", $data);
 	}
@@ -1022,6 +1023,24 @@ class ControllerPaymentMollieBase extends Controller
 		return true;
 	}
 
+	public function saveAppData() {
+		$json = array();
+		$settingModel = Util::load()->model('setting/setting');
+		$store_id = $_POST['store_id'];
+		$code = MollieHelper::getModuleCode();
+
+		$data = $settingModel->getSetting($code, $store_id);
+		$data[$code.'_client_id'] = $_POST['client_id'];
+		$data[$code.'_client_secret'] = $_POST['client_secret'];
+		
+		$settingModel->editSetting($code, $data, $store_id);
+
+		$json['connect_url'] = Util::url()->link("payment/mollie_" . static::MODULE_NAME . "/mollieConnect", "client_id=" . $_POST['client_id'] . "&store_id=" . $store_id);
+
+		$this->response->addHeader('Content-Type: application/json');
+		$this->response->setOutput(json_encode($json));
+	}
+
 	private function getUpdateUrl()
     {
         $client = new mollieHttpClient();
@@ -1126,37 +1145,6 @@ class ControllerPaymentMollieBase extends Controller
         }
     }
 
-    public function curlRequest($resource, $data) {
-        // clean up the url
-        $url = rtrim(self::OUTH_URL, '/ ');
-
-        if ( !function_exists('curl_init') ) die('CURL not supported. (introduced in PHP 4.0.2)');
-
-        // define a final API request
-        $api = $url . '/' . $resource;
-
-        $ch = curl_init();
-
-		curl_setopt($ch, CURLOPT_URL, $api);
-		curl_setopt($ch, CURLOPT_POST, TRUE);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-		$response = curl_exec($ch);
-
-		curl_close ($ch);
-
-        if ( !$response ) {
-            die('Nothing was returned.');
-        }
-
-        // This line takes the response and breaks it into an array using:
-        // JSON decoder
-        $result = json_decode($response);
-
-        return $result;
-    }
-
     public function download() {
 		Util::load()->language("payment/mollie");
 
@@ -1190,5 +1178,70 @@ class ControllerPaymentMollieBase extends Controller
 		Util::session()->success = $this->language->get('text_log_success');
 
 		Util::response()->redirectBack();
+	}
+
+	public function sendMessage() {
+		Util::load()->language("payment/mollie");
+
+		$json = array();
+
+		if ($this->request->server['REQUEST_METHOD'] == 'POST') {
+			if ((utf8_strlen($this->request->post['name']) < 3) || (utf8_strlen($this->request->post['name']) > 25)) {
+				$json['error'] = $this->language->get('error_name');
+			}
+
+			if ((utf8_strlen($this->request->post['email']) > 96) || !filter_var($this->request->post['email'], FILTER_VALIDATE_EMAIL)) {
+				$json['error'] = $this->language->get('error_email');
+			}
+
+			if (utf8_strlen($this->request->post['subject']) < 3) {
+				$json['error'] = $this->language->get('error_subject');
+			}
+
+			if (utf8_strlen($this->request->post['enquiry']) < 25) {
+				$json['error'] = $this->language->get('error_enquiry');
+			}
+
+			if (!isset($json['error'])) {
+				$name = $this->request->post['name'];
+				$email = $this->request->post['email'];
+				$subject = $this->request->post['subject'];
+				$enquiry = $this->request->post['enquiry'];
+				$enquiry .= "<br>Opencart version : " . VERSION;
+				$enquiry .= "<br>Mollie version : " . MOLLIE_VERSION;
+
+				$mail = new Mail($this->config->get('config_mail_engine'));
+				$mail->protocol = $this->config->get('config_mail_protocol');
+				$mail->parameter = $this->config->get('config_mail_parameter');
+				$mail->smtp_hostname = $this->config->get('config_mail_smtp_hostname');
+				$mail->smtp_username = $this->config->get('config_mail_smtp_username');
+				$mail->smtp_password = html_entity_decode($this->config->get('config_mail_smtp_password'), ENT_QUOTES, 'UTF-8');
+				$mail->smtp_port = $this->config->get('config_mail_smtp_port');
+				$mail->smtp_timeout = $this->config->get('config_mail_smtp_timeout');
+	
+				$mail->setTo('support.mollie@qualityworks.eu');
+				$mail->setFrom($email);
+				$mail->setSender(html_entity_decode($name, ENT_QUOTES, 'UTF-8'));
+				$mail->setSubject(html_entity_decode($subject, ENT_QUOTES, 'UTF-8'));
+				$mail->setHtml($enquiry);
+
+				$file = DIR_LOGS . 'Mollie.log';
+				if (file_exists($file) && filesize($file) < 2147483648) {
+					$mail->addAttachment($file);
+				}
+
+				$file = DIR_LOGS . 'error.log';
+				if (file_exists($file) && filesize($file) < 2147483648) {
+					$mail->addAttachment($file);
+				}
+
+				$mail->send();
+
+				$json['success'] = $this->language->get('text_enquiry_success');
+			}
+		}
+
+		$this->response->addHeader('Content-Type: application/json');
+		$this->response->setOutput(json_encode($json));
 	}
 }

@@ -1,6 +1,6 @@
 <modification>
     <id>Quality Works - Mollie</id>
-    <version>1.2.2</version>
+    <version>1.2.4</version>
     <vqmver>2.3.0</vqmver>
     <author>Quality Works</author>
 
@@ -66,11 +66,51 @@
     <file name="admin/controller/sale/order.php">
         <operation error="log">
             <search position="after" index="2"><![CDATA[$data['payment_method'] = $order_info['payment_method'];]]></search>
-            <add><![CDATA[$data['payment_status'] = $this->model_sale_order->getMolliePayment($this->request->get['order_id'])['bank_status'];]]></add>
+            <add><![CDATA[$data['payment_status'] = '';
+            $molliePaymentDeails = $this->model_sale_order->getMolliePayment($this->request->get['order_id']);
+            if(isset($molliePaymentDeails['transaction_id']) && !empty($molliePaymentDeails['transaction_id'])) {
+                $molliePayment = $this->getAPIClient()->payments->get($molliePaymentDeails['transaction_id']);
+                $data['payment_status'] = $molliePayment->status;
+
+                // Check for refunds and settlements
+                if($molliePayment->hasRefunds()) {
+                    $data['payment_status'] = 'refunded';
+                }
+
+                if(!empty($molliePayment->settlementId)) {
+                    $accessToken = MollieHelper::generateAccessToken($order_info['store_id']);
+                    if($accessToken && !empty($accessToken)) {
+                        $mollieSettlement = MollieHelper::getAPIClientForAccessToken($accessToken)->settlements->get($molliePayment->settlementId);
+                        if($mollieSettlement->isPaidout()) {
+                            $data['payment_status'] = 'settled';
+                        }
+                    }                    
+                }
+            }]]></add>
         </operation>
         <operation error="log">
             <search position="after" index="2"><![CDATA[$this->data['payment_method'] = $order_info['payment_method'];]]></search>
-            <add><![CDATA[$this->data['payment_status'] = $this->model_sale_order->getMolliePayment($this->request->get['order_id'])['bank_status'];]]></add>
+            <add><![CDATA[$data['payment_status'] = '';
+            $molliePaymentDeails = $this->model_sale_order->getMolliePayment($this->request->get['order_id']);
+            if(isset($molliePaymentDeails['transaction_id']) && !empty($molliePaymentDeails['transaction_id'])) {
+                $molliePayment = $this->getAPIClient()->payments->get($molliePaymentDeails['transaction_id']);
+                $this->data['payment_status'] = $molliePayment->status;
+
+                // Check for refunds and settlements
+                if($molliePayment->hasRefunds()) {
+                    $this->data['payment_status'] = 'refunded';
+                }
+
+                if(!empty($molliePayment->settlementId)) {
+                    $accessToken = MollieHelper::generateAccessToken($order_info['store_id']);
+                    if($accessToken && !empty($accessToken)) {
+                        $mollieSettlement = MollieHelper::getAPIClientForAccessToken($accessToken)->settlements->get($molliePayment->settlementId);
+                        if($mollieSettlement->isPaidout()) {
+                            $this->data['payment_status'] = 'settled';
+                        }
+                    } 
+                }
+            }]]></add>
         </operation>
     </file>
 
@@ -110,8 +150,10 @@
                     <span id="payment-status" class="label label-primary"><?php echo strtoupper($payment_status); ?></span>
                   <?php } elseif($payment_status == 'refunded') { ?>
                     <span id="payment-status" class="label label-primary"><?php echo strtoupper($payment_status); ?></span>
+                  <?php } elseif($payment_status == 'settled') { ?>
+                    <span id="payment-status" class="label label-success"><?php echo strtoupper($payment_status); ?></span>
                   <?php } ?>
-                  <?php if(($payment_status) && ($payment_status != 'expired') && ($payment_status != 'refunded') && ($payment_status != 'failed') && ($payment_status != 'canceled')) { ?>
+                  <?php if(($payment_status) && ($payment_status != 'expired') && ($payment_status != 'refunded') && ($payment_status != 'failed') && ($payment_status != 'canceled') && $showRefundButton) { ?>
                   <a href="javascript:void(0)" id="button-refund" class="label label-primary"><?php echo $button_refund; ?></a>
                   <?php } ?>
                 </td>]]></add>
@@ -136,10 +178,12 @@
                     <span id="payment-status" class="label label-warning">{{ payment_status | upper }}</span>
                   {% elseif(payment_status == 'authorized') %}
                     <span id="payment-status" class="label label-primary">{{ payment_status | upper }}</span>
-                n {% elseif(payment_status == 'refunded') %}
+                  {% elseif(payment_status == 'refunded') %}
                     <span id="payment-status" class="label label-primary">{{ payment_status | upper }}</span>
+                  {% elseif(payment_status == 'settled') %}
+                    <span id="payment-status" class="label label-success">{{ payment_status | upper }}</span>
                   {% endif %}
-                  {% if((payment_status) and (payment_status != 'expired') and (payment_status != 'refunded') and (payment_status != 'failed') and (payment_status != 'canceled')) %}
+                  {% if((payment_status) and (payment_status != 'expired') and (payment_status != 'refunded') and (payment_status != 'failed') and (payment_status != 'canceled') and showRefundButton) %}
                   <a href="javascript:void(0)" id="button-refund" class="label label-primary">{{ button_refund }}</a>
                   {% endif %}
                 </td>]]></add>
@@ -190,12 +234,14 @@
             <add><![CDATA[require_once(dirname(DIR_SYSTEM) . "/catalog/controller/payment/mollie/helper.php");]]></add>
         </operation>
         <operation error="log">
-            <search position="after"><![CDATA[$data['button_ip_add']]]></search>
-            <add><![CDATA[$data['button_refund'] = $this->language->get('button_refund');]]></add>
+            <search position="after"><![CDATA[$data['heading_title']]]></search>
+            <add><![CDATA[$data['button_refund'] = $this->language->get('button_refund');
+                $data['text_confirm_refund'] = $this->language->get('text_confirm_refund');]]></add>
         </operation>
         <operation error="log">
             <search position="after"><![CDATA[$this->data['button_add_history']]]></search>
-            <add><![CDATA[$this->data['button_refund'] = $this->language->get('button_refund');]]></add>
+            <add><![CDATA[$this->data['button_refund'] = $this->language->get('button_refund');
+                $this->data['text_confirm_refund'] = $this->language->get('text_confirm_refund');]]></add>
         </operation>
         <operation error="log">
             <search position="after"><![CDATA[public function info() {]]></search>
@@ -206,14 +252,28 @@
                 }]]></add>
         </operation>
         <operation error="log">
-            <search position="before" index="2"><![CDATA[$data['shipping']]]></search>
-            <add><![CDATA[if (version_compare(VERSION, '2.3.0.2', '>') == true) {
-                $token = 'user_token=' . $this->session->data['user_token'];
-            } else {
-                $token = 'token=' . $this->session->data['token'];
-            }
+            <search position="before" index="4"><![CDATA[$this->data['email']]]></search>
+            <add><![CDATA[
+            $moduleCode = MollieHelper::getModuleCode();
+            $apiKey = $this->config->get($moduleCode . "_api_key");
 
-            $data['refund'] = $this->url->link('sale/order/refund', $token . '&order_id=' . (int)$this->request->get['order_id'], true);]]></add>
+            $this->data['showRefundButton'] = true;
+            if(!$apiKey || ($apiKey == '')) {
+                $this->data['showRefundButton'] = false;
+            }
+            ]]></add>
+        </operation>
+        <operation error="log">
+            <search position="before" index="2"><![CDATA[$data['shipping']]]></search>
+            <add><![CDATA[
+            $moduleCode = MollieHelper::getModuleCode();
+            $apiKey = $this->config->get($moduleCode . "_api_key");
+
+            $data['showRefundButton'] = true;
+            if(!$apiKey || ($apiKey == '')) {
+                $data['showRefundButton'] = false;
+            }
+            ]]></add>
         </operation>
         <operation error="log">
             <search position="before"><![CDATA[public function index()]]></search>
@@ -314,6 +374,7 @@
                 $_['text_no_refund'] = 'Refund cannot be processed!';
                 $_['text_refunded_already'] = 'Refund has been processed already!';
                 $_['text_refund_success']     = 'Refund has been processed successfully!';
+                $_['text_confirm_refund']     = 'You are about to refund this payment, this cannot be undone. Are you sure you would like to continue?';
                 ]]></add>
         </operation>
     </file>
@@ -326,6 +387,7 @@
                 $_['text_no_refund'] = 'Refund cannot be processed!';
                 $_['text_refunded_already'] = 'Refund has been processed already!';
                 $_['text_refund_success']     = 'Refund has been processed successfully!';
+                $_['text_confirm_refund']     = 'You are about to refund this payment, this cannot be undone. Are you sure you would like to continue?';
                 ]]></add>
         </operation>
     </file>
@@ -338,6 +400,7 @@
                 $_['text_no_refund'] = 'Rückerstattung kann nicht bearbeitet werden!';
                 $_['text_refunded_already'] = 'Rückerstattung wurde bereits bearbeitet!';
                 $_['text_refund_success']     = 'Rückerstattung wurde erfolgreich bearbeitet!';
+                $_['text_confirm_refund']     = 'Sie sind dabei, diese Zahlung zu erstatten. Dies kann nicht rückgängig gemacht werden. Sind Sie sicher, dass Sie fortfahren möchten?';
                 ]]></add>
         </operation>
     </file>
@@ -350,6 +413,7 @@
                 $_['text_no_refund'] = 'Rückerstattung kann nicht bearbeitet werden!';
                 $_['text_refunded_already'] = 'Rückerstattung wurde bereits bearbeitet!';
                 $_['text_refund_success']     = 'Rückerstattung wurde erfolgreich bearbeitet!';
+                $_['text_confirm_refund']     = 'Sie sind dabei, diese Zahlung zu erstatten. Dies kann nicht rückgängig gemacht werden. Sind Sie sicher, dass Sie fortfahren möchten?';
                 ]]></add>
         </operation>
     </file>
@@ -362,6 +426,7 @@
                 $_['text_no_refund'] = 'Restitutie kan niet worden verwerkt!';
                 $_['text_refunded_already'] = 'Restitutie is al verwerkt!';
                 $_['text_refund_success']     = 'Terugbetaling is succesvol verwerkt!';
+                $_['text_confirm_refund']     = 'U staat op het punt deze betaling terug te betalen. Dit kan niet ongedaan worden gemaakt. Weet u zeker dat u wilt doorgaan?';
                 ]]></add>
         </operation>
     </file>
@@ -374,6 +439,7 @@
                 $_['text_no_refund'] = 'Restitutie kan niet worden verwerkt!';
                 $_['text_refunded_already'] = 'Restitutie is al verwerkt!';
                 $_['text_refund_success']     = 'Terugbetaling is succesvol verwerkt!';
+                $_['text_confirm_refund']     = 'U staat op het punt deze betaling terug te betalen. Dit kan niet ongedaan worden gemaakt. Weet u zeker dat u wilt doorgaan?';
                 ]]></add>
         </operation>
     </file>
@@ -386,6 +452,7 @@
                 $_['text_no_refund'] = '¡No se puede procesar el reembolso!';
                 $_['text_refunded_already'] = '¡El reembolso ya se ha procesado!';
                 $_['text_refund_success']     = '¡El reembolso ha sido procesado con éxito!';
+                $_['text_confirm_refund']     = 'Está a punto de reembolsar este pago, esto no se puede deshacer. ¿Estás seguro de que te gustaría continuar?';
                 ]]></add>
         </operation>
     </file>
@@ -398,6 +465,7 @@
                 $_['text_no_refund'] = '¡No se puede procesar el reembolso!';
                 $_['text_refunded_already'] = '¡El reembolso ya se ha procesado!';
                 $_['text_refund_success']     = '¡El reembolso ha sido procesado con éxito!';
+                $_['text_confirm_refund']     = 'Está a punto de reembolsar este pago, esto no se puede deshacer. ¿Estás seguro de que te gustaría continuar?';
                 ]]></add>
         </operation>
     </file>
@@ -410,6 +478,7 @@
                 $_['text_no_refund'] = 'Le remboursement ne peut être traité!';
                 $_['text_refunded_already'] = 'Le remboursement a déjà été traité!';
                 $_['text_refund_success']     = 'Le remboursement a été traité avec succès!';
+                $_['text_confirm_refund']     = 'Vous êtes sur le point de rembourser ce paiement, cela ne peut pas être annulé. Êtes-vous sûr de vouloir continuer?';
                 ]]></add>
         </operation>
     </file>
@@ -422,6 +491,7 @@
                 $_['text_no_refund'] = 'Le remboursement ne peut être traité!';
                 $_['text_refunded_already'] = 'Le remboursement a déjà été traité!';
                 $_['text_refund_success']     = 'Le remboursement a été traité avec succès!';
+                $_['text_confirm_refund']     = 'Vous êtes sur le point de rembourser ce paiement, cela ne peut pas être annulé. Êtes-vous sûr de vouloir continuer?';
                 ]]></add>
         </operation>
     </file>
@@ -433,6 +503,10 @@
 <script type="text/javascript"><!--
 <?php if(isset($isVersion15x)) { ?>
 $('#button-refund').live('click', function() {
+if (!confirm('<?php echo $text_confirm_refund; ?>')) {
+    return false;
+}
+
 $('.warning, .success').remove();
   $.ajax({
     url: 'index.php?route=sale/order/refund&token=<?php echo $token; ?>&order_id=<?php echo $order_id; ?>',
@@ -474,6 +548,10 @@ $('.warning, .success').remove();
 });
 <?php } else { ?>
 $('#button-refund').on('click', function() {
+if (!confirm('<?php echo $text_confirm_refund; ?>')) {
+    return false;
+}
+
 $('.alert').remove();
   $.ajax({
     url: 'index.php?route=sale/order/refund&token=<?php echo $token; ?>&order_id=<?php echo $order_id; ?>',
@@ -527,6 +605,10 @@ $('.alert').remove();
             <add><![CDATA[
 <script type="text/javascript"><!--
 $('#button-refund').on('click', function() {
+if (!confirm('{{ text_confirm_refund }}')) {
+    return false;
+}
+
   $('.alert').remove();
   $.ajax({
     url: 'index.php?route=sale/order/refund&user_token={{ user_token }}&order_id={{ order_id }}',
