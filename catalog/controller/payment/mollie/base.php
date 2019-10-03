@@ -822,7 +822,7 @@ class ControllerPaymentMollieBase extends Controller
         $model = $this->getModuleModel();
         $mollieOrderIdExists = $model->checkMollieOrderID($order_id);
         if(!$mollieOrderIdExists) {
-            $model->setPayment($mollieOrder->metadata->order_id, $order_id);
+            $model->setPayment($mollieOrder->metadata->order_id, $order_id, $mollieOrder->method);
             $this->writeToMollieLog("Updated database with mollie_order_id - " . $order_id);
         }
 
