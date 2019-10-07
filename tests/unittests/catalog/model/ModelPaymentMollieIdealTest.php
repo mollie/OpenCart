@@ -56,7 +56,7 @@ class ModelPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
 
 	public function testSetPaymentReturnsFalseIfArgumentsOmitted()
 	{
-		$this->assertFalse($this->model->setPayment(NULL, NULL));
+		$this->assertFalse($this->model->setPayment(NULL, NULL, NULL));
 	}
 
 	public function testSetPaymentNothingAffected()
@@ -70,7 +70,7 @@ class ModelPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
 			->method("countAffected")
 			->will($this->returnValue(0));
 
-		$this->assertFalse($this->model->setPayment(self::ORDER_ID, self::TRANSACTION_ID));
+		$this->assertFalse($this->model->setPayment(self::ORDER_ID, self::TRANSACTION_ID, self::METHOD));
 	}
 
 	public function testSetPaymentPaymentSet()
@@ -84,6 +84,6 @@ class ModelPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
 			->method("countAffected")
 			->will($this->returnValue(1));
 
-		$this->assertTrue($this->model->setPayment(self::ORDER_ID, self::TRANSACTION_ID));
+		$this->assertTrue($this->model->setPayment(self::ORDER_ID, self::TRANSACTION_ID, self::METHOD));
 	}
 }
