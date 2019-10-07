@@ -63,8 +63,8 @@ class ModelPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
 	{
 		$this->model->db->expects($this->once())
 			->method("query")
-			->with("REPLACE INTO `prefix_mollie_payments` (`order_id` ,`mollie_order_id`, `method`)
-					 VALUES ('1337', '1bba1d8fdbd8103b46151634bdbe0a60', 'idl')");
+
+			->with("INSERT INTO `prefix_mollie_payments` SET `order_id` = '1337', `mollie_order_id` = '1bba1d8fdbd8103b46151634bdbe0a60', `method` = 'idl', `bank_account` = ''");
 
 		$this->model->db->expects($this->once())
 			->method("countAffected")
@@ -77,8 +77,7 @@ class ModelPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
 	{
 		$this->model->db->expects($this->once())
 			->method("query")
-			->with("REPLACE INTO `prefix_mollie_payments` (`order_id` ,`mollie_order_id`, `method`)
-					 VALUES ('1337', '1bba1d8fdbd8103b46151634bdbe0a60', 'idl')");
+			->with("INSERT INTO `prefix_mollie_payments` SET `order_id` = '1337', `mollie_order_id` = '1bba1d8fdbd8103b46151634bdbe0a60', `method` = 'idl', `bank_account` = ''");
 
 		$this->model->db->expects($this->once())
 			->method("countAffected")
