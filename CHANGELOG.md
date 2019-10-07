@@ -2,6 +2,14 @@
 
 # Changelog #
 
+#### Changes in release 9.1.2
+  + Added support-form in module
+  + Get payment status from Mollie on order page load
+  + Updated Mollie Connect settings in module
+  + Updated some code for better processing of payment information
+  + Bugfix for missing Mollie_order_id
+  + Bugfix for some negative amounts
+
 #### Changes in release 9.1.1
   + Small fix for rounding differences
   + Only show refund button for Mollie payments

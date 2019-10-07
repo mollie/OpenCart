@@ -166,18 +166,11 @@ class ModelPaymentMollieBase extends Model
 	 *
 	 * @return bool
 	 */
-	public function setPayment($order_id, $mollie_order_id)
+	public function setPayment($order_id, $mollie_order_id, $method)
 	{
-		if (!empty($order_id) && !empty($mollie_order_id)) {
-			$this->db->query(
-				sprintf(
-					"REPLACE INTO `%smollie_payments` (`order_id` ,`mollie_order_id`, `method`)
-					 VALUES ('%s', '%s', 'idl')",
-					DB_PREFIX,
-					$this->db->escape($order_id),
-					$this->db->escape($mollie_order_id)
-				)
-			);
+		$bank_account = isset($this->session->data['mollie_issuer']) ? $this->session->data['mollie_issuer'] : NULL;
+		if (!empty($order_id) && !empty($mollie_order_id) && !empty($method)) {
+			$this->db->query("INSERT INTO `" . DB_PREFIX . "mollie_payments` SET `order_id` = '" . (int)$order_id . "', `mollie_order_id` = '" . $this->db->escape($mollie_order_id) . "', `method` = '" . $this->db->escape($method) . "', `bank_account` = '" . $this->db->escape($bank_account) . "'");
 
 			if ($this->db->countAffected() > 0) {
 				return TRUE;
@@ -199,19 +192,9 @@ class ModelPaymentMollieBase extends Model
 	public function updatePayment($order_id, $mollie_order_id, $data, $consumer = NULL)
 	{
 		if (!empty($order_id) && !empty($mollie_order_id)) {
-			$this->db->query(
-				sprintf(
-					"UPDATE `%smollie_payments` 
-					 SET `transaction_id` = '%s', `bank_status` = '%s', `refund_id` = '%s'
-					 WHERE `order_id` = '%s' AND `mollie_order_id` = '%s';",
-					DB_PREFIX,
-					$this->db->escape($data['payment_id']),
-					$this->db->escape($data['status']),
-					$this->db->escape($data['refund_id']),
-					$this->db->escape($order_id),
-					$this->db->escape($mollie_order_id)
-				)
-			);
+			$this->db->query("UPDATE `" . DB_PREFIX . "mollie_payments` 
+					 SET `transaction_id` = '" . $this->db->escape($data['payment_id']) . "', `bank_status` = '" . $this->db->escape($data['status']) . "'
+					 WHERE `order_id` = '" . (int)$order_id . "' AND `mollie_order_id` = '" . $this->db->escape($mollie_order_id) . "'");
 
 			return $this->db->countAffected() > 0;
 		}
@@ -272,6 +255,27 @@ class ModelPaymentMollieBase extends Model
 			if($results->num_rows == 0) return FALSE;
 			return $results->row;
 		}
+		return FALSE;
+	}
+
+	public function cancelReturn($order_id, $mollie_order_id, $data) {
+		if (!empty($order_id) && !empty($mollie_order_id)) {
+			$this->db->query("UPDATE `" . DB_PREFIX . "mollie_payments` 
+					 SET `transaction_id` = '" . $this->db->escape($data['payment_id']) . "', `bank_status` = '" . $this->db->escape($data['status']) . "', `refund_id` = '" . $this->db->escape($data['refund_id']) . "'
+					 WHERE `order_id` = '" . (int)$order_id . "' AND `mollie_order_id` = '" . $this->db->escape($mollie_order_id) . "'");
+
+			return $this->db->countAffected() > 0;
+		}
+	}
+
+	public function checkMollieOrderID($mollie_order_id)
+	{
+		if (!empty($mollie_order_id)) {
+			$results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `mollie_order_id` = '" . $mollie_order_id . "'");
+			if($results->num_rows == 0) return FALSE;
+			return TRUE;
+		}
+
 		return FALSE;
 	}
 

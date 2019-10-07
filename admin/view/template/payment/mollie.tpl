@@ -65,9 +65,6 @@
 								<li><a data-toggle="tab" href="#mollie-options-<?php echo $shop['store_id']; ?>"><?php echo $title_global_options; ?></a></li>
 								<li><a data-toggle="tab" href="#about-module-<?php echo $shop['store_id']; ?>"><?php echo $title_mod_about; ?></a></li>
 								<li><a data-toggle="tab" href="#support-<?php echo $shop['store_id']; ?>">Support</a></li>
-								<?php if(!empty($shop[$code . '_client_id']) && $shop['show_mollie_connect_button']) { ?>
-									<a href="<?php echo $shop['mollie_connect']; ?>"><img src="<?php echo $image; ?>" alt="<?php echo $button_mollie_connect; ?>" style="width: 152px;height: auto; float: right;" /></a>
-								<?php } ?>
 							</ul>
 
 							<div class="tab-content">
@@ -96,7 +93,7 @@
 											<?php $show_checkbox = false ?>
 											<?php echo (!$shop['mollie_connection']) ? $text_activate_payment_method : ''; ?>
 											<?php } ?>
-											<input type="checkbox" name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_status" <?php echo $payment_method['status'] ? 'checked' : ''; ?> style="cursor:pointer;<?php echo !$show_checkbox ? 'display: none;' : ''; ?>" />
+											<input type="checkbox" value="1" name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_status" <?php echo $payment_method['status'] ? 'checked' : ''; ?> style="cursor:pointer;<?php echo !$show_checkbox ? 'display: none;' : ''; ?>" />
 											<?php if($shop['mollie_connection'] && !empty($shop[$code . '_api_key']) && empty($shop['error_api_key'])) { ?>
 											<?php if(!$show_checkbox) { ?>
 												<?php $apiExcludedMethods = array("creditcard", "paysafecard", "giftcard", "p24", "paypal"); ?>
@@ -283,6 +280,16 @@
 											</div>
 										</div>
 
+										<div class="form-group">
+											<label class="col-sm-2 control-label" for="mollie-connect"><?php echo $entry_mollie_connect; ?></label>
+											<div class="col-sm-10">
+												<div class="input-group">
+													<span class="input-group-addon"><?php echo ($shop['mollie_connection']) ? '<i class="fa fa-check text-success"></i>' : '<i class="fa fa-minus"></i>' ;?></span>
+													<a href="<?php echo $shop['mollie_connect']; ?>" id="<?php echo $shop['store_id']; ?>_button_mollie_connect" mollie-connection="<?php echo ($shop['mollie_connection']) ? '1' : '0' ;?>" style="<?php echo (($shop[$code . '_client_id'] == '') || ($shop[$code . '_client_secret'] == '') || ($shop['mollie_connection'])) ? 'opacity: 0.6; pointer-events: none;' : ''; ?>"><img src="<?php echo $image; ?>" alt="<?php echo $button_mollie_connect; ?>" style="width: 152px;height: auto;" /></a>
+												</div>
+											</div>
+										</div>
+
 										<input type="hidden" name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_refresh_token" value="<?php echo $shop[$code . '_refresh_token']; ?>">
 									</fieldset>
 									<fieldset>
@@ -432,6 +439,35 @@
 									        <textarea wrap="off" rows="15" readonly class="form-control"><?php echo $log; ?></textarea>	
 									      </div>				      
 									</div>
+									<fieldset>
+										<legend>Contact Us - Technical Support</legend>
+											<div id="contact-<?php echo $shop['store_id']; ?>"></div>
+											<div class="form-group required">
+												<label class="col-sm-2 control-label"><?php echo $entry_name; ?></label>
+												<div class="col-sm-10">
+													<input type="text" name="name" value="" placeholder="<?php echo $entry_name; ?>" id="name" class="form-control"/>
+												</div>
+											</div>
+											<div class="form-group required">
+												<label class="col-sm-2 control-label"><?php echo $entry_email; ?></label>
+												<div class="col-sm-10">
+													<input type="text" name="email" value="<?php echo $store_email; ?>" placeholder="<?php echo $entry_email; ?>" id="email" class="form-control"/>
+												</div>
+											</div>
+											<div class="form-group required">
+												<label class="col-sm-2 control-label"><?php echo $entry_subject; ?></label>
+												<div class="col-sm-10">
+													<input type="text" name="subject" value="" placeholder="<?php echo $entry_subject; ?>" id="subject" class="form-control"/>
+												</div>
+											</div>											
+											<div class="form-group required">
+												<label class="col-sm-2 control-label"><?php echo $entry_enquiry; ?></label>
+												<div class="col-sm-10">
+													<textarea name="enquiry" placeholder="<?php echo $text_enquiry; ?>" id="enquiry" class="form-control"></textarea>
+												</div>
+											</div>
+											<button type="button" id="button-support" onclick="sendMessage(<?php echo $shop['store_id']; ?>)" class="btn btn-primary pull-right"><?php echo $button_submit; ?></button>
+									</fieldset>
 								</div>
 							</div>
 						</div>
@@ -450,6 +486,41 @@
 <?php echo $footer; ?>
 
 <script type="text/javascript">
+	function sendMessage(store_id = 0) {
+		var data = {
+            'name':  $("#support-" + store_id + " input[name=\"name\"]").val(),
+            'email':  $("#support-" + store_id + " input[name=\"email\"]").val(),
+            'subject': $("#support-" + store_id + " input[name=\"subject\"]").val(),
+            'enquiry': $("#support-" + store_id + " textarea[name=\"enquiry\"]").val()
+        };
+
+		$.ajax({
+		  type: "POST",
+		  url: 'index.php?route=payment/mollie_<?php echo $module_name; ?>/sendMessage&<?php echo $token; ?>',
+		  data: data,
+		  beforeSend: function() {
+				$('#button-support').button('loading');
+			},
+			complete: function() {
+				$('#button-support').button('reset');
+			},
+		  success: function(json) {
+		  	$('.alert-success, .alert-danger').remove();
+
+			if (json['error']) {
+				$('#contact-' + store_id).after('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + '</div>');
+			}
+
+			if (json['success']) {
+				$('#contact-' + store_id).after('<div class="alert alert-success"><i class="fa fa-check-circle"></i> ' + json['success'] + '</div>');
+
+				$('input[name=\'subject\']').val('');
+				$('textarea[name=\'enquiry\']').val('');
+			}
+		  }
+		});
+	}
+
 	(function () {
 		var timeout, xhr;
 		var api_check_url = $('<div/>').html('<?php echo $api_check_url; ?>').text();
@@ -570,7 +641,44 @@
 		      $('#tabs<?php echo $shop["store_id"] ?> a[href=#mollie-options-<?php echo $shop["store_id"] ?>]').tab('show');
 		    });
 
+		    $('[<?php echo $shop["store_id"] ?>-data-payment-mollie-client-id], [<?php echo $shop["store_id"] ?>-data-payment-mollie-client-secret]').on('keyup', function() {
+
+		    	var client_id = $('[<?php echo $shop["store_id"] ?>-data-payment-mollie-client-id]').val();
+			    var client_secret = $('[<?php echo $shop["store_id"] ?>-data-payment-mollie-client-secret]').val();
+
+			    if((client_id == '') || (client_secret == '')) {
+			    	$("#<?php echo $shop["store_id"] ?>_button_mollie_connect").css({ "opacity" : "0.6", "pointer-events" : "none" });
+			    } else {
+			    	if($("#<?php echo $shop["store_id"] ?>_button_mollie_connect").attr('mollie-connection') == '1') {
+			    		$("#<?php echo $shop["store_id"] ?>_button_mollie_connect").css({ "opacity" : "0.6", "pointer-events" : "none" });
+			    	} else {
+			    		$("#<?php echo $shop["store_id"] ?>_button_mollie_connect").css({ "opacity" : "1", "pointer-events" : "unset" });
+			    	}			    	
+
+			    	saveAppData(client_id, client_secret, '<?php echo $shop["store_id"] ?>');
+			    }
+		    });
+
 		<?php } ?>
+
+		function saveAppData(client_id, client_secret, store_id) {
+			var data = {
+                'client_id': client_id,
+                'client_secret': client_secret,
+                'store_id': store_id
+            };
+			$.ajax({
+			  type: "POST",
+			  url: 'index.php?route=payment/mollie_<?php echo $module_name; ?>/saveAppData&<?php echo $token; ?>',
+			  data: data,
+			  dataType: 'json',
+			  success: function(json) {
+			  	if(json != '') {
+			  		$("#" + store_id + "_button_mollie_connect").attr('href', json['connect_url']);
+			  	}			  	
+			  }
+			});
+		}
 
 	})();
 </script>

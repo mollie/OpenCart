@@ -95,6 +95,8 @@ $_['text_creditcard_required'] = "Nécessite une carte de crédit";
 $_['text_mollie_api'] = "Mollie API";
 $_['text_mollie_app'] = "Mollie App";
 $_['text_general'] 	  = "Général";
+$_['text_enquiry'] 	  = "Comment pouvons-nous vous aider?";
+$_['text_enquiry_success'] 	  = "Succès: Votre demande a été soumise. Nous reviendrons vers vous bientôt. Je vous remercie!";
 
 // Entry
 $_['entry_payment_method']           = "Procédé de paiement";
@@ -109,6 +111,11 @@ $_['entry_client_id']                = "Client ID";
 $_['entry_client_secret']            = "Client Secret";
 $_['entry_redirect_uri']             = "Redirect URI";
 $_['entry_payment_screen_language']  = "Langue par défaut de l'écran de paiement";
+$_['entry_mollie_connect'] 			 = "Mollie connect";
+$_['entry_name'] 			 		 = "Nom";
+$_['entry_email'] 			 		 = "E-mail";
+$_['entry_subject'] 			     = "Matière";
+$_['entry_enquiry'] 			 	 = "Enquête";
 
 // Help
 $_['help_view_profile']             = 'Vous pouvez trouver votre clé API dans <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank" class="alert-link">vos profils de site à Mollie</a>.';
@@ -135,6 +142,10 @@ $_['error_api_key']           = "La clé API est nécessaire!";
 $_['error_api_key_invalid']   = "La clé API est invalide!";
 $_['error_description']       = "Description est nécessaire!";
 $_['error_file_missing']      = "Fichier ne existe pas";
+$_['error_name']              = 'Attention: le nom doit comporter entre 3 et 25 caractères!';
+$_['error_email']             = 'Attention: Adresse e-mail ne semble pas être valide!';
+$_['error_subject']           = 'Attention: le sujet doit avoir 3 caractères!';
+$_['error_enquiry']           = 'Attention: le texte de la requête doit comporter 25 caractères!';
 
 // Status
 $_['entry_pending_status']    = "État de paiement attente";

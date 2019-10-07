@@ -532,8 +532,8 @@ class ControllerPaymentMollieBase extends Controller
             foreach($lines as $line) {
                 $orderLineTotal += $line['totalAmount']['value'];
             }
-			
-			$orderLineTotal = number_format($orderLineTotal, 2, '.', '');
+            
+            $orderLineTotal = number_format($orderLineTotal, 2, '.', '');
             
             if($orderTotal > $orderLineTotal) {
                 $amountDiff = number_format(($orderTotal - $orderLineTotal), 2, '.', '');
@@ -551,13 +551,13 @@ class ControllerPaymentMollieBase extends Controller
             }
 
             if($orderTotal < $orderLineTotal) {
-                $amountDiff = number_format(($orderLineTotal - $orderTotal), 2, '.', '');
+                $amountDiff = number_format(-($orderLineTotal - $orderTotal), 2, '.', '');
                 $lineForSurcharge[] = array(
                     'type'          =>  'surcharge',
                     'name'          =>  $this->formatText($this->language->get("roundoff_description")),
                     'quantity'      =>  1,
-                    'unitPrice'     =>  ["currency" => $currency, "value" => (string)-$amountDiff],
-                    'totalAmount'   =>  ["currency" => $currency, "value" => (string)-$amountDiff],
+                    'unitPrice'     =>  ["currency" => $currency, "value" => (string)$amountDiff],
+                    'totalAmount'   =>  ["currency" => $currency, "value" => (string)$amountDiff],
                     'vatRate'       =>  "0",
                     'vatAmount'     =>  ["currency" => $currency, "value" => "0.00"]
                 );
@@ -656,7 +656,7 @@ class ControllerPaymentMollieBase extends Controller
             $this->addOrderHistory($order, $this->config->get(MollieHelper::getModuleCode() . "_ideal_pending_status_id"), $this->language->get("text_redirected"), false);
         }
 
-        if($model->setPayment($order['order_id'], $orderObject->id)) {
+        if($model->setPayment($order['order_id'], $orderObject->id, $orderObject->method)) {
             $this->writeToMollieLog("Order created : order_id - " . $order['order_id'] . ', ' . "mollie_order_id - " . $orderObject->id);
         } else {
             $this->writeToMollieLog("Order created for order_id - " . $order['order_id'] . " but mollie_order_id - " . $orderObject->id . " not saved in the database. Should be updated when webhook called.");
@@ -728,18 +728,10 @@ class ControllerPaymentMollieBase extends Controller
         //Set transaction ID
         $data = array();
 
-        $paymentDetails = $model->getPayment($order['order_id']);
-        if($paymentDetails) {
-            $refund_id = $paymentDetails['refund_id'];
-        } else {
-            $refund_id = '';
-        }
-
         if($molliePayment) {
             $data = array(
                 'payment_id' => $payment_id,
-                'status'     => $molliePayment->status,
-                'refund_id'  => $refund_id
+                'status'     => $molliePayment->status
             );
         }
 
@@ -752,21 +744,22 @@ class ControllerPaymentMollieBase extends Controller
             if($molliePayment->amountRefunded->value > 0) {
                 $data = array(
                     'payment_id' => $payment_id,
-                    'status'     => 'refunded',
-                    'refund_id'  => $refund_id
+                    'status'     => 'refunded'
                 );
+
+                if(!empty($data)) {
+                    $model->updatePayment($mollieOrder->metadata->order_id, $mollieOrderId, $data);
+                }
+
                 $this->writeToMollieLog("Order status has been updated to 'Refunded' for order " . $order['order_id'] . ".");
             } else {
                 if (!empty($order['order_status_id']) && $order['order_status_id'] == $this->config->get($moduleCode . "_ideal_refund_status_id")) {
                     $data['refund_id'] = '';
+                    $model->cancelReturn($mollieOrder->metadata->order_id, $mollieOrderId, $data);
                     $this->addOrderHistory($order, $this->config->get($moduleCode . "_ideal_processing_status_id"), $this->language->get("refund_cancelled"), true);
                     $this->writeToMollieLog("Refund has been cancelled for order " . $order['order_id']);
                     $this->writeToMollieLog("Order status has been updated to 'Processing'.");
                 }
-            }
-
-            if(!empty($data)) {
-                $model->updatePayment($mollieOrder->metadata->order_id, $mollieOrderId, $data);
             }
 
             return;
@@ -829,7 +822,7 @@ class ControllerPaymentMollieBase extends Controller
         $model = $this->getModuleModel();
         $mollieOrderIdExists = $model->checkMollieOrderID($order_id);
         if(!$mollieOrderIdExists) {
-            $model->setPayment($mollieOrder->metadata->order_id, $order_id);
+            $model->setPayment($mollieOrder->metadata->order_id, $order_id, $mollieOrder->method);
             $this->writeToMollieLog("Updated database with mollie_order_id - " . $order_id);
         }
 
@@ -1151,6 +1144,7 @@ class ControllerPaymentMollieBase extends Controller
             unset($this->session->data['voucher']);
             unset($this->session->data['vouchers']);
             unset($this->session->data['totals']);
+            unset($this->session->data['mollie_issuer']);
 
             // Redirect to 'success' page.
             $this->redirect($this->url->link("checkout/success", "", "SSL"));

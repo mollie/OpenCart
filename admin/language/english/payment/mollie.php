@@ -95,6 +95,8 @@ $_['text_creditcard_required'] = "Requires Credit Card";
 $_['text_mollie_api'] = "Mollie API";
 $_['text_mollie_app'] = "Mollie App";
 $_['text_general'] 	  = "General";
+$_['text_enquiry'] 	  = "How can we help you?";
+$_['text_enquiry_success'] 	  = "Success: Your enquiry has been submitted. We'll get back to you soon. Thank you!";
 
 // Entry
 $_['entry_payment_method']           = "Payment method";
@@ -109,6 +111,11 @@ $_['entry_client_id']                = "Client ID";
 $_['entry_client_secret']            = "Client Secret";
 $_['entry_redirect_uri']             = "Redirect URI";
 $_['entry_payment_screen_language']  = "Payment screen default language";
+$_['entry_mollie_connect'] 			 = "Mollie connect";
+$_['entry_name'] 			 		 = "Name";
+$_['entry_email'] 			 		 = "E-mail";
+$_['entry_subject'] 			     = "Subject";
+$_['entry_enquiry'] 			 	 = "Enquiry";
 
 // Help
 $_['help_view_profile']             = 'You can find your API key in <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank" class="alert-link">your Mollie website profiles</a>.';
@@ -135,6 +142,10 @@ $_['error_api_key']           = "Mollie API key is required!";
 $_['error_api_key_invalid']   = "Invalid API key!";
 $_['error_description']       = "Description is required!";
 $_['error_file_missing']      = "File does not exist";
+$_['error_name']              = 'Warning: Name must be between 3 and 25 characters!';
+$_['error_email']             = 'Warning: E-Mail Address does not appear to be valid!';
+$_['error_subject']           = 'Warning: Subject must be 3 characters long!';
+$_['error_enquiry']           = 'Warning: Enquiry text must be 25 characters long!';
 
 // Status
 $_['entry_pending_status']    = "Payment created status";

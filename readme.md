@@ -63,7 +63,7 @@ this plugin.
 Copyright (c) 2018, Mollie B.V.
 
 # Support #
-Module developed by Comercia: [www.qualityworks.eu](https://www.qualityworks.eu) — mollie.support@qualityworks.eu — +31 85-7430150 <br />
+Module developed by Quality Works: [www.qualityworks.eu](https://www.qualityworks.eu) — support.mollie@qualityworks.eu — +31 85-7430150 <br />
 Contact Mollie: [www.mollie.com/nl/about](https://www.mollie.com/nl/about) — info@mollie.com — +31 20-612 88 55
 
 + [More info on iDEAL via Mollie](https://www.mollie.com/payments/ideal/)

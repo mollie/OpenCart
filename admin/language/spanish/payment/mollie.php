@@ -95,6 +95,8 @@ $_['text_creditcard_required'] = "Requiere tarjeta de crédito";
 $_['text_mollie_api'] = "Mollie API";
 $_['text_mollie_app'] = "Mollie App";
 $_['text_general'] 	  = "General";
+$_['text_enquiry'] 	  = "Como podemos ayudarte?";
+$_['text_enquiry_success'] 	  = "Éxito: su consulta ha sido enviada. Nos pondremos en contacto con usted pronto. ¡Gracias!";
 
 // Entry
 $_['entry_payment_method']           = "Método de pago";
@@ -109,6 +111,11 @@ $_['entry_client_id']                = "Client ID";
 $_['entry_client_secret']            = "Client Secret";
 $_['entry_redirect_uri']             = "Redirect URI";
 $_['entry_payment_screen_language']  = "Idioma predeterminado de la pantalla de pago";
+$_['entry_mollie_connect'] 			 = "Mollie connect";
+$_['entry_name'] 			 		 = "Nombre";
+$_['entry_email'] 			 		 = "E-mail";
+$_['entry_subject'] 			     = "Tema";
+$_['entry_enquiry'] 			 	 = "Investigación";
 
 
 // Help
@@ -137,6 +144,10 @@ $_['error_api_key']         = "¡La clave API de Mollie es obligatoria!";
 $_['error_api_key_invalid'] = "¡Clave inválida de Mollie API!";
 $_['error_description']     = "¡La descripción es obligatoria!";
 $_['error_file_missing']    = "El archivo no existe";
+$_['error_name']              = 'Advertencia: el nombre debe tener entre 3 y 25 caracteres';
+$_['error_email']             = 'Advertencia: ¡La dirección de correo electrónico no parece ser válida!';
+$_['error_subject']           = 'Advertencia: ¡El asunto debe tener 3 caracteres!';
+$_['error_enquiry']           = 'Advertencia: ¡El texto de la consulta debe tener 25 caracteres de longitud!';
 
 // Status
 $_['entry_pending_status']   = "¡Clave de API Mollie inválida!";

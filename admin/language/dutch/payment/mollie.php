@@ -95,6 +95,8 @@ $_['text_creditcard_required'] = "Credit Card verplicht";
 $_['text_mollie_api'] = "Mollie API";
 $_['text_mollie_app'] = "Mollie App";
 $_['text_general'] 	  = "Algemeen";
+$_['text_enquiry'] 	  = "Hoe kunnen we u helpen?";
+$_['text_enquiry_success'] 	  = "Succes: Uw aanvraag is ingediend. We nemen zo snel mogelijk contact met u op. Dank je!";
 
 // Entry
 $_['entry_payment_method']           = "Betaalmethode";
@@ -109,6 +111,11 @@ $_['entry_client_id']                = "Client ID";
 $_['entry_client_secret']            = "Client Secret";
 $_['entry_redirect_uri']             = "Redirect URI";
 $_['entry_payment_screen_language']  = "Standaardtaal betaalscherm";
+$_['entry_mollie_connect'] 			 = "Mollie connect";
+$_['entry_name'] 			 		 = "Naam";
+$_['entry_email'] 			 		 = "E-mail";
+$_['entry_subject'] 			     = "Onderwerpen";
+$_['entry_enquiry'] 			 	 = "Onderzoek";
 
 // Help
 $_['help_view_profile']             = 'U kunt uw API-sleutel vinden bij <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank" class="alert-link">uw Mollie-websiteprofielen</a>.';
@@ -135,6 +142,10 @@ $_['error_api_key']         = "Mollie API-sleutel is verplicht!";
 $_['error_api_key_invalid'] = "Ongeldige Mollie API-sleutel!";
 $_['error_description']     = "De omschrijving is verplicht!";
 $_['error_file_missing']    = "Bestand bestaat niet";
+$_['error_name']              = 'Waarschuwing: naam moet tussen 3 en 25 tekens bevatten!';
+$_['error_email']             = 'Waarschuwing: E-mailadres lijkt niet geldig te zijn!';
+$_['error_subject']           = 'Waarschuwing: onderwerp moet 3 tekens lang zijn!';
+$_['error_enquiry']           = 'Waarschuwing: onderzoekstekst moet 25 tekens lang zijn!';
 
 // Status
 $_['entry_pending_status']   = "Status betaling aangemaakt";

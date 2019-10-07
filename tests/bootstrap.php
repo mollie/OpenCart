@@ -74,6 +74,8 @@ class Mollie_OpenCart_TestCase extends PHPUnit_Framework_TestCase
 
 	const BANK_ID = "0999";
 
+	const METHOD = "idl";
+
 	protected static $banks = array(
 		'1234' => 'Test bank 1',
 		'0678' => 'Test bank 2'
