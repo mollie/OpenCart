@@ -2,6 +2,11 @@
 
 # Changelog #
 
+#### Changes in release 9.1.3
+  + Bugfix for double order_ids in mollie payments table
+  + Bugfix for some non_int amounts
+  + Added debug logging option
+
 #### Changes in release 9.1.2
   + Added support-form in module
   + Get payment status from Mollie on order page load
