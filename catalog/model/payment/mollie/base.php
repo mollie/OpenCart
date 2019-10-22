@@ -170,7 +170,7 @@ class ModelPaymentMollieBase extends Model
 	{
 		$bank_account = isset($this->session->data['mollie_issuer']) ? $this->session->data['mollie_issuer'] : NULL;
 		if (!empty($order_id) && !empty($mollie_order_id) && !empty($method)) {
-			$this->db->query("INSERT INTO `" . DB_PREFIX . "mollie_payments` SET `order_id` = '" . (int)$order_id . "', `mollie_order_id` = '" . $this->db->escape($mollie_order_id) . "', `method` = '" . $this->db->escape($method) . "', `bank_account` = '" . $this->db->escape($bank_account) . "'");
+			$this->db->query("INSERT INTO `" . DB_PREFIX . "mollie_payments` SET `order_id` = '" . (int)$order_id . "', `mollie_order_id` = '" . $this->db->escape($mollie_order_id) . "', `method` = '" . $this->db->escape($method) . "', `bank_account` = '" . $this->db->escape($bank_account) . "' ON DUPLICATE KEY UPDATE `order_id` = '" . (int)$order_id . "'");
 
 			if ($this->db->countAffected() > 0) {
 				return TRUE;

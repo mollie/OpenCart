@@ -599,7 +599,7 @@ class ControllerPaymentMollieBase extends Controller
         	$paymentGeoZone[] 	= $code . '_' . $module_name . '_geo_zone';
 		}
 
-        $fields = array("show_icons", "show_order_canceled_page", "ideal_description", "api_key", "client_id", "client_secret", "refresh_token", "ideal_processing_status_id", "ideal_expired_status_id", "ideal_canceled_status_id", "ideal_failed_status_id", "ideal_pending_status_id", "ideal_shipping_status_id", "create_shipment_status_id", "ideal_refund_status_id", "create_shipment", "payment_screen_language");
+        $fields = array("show_icons", "show_order_canceled_page", "ideal_description", "api_key", "client_id", "client_secret", "refresh_token", "ideal_processing_status_id", "ideal_expired_status_id", "ideal_canceled_status_id", "ideal_failed_status_id", "ideal_pending_status_id", "ideal_shipping_status_id", "create_shipment_status_id", "ideal_refund_status_id", "create_shipment", "payment_screen_language", "debug_mode");
 
         $settingFields = Util::arrayHelper()->prefixAllValues($code . '_', $fields);
 
@@ -689,6 +689,7 @@ class ControllerPaymentMollieBase extends Controller
 			$code . "_create_shipment"  		  				=> 1,
 			$code . "_refresh_token"  		  					=> '',
 			$code . "_payment_screen_language"  		  		=> 'en-gb',
+			$code . "_debug_mode"  		  						=> FALSE,
 		);
 
 		// Check if order complete status is defined in store setting
@@ -1210,7 +1211,7 @@ class ControllerPaymentMollieBase extends Controller
 				$enquiry .= "<br>Opencart version : " . VERSION;
 				$enquiry .= "<br>Mollie version : " . MOLLIE_VERSION;
 
-				$mail = new Mail($this->config->get('config_mail_engine'));
+				$mail = new Mail();
 				$mail->protocol = $this->config->get('config_mail_protocol');
 				$mail->parameter = $this->config->get('config_mail_parameter');
 				$mail->smtp_hostname = $this->config->get('config_mail_smtp_hostname');

@@ -79,6 +79,13 @@ class ControllerPaymentMollieBase extends Controller
         if ($alsoEcho) echo $line;
     }
 
+    protected function writeToMollieDebugLog($line, $alsoEcho = false)
+    {
+        $log = new Log('Mollie_debug.log');
+        $log->write($line);
+        if ($alsoEcho) echo $line;
+    }
+
     /**
      * @return ModelExtensionPaymentMollieBase
      */
@@ -259,12 +266,14 @@ class ControllerPaymentMollieBase extends Controller
                 $total = number_format((float)$this->convertCurrency(($orderProduct['price'] + $orderProduct['tax']) * $orderProduct['quantity']), 2, '.', '');
 
                 // Fix for qty < 1
-                if($orderProduct['quantity'] % 1 != 0) {
+                if(!is_int($orderProduct['quantity'])) {
                     $qty = 1;
                     $price = $orderProduct['price'] * $orderProduct['quantity'];
+                    $tax = $orderProduct['tax'] * $orderProduct['quantity'];
                 } else {
                     $qty = $orderProduct['quantity'];
                     $price = $orderProduct['price'];
+                    $tax = $orderProduct['tax'];
                 }
 
                 $vatAmount = $total * ( $vatRate / (100 +  $vatRate));
@@ -272,7 +281,7 @@ class ControllerPaymentMollieBase extends Controller
                     'type'          =>  'physical',
                     'name'          =>  $this->formatText($orderProduct['name']),
                     'quantity'      =>  $qty,
-                    'unitPrice'     =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($price + $orderProduct['tax']), 2, '.', '')],
+                    'unitPrice'     =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($price + $tax), 2, '.', '')],
                     'totalAmount'   =>  ["currency" => $currency, "value" => (string)number_format((float)$total, 2, '.', '')],
                     'vatRate'       =>  (string)number_format((float)$vatRate, 2, '.', ''),
                     'vatAmount'     =>  ["currency" => $currency, "value" => (string)number_format((float)$vatAmount, 2, '.', '')]
@@ -642,6 +651,12 @@ class ControllerPaymentMollieBase extends Controller
 
             $data["locale"]=$locale;
 
+            // Debug mode
+            if($this->config->get(MollieHelper::getModuleCode() . "_debug_mode")) {
+                $this->writeToMollieDebugLog("Mollie order creation data :");
+                $this->writeToMollieDebugLog($data);
+            }
+
             //Create Order
             $orderObject = $api->orders->create($data);
 
@@ -969,7 +984,7 @@ class ControllerPaymentMollieBase extends Controller
 
         $mollie_order_id = $mollieModel->getOrderID($order_id);
         if (empty($mollie_order_id)) {
-            $this->writeToMollieLog("Could not find mollie reference order id for order " . $order['order_id'] . ".");
+            $this->writeToMollieLog("Could not find mollie reference order id for shipment creation for order " . $order['order_id'] . " (It could be a non-mollie order).");
             return;
         }
         
@@ -1128,22 +1143,6 @@ class ControllerPaymentMollieBase extends Controller
         if ($order["order_status_id"] == $this->config->get($moduleCode . "_ideal_processing_status_id") || $order["order_status_id"] == $this->config->get($moduleCode . "_ideal_shipping_status_id")) {
             $this->writeToMollieLog("Success redirect to success page for order " . $order['order_id']);
 
-            if ($this->cart) {
-                $this->cart->clear();
-            }
-
-            unset($this->session->data['shipping_method']);
-            unset($this->session->data['shipping_methods']);
-            unset($this->session->data['payment_method']);
-            unset($this->session->data['payment_methods']);
-            unset($this->session->data['guest']);
-            unset($this->session->data['comment']);
-            unset($this->session->data['order_id']);
-            unset($this->session->data['coupon']);
-            unset($this->session->data['reward']);
-            unset($this->session->data['voucher']);
-            unset($this->session->data['vouchers']);
-            unset($this->session->data['totals']);
             unset($this->session->data['mollie_issuer']);
 
             // Redirect to 'success' page.

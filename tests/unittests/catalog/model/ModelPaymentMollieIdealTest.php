@@ -64,7 +64,7 @@ class ModelPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
 		$this->model->db->expects($this->once())
 			->method("query")
 
-			->with("INSERT INTO `prefix_mollie_payments` SET `order_id` = '1337', `mollie_order_id` = '1bba1d8fdbd8103b46151634bdbe0a60', `method` = 'idl', `bank_account` = ''");
+			->with("INSERT INTO `prefix_mollie_payments` SET `order_id` = '1337', `mollie_order_id` = '1bba1d8fdbd8103b46151634bdbe0a60', `method` = 'idl', `bank_account` = '' ON DUPLICATE KEY UPDATE `order_id` = '1337'");
 
 		$this->model->db->expects($this->once())
 			->method("countAffected")
@@ -77,7 +77,7 @@ class ModelPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
 	{
 		$this->model->db->expects($this->once())
 			->method("query")
-			->with("INSERT INTO `prefix_mollie_payments` SET `order_id` = '1337', `mollie_order_id` = '1bba1d8fdbd8103b46151634bdbe0a60', `method` = 'idl', `bank_account` = ''");
+			->with("INSERT INTO `prefix_mollie_payments` SET `order_id` = '1337', `mollie_order_id` = '1bba1d8fdbd8103b46151634bdbe0a60', `method` = 'idl', `bank_account` = '' ON DUPLICATE KEY UPDATE `order_id` = '1337'");
 
 		$this->model->db->expects($this->once())
 			->method("countAffected")
