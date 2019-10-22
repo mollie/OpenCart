@@ -426,6 +426,20 @@
 											</div>
 										</div>
 									</fieldset>
+									<div class="form-group">
+										<label class="col-sm-2" for="input-debug-mode"><?php echo $entry_debug_mode; ?></label>
+										<div class="col-sm-10">
+											<select name="<?php echo $shop['store_id']; ?>_<?php echo $code; ?>_debug_mode" id="input-debug-mode" class="form-control">
+												<?php if ($shop[$code . '_debug_mode']) { ?>
+												<option value="1" selected="selected"><?php echo $text_enabled; ?></option>
+												<option value="0"><?php echo $text_disabled; ?></option>
+												<?php } else { ?>
+												<option value="1"><?php echo $text_enabled; ?></option>
+												<option value="0" selected="selected"><?php echo $text_disabled; ?></option>
+												<?php } ?>
+											</select>
+										</div>
+									</div>
 									<div style="margin-top: 10px;">
 									    <div class="panel-heading">
 									        <h3 class="panel-title"><i class="fa fa-exclamation-triangle"></i> <?php echo $text_log_list; ?></h3>

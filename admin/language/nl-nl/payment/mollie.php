@@ -116,6 +116,7 @@ $_['entry_name'] 			 		 = "Naam";
 $_['entry_email'] 			 		 = "E-mail";
 $_['entry_subject'] 			     = "Onderwerpen";
 $_['entry_enquiry'] 			 	 = "Onderzoek";
+$_['entry_debug_mode'] 			 	 = "Debug mode";
 
 // Help
 $_['help_view_profile']             = 'U kunt uw API-sleutel vinden bij <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank" class="alert-link">uw Mollie-websiteprofielen</a>.';

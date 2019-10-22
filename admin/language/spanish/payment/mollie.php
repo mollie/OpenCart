@@ -116,6 +116,7 @@ $_['entry_name'] 			 		 = "Nombre";
 $_['entry_email'] 			 		 = "E-mail";
 $_['entry_subject'] 			     = "Tema";
 $_['entry_enquiry'] 			 	 = "Investigación";
+$_['entry_debug_mode'] 			 	 = "Debug mode";
 
 
 // Help

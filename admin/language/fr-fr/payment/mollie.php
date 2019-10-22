@@ -116,6 +116,7 @@ $_['entry_name'] 			 		 = "Nom";
 $_['entry_email'] 			 		 = "E-mail";
 $_['entry_subject'] 			     = "Matière";
 $_['entry_enquiry'] 			 	 = "Enquête";
+$_['entry_debug_mode'] 			 	 = "Debug mode";
 
 // Help
 $_['help_view_profile']             = 'Vous pouvez trouver votre clé API dans <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank" class="alert-link">vos profils de site à Mollie</a>.';
