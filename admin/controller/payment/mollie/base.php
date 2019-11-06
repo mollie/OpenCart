@@ -84,7 +84,10 @@ class ControllerPaymentMollieBase extends Controller
 	 */
 	protected function getAPIClient ($store = 0)
 	{
-		return MollieHelper::getAPIClientAdmin($this->data);
+		$data = $this->data;
+		$data[MollieHelper::getModuleCode() . "_api_key"] = MollieHelper::getApiKey($store);
+		
+		return MollieHelper::getAPIClientAdmin($data);
 	}
 
 	public function mollieConnect() {

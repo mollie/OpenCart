@@ -2,6 +2,9 @@
 
 # Changelog #
 
+#### Changes in release 9.1.4
+  + Bugfix for multi-store payment status in admin order info page
+
 #### Changes in release 9.1.3
   + Bugfix for double order_ids in mollie payments table
   + Bugfix for some non_int amounts

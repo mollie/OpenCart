@@ -5,7 +5,7 @@ use Mollie\Api\MollieApiClient;
 
 class MollieHelper
 {
-	const PLUGIN_VERSION = "9.1.3";
+	const PLUGIN_VERSION = "9.1.4";
 	const OUTH_URL = 'https://api.mollie.com/oauth2';
 
 	// All available modules. These should correspond to the Mollie_API_Object_Method constants.
@@ -68,14 +68,14 @@ class MollieHelper
 	 *
 	 * @return MollieApiClient
 	 */
-	public static function getAPIClient ($config)
+	public static function getAPIClient ($data)
 	{
 		if (!self::$api_client && self::apiClientFound())
 		{
 			require_once(realpath(DIR_SYSTEM . "/..") . "/catalog/controller/payment/mollie-api-client/vendor/autoload.php");
 			$mollie = new MollieApiClient;
 
-			$mollie->setApiKey($config->get(self::getModuleCode() . '_api_key'));
+			$mollie->setApiKey($data->get(self::getModuleCode() . '_api_key'));
 
 			$mollie->addVersionString("OpenCart/" . VERSION);
 			$mollie->addVersionString("MollieOpenCart/" . self::PLUGIN_VERSION);
@@ -130,6 +130,13 @@ class MollieHelper
 
 		return $mollie;
 	}
+
+	public static function getApiKey($store) {
+        $settingModel = Util::load()->model("setting/setting");
+        $apiKey = $settingModel->getSettingValue(self::getModuleCode() . "_api_key", $store);
+
+        return $apiKey;
+    }
 
 	/**
 	 * @return string
