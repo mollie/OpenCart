@@ -753,7 +753,7 @@ class ControllerPaymentMollieBase extends Controller
 			$allowed_methods = array();
 			try
 			{
-				$api_methods = $this->getAPIClient()->methods->allActive(array('resource' => 'orders', 'includeWallets' => 'applepay'));				
+				$api_methods = $this->getAPIClient($store['store_id'])->methods->allActive(array('resource' => 'orders', 'includeWallets' => 'applepay'));
 				foreach ($api_methods as $api_method)
 				{
 					$allowed_methods[] = $api_method->id;

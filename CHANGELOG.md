@@ -2,6 +2,9 @@
 
 # Changelog #
 
+#### Changes in release 9.1.5
+  + Bugfix getting active payment methods per Apikey in multi-store environments
+
 #### Changes in release 9.1.4
   + Bugfix for multi-store payment status in admin order info page
 
