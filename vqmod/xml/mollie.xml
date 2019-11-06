@@ -67,9 +67,9 @@
         <operation error="log">
             <search position="after" index="2"><![CDATA[$data['payment_method'] = $order_info['payment_method'];]]></search>
             <add><![CDATA[$data['payment_status'] = '';
-            $molliePaymentDeails = $this->model_sale_order->getMolliePayment($this->request->get['order_id']);
-            if(isset($molliePaymentDeails['transaction_id']) && !empty($molliePaymentDeails['transaction_id'])) {
-                $molliePayment = $this->getAPIClient()->payments->get($molliePaymentDeails['transaction_id']);
+            $molliePaymentDetails = $this->model_sale_order->getMolliePayment($this->request->get['order_id']);
+            if(isset($molliePaymentDetails['transaction_id']) && !empty($molliePaymentDetails['transaction_id'])) {
+                $molliePayment = $this->getAPIClient($order_info['store_id'])->payments->get($molliePaymentDetails['transaction_id']);
                 $data['payment_status'] = $molliePayment->status;
 
                 // Check for refunds and settlements
@@ -86,31 +86,7 @@
                         }
                     }                    
                 }
-            }]]></add>
-        </operation>
-        <operation error="log">
-            <search position="after" index="2"><![CDATA[$this->data['payment_method'] = $order_info['payment_method'];]]></search>
-            <add><![CDATA[$data['payment_status'] = '';
-            $molliePaymentDeails = $this->model_sale_order->getMolliePayment($this->request->get['order_id']);
-            if(isset($molliePaymentDeails['transaction_id']) && !empty($molliePaymentDeails['transaction_id'])) {
-                $molliePayment = $this->getAPIClient()->payments->get($molliePaymentDeails['transaction_id']);
-                $this->data['payment_status'] = $molliePayment->status;
-
-                // Check for refunds and settlements
-                if($molliePayment->hasRefunds()) {
-                    $this->data['payment_status'] = 'refunded';
-                }
-
-                if(!empty($molliePayment->settlementId)) {
-                    $accessToken = MollieHelper::generateAccessToken($order_info['store_id']);
-                    if($accessToken && !empty($accessToken)) {
-                        $mollieSettlement = MollieHelper::getAPIClientForAccessToken($accessToken)->settlements->get($molliePayment->settlementId);
-                        if($mollieSettlement->isPaidout()) {
-                            $this->data['payment_status'] = 'settled';
-                        }
-                    } 
-                }
-            }]]></add>
+            } ]]></add>
         </operation>
     </file>
 
@@ -255,7 +231,7 @@
             <search position="before" index="4"><![CDATA[$this->data['email']]]></search>
             <add><![CDATA[
             $moduleCode = MollieHelper::getModuleCode();
-            $apiKey = $this->config->get($moduleCode . "_api_key");
+            $apiKey = MollieHelper::getApiKey($order_info['store_id']);
 
             $this->data['showRefundButton'] = true;
             if(!$apiKey || ($apiKey == '')) {
@@ -267,7 +243,7 @@
             <search position="before" index="2"><![CDATA[$data['shipping']]]></search>
             <add><![CDATA[
             $moduleCode = MollieHelper::getModuleCode();
-            $apiKey = $this->config->get($moduleCode . "_api_key");
+            $apiKey = MollieHelper::getApiKey($order_info['store_id']);
 
             $data['showRefundButton'] = true;
             if(!$apiKey || ($apiKey == '')) {
@@ -278,9 +254,12 @@
         <operation error="log">
             <search position="before"><![CDATA[public function index()]]></search>
             <add><![CDATA[
-    protected function getAPIClient()
+    protected function getAPIClient($store)
     {
-        return MollieHelper::getAPIClient($this->config);
+        $data = $this->config;
+		$data->set(MollieHelper::getModuleCode() . "_api_key", MollieHelper::getApiKey($store));
+
+        return MollieHelper::getAPIClient($data);
     }
 
     public function refund() {
@@ -312,7 +291,7 @@
         }
 
         if(!$json['error']) {
-            $mollieOrder = $this->getAPIClient()->orders->get($mollieOrderDetails['mollie_order_id']);
+            $mollieOrder = $this->getAPIClient($order['store_id'])->orders->get($mollieOrderDetails['mollie_order_id']);
             if($mollieOrder->isPaid() || $mollieOrder->isShipping() || $mollieOrder->isCompleted()) {
 
                 $refundObject = $mollieOrder->refundAll([
