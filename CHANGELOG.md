@@ -2,6 +2,9 @@
 
 # Changelog #
 
+#### Changes in release 9.1.6
+  + Bugfix getting API key from settings table for OC version <3.x
+
 #### Changes in release 9.1.5
   + Bugfix getting active payment methods per Apikey in multi-store environments
 
