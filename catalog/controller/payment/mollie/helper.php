@@ -5,7 +5,7 @@ use Mollie\Api\MollieApiClient;
 
 class MollieHelper
 {
-	const PLUGIN_VERSION = "9.1.5";
+	const PLUGIN_VERSION = "9.1.6";
 	const OUTH_URL = 'https://api.mollie.com/oauth2';
 
 	// All available modules. These should correspond to the Mollie_API_Object_Method constants.
@@ -132,10 +132,7 @@ class MollieHelper
 	}
 
 	public static function getApiKey($store) {
-        $settingModel = Util::load()->model("setting/setting");
-        $apiKey = $settingModel->getSettingValue(self::getModuleCode() . "_api_key", $store);
-
-        return $apiKey;
+        return self::getSettingValue(self::getModuleCode() . "_api_key", $store);
     }
 
 	/**
