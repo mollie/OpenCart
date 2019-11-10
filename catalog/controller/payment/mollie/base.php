@@ -195,9 +195,11 @@ class ControllerPaymentMollieBase extends Controller
     }
 
     protected function convertCurrency($amount) {
-        $currency = $this->session->data['currency'];
-        $configCurrency = $this->config->get("config_currency");
-        return $this->currency->convert($amount, $configCurrency, $currency);
+        $currency = Util::load()->model("localisation/currency");
+        $currencies = $currency->getCurrencies();
+        $convertedAmount = $amount * $currencies[$this->session->data['currency']]['value'];
+
+        return $convertedAmount;
     }
 
     //Format text
@@ -231,7 +233,6 @@ class ControllerPaymentMollieBase extends Controller
         $order = $this->getOpenCartOrder($order_id);
 
         $currency = $this->session->data['currency'];
-        $currency_value = $this->currency->getValue($this->session->data['currency']);
         $amount = $this->convertCurrency($order['total']);
         $description = str_replace("%", $order['order_id'], html_entity_decode($this->config->get(MollieHelper::getModuleCode() . "_ideal_description"), ENT_QUOTES, "UTF-8"));
         $return_url = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/callback&order_id=" . $order['order_id'], "", "SSL");
@@ -315,9 +316,9 @@ class ControllerPaymentMollieBase extends Controller
             //Check if coupon applied
             if(isset($this->session->data['coupon'])) {
                 //Get coupon data
-                $this->load->model('extension/total/coupon');
+                $coupon = Util::load()->model('extension/total/coupon');
 
-                $coupon_info = $this->model_extension_total_coupon->getCoupon($this->session->data['coupon']);
+                $coupon_info = $coupon->getCoupon($this->session->data['coupon']);
 
                 if ($coupon_info) {
                     $discount_total = 0;

@@ -2,6 +2,10 @@
 
 # Changelog #
 
+#### Changes in release 9.1.7
+  + Bugfix currency conversion when store default currency is different than admin default currency
+  + Small code cleanup
+  
 #### Changes in release 9.1.6
   + Bugfix getting API key from settings table for OC version <3.x
 
