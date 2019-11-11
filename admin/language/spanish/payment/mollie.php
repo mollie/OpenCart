@@ -80,23 +80,25 @@ $_['name_mollie_przelewy24']  	 = 'P24';
 $_['name_mollie_applepay']  	 = 'Apple Pay';
 
 // Text
-$_['text_edit']                    = "Corregir Mollie";
-$_['text_payment']                 = "Pago";
-$_['text_success']                 = "Realizado con éxito: ¡los ajustes para el módulo han sido modificados!";
-$_['text_missing_api_key']         = "Por favor, complete su clave API en la pestaña <a data-toggle='tab' href='#' class='settings'>Configuración</a>.";
-$_['text_enable_payment_method']   = 'Active esta forma de pago a través del <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank">panel de control de Mollie</a>.';
-$_['text_activate_payment_method'] = 'Habilite en el <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank">Dashboard de Mollie</a>, o configure la App en la pestaña de configuración para habilitar en esta página.';
-$_['text_no_status_id']            = "- No cambiar de estado (no recomendado) -";
-$_['text_enable']             = "Activar";
-$_['text_disable']            = "Desactivar";
-$_['text_connection_success'] = "Éxito: ¡La conexión con Mollie tiene éxito!";
-$_['text_error'] 			  = "Advertencia: algo salió mal. ¡Por favor, inténtelo de nuevo más tarde!";
-$_['text_creditcard_required'] = "Requiere tarjeta de crédito";
-$_['text_mollie_api'] = "Mollie API";
-$_['text_mollie_app'] = "Mollie App";
-$_['text_general'] 	  = "General";
-$_['text_enquiry'] 	  = "Como podemos ayudarte?";
-$_['text_enquiry_success'] 	  = "Éxito: su consulta ha sido enviada. Nos pondremos en contacto con usted pronto. ¡Gracias!";
+$_['text_edit']                     = "Corregir Mollie";
+$_['text_payment']                  = "Pago";
+$_['text_success']                  = "Realizado con éxito: ¡los ajustes para el módulo han sido modificados!";
+$_['text_missing_api_key']          = "Por favor, complete su clave API en la pestaña <a data-toggle='tab' href='#' class='settings'>Configuración</a>.";
+$_['text_enable_payment_method']    = 'Active esta forma de pago a través del <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank">panel de control de Mollie</a>.';
+$_['text_activate_payment_method']  = 'Habilite en el <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank">Dashboard de Mollie</a>, o configure la App en la pestaña de configuración para habilitar en esta página.';
+$_['text_no_status_id']             = "- No cambiar de estado (no recomendado) -";
+$_['text_enable']                   = "Activar";
+$_['text_disable']                  = "Desactivar";
+$_['text_connection_success']       = "Éxito: ¡La conexión con Mollie tiene éxito!";
+$_['text_error'] 			        = "Advertencia: algo salió mal. ¡Por favor, inténtelo de nuevo más tarde!";
+$_['text_creditcard_required']      = "Requiere tarjeta de crédito";
+$_['text_mollie_api']               = "Mollie API";
+$_['text_mollie_app']               = "Mollie App";
+$_['text_general'] 	                = "General";
+$_['text_enquiry'] 	                = "Como podemos ayudarte?";
+$_['text_enquiry_success'] 	        = "Éxito: su consulta ha sido enviada. Nos pondremos en contacto con usted pronto. ¡Gracias!";
+$_['text_update_message']           = "Mollie: hay una versión actualizada (%s) disponible del módulo Mollie. Haga clic en <a href='%s'>aquí</a> para actualizar.";
+$_['text_update_success']          = "Éxito: el módulo Mollie se ha actualizado a la versión %s.";
 
 // Entry
 $_['entry_payment_method']           = "Método de pago";

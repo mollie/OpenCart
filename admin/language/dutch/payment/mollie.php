@@ -96,7 +96,9 @@ $_['text_mollie_api'] = "Mollie API";
 $_['text_mollie_app'] = "Mollie App";
 $_['text_general'] 	  = "Algemeen";
 $_['text_enquiry'] 	  = "Hoe kunnen we u helpen?";
-$_['text_enquiry_success'] 	  = "Succes: Uw aanvraag is ingediend. We nemen zo snel mogelijk contact met u op. Dank je!";
+$_['text_enquiry_success'] 	  = "Succes: Uw aanvraag is ingediend. We nemen zo snel mogelijk contact met u op.";
+$_['text_update_message']          = "Mollie: Er is een geüpdatet versie (%s) van de Mollie module beschikbaar. Klik <a href='%s'>hier</a> om te updaten.";
+$_['text_update_success']          = "Succes: Mollie module is geüpdatet naar versie %s.";
 
 // Entry
 $_['entry_payment_method']           = "Betaalmethode";

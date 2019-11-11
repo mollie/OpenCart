@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2012-2015, Mollie B.V.
+ * Copyright (c) 2012-2019, Mollie B.V.
  * All rights reserved. 
  * 
  * Redistribution and use in source and binary forms, with or without 
@@ -80,23 +80,25 @@ $_['name_mollie_przelewy24']  	 = 'P24';
 $_['name_mollie_applepay']  	 = 'Apple Pay';
 
 // Text
-$_['text_edit']                    = "Éditer Mollie";
-$_['text_payment']                 = "Paiement";
-$_['text_success']                 = "Succès: Vous avez réussi à modifier les paramètres Mollie!";
-$_['text_missing_api_key']         = "S'il vous plaît remplir votre clé API dans l'onglet <a data-toggle='tab' href='#' class='settings'>Paramètres</a>.";
-$_['text_enable_payment_method']   = 'Activer ce mode de paiement via le <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank">Mollie dashboard</a>.';
-$_['text_activate_payment_method'] = 'Activer dans le <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank">tableau de bord Mollie<a/> ou configurer l\'application dans l\'onglet "reglages" pour l\'activer sur cette page.';
-$_['text_no_status_id']            = '- Ne pas mettre à jour le statut (non recommandé) -';
-$_['text_enable']             = "Activer";
-$_['text_disable']            = "Désactiver";
-$_['text_connection_success'] = "Succès: Connexion à Mollie réussie!";
-$_['text_error'] 			  = "Avertissement: quelque chose s'est mal passé. Veuillez réessayer plus tard!";
-$_['text_creditcard_required'] = "Nécessite une carte de crédit";
-$_['text_mollie_api'] = "Mollie API";
-$_['text_mollie_app'] = "Mollie App";
-$_['text_general'] 	  = "Général";
-$_['text_enquiry'] 	  = "Comment pouvons-nous vous aider?";
-$_['text_enquiry_success'] 	  = "Succès: Votre demande a été soumise. Nous reviendrons vers vous bientôt. Je vous remercie!";
+$_['text_edit']                     = "Éditer Mollie";
+$_['text_payment']                  = "Paiement";
+$_['text_success']                  = "Succès: Vous avez réussi à modifier les paramètres Mollie!";
+$_['text_missing_api_key']          = "S'il vous plaît remplir votre clé API dans l'onglet <a data-toggle='tab' href='#' class='settings'>Paramètres</a>.";
+$_['text_enable_payment_method']    = 'Activer ce mode de paiement via le <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank">Mollie dashboard</a>.';
+$_['text_activate_payment_method']  = 'Activer dans le <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank">tableau de bord Mollie<a/> ou configurer l\'application dans l\'onglet "reglages" pour l\'activer sur cette page.';
+$_['text_no_status_id']             = '- Ne pas mettre à jour le statut (non recommandé) -';
+$_['text_enable']                   = "Activer";
+$_['text_disable']                  = "Désactiver";
+$_['text_connection_success']       = "Succès: Connexion à Mollie réussie!";
+$_['text_error'] 			        = "Avertissement: quelque chose s'est mal passé. Veuillez réessayer plus tard!";
+$_['text_creditcard_required']      = "Nécessite une carte de crédit";
+$_['text_mollie_api']               = "Mollie API";
+$_['text_mollie_app']               = "Mollie App";
+$_['text_general'] 	                = "Général";
+$_['text_enquiry'] 	                = "Comment pouvons-nous vous aider?";
+$_['text_enquiry_success'] 	        = "Succès: Votre demande a été soumise. Nous reviendrons vers vous bientôt. Je vous remercie!";
+$_['text_update_message']           = "Une nouvelle version (%s) du module Mollie est disponible. Cliquez <a href='%s'>ici</a> pour mettre à jour.";
+$_['text_update_success']          = "Succès: le module Mollie a été mis à jour vers la version %s.";
 
 // Entry
 $_['entry_payment_method']           = "Procédé de paiement";
@@ -156,10 +158,10 @@ $_['entry_expired_status']    = "État de paiement expiré";
 $_['entry_processing_status'] = "État de paiement traitement";
 $_['entry_refund_status']	  = "État de paiement rembourser";
 
-$_['entry_shipping_status']   = "Statut de la commande expédiée";
-$_['entry_shipment']       			 = "Créer un envoi";
-$_['entry_create_shipment_status']   = "Créer un envoi après le statut de la commande";
-$_['help_shipment'] 				 = "Envoi (pour les méthodes klarna uniquement) sera créé juste après la création de la commande. Sélectionnez «Non» pour créer une expédition lorsque la commande atteint un statut spécifique et sélectionnez le statut de la commande ci-dessous.";
+$_['entry_shipping_status']         = "Statut de la commande expédiée";
+$_['entry_shipment']       			= "Créer un envoi";
+$_['entry_create_shipment_status']  = "Créer un envoi après le statut de la commande";
+$_['help_shipment'] 				= "Envoi (pour les méthodes klarna uniquement) sera créé juste après la création de la commande. Sélectionnez «Non» pour créer une expédition lorsque la commande atteint un statut spécifique et sélectionnez le statut de la commande ci-dessous.";
 
 $_['text_create_shipment_automatically']            = "Créer automatiquement l'envoi lors de la création de la commande";
 $_['text_create_shipment_on_status']                = "Créer un envoi lors du réglage de la commande à ce statut";
@@ -167,7 +169,7 @@ $_['text_create_shipment_on_order_complete']        = "Créer une expédition lo
 $_['entry_create_shipment_on_order_complete'] 		= "Créer une expédition à la fin de la commande";
 
 //Button
-$_['button_update'] = "Mettre à jour";
+$_['button_update']         = "Mettre à jour";
 $_['button_mollie_connect'] = "Connect via Mollie";
 
 //Error log

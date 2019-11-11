@@ -97,6 +97,8 @@ $_['text_mollie_app'] = "Mollie App";
 $_['text_general'] 	  = "General";
 $_['text_enquiry'] 	  = "How can we help you?";
 $_['text_enquiry_success'] 	  = "Success: Your enquiry has been submitted. We'll get back to you soon. Thank you!";
+$_['text_update_message']          = "Mollie: There is an updated version (%s) available of the Mollie module. Click <a href='%s'>here</a> to update.";
+$_['text_update_success']          = "Success: Mollie module has been updated to version %s.";
 
 // Entry
 $_['entry_payment_method']           = "Payment method";
