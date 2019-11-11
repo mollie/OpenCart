@@ -69,24 +69,50 @@
             <add><![CDATA[$data['payment_status'] = '';
             $molliePaymentDetails = $this->model_sale_order->getMolliePayment($this->request->get['order_id']);
             if(isset($molliePaymentDetails['transaction_id']) && !empty($molliePaymentDetails['transaction_id'])) {
-                $molliePayment = $this->getAPIClient($order_info['store_id'])->payments->get($molliePaymentDetails['transaction_id']);
-                $data['payment_status'] = $molliePayment->status;
+                try {
+                    $molliePayment = $this->getAPIClient($order_info['store_id'])->payments->get($molliePaymentDetails['transaction_id']);
+                     $data['payment_status'] = $molliePayment->status;
 
-                // Check for refunds and settlements
-                if($molliePayment->hasRefunds()) {
-                    $data['payment_status'] = 'refunded';
-                }
-
-                if(!empty($molliePayment->settlementId)) {
-                    $accessToken = MollieHelper::generateAccessToken($order_info['store_id']);
-                    if($accessToken && !empty($accessToken)) {
-                        $mollieSettlement = MollieHelper::getAPIClientForAccessToken($accessToken)->settlements->get($molliePayment->settlementId);
-                        if($mollieSettlement->isPaidout()) {
-                            $data['payment_status'] = 'settled';
+                     // Check for refunds and settlements
+                    if($molliePayment->hasRefunds()) {
+                        $data['payment_status'] = 'refunded';
+                    }
+                    if(!empty($molliePayment->settlementId)) {
+                        $accessToken = MollieHelper::generateAccessToken($order_info['store_id']);
+                        if($accessToken && !empty($accessToken)) {
+                            $mollieSettlement = MollieHelper::getAPIClientForAccessToken($accessToken)->settlements->get($molliePayment->settlementId);
+                            if($mollieSettlement->isPaidout()) {
+                                $data['payment_status'] = 'settled';
+                            }
                         }
-                    }                    
-                }
+                    }
+                } catch (Mollie\Api\Exceptions\ApiException $e) {}
             } ]]></add>
+        </operation>
+        <operation error="log">
+            <search position="after" index="2"><![CDATA[$this->data['payment_method'] = $order_info['payment_method'];]]></search>
+            <add><![CDATA[$this->data['payment_status'] = '';
+            $molliePaymentDeails = $this->model_sale_order->getMolliePayment($this->request->get['order_id']);
+            if(isset($molliePaymentDeails['transaction_id']) && !empty($molliePaymentDeails['transaction_id'])) {
+                 try {
+                    $molliePayment = $this->getAPIClient($order_info['store_id'])->payments->get($molliePaymentDetails['transaction_id']);
+                     $this->data['payment_status'] = $molliePayment->status;
+
+                     // Check for refunds and settlements
+                    if($molliePayment->hasRefunds()) {
+                        $this->data['payment_status'] = 'refunded';
+                    }
+                    if(!empty($molliePayment->settlementId)) {
+                        $accessToken = MollieHelper::generateAccessToken($order_info['store_id']);
+                        if($accessToken && !empty($accessToken)) {
+                            $mollieSettlement = MollieHelper::getAPIClientForAccessToken($accessToken)->settlements->get($molliePayment->settlementId);
+                            if($mollieSettlement->isPaidout()) {
+                                $this->data['payment_status'] = 'settled';
+                            }
+                        }
+                    }
+                } catch (Mollie\Api\Exceptions\ApiException $e) {}
+            }]]></add>
         </operation>
     </file>
 
@@ -633,5 +659,89 @@ if (!confirm('{{ text_confirm_refund }}')) {
 ]]></add>
         </operation>
     </file>
+    <file name="admin/view/template/common/dashboard.twig">
+        <operation error="log">
+            <search position="replace"><![CDATA[<div class="container-fluid">{% if error_install %}]]></search>
+            <add><![CDATA[<div class="container-fluid">{% if success %}
+    <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}{% if error_install %}]]></add>
+        </operation>
+    </file>
+    <file name="admin/view/template/common/dashboard.tpl">
+        <operation error="log">
+            <search position="after"><![CDATA[<div class="container-fluid">]]></search>
+            <add><![CDATA[<?php if ($success) { ?>
+    <div class="alert alert-success"><i class="fa fa-check-circle"></i> <?php echo $success; ?>
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    <?php } ?>]]></add>
+        </operation>
+    </file>
+    <file name="admin/view/template/common/home.tpl">
+        <operation error="log">
+            <search position="after"><![CDATA[<?php echo $header; ?>]]></search>
+            <add><![CDATA[    <?php if ($success) { ?>
+    <div class="success"><?php echo $success; ?></div>
+    <?php } ?>]]></add>
+        </operation>
+    </file>
+    <file name="admin/controller/common/dashboard.php">
+        <operation error="log">
+            <search position="before"><![CDATA[$this->load->language('common/dashboard');]]></search>
+            <add><![CDATA[      $this->load->model('setting/extension');
 
+        $extensions = $this->model_setting_extension->getInstalled('payment');
+
+        foreach ($extensions as $key => $value) {
+            if ($value == 'mollie_ideal') {
+                require_once(dirname(DIR_SYSTEM) . "/catalog/controller/payment/mollie/helper.php");
+                $this->load->library("mollieHttpClient");
+                $client = new mollieHttpClient();
+                $info = $client->get("https://api.github.com/repos/mollie/OpenCart/releases/latest");
+
+                if ($info["tag_name"] && $info["tag_name"] != MollieHelper::PLUGIN_VERSION && version_compare(MollieHelper::PLUGIN_VERSION, $info["tag_name"], "<")) {
+                    $this->load->language('payment/mollie_ideal');
+
+                    if(version_compare(VERSION, '3.0', '<') == true) {
+                        $token = 'token=' . $this->session->data['token'];
+                    } else {
+                        $token = 'user_token=' . $this->session->data['user_token'];
+                    }
+
+                    $data['success'] = sprintf($this->language->get('text_update_message'), $info["tag_name"], $this->url->link("payment/mollie_ideal/update", $token));
+                } else {
+                    $data['success'] = '';
+                }
+            }
+        }
+]]></add>
+        </operation>
+    </file>
+    <file name="admin/controller/common/home.php">
+        <operation error="log">
+            <search position="before"><![CDATA[$this->language->load('common/home');]]></search>
+            <add><![CDATA[      $this->load->model('setting/extension');
+
+        $extensions = $this->model_setting_extension->getInstalled('payment');
+
+        foreach ($extensions as $key => $value) {
+            if ($value == 'mollie_ideal') {
+                require_once(dirname(DIR_SYSTEM) . "/catalog/controller/payment/mollie/helper.php");
+                $this->load->library("mollieHttpClient");
+                $client = new mollieHttpClient();
+                $info = $client->get("https://api.github.com/repos/mollie/OpenCart/releases/latest");
+
+                if ($info["tag_name"] && $info["tag_name"] != MollieHelper::PLUGIN_VERSION && version_compare(MollieHelper::PLUGIN_VERSION, $info["tag_name"], "<")) {
+                    $this->language->load('payment/mollie_ideal');
+                    $this->data['success'] = sprintf($this->language->get('text_update_message'), $info["tag_name"], HTTPS_SERVER . 'index.php?route=payment/mollie_ideal/update&token=' . $this->session->data['token']);
+                } else {
+                    $this->data['success'] = '';
+                }
+            }
+        }
+]]></add>
+        </operation>
+    </file>
 </modification>

@@ -2,6 +2,13 @@
 
 # Changelog #
 
+#### Changes in release 9.1.8
+  + Added update message on Opencart Dashboard when new version of Mollie is available
+  + Payment status will not be shown on order info page if an error is thrown from Mollie (instead of onscreen error)
+  + Moved update button from bottom of module to button location in top-right
+  + Cleaned up some code -- removed double patching locations
+  + Updated Util to support Unique parameter for patching
+
 #### Changes in release 9.1.7
   + Bugfix currency conversion when store default currency is different than admin default currency
   + Small code cleanup

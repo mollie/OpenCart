@@ -55,10 +55,16 @@ class PatchTable
                         $query .= ",";
                     }
 
-                    if($action["default"]!==null && $action["default"]!==false){
+                    if ($action["default"]!==null && $action["default"]!==false){
                         $action["default"]="'".$action["default"]."'";
                     }
-                    $query .= "ADD `" . $action["name"] . "` " . $action["type"]. ($action["default"]!==false?" DEFAULT ".$action["default"]:"");
+
+                    $query .= "ADD `" . $action["name"] . "` " . $action["type"]. ($action["default"]!==false?" DEFAULT " . $action["default"]:"");
+
+                    if ($action["unique"] !== false) {
+                        $query .= " UNIQUE (`" . $action["unique"] . "`)";
+                    }
+
                     $i++;
                 }
             }
@@ -74,7 +80,12 @@ class PatchTable
                     if($action["default"]!==null && $action["default"]!==false){
                         $action["default"]="'".$action["default"]."'";
                     }
+
                     $query .= "MODIFY `" . $action["name"] . "` " . $action["type"]. ($action["default"]!==false?" DEFAULT ".$action["default"]:"");
+
+                    if ($action["unique"] !== false) {
+                        $query .= " UNIQUE (`" . $action["unique"] . "`)";
+                    }
                     $i++;
                 }
             }
@@ -128,24 +139,26 @@ class PatchTable
         return $this;
     }
 
-    function addField($field, $type,$default=false)
+    function addField($field, $type, $default=false, $unique=false)
     {
         $this->actions["addField"][] = array(
-            "name" => $field,
-            "type" => $type,
-            "default"=>$default
+            "name"    => $field,
+            "type"    => $type,
+            "default" => $default,
+            "unique"  => $unique
         );
 
         return $this;
     }
 
 
-    function editField($field, $type,$default=false)
+    function editField($field, $type, $default=false, $unique=false)
     {
         $this->actions["editField"][] = array(
-            "name" => $field,
-            "type" => $type,
-            "default"=>$default
+            "name"    => $field,
+            "type"    => $type,
+            "default" => $default,
+            "unique"  => $unique
         );
 
         return $this;
