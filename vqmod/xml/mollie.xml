@@ -690,9 +690,16 @@ if (!confirm('{{ text_confirm_refund }}')) {
     <file name="admin/controller/common/dashboard.php">
         <operation error="log">
             <search position="before"><![CDATA[$this->load->language('common/dashboard');]]></search>
-            <add><![CDATA[      $this->load->model('setting/extension');
+            <add><![CDATA[      if(version_compare(VERSION, '3.0', '<') == true) {
+            $this->load->model('extension/extension');
 
-        $extensions = $this->model_setting_extension->getInstalled('payment');
+            $extensions = $this->model_extension_extension->getInstalled('payment');
+        } else {
+            $this->load->model('setting/extension');
+
+            $extensions = $this->model_setting_extension->getInstalled('payment');
+
+        }
 
         foreach ($extensions as $key => $value) {
             if ($value == 'mollie_ideal') {

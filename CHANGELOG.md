@@ -2,6 +2,9 @@
 
 # Changelog #
 
+#### Changes in release 9.1.9
+  + Fixed model load error on dashboard OC2.x
+
 #### Changes in release 9.1.8
   + Added update message on Opencart Dashboard when new version of Mollie is available
   + Payment status will not be shown on order info page if an error is thrown from Mollie (instead of onscreen error)
