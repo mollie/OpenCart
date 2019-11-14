@@ -32,7 +32,7 @@
  */
 
 /**
- * English language file for iDEAL by Mollie
+ * French language file for iDEAL by Mollie
  */
 
 // Text
