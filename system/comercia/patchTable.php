@@ -61,10 +61,6 @@ class PatchTable
 
                     $query .= "ADD `" . $action["name"] . "` " . $action["type"]. ($action["default"]!==false?" DEFAULT " . $action["default"]:"");
 
-                    if ($action["unique"] !== false) {
-                        $query .= " UNIQUE (`" . $action["unique"] . "`)";
-                    }
-
                     $i++;
                 }
             }
@@ -82,10 +78,7 @@ class PatchTable
                     }
 
                     $query .= "MODIFY `" . $action["name"] . "` " . $action["type"]. ($action["default"]!==false?" DEFAULT ".$action["default"]:"");
-
-                    if ($action["unique"] !== false) {
-                        $query .= " UNIQUE (`" . $action["unique"] . "`)";
-                    }
+					
                     $i++;
                 }
             }
@@ -112,53 +105,74 @@ class PatchTable
                 }
             }
         }
+		
+        if (isset($this->actions["addUnique"])) {
+            foreach ($this->actions["addUnique"] as $action) {
+                $this->db->query("ALTER TABLE `" . $prefix . $this->name . "` ADD UNIQUE (`" . $action["name"] . "`);");
+            }
+        }
     }
 
     function create()
     {
-        $prefix = DB_PREFIX;
-        $query = "create table `" . $prefix . $this->name . "` (
-               `".$this->name."_id` INT NOT NULL AUTO_INCREMENT
-            ";
+		if (!$this->exists($this->name)) {
+			$prefix = DB_PREFIX;
+			$query = "create table `" . $prefix . $this->name . "` (";
 
-        if (isset($this->actions["addField"])) {
-            foreach ($this->actions["addField"] as $action) {
-                $query .= ",`" . $action["name"] . "` " . $action["type"];
-            }
-        }
-        $query .= ",PRIMARY KEY (".$this->name."_id))";
+			$i = 0;
+			if (isset($this->actions["addField"])) {
+				foreach ($this->actions["addField"] as $action) {
+					if ($i > 0) {
+						$query .= ",";
+					}
+					
+					$query .= "`" . $action["name"] . "` " . $action["type"];
+					
+					if (strtolower($action['default']) == 'primary') {
+						$primary = $action["name"];
+					}
+					
+					$i++;
+				}
+			}
+			$query .= ",PRIMARY KEY (".$primary."))";
 
-        $this->db->query($query);
+			$this->db->query($query);
 
-        if (isset($this->actions["addIndex"])) {
-            foreach ($this->actions["addIndex"] as $action) {
-                $this->db->query("CREATE INDEX `" . $action["name"] . "` ON `" . $prefix . $this->name . "` (`" . $action["name"] . "`);");
-            }
-        }
+			if (isset($this->actions["addIndex"])) {
+				foreach ($this->actions["addIndex"] as $action) {
+					$this->db->query("CREATE INDEX `" . $action["name"] . "` ON `" . $prefix . $this->name . "` (`" . $action["name"] . "`);");
+				}
+			}
+			
+			if (isset($this->actions["addUnique"])) {
+				foreach ($this->actions["addUnique"] as $action) {
+					$this->db->query("ALTER TABLE `" . $prefix . $this->name . "` ADD UNIQUE (`" . $action["name"] . "`);");
+				}
+			}
 
-        return $this;
+			return $this;
+		}
     }
 
-    function addField($field, $type, $default=false, $unique=false)
+    function addField($field, $type, $default=false)
     {
         $this->actions["addField"][] = array(
             "name"    => $field,
             "type"    => $type,
-            "default" => $default,
-            "unique"  => $unique
+            "default" => $default
         );
 
         return $this;
     }
 
 
-    function editField($field, $type, $default=false, $unique=false)
+    function editField($field, $type, $default=false)
     {
         $this->actions["editField"][] = array(
             "name"    => $field,
             "type"    => $type,
-            "default" => $default,
-            "unique"  => $unique
+            "default" => $default
         );
 
         return $this;
@@ -176,6 +190,15 @@ class PatchTable
     function addIndex($field)
     {
         $this->actions["addIndex"][] = array(
+            "name" => $field,
+        );
+
+        return $this;
+    }
+
+    function addUnique($field)
+    {
+        $this->actions["addUnique"][] = array(
             "name" => $field,
         );
 

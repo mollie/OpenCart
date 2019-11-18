@@ -228,32 +228,6 @@ class ControllerPaymentMollieBase extends Controller {
 	 * @return void
 	 */
 	public function install () {
-		$this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "mollie_payments` (
-					`order_id` int(11) unsigned NOT NULL,
-					`method`varchar(32) NOT NULL,
-					`mollie_order_id` varchar(32) NOT NULL,
-					`transaction_id` varchar(32),
-					`bank_account` varchar(15),
-					`bank_status` varchar(20),
-					`refund_id` varchar(32),
-					PRIMARY KEY (`order_id`),
-					UNIQUE KEY `mollie_order_id` (`mollie_order_id`)
-				) ENGINE=InnoDB DEFAULT CHARSET=utf8");
-
-		$this->db->query("ALTER TABLE `" . DB_PREFIX . "order` MODIFY `payment_method` VARCHAR(255) NOT NULL;");
-
-		// Add 'mollie_order_id' column if not exists(from old extension)
-		$query = $this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "mollie_payments` WHERE Field = 'mollie_order_id'");
-		if($query->num_rows == 0) {
-			$this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_payments` ADD `mollie_order_id` VARCHAR(32) NOT NULL AFTER `bank_status`, ADD UNIQUE `mollie_order_id` (`mollie_order_id`)");
-		}
-
-		// Add 'refund_id' column if not exists
-		$query = $this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "mollie_payments` WHERE Field = 'refund_id'");
-		if($query->num_rows == 0) {
-			$this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_payments` ADD `refund_id` VARCHAR(32) AFTER `bank_status`");
-		}
-
 		// Just install all modules while we're at it.
 		$this->installAllModules();
 		$this->cleanUp();
