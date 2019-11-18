@@ -3,6 +3,7 @@ use comercia\Util;
 
 return function () {
     Util::patch()->table("mollie_payments")
-        ->addField("mollie_order_id", "VARCHAR(32)", false, "mollie_order_id")
+        ->addField("mollie_order_id", "VARCHAR(32)")
+		->addUnique("mollie_order_id")
         ->update();
 };
