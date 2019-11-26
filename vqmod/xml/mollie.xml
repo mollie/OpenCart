@@ -1,6 +1,6 @@
 <modification>
     <id>Quality Works - Mollie</id>
-    <version>1.2.4</version>
+    <version>1.2.5</version>
     <vqmver>2.3.0</vqmver>
     <author>Quality Works</author>
 
@@ -305,7 +305,7 @@
         $order_id = $this->request->get['order_id'];
         $order = $this->model_sale_order->getOrder($order_id);
 
-        $mollieOrderDetails = $this->model_sale_order->getMollieOrderDetails($order_id);
+        $mollieOrderDetails = $this->model_sale_order->getMolliePayment($order_id);
         if(!$mollieOrderDetails) {
             $log->write("Mollie order(mollie_order_id) not found for order_id - $order_id");
             $json['error'] = $this->language->get('text_order_not_found');
@@ -354,16 +354,7 @@
     <file name="admin/model/sale/order.php">
         <operation error="log">
             <search position="before"><![CDATA[public function getOrder($order_id)]]></search>
-            <add><![CDATA[public function getMollieOrderDetails($order_id) {
-        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE order_id = '" . (int)$order_id . "'");
-
-        if($query->num_rows) {
-            return $query->row;
-        }
-
-        return false;
-    }
-
+            <add><![CDATA[
     public function updateMolliePayment($order_id, $refund_id, $payment_status) {
         $this->db->query("UPDATE `" . DB_PREFIX . "mollie_payments` SET refund_id = '" . $refund_id . "', bank_status = '" . $payment_status . "' WHERE order_id = '" . (int)$order_id . "'");
     }

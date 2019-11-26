@@ -2,6 +2,12 @@
 
 # Changelog #
 
+#### Changes in release 9.1.12
+  + Bugfix in database table patching
+  + Bugfix model load
+  + Bugfix PatchTable
+  + Cleaned up code
+
 #### Changes in release 9.1.11
   + Bugfix in database table patching
   

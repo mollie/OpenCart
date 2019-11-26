@@ -6,19 +6,20 @@ class Patch
     var $db;
     function __construct()
     {
-        $prefix=DB_PREFIX;
         require_once(__DIR__."/patchTable.php");
         $this->db=Util::registry()->get("db");
 
-        $table = $this->table("comercia_patch");
-        if (!$table->exists()) {
-            $table->addField("path","varchar(255)");
-            $table->addField("patch", "varchar(50)");
-            $table->addField("success", "int");
-            $table->addField("date", "int");
-            $table->create();
-        }
+        $this->table("comercia_patch")
+            ->addField("comercia_patch_id", "INT NOT NULL AUTO_INCREMENT", "primary")
+            ->addField("path", "varchar(255)")
+            ->addField("patch", "varchar(50)")
+            ->addField("success", "int")
+            ->addField("date", "int")
+            ->create();
 
+        $this->table("comercia_patch")
+            ->addField("comercia_patch_id", "INT NOT NULL AUTO_INCREMENT", "primary")
+            ->update();
     }
 
     function runPatchesFromFile($path){

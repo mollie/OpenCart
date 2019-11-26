@@ -55,11 +55,15 @@ class PatchTable
                         $query .= ",";
                     }
 
-                    if ($action["default"]!==null && $action["default"]!==false){
+                    if ($action["default"]!==null && $action["default"]!==false && $action["default"]!=='primary'){
                         $action["default"]="'".$action["default"]."'";
                     }
 
-                    $query .= "ADD `" . $action["name"] . "` " . $action["type"]. ($action["default"]!==false?" DEFAULT " . $action["default"]:"");
+                    $query .= "ADD `" . $action["name"] . "` " . $action["type"]. (($action["default"]!==false && $action["default"]!=='primary')?" DEFAULT " . $action["default"]:"");
+
+                    if (strtolower($action['default']) == 'primary') {
+                        $query .= ", ADD PRIMARY KEY (" . $action["name"] . ")";
+                    }
 
                     $i++;
                 }
@@ -73,12 +77,16 @@ class PatchTable
                         $query .= ",";
                     }
 
-                    if($action["default"]!==null && $action["default"]!==false){
+                    if($action["default"]!==null && $action["default"]!==false && $action["default"]!=='primary'){
                         $action["default"]="'".$action["default"]."'";
                     }
 
-                    $query .= "MODIFY `" . $action["name"] . "` " . $action["type"]. ($action["default"]!==false?" DEFAULT ".$action["default"]:"");
-					
+                    $query .= "MODIFY `" . $action["name"] . "` " . $action["type"]. (($action["default"]!==false && $action["default"]!=='primary')?" DEFAULT ".$action["default"]:"");
+
+                    if (strtolower($action['default']) == 'primary') {
+                        $query .= ", ADD PRIMARY KEY (" . $action["name"] . ")";
+                    }
+
                     $i++;
                 }
             }
@@ -117,6 +125,7 @@ class PatchTable
     {
 		if (!$this->exists($this->name)) {
 			$prefix = DB_PREFIX;
+			$primary = false;
 			$query = "create table `" . $prefix . $this->name . "` (";
 
 			$i = 0;
@@ -135,7 +144,13 @@ class PatchTable
 					$i++;
 				}
 			}
-			$query .= ",PRIMARY KEY (".$primary."))";
+
+			if ($primary) {
+                $query .= ",PRIMARY KEY (" . $primary . ")";
+            }
+
+			$query .= ")";
+
 
 			$this->db->query($query);
 
