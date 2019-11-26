@@ -380,6 +380,10 @@ class Load
                 [
                     "" => "extension/event",
                     "3.0" => "setting/event"
+                ],
+                [
+                    "" => "total/coupon",
+                    "2.3" => "extension/total/coupon"
                 ]
             ]
         );

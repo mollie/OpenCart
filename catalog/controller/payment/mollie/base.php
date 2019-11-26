@@ -316,7 +316,11 @@ class ControllerPaymentMollieBase extends Controller
             //Check if coupon applied
             if(isset($this->session->data['coupon'])) {
                 //Get coupon data
-                $coupon = Util::load()->model('extension/total/coupon');
+                if(Util::version()->isMaximal("2.0.3.1")) {
+                    $coupon = Util::load()->model('checkout/coupon');
+                } else {
+                    $coupon = Util::load()->model('total/coupon');
+                }               
 
                 $coupon_info = $coupon->getCoupon($this->session->data['coupon']);
 

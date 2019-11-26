@@ -12,6 +12,11 @@ class StringHelper
     }
 
     function rewriteForVersion($string,$words){
+        // Check if file exists
+        if(file_exists(DIR_APPLICATION . 'model/' . $string . '.php')) {
+            return $string;
+        }
+
         foreach($words as $word){
             $match=false;
             $versionMatch=@isset($word[0])?:array_values($word)[0];
