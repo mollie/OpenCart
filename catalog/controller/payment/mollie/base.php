@@ -57,6 +57,31 @@ class ControllerPaymentMollieBase extends Controller
     // Current module name - should be overwritten by subclass using one of the values below.
     const MODULE_NAME = null;
 
+    // List of accepted languages by mollie
+    private $locales = array(
+                'en_US',
+                'nl_NL',
+                'nl_BE',
+                'fr_FR',
+                'fr_BE',
+                'de_DE',
+                'de_AT',
+                'de_CH',
+                'es_ES',
+                'ca_ES',
+                'pt_PT',
+                'it_IT',
+                'nb_NO',
+                'sv_SE',
+                'fi_FI',
+                'da_DK',
+                'is_IS',
+                'hu_HU',
+                'pl_PL',
+                'lv_LV',
+                'lt_LT'
+            );
+
     /**
      * @return MollieApiClient
      */
@@ -180,12 +205,60 @@ class ControllerPaymentMollieBase extends Controller
         $payment_method = $this->getAPIClient()->methods->get(static::MODULE_NAME, array('include' => 'issuers'));
 
         // Set template data.
-        $data['action'] = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/payment", "", "SSL");
-        $data['image'] = $payment_method->image->size1x;
-        $data['message'] = $this->language;
-        $data['issuers'] = isset($payment_method->issuers) ? $payment_method->issuers : array();
-        $data['text_issuer'] = $this->language->get("text_issuer_" . static::MODULE_NAME);
-        $data['set_issuer_url'] = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/set_issuer", "", "SSL");
+        $data['action']                  = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/payment", "", "SSL");
+        $data['image']                   = $payment_method->image->size1x;
+        $data['message']                 = $this->language;
+        $data['issuers']                 = isset($payment_method->issuers) ? $payment_method->issuers : array();
+        $data['text_issuer']             = $this->language->get("text_issuer_" . static::MODULE_NAME);
+        $data['set_issuer_url']          = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/set_issuer", "", "SSL");
+        $data['entry_card_holder']       = $this->language->get('entry_card_holder');
+        $data['entry_card_number']       = $this->language->get('entry_card_number');
+        $data['entry_expiry_date']       = $this->language->get('entry_expiry_date');
+        $data['entry_verification_code'] = $this->language->get('entry_verification_code');
+        $data['text_card_details']       = $this->language->get('text_card_details');
+        $data['error_card']              = $this->language->get('error_card');
+        $data['text_mollie_payments']    = sprintf($this->language->get('text_mollie_payments'), '<a href="https://www.mollie.com/" target="_blank"><img src=" https://www.mollie.com/images/logo.png" alt="Mollie" border="0"></a>');
+
+        // Mollie components
+        $data['mollieComponents'] = false;
+        if(static::MODULE_NAME == 'creditcard') {
+            if($this->config->get(MollieHelper::getModuleCode() . "_mollie_component")) {
+                // Get current profile
+                $data['currentProfile'] = $this->getAPIClient()->profiles->getCurrent()->id;
+
+                if (strstr(isset($this->session->data['language']) ? $this->session->data['language'] : $this->config->get('config_language'), '-')) {
+                    list ($language, $country) = explode('-', isset($this->session->data['language']) ? $this->session->data['language'] : $this->config->get('config_language'));
+                    $locale = strtolower($language) . '_' . strtoupper($country);
+                } else {
+                    $locale = strtolower(isset($this->session->data['language']) ? $this->session->data['language'] : $this->config->get('config_language')) . '_' . strtoupper(isset($this->session->data['language']) ? $this->session->data['language'] : $this->config->get('config_language'));
+                }
+
+                if (!in_array($locale, $this->locales)) {
+                    $locale = $this->config->get(MollieHelper::getModuleCode() . "_payment_screen_language");
+                    if (strstr($locale, '-')) {
+                        list ($language, $country) = explode('-', $locale);
+                        $locale = strtolower($language) . '_' . strtoupper($country);
+                    } else {
+                        $locale = strtolower($locale) . '_' . strtoupper($locale);
+                    }
+                }
+
+                if((strtolower($locale) == 'en_gb') || (strtolower($locale) == 'en_en')) {
+                    $locale = 'en_US';
+                }
+                $data['locale']           = $locale;
+                $data['mollieComponents'] = true;
+                $data['base_input_css']    = $this->config->get(MollieHelper::getModuleCode() . "_mollie_component_css_base");
+                $data['valid_input_css']   = $this->config->get(MollieHelper::getModuleCode() . "_mollie_component_css_valid");
+                $data['invalid_input_css'] = $this->config->get(MollieHelper::getModuleCode() . "_mollie_component_css_invalid");
+                $apiKey =  $this->config->get(MollieHelper::getModuleCode() . "_api_key");
+                if(strpos($apiKey, 'test_') !== false) {
+                    $data['testMode'] = true;
+                } else {
+                    $data['testMode'] = false;
+                }
+            }
+        }
 
         // Return HTML output - it will get appended to confirm.tpl.
         if (Util::version()->isMaximal("1.5.6.4")) {
@@ -224,7 +297,6 @@ class ControllerPaymentMollieBase extends Controller
             $this->writeToMollieLog("Creating payment failed, API did not load; " . $e->getMessage());
             return;
         }
-
         // Load essentials
         Util::load()->language("payment/mollie");
 
@@ -252,6 +324,11 @@ class ControllerPaymentMollieBase extends Controller
                 "issuer" => $this->formatText($issuer),
                 "webhookUrl" => $this->getWebhookUrl()
             );
+
+            // Send cardToken in case of creditcard(if available)
+            if (Util::request()->post()->cardToken) {
+                $data['payment']['cardToken'] = Util::request()->post()->cardToken;
+            }
 
             //Order line data
             $orderProducts = $this->getOrderProducts($order['order_id']);
@@ -320,7 +397,7 @@ class ControllerPaymentMollieBase extends Controller
                     $coupon = Util::load()->model('checkout/coupon');
                 } else {
                     $coupon = Util::load()->model('total/coupon');
-                }               
+                }
 
                 $coupon_info = $coupon->getCoupon($this->session->data['coupon']);
 
@@ -609,30 +686,6 @@ class ControllerPaymentMollieBase extends Controller
                 $data["shippingAddress"] = $data["billingAddress"];
             }
 
-            $locales = array(
-                'en_US',
-                'nl_NL',
-                'nl_BE',
-                'fr_FR',
-                'fr_BE',
-                'de_DE',
-                'de_AT',
-                'de_CH',
-                'es_ES',
-                'ca_ES',
-                'pt_PT',
-                'it_IT',
-                'nb_NO',
-                'sv_SE',
-                'fi_FI',
-                'da_DK',
-                'is_IS',
-                'hu_HU',
-                'pl_PL',
-                'lv_LV',
-                'lt_LT'
-            );
-
             if (strstr(isset($this->session->data['language']) ? $this->session->data['language'] : $this->config->get('config_language'), '-')) {
                 list ($language, $country) = explode('-', isset($this->session->data['language']) ? $this->session->data['language'] : $this->config->get('config_language'));
                 $locale = strtolower($language) . '_' . strtoupper($country);
@@ -640,7 +693,7 @@ class ControllerPaymentMollieBase extends Controller
                 $locale = strtolower(isset($this->session->data['language']) ? $this->session->data['language'] : $this->config->get('config_language')) . '_' . strtoupper(isset($this->session->data['language']) ? $this->session->data['language'] : $this->config->get('config_language'));
             }
 
-            if (!in_array($locale, $locales)) {
+            if (!in_array($locale, $this->locales)) {
                 $locale = $this->config->get(MollieHelper::getModuleCode() . "_payment_screen_language");
                 if (strstr($locale, '-')) {
                     list ($language, $country) = explode('-', $locale);

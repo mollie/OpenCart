@@ -78,6 +78,8 @@ class ModelPaymentMollieBase extends Model
 		if($standardTotal <= 0.01) {
 			return NULL;
 		}
+
+		$total = $this->currency->convert($total, $this->config->get("config_currency"), $this->session->data['currency']);
 		
 		$moduleCode = MollieHelper::getModuleCode();
 		try {

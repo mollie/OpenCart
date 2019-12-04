@@ -119,6 +119,9 @@ $_['entry_email'] 			 		 = "E-mail";
 $_['entry_subject'] 			     = "Tema";
 $_['entry_enquiry'] 			 	 = "Investigación";
 $_['entry_debug_mode'] 			 	 = "Debug mode";
+$_['entry_mollie_component_base'] 	 = "Custom CSS for Base input field";
+$_['entry_mollie_component_valid'] 	 = "Custom CSS for Valid input field";
+$_['entry_mollie_component_invalid'] = "Custom CSS for Invalid input field";
 
 
 // Help

@@ -10,6 +10,7 @@
 + After a correct installation, Mollie payment methods should be visible in the _Payments_ overview.
 + Click on _Install (green button or text)_ and then _Edit (blue button or text)_.
 + Fill out your _Mollie API key_ on the settings tab. You can find your API key on your Mollie dashboard [Websiteprofiles](https://www.mollie.com/beheer/account/profielen/).
++ If you are using Content Security Policy, you should whitelist the _js.mollie.com_ domain. We recommend using a strict CSP on your checkout.
 
 # Next level payments, for everyone #
 Mollie is dedicated to making payments better for everyone. No need to spend weeks on
@@ -63,7 +64,7 @@ this plugin.
 Copyright (c) 2018, Mollie B.V.
 
 # Support #
-Module developed by Quality Works: [www.qualityworks.eu](https://www.qualityworks.eu) — support.mollie@qualityworks.eu — +31 85-7430150 <br />
+Module developed by Comercia: [www.qualityworks.eu](https://www.qualityworks.eu) — mollie.support@qualityworks.eu — +31 85-7430150 <br />
 Contact Mollie: [www.mollie.com/nl/about](https://www.mollie.com/nl/about) — info@mollie.com — +31 20-612 88 55
 
 + [More info on iDEAL via Mollie](https://www.mollie.com/payments/ideal/)

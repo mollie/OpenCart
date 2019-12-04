@@ -44,6 +44,17 @@ $_['text_issuer_ideal']     = 'Kies uw bank';
 $_['text_issuer_giftcard']  = 'Kies uw giftcard';
 $_['text_issuer_kbc']       = 'Kies uw betaalknop';
 $_['button_retry']          = 'Opnieuw proberen af te rekenen';
+$_['text_card_details']     = 'Voer uw creditcardgegevens in.';
+$_['text_mollie_payments']  = 'Veilige betalingen geleverd door %s';
+
+// Entry
+$_['entry_card_holder']     	= 'Card Holder Name';
+$_['entry_card_number']     	= 'Card Number';
+$_['entry_expiry_date']     	= 'Expiry Date';
+$_['entry_verification_code']	= 'CVV';
+
+// Error
+$_['error_card']				= 'Controleer uw kaartgegevens.';
 
 // Status page: payment failed (e.g. cancelled).
 $_['heading_failed']     = 'Uw betaling is niet voltooid';
@@ -69,20 +80,20 @@ $_['refund_cancelled']   = 'Restitutie is geannuleerd.';
 $_['refund_success'] 	 = 'Terugbetaling is succesvol verwerkt!';
 
 // Methods
-$_['method_ideal']        = 'iDEAL';
-$_['method_creditcard']   = 'Creditcard';
-$_['method_bancontact']   = 'Bancontact';
-$_['method_banktransfer'] = 'Overboeking';
-$_['method_directdebit']  = 'Eenmalige incasso';
-$_['method_belfius']      = 'Belfius Direct Net';
-$_['method_kbc']          = 'KBC/CBC-Betaalknop';
-$_['method_sofort']       = 'SOFORT Banking';
-$_['method_paypal']       = 'PayPal';
-$_['method_paysafecard']  = 'paysafecard';
-$_['method_giftcard']     = 'Giftcard';
-$_['method_inghomepay']   = 'ING Home\'Pay';
-$_['method_eps']          = 'EPS';
-$_['method_giropay']      = 'Giropay';
+$_['method_ideal']          = 'iDEAL';
+$_['method_creditcard']     = 'Creditcard';
+$_['method_bancontact']     = 'Bancontact';
+$_['method_banktransfer']   = 'Overboeking';
+$_['method_directdebit']    = 'Eenmalige incasso';
+$_['method_belfius']        = 'Belfius Direct Net';
+$_['method_kbc']            = 'KBC/CBC-Betaalknop';
+$_['method_sofort']         = 'SOFORT Banking';
+$_['method_paypal']         = 'PayPal';
+$_['method_paysafecard']    = 'paysafecard';
+$_['method_giftcard']       = 'Giftcard';
+$_['method_inghomepay']     = 'ING Home\'Pay';
+$_['method_eps']            = 'EPS';
+$_['method_giropay']        = 'Giropay';
 $_['method_klarnapaylater'] = 'Klarna Pay Later';
 $_['method_klarnasliceit']  = 'Klarna Slice It';
 $_['method_przelewy24']  	= 'P24';

@@ -44,6 +44,17 @@ $_['text_issuer_ideal']     = 'Wählen Sie Ihre Bank';
 $_['text_issuer_giftcard']  = 'Wählen Sie Ihre Giftcard';
 $_['text_issuer_kbc']       = 'Wählen Sie Ihren Bezahl-Button';
 $_['button_retry']          = 'Erneut versuchen, abzurechnen';
+$_['text_card_details']     = 'Bitte geben Sie Ihre Kreditkartendaten ein.';
+$_['text_mollie_payments']  = 'Sichere Zahlungen von %s';
+
+// Entry
+$_['entry_card_holder']     	= 'Card Holder Name';
+$_['entry_card_number']     	= 'Card Number';
+$_['entry_expiry_date']     	= 'Expiry Date';
+$_['entry_verification_code']	= 'CVV';
+
+// Error
+$_['error_card']				= 'Bitte überprüfen Sie Ihre Kartendaten.';
 
 // Status page: payment failed (e.g. cancelled).
 $_['heading_failed']     = 'Ihre Zahlung ist nicht abgeschlossen';
