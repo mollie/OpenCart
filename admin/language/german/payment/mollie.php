@@ -119,6 +119,9 @@ $_['entry_email'] 			 		 = "E-mail";
 $_['entry_subject'] 			     = "Gegenstand";
 $_['entry_enquiry'] 			 	 = "Anfrage";
 $_['entry_debug_mode'] 			 	 = "Debug mode";
+$_['entry_mollie_component_base'] 	 = "Custom CSS for Base input field";
+$_['entry_mollie_component_valid'] 	 = "Custom CSS for Valid input field";
+$_['entry_mollie_component_invalid'] = "Custom CSS for Invalid input field";
 
 // Help
 $_['help_view_profile']             = 'Sie können Ihren API Key auf <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank" class="alert-link">Ihren Mollie-Webseiten-Profilen finden</a>.';

@@ -541,7 +541,7 @@ class ControllerPaymentMollieBase extends Controller {
         	$paymentGeoZone[] 	= $code . '_' . $module_name . '_geo_zone';
 		}
 
-        $fields = array("show_icons", "show_order_canceled_page", "ideal_description", "api_key", "client_id", "client_secret", "refresh_token", "ideal_processing_status_id", "ideal_expired_status_id", "ideal_canceled_status_id", "ideal_failed_status_id", "ideal_pending_status_id", "ideal_shipping_status_id", "create_shipment_status_id", "ideal_refund_status_id", "create_shipment", "payment_screen_language", "debug_mode");
+        $fields = array("show_icons", "show_order_canceled_page", "ideal_description", "api_key", "client_id", "client_secret", "refresh_token", "ideal_processing_status_id", "ideal_expired_status_id", "ideal_canceled_status_id", "ideal_failed_status_id", "ideal_pending_status_id", "ideal_shipping_status_id", "create_shipment_status_id", "ideal_refund_status_id", "create_shipment", "payment_screen_language", "debug_mode", "mollie_component", "mollie_component_css_base", "mollie_component_css_valid", "mollie_component_css_invalid");
 
         $settingFields = Util::arrayHelper()->prefixAllValues($code . '_', $fields);
 
@@ -631,6 +631,25 @@ class ControllerPaymentMollieBase extends Controller {
 			$code . "_refresh_token"  		  					=> '',
 			$code . "_payment_screen_language"  		  		=> 'en-gb',
 			$code . "_debug_mode"  		  						=> FALSE,
+			$code . "_mollie_component"  		  				=> FALSE,
+			$code . "_mollie_component_css_base"  		  		=> array(
+																	"background_color" => "#fff",
+																	"color"			   => "#555",
+																	"font_size"		   => "12px",
+																	"other_css"		   => "border-width: 1px;\nborder-style: solid;\nborder-color: #ccc;\nborder-radius: 4px;\npadding: 8px;"
+																	),
+			$code . "_mollie_component_css_valid"  		  		=> array(
+																	"background_color" => "#fff",
+																	"color"			   => "#090",
+																	"font_size"		   => "12px",
+																	"other_css"		   => "border-width: 1px;\nborder-style: solid;\nborder-color: #090;\nborder-radius: 4px;\npadding: 8px;"
+																	),
+			$code . "_mollie_component_css_invalid"  		  	=> array(
+																	"background_color" => "#fff",
+																	"color"			   => "#f00",
+																	"font_size"		   => "12px",
+																	"other_css"		   => "border-width: 1px;\nborder-style: solid;\nborder-color: #f00;\nborder-radius: 4px;\npadding: 8px;"
+																	),
 		);
 
 		// Check if order complete status is defined in store setting
@@ -788,7 +807,6 @@ class ControllerPaymentMollieBase extends Controller {
 		}
 		
 		$this->session->data['app_data'] = $appData;
-
 		$data['store_email'] = Util::config()->get('config_email');
 
 		Util::response()->view("payment/mollie", $data);

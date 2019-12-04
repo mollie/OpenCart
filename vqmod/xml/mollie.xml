@@ -1,17 +1,17 @@
 <modification>
     <id>Quality Works - Mollie</id>
-    <version>1.2.5</version>
+    <version>1.3.2</version>
     <vqmver>2.3.0</vqmver>
     <author>Quality Works</author>
 
-    <file name="catalog/controller/event/compatibility.php" error="log">
-        <operation>
+    <file name="catalog/controller/event/compatibility.php">
+        <operation error="log">
             <search position="replace"><![CDATA['model/' . $route . '.php']]></search>
             <add><![CDATA['model/'.((strpos($route,'get') !== false) ? dirname($route) : $route).'.php']]></add>
         </operation>
     </file>
-    <file name="admin/controller/event/compatibility.php" error="log">
-        <operation>
+    <file name="admin/controller/event/compatibility.php">
+        <operation error="log">
             <search position="after" index="1"><![CDATA[$route = $part[1] . '/' . $part[2];]]></search>
             <add><![CDATA[if(array_key_exists(3, $part)) {
                 $route = $part[1] . '/' . $part[2] . '/' . $part[3];
@@ -20,7 +20,7 @@
     </file>
 
     <!-- Shipment creation for Klarna method for versions older than 2.2 -->
-    <file name="admin/model/sale/order.php" error="log">
+    <file name="admin/model/sale/order.php">
         <operation error="log">
             <search position="before"><![CDATA[public function getOrderHistories($order_id, $start = 0, $limit = 10) {]]></search>
             <add><![CDATA[//Get order reference id for mollie payment
@@ -35,7 +35,7 @@
     }]]></add>
         </operation>
     </file>
-    <file name="catalog/controller/api/order.php" error="log">
+    <file name="catalog/controller/api/order.php">
         <operation error="log">
             <search position="after" index="3"><![CDATA[$this->model_checkout_order->addOrderHistory]]></search>
             <add><![CDATA[// Shipment creation for Klarna for versions older than 2.2
@@ -48,7 +48,7 @@
                 } ]]></add>
         </operation>
     </file>
-    <file name="admin/controller/sale/order.php" error="log">
+    <file name="admin/controller/sale/order.php">
         <operation error="log">
             <search position="before" index="4"><![CDATA[$this->data['success']]]></search>
             <add><![CDATA[// Shipment creation for Klarna for versions older than 2.2
@@ -283,7 +283,7 @@
     protected function getAPIClient($store)
     {
         $data = $this->config;
-		$data->set(MollieHelper::getModuleCode() . "_api_key", MollieHelper::getApiKey($store));
+        $data->set(MollieHelper::getModuleCode() . "_api_key", MollieHelper::getApiKey($store));
 
         return MollieHelper::getAPIClient($data);
     }
@@ -662,7 +662,7 @@ if (!confirm('{{ text_confirm_refund }}')) {
     </file>
     <file name="admin/view/template/common/dashboard.tpl">
         <operation error="log">
-            <search position="after"><![CDATA[<div class="container-fluid">]]></search>
+            <search position="after" index="2"><![CDATA[<div class="container-fluid">]]></search>
             <add><![CDATA[<?php if ($success) { ?>
     <div class="alert alert-success"><i class="fa fa-check-circle"></i> <?php echo $success; ?>
       <button type="button" class="close" data-dismiss="alert">&times;</button>
@@ -740,6 +740,16 @@ if (!confirm('{{ text_confirm_refund }}')) {
             }
         }
 ]]></add>
+        </operation>
+    </file>
+
+    <!-- Mollie components -->
+    <file name="catalog/controller/*/checkout.php">
+        <operation error="log">
+            <search position="after"><![CDATA[public function index() {]]></search>
+            <add><![CDATA[
+                $this->document->addScript('https://js.mollie.com/v1/mollie.js');
+                ]]></add>
         </operation>
     </file>
 </modification>

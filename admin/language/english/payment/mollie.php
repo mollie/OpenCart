@@ -119,6 +119,11 @@ $_['entry_email'] 			 		 = "E-mail";
 $_['entry_subject'] 			     = "Subject";
 $_['entry_enquiry'] 			 	 = "Enquiry";
 $_['entry_debug_mode'] 			 	 = "Debug mode";
+$_['entry_mollie_component'] 		 = "Mollie components";
+$_['entry_test_mode'] 		 		 = "Test mode";
+$_['entry_mollie_component_base'] 	 = "Custom CSS for Base input field";
+$_['entry_mollie_component_valid'] 	 = "Custom CSS for Valid input field";
+$_['entry_mollie_component_invalid'] = "Custom CSS for Invalid input field";
 
 // Help
 $_['help_view_profile']             = 'You can find your API key in <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank" class="alert-link">your Mollie website profiles</a>.';
@@ -130,6 +135,7 @@ $_['help_show_order_canceled_page'] = 'Show a message to the customer if a payme
 $_['help_redirect_uri']				= 'Redirect URI in your mollie dashboard must match with this URI.';
 $_['help_mollie_app']				= 'By registering your module as an App on the Mollie dashboard, you will unlock added functionalities. This is not required to use Mollie payments.';
 $_['help_apple_pay']				= 'Apple Pay requires credit card to be enabled on your website profile. Please enable credit card method first.';
+$_['help_mollie_component']			= 'Mollie components allow you to show fields needed for credit card holder data to your own checkout.';
 
 // Info
 $_['entry_module']            = "Module";

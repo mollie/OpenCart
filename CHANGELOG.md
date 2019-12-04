@@ -2,6 +2,9 @@
 
 # Changelog #
 
+#### Changes in release 9.2.0
+  + Introduced Mollie Components for filling out CreditCard details on checkout page
+  
 #### Changes in release 9.1.12
   + Bugfix in database table patching
   + Bugfix model load

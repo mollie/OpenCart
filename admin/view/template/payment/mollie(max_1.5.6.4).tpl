@@ -381,6 +381,106 @@
 												</select>
 											</div>
 										</div>
+										<div class="form-group">
+											<label class="col-sm-2 control-label" for="input-mollie-component"><span data-toggle="tooltip" title="<?php echo $help_mollie_component; ?>"><?php echo $entry_mollie_component; ?></span></label>
+											<div class="col-sm-10">
+												<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component" id="input-mollie-component" class="form-control">
+													<?php if ($store[$code . '_mollie_component']) { ?>
+													<option value="1" selected="selected"><?php echo $text_enabled; ?></option>
+													<option value="0"><?php echo $text_disabled; ?></option>
+													<?php } else { ?>
+													<option value="1"><?php echo $text_enabled; ?></option>
+													<option value="0" selected="selected"><?php echo $text_disabled; ?></option>
+													<?php } ?>
+												</select>
+											</div>
+										</div>
+									</fieldset>
+									<fieldset>
+										<legend>Custom CSS For Mollie Components</legend>
+										<div class="row">
+											<div class="col-sm-4">
+												<div class="col-sm-12 text-center form-group"><h4><?php echo $entry_mollie_component_base; ?></h4></div>
+												<div class="form-group">
+													<label class="col-sm-6 control-label" for="input-bg-color-base">Background color</label>
+													<div class="col-sm-6">
+														<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component_css_base[background_color]" id="input-bg-color-base" class="form-control" value="<?php echo $store[$code . '_mollie_component_css_base']['background_color']; ?>">
+													</div>
+												</div>
+												<div class="form-group">
+													<label class="col-sm-6 control-label" for="input-color-base">Color</label>
+													<div class="col-sm-6">
+														<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component_css_base[color]" id="input-color-base" class="form-control" value="<?php echo $store[$code . '_mollie_component_css_base']['color']; ?>">
+													</div>
+												</div>
+												<div class="form-group">
+													<label class="col-sm-6 control-label" for="input-font-size-base">Font size</label>
+													<div class="col-sm-6">
+														<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component_css_base[font_size]" id="input-font-size-base" class="form-control" value="<?php echo $store[$code . '_mollie_component_css_base']['font_size']; ?>">
+													</div>
+												</div>
+												<div class="form-group">
+													<label class="col-sm-6 control-label" for="input-other-css">Other CSS</label>
+													<div class="col-sm-6">
+														<textarea name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component_css_base[other_css]" id="input-other-css" class="form-control"><?php echo $store[$code . '_mollie_component_css_base']['other_css']; ?></textarea>
+													</div>
+												</div>	
+											</div>
+											<div class="col-sm-4">
+												<div class="col-sm-12 text-center form-group"><h4><?php echo $entry_mollie_component_valid; ?></h4></div>
+												<div class="form-group">
+													<label class="col-sm-6 control-label" for="input-bg-color-valid">Background color</label>
+													<div class="col-sm-6">
+														<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component_css_valid[background_color]" id="input-bg-color-valid" class="form-control" value="<?php echo $store[$code . '_mollie_component_css_valid']['background_color']; ?>">
+													</div>
+												</div>
+												<div class="form-group">
+													<label class="col-sm-6 control-label" for="input-color-valid">Color</label>
+													<div class="col-sm-6">
+														<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component_css_valid[color]" id="input-color-valid" class="form-control" value="<?php echo $store[$code . '_mollie_component_css_valid']['color']; ?>">
+													</div>
+												</div>
+												<div class="form-group">
+													<label class="col-sm-6 control-label" for="input-font-size-valid">Font size</label>
+													<div class="col-sm-6">
+														<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component_css_valid[font_size]" id="input-font-size-valid" class="form-control" value="<?php echo $store[$code . '_mollie_component_css_valid']['font_size']; ?>">
+													</div>
+												</div>
+												<div class="form-group">
+													<label class="col-sm-6 control-label" for="input-other-css">Other CSS</label>
+													<div class="col-sm-6">
+														<textarea name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component_css_valid[other_css]" id="input-other-css" class="form-control"><?php echo $store[$code . '_mollie_component_css_valid']['other_css']; ?></textarea>
+													</div>
+												</div>
+											</div>
+											<div class="col-sm-4">
+												<div class="col-sm-12 text-center form-group"><h4><?php echo $entry_mollie_component_invalid; ?></h4></div>
+												<div class="form-group">
+													<label class="col-sm-6 control-label" for="input-bg-color-invalid">Background color</label>
+													<div class="col-sm-6">
+														<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component_css_invalid[background_color]" id="input-bg-color-invalid" class="form-control" value="<?php echo $store[$code . '_mollie_component_css_invalid']['background_color']; ?>">
+													</div>
+												</div>
+												<div class="form-group">
+													<label class="col-sm-6 control-label" for="input-color-invalid">Color</label>
+													<div class="col-sm-6">
+														<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component_css_invalid[color]" id="input-color-invalid" class="form-control" value="<?php echo $store[$code . '_mollie_component_css_invalid']['color']; ?>">
+													</div>
+												</div>
+												<div class="form-group">
+													<label class="col-sm-6 control-label" for="input-font-size-invalid">Font size</label>
+													<div class="col-sm-6">
+														<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component_css_invalid[font_size]" id="input-font-size-invalid" class="form-control" value="<?php echo $store[$code . '_mollie_component_css_invalid']['font_size']; ?>">
+													</div>
+												</div>
+												<div class="form-group">
+													<label class="col-sm-6 control-label" for="input-other-css">Other CSS</label>
+													<div class="col-sm-6">
+														<textarea name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component_css_invalid[other_css]" id="input-other-css" class="form-control"><?php echo $store[$code . '_mollie_component_css_invalid']['other_css']; ?></textarea>
+													</div>
+												</div>
+											</div>
+										</div>	
 									</fieldset>
 						</div>
 
