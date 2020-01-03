@@ -5,7 +5,7 @@ use Mollie\Api\MollieApiClient;
 
 class MollieHelper
 {
-	const PLUGIN_VERSION = "9.2.0";
+	const PLUGIN_VERSION = "9.2.1";
 	const OUTH_URL = 'https://api.mollie.com/oauth2';
 
 	// All available modules. These should correspond to the Mollie_API_Object_Method constants.

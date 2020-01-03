@@ -50,18 +50,18 @@
     </div>
 
     <script type="text/javascript">
-			(function ($) {
-				$(function () {
-					var issuers = $("#mollie_issuers"),
-							confirm_button_exists = ($("#qc_confirm_order").length > 0);
+      (function ($) {
+        $(function () {
+          var issuers = $("#mollie_issuers"),
+              confirm_button_exists = ($("#qc_confirm_order").length > 0);
 
-					if (issuers.find("option").length === 1) {
-						$.post("{{ set_issuer_url }}", {mollie_issuer_id: issuers.val()});
-					}
+          if (issuers.find("option").length === 1) {
+            $.post("{{ set_issuer_url }}", {mollie_issuer_id: issuers.val()});
+          }
 
-					issuers.bind("change", function () {
-						$.post("{{ set_issuer_url }}", {mollie_issuer_id: $(this).val()});
-					});
+          issuers.bind("change", function () {
+            $.post("{{ set_issuer_url }}", {mollie_issuer_id: $(this).val()});
+          });
 
           {% if mollieComponents %}
             // Initialize the mollie object
@@ -111,6 +111,9 @@
               // Handle the result this can be either result.token or result.error.
                 // Add token to the form
                 if(result.error !== undefined) {
+                  {% if isJournalTheme %}
+                    triggerLoadingOff();
+                  {% endif %}
                   $('.alert-danger').remove();
                   $("#mollie-response").after('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> {{ error_card }}</div>');
                 } else {
@@ -126,24 +129,24 @@
 
           {% endif %}
 
-					// See if we can find a a confirmation button on the page (i.e. ajax checkouts).
-					if (confirm_button_exists) {
-						// If we have issuers or mollie components are enabled, show the form.
+          // See if we can find a a confirmation button on the page (i.e. ajax checkouts).
+          if (confirm_button_exists) {
+            // If we have issuers or mollie components are enabled, show the form.
             var mollieComponents = '{{ mollieComponents }}';
-						if (issuers.length || mollieComponents) {
-							$("#mollie_payment_form").parent().show();
-						}
+            if (issuers.length || mollieComponents) {
+              $("#mollie_payment_form").parent().show();
+            }
 
-						return;
-					}
+            return;
+          }
 
-					// No confirmation button found. Show our own confirmation button.
-					$("#button-confirm").show();
-				});
-			})(window.jQuery || window.$);
+          // No confirmation button found. Show our own confirmation button.
+          $("#button-confirm").show();
+        });
+      })(window.jQuery || window.$);
     </script>
-    {% if mollieComponents %}
     <style type="text/css">
+    {% if mollieComponents %}
       .mollie-component {
         {{ base_input_css['other_css'] }}
       }
@@ -162,7 +165,34 @@
         left: -6px;
       }
 
-    </style>
+      .journal-checkout #payment-confirm-button .buttons {
+           display: block !important; 
+           cursor: unset !important;
+      }
+
+      .journal-checkout #payment-confirm-button .buttons .btn {
+          pointer-events: unset !important;
+      }
+
+      .is-customer .journal-checkout .left {
+          display: block; 
+      }
+
+      {% if isJournalTheme %}
+      #button-confirm {
+        display: none !important;
+      }
+
+      .mollie-text img {
+          top: 4px;
+      }
+      {% endif %}          
     {% endif %}
+    {% if (issuers is empty) and (not mollieComponents) %}
+    #payment-confirm-button {
+      display: none;
+    }
+    {% endif %}
+    </style>
   </form>
 </div>

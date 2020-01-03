@@ -2,6 +2,12 @@
 
 # Changelog #
 
+#### Changes in release 9.2.1
+  + Removed unused language files from installer
+  + Added referrer check to avoid double status change
+  + Added Journal support for Mollie components
+  + Several small bugfixes
+  
 #### Changes in release 9.2.0
   + Introduced Mollie Components for filling out CreditCard details on checkout page
   
