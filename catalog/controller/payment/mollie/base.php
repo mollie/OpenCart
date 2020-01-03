@@ -260,11 +260,13 @@ class ControllerPaymentMollieBase extends Controller
             }
         }
 
-        // Return HTML output - it will get appended to confirm.tpl.
-        if (Util::version()->isMaximal("1.5.6.4")) {
-            return $this->renderTemplate('mollie_checkout_form', $data, array(), false);
+        $data['isJournalTheme'] = false;
+        if (strpos($this->config->get('config_template'), 'journal2') === 0 && $this->journal2->settings->get('journal_checkout')) {
+            $data['isJournalTheme'] = true;
         }
-        return Util::load()->view('payment/mollie_checkout_form', $data);
+
+        // Return HTML output - it will get appended to confirm.tpl.
+        return $this->renderTemplate('mollie_checkout_form', $data, array(), false);
     }
 
     protected function convertCurrency($amount) {
@@ -1091,6 +1093,17 @@ class ControllerPaymentMollieBase extends Controller
      */
     public function callback()
     {
+        if(isset($_SERVER['HTTP_REFERER']) && !stristr($_SERVER['HTTP_REFERER'], "www.mollie.com")) {
+
+            if (isset($this->session->data['order_id'])) {
+                $this->cart->clear();
+                unset($this->session->data['order_id']);
+            }
+
+            $this->redirect($this->url->link("common/home", "", "SSL"));
+            return '';
+         }
+
         $moduleCode = MollieHelper::getModuleCode();
         $order_id = $this->getOrderID();
 
@@ -1373,7 +1386,7 @@ class ControllerPaymentMollieBase extends Controller
      */
     protected function renderTemplate($template, $data, $common_children = array(), $echo = true)
     {
-        if(Util::version()->isMaximal("1.5.6.4")) {
+        if(Util::version()->isMaximal("2.0.3.1")) {
             if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/' . $template . '.tpl')) {
                 $template = $this->config->get('config_template') . '/template/payment/' . $template;
             } else {
@@ -1389,7 +1402,7 @@ class ControllerPaymentMollieBase extends Controller
                 $data[$child] = Util::load()->controller("common/" . $child);
             }
             
-            $html = Util::load()->view($template, $data);
+            $html = $this->load->view($template, $data);
 
         } else {
             $this->template = $template . '.tpl';

@@ -1,6 +1,6 @@
 <modification>
     <id>Quality Works - Mollie</id>
-    <version>1.3.2</version>
+    <version>1.3.3</version>
     <vqmver>2.3.0</vqmver>
     <author>Quality Works</author>
 
@@ -196,6 +196,14 @@
     <file name="admin/controller/startup/login.php">
         <operation error="log">
             <search position="after"><![CDATA['common/login',]]></search>
+            <add><![CDATA['extension/payment/mollie_bancontact/mollieConnectCallback',
+                'payment/mollie_bancontact/mollieConnectCallback',]]></add>
+        </operation>
+    </file>
+
+    <file name="admin/controller/common/login.php">
+        <operation error="log">
+            <search position="after"><![CDATA[$ignore = array(]]></search>
             <add><![CDATA['extension/payment/mollie_bancontact/mollieConnectCallback',
                 'payment/mollie_bancontact/mollieConnectCallback',]]></add>
         </operation>
@@ -692,6 +700,7 @@ if (!confirm('{{ text_confirm_refund }}')) {
 
         }
 
+        $data['success'] = '';
         foreach ($extensions as $key => $value) {
             if ($value == 'mollie_ideal') {
                 require_once(dirname(DIR_SYSTEM) . "/catalog/controller/payment/mollie/helper.php");
@@ -709,8 +718,6 @@ if (!confirm('{{ text_confirm_refund }}')) {
                     }
 
                     $data['success'] = sprintf($this->language->get('text_update_message'), $info["tag_name"], $this->url->link("payment/mollie_ideal/update", $token));
-                } else {
-                    $data['success'] = '';
                 }
             }
         }
@@ -724,6 +731,7 @@ if (!confirm('{{ text_confirm_refund }}')) {
 
         $extensions = $this->model_setting_extension->getInstalled('payment');
 
+        $this->data['success'] = '';
         foreach ($extensions as $key => $value) {
             if ($value == 'mollie_ideal') {
                 require_once(dirname(DIR_SYSTEM) . "/catalog/controller/payment/mollie/helper.php");
@@ -734,8 +742,6 @@ if (!confirm('{{ text_confirm_refund }}')) {
                 if ($info["tag_name"] && $info["tag_name"] != MollieHelper::PLUGIN_VERSION && version_compare(MollieHelper::PLUGIN_VERSION, $info["tag_name"], "<")) {
                     $this->language->load('payment/mollie_ideal');
                     $this->data['success'] = sprintf($this->language->get('text_update_message'), $info["tag_name"], HTTPS_SERVER . 'index.php?route=payment/mollie_ideal/update&token=' . $this->session->data['token']);
-                } else {
-                    $this->data['success'] = '';
                 }
             }
         }

@@ -111,6 +111,9 @@
 						 	// Handle the result this can be either result.token or result.error.
 						    // Add token to the form
 						    if(result.error !== undefined) {
+						    	<?php if ($isJournalTheme) { ?>
+									triggerLoadingOff();
+								<?php } ?>
 						    	$('.alert-danger').remove();
 						    	$("#mollie-response").after('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> <?php echo $error_card; ?></div>');
 						    } else {
@@ -142,8 +145,8 @@
 				});
 			})(window.jQuery || window.$);
 		</script>
-		<?php if($mollieComponents) { ?>
 		<style type="text/css">
+		<?php if($mollieComponents) { ?>		
 			.mollie-component {
 				<?php echo $base_input_css['other_css']; ?>
 			}
@@ -162,7 +165,34 @@
 				left: -6px;
 			}
 
-		</style>
+			.journal-checkout #payment-confirm-button .buttons {
+			     display: block !important; 
+			     cursor: unset !important;
+			}
+
+			.journal-checkout #payment-confirm-button .buttons .btn {
+			    pointer-events: unset !important;
+			}
+
+			.is-customer .journal-checkout .left {
+			    display: block; 
+			}
+
+			<?php if ($isJournalTheme) { ?>
+			#button-confirm {
+				display: none !important;
+			}
+
+			.mollie-text img {
+			    top: 4px;
+			}
+			<?php } ?>					
 		<?php } ?>
+		<?php if(empty($issuers) && !$mollieComponents) { ?>
+		#payment-confirm-button {
+			display: none;
+		}
+		<?php } ?>
+		</style>
 	</form>
 </div>
