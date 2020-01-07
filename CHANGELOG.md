@@ -2,6 +2,9 @@
 
 # Changelog #
 
+#### Changes in release 9.2.2
+  + Bugfix view load
+
 #### Changes in release 9.2.1
   + Removed unused language files from installer
   + Added referrer check to avoid double status change
