@@ -1386,15 +1386,12 @@ class ControllerPaymentMollieBase extends Controller
      */
     protected function renderTemplate($template, $data, $common_children = array(), $echo = true)
     {
-        if(Util::version()->isMaximal("2.0.3.1")) {
-            if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/' . $template . '.tpl')) {
-                $template = $this->config->get('config_template') . '/template/payment/' . $template;
-            } else {
-                $template = 'default/template/payment/' . $template;
-            }
-        }
-        else {
-            $template = 'payment/' . $template;
+        if(Util::version()->isMinimal("2.2.0.0")) {
+            $template = 'payment/' . $template;            
+        } elseif (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/payment/' . $template . '.tpl')) {
+            $template = $this->config->get('config_template') . '/template/payment/' . $template . '.tpl';
+        } else {
+            $template = 'default/template/payment/' . $template . '.tpl';
         }
 
         if (MollieHelper::isOpenCart2x()) {
