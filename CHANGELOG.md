@@ -2,6 +2,13 @@
 
 # Changelog #
 
+#### Changes in release 9.2.3
+  + Bugfix status returning to paid
+  + Bugfix notice on admin dashboard
+  + Updated mollie logo in checkout to smaller version
+  + Updated checkout form styling
+  + Added deprecated module names to admin for older version updating
+
 #### Changes in release 9.2.2
   + Bugfix view load
 

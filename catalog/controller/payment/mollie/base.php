@@ -217,7 +217,7 @@ class ControllerPaymentMollieBase extends Controller
         $data['entry_verification_code'] = $this->language->get('entry_verification_code');
         $data['text_card_details']       = $this->language->get('text_card_details');
         $data['error_card']              = $this->language->get('error_card');
-        $data['text_mollie_payments']    = sprintf($this->language->get('text_mollie_payments'), '<a href="https://www.mollie.com/" target="_blank"><img src=" https://www.mollie.com/images/logo.png" alt="Mollie" border="0"></a>');
+        $data['text_mollie_payments']    = sprintf($this->language->get('text_mollie_payments'), '<a href="https://www.mollie.com/" target="_blank"><img src="https://www.mollie.com/checkout/v3/images/icons/ui/logo.svg" alt="Mollie" border="0"></a>');
 
         // Mollie components
         $data['mollieComponents'] = false;
@@ -1093,17 +1093,6 @@ class ControllerPaymentMollieBase extends Controller
      */
     public function callback()
     {
-        if(isset($_SERVER['HTTP_REFERER']) && !stristr($_SERVER['HTTP_REFERER'], "www.mollie.com")) {
-
-            if (isset($this->session->data['order_id'])) {
-                $this->cart->clear();
-                unset($this->session->data['order_id']);
-            }
-
-            $this->redirect($this->url->link("common/home", "", "SSL"));
-            return '';
-         }
-
         $moduleCode = MollieHelper::getModuleCode();
         $order_id = $this->getOrderID();
 
@@ -1160,13 +1149,15 @@ class ControllerPaymentMollieBase extends Controller
                         
         }
 
-        if (($orderDetails->isPaid() || $orderDetails->isAuthorized()) && $order['order_status_id'] != $paid_status_id) {
+        $orderStatuses = $model->getOrderStatuses($order['order_id']);
+
+        if (($orderDetails->isPaid() || $orderDetails->isAuthorized()) && !in_array($paid_status_id, $orderStatuses)) {
             $this->addOrderHistory($order, $paid_status_id, $this->language->get("response_success"), true);
             $order['order_status_id'] = $paid_status_id;
         } else if(!empty($orderDetails->_embedded->payments)) {
 
             $payment = $orderDetails->_embedded->payments[0];
-            if (($payment->status == 'paid') && ($order['order_status_id'] != $paid_status_id)) {
+            if (($payment->status == 'paid') && !in_array($paid_status_id, $orderStatuses)) {
                 $this->addOrderHistory($order, $paid_status_id, $this->language->get("response_success"), true);
                 $order['order_status_id'] = $paid_status_id;
             }
