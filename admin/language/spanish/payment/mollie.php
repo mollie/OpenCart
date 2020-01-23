@@ -60,13 +60,13 @@ $_['title_mod_about']       = "Acerca de este módulo";
 $_['footer_text']           = "Servicios de pago";
 
 // Module names
+$_['name_mollie_bancontact']    = "Bancontact";
 $_['name_mollie_banktransfer']  = "Transferencia bancaria";
 $_['name_mollie_belfius']       = "Belfius Direct Net";
 $_['name_mollie_creditcard']    = "Creditcard";
 $_['name_mollie_directdebit']   = "Adeudo bancario";
 $_['name_mollie_ideal']         = "iDEAL";
 $_['name_mollie_kbc']           = "KBC/CBC-Betaalknop";
-$_['name_mollie_mistercash']    = "Bancontact/MisterCash";
 $_['name_mollie_paypal']        = "PayPal";
 $_['name_mollie_paysafecard']   = "paysafecard";
 $_['name_mollie_sofort']        = "SOFORT Banking";
@@ -78,6 +78,10 @@ $_['name_mollie_klarnapaylater'] = 'Klarna Pay Later';
 $_['name_mollie_klarnasliceit']  = 'Klarna Slice It';
 $_['name_mollie_przelewy24']  	 = 'P24';
 $_['name_mollie_applepay']  	 = 'Apple Pay';
+
+// Deprecated names
+$_['name_mollie_bitcoin']       = "Bitcoin";
+$_['name_mollie_mistercash']    = "Bancontact/MisterCash";
 
 // Text
 $_['text_edit']                     = "Corregir Mollie";

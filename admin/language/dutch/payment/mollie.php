@@ -79,6 +79,10 @@ $_['name_mollie_klarnasliceit']  = 'Klarna Slice It';
 $_['name_mollie_przelewy24']  	 = 'P24';
 $_['name_mollie_applepay']  	 = 'Apple Pay';
 
+// Deprecated names
+$_['name_mollie_bitcoin']       = "Bitcoin";
+$_['name_mollie_mistercash']    = "Bancontact/MisterCash";
+
 // Text
 $_['text_edit']                    = "Bewerk Mollie";
 $_['text_payment']                 = "Betaling";

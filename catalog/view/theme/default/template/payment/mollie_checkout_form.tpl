@@ -1,20 +1,18 @@
 <div class="checkout-content">
-	<form action="<?php echo $action; ?>" method="post" id="mollie_payment_form">
+	<form action="<?php echo $action; ?>" method="post" id="mollie_payment_form" <?php if(!$mollieComponents) { echo 'class="form-horizontal"'; } ?>>
 		<div class="buttons">
 			<?php if (!empty($issuers)) { ?>
-			<div class="left pull-left">
-				<label style="width:auto !important">
-					<img src="<?php echo $image; ?>" width="20" style="float:left; margin-right:0.5em; margin-top:-3px" />
-					<strong><?php echo $text_issuer; ?>:</strong>
-
-					<select name="mollie_issuer" style="margin-left:1em" id="mollie_issuers">
-						<option value="">&mdash;</option>
-						<?php foreach ($issuers as $issuer) { ?>
-						<option value="<?php echo $issuer->id; ?>"><?php echo $issuer->name; ?></option>
-						<?php } ?>
-					</select>
-				</label>
-			</div>
+			<div class="form-group pull-left">
+		        <label class="col-sm-6 control-label"><img src="<?php echo $image; ?>" width="20" /> <strong><?php echo $text_issuer; ?>:</strong></label>
+		        <div class="col-sm-6">
+		          <select name="mollie_issuer" id="mollie_issuers" class="form-control">
+		            <option value="">&mdash;</option>
+		            <?php foreach ($issuers as $issuer) { ?>
+		            <option value="<?php echo $issuer->id; ?>"><?php echo $issuer->name; ?></option>
+		            <?php } ?>
+		          </select>
+		        </div>
+	      	</div>
 			<?php } ?>
 			<?php if($mollieComponents) { ?>
 			<div class="left pull-left">
@@ -155,15 +153,7 @@
 			}
 			.mollie-component.is-invalid {
 				<?php echo $invalid_input_css['other_css']; ?>
-			}
-
-			.mollie-text img {
-				height: 21px;
-				width: auto;
-				position: relative;
-				top: -3px;
-				left: -6px;
-			}
+			}			
 
 			.journal-checkout #payment-confirm-button .buttons {
 			     display: block !important; 
@@ -189,10 +179,21 @@
 			<?php } ?>					
 		<?php } ?>
 		<?php if(empty($issuers) && !$mollieComponents) { ?>
-		#payment-confirm-button {
-			display: none;
-		}
+			#payment-confirm-button {
+				display: none;
+			}
 		<?php } ?>
+
+		.mollie-text img {
+			position: relative;
+			top: -3px;
+		}
+
+		.mollie-text {
+	      clear: both;
+	      margin-left: 7px;
+	    }
+
 		</style>
 	</form>
 </div>

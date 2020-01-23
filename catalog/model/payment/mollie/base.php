@@ -281,4 +281,17 @@ class ModelPaymentMollieBase extends Model
 		return FALSE;
 	}
 
+	public function getOrderStatuses($order_id) {
+		$results = $this->db->query("SELECT DISTINCT order_status_id FROM `" . DB_PREFIX . "order_history` WHERE `order_id` = '" . $order_id . "'");
+		
+		$orderStatuses = array();
+		if(!empty($results->rows)) {
+			foreach($results->rows as $row) {
+				$orderStatuses[] = $row['order_status_id'];
+			}
+		}
+
+		return $orderStatuses;
+	}
+
 }
