@@ -49,7 +49,7 @@ class Url
             $tokenName = "token";
         }
 
-        if ($session->$tokenName && $session->user_id && strpos($params, "route=") === false) {
+        if (isset($session->$tokenName) && $session->user_id && strpos($params, "route=") === false) {
             if ($session->$tokenName) {
                 if ($params) {
                     $params .= "&".$tokenName."=" . $session->$tokenName;

@@ -1,6 +1,6 @@
 <modification>
     <id>Quality Works - Mollie</id>
-    <version>1.3.4</version>
+    <version>1.3.6</version>
     <vqmver>2.3.0</vqmver>
     <author>Quality Works</author>
 
@@ -92,8 +92,8 @@
         <operation error="log">
             <search position="after" index="2"><![CDATA[$this->data['payment_method'] = $order_info['payment_method'];]]></search>
             <add><![CDATA[$this->data['payment_status'] = '';
-            $molliePaymentDeails = $this->model_sale_order->getMolliePayment($this->request->get['order_id']);
-            if(isset($molliePaymentDeails['transaction_id']) && !empty($molliePaymentDeails['transaction_id'])) {
+            $molliePaymentDetails = $this->model_sale_order->getMolliePayment($this->request->get['order_id']);
+            if(isset($molliePaymentDetails['transaction_id']) && !empty($molliePaymentDetails['transaction_id'])) {
                  try {
                     $molliePayment = $this->getAPIClient($order_info['store_id'])->payments->get($molliePaymentDetails['transaction_id']);
                      $this->data['payment_status'] = $molliePayment->status;
@@ -271,6 +271,12 @@
             if(!$apiKey || ($apiKey == '')) {
                 $this->data['showRefundButton'] = false;
             }
+            $this->data['store_id'] = $order_info['store_id'];
+            if (isset($this->request->server['HTTPS']) && (($this->request->server['HTTPS'] == 'on') || ($this->request->server['HTTPS'] == '1'))) {
+                $this->data['catalog'] = HTTPS_CATALOG;
+            } else {
+                $this->data['catalog'] = HTTP_CATALOG;
+            }
             ]]></add>
         </operation>
         <operation error="log">
@@ -283,6 +289,8 @@
             if(!$apiKey || ($apiKey == '')) {
                 $data['showRefundButton'] = false;
             }
+            $data['store_id'] = $order_info['store_id'];
+            $data['catalog'] = $this->request->server['HTTPS'] ? HTTPS_CATALOG : HTTP_CATALOG;
             ]]></add>
         </operation>
         <operation error="log">
@@ -572,9 +580,15 @@ $('.alert').remove();
         $('#content > .container-fluid').prepend('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + '</div>');
       }
 
+      if(typeof token !== 'undefined') {
+        var order_history_url = '<?php echo isset($store_url) ? $store_url : $catalog; ?>index.php?route=api/order/history&token=' + token + '&store_id=<?php echo $store_id; ?>&order_id=<?php echo $order_id; ?>';
+      } else {
+        var order_history_url = 'index.php?route=sale/order/api&token=<?php echo $token; ?>&api=api/order/history&order_id=<?php echo $order_id; ?>';
+      }
+
       if (json['success']) {
       $.ajax({
-        url: '<?php echo $catalog; ?>index.php?route=api/order/history&token=' + token + '&store_id=<?php echo $store_id; ?>&order_id=<?php echo $order_id; ?>',
+        url: order_history_url,
         type: 'post',
         dataType: 'json',
         data: 'order_status_id=' + encodeURIComponent(json['order_status_id']) + '&notify=1&override=0&append=1&comment=' + encodeURIComponent(json['comment']),
@@ -704,7 +718,9 @@ if (!confirm('{{ text_confirm_refund }}')) {
         foreach ($extensions as $key => $value) {
             if ($value == 'mollie_ideal') {
                 require_once(dirname(DIR_SYSTEM) . "/catalog/controller/payment/mollie/helper.php");
-                $this->load->library("mollieHttpClient");
+                if(!class_exists('mollieHttpClient')) {
+                    require_once(DIR_SYSTEM . "/library/mollieHttpClient.php");
+                }
                 $client = new mollieHttpClient();
                 $info = $client->get("https://api.github.com/repos/mollie/OpenCart/releases/latest");
 
@@ -719,6 +735,7 @@ if (!confirm('{{ text_confirm_refund }}')) {
 
                     $data['success'] = sprintf($this->language->get('text_update_message'), $info["tag_name"], $this->url->link("payment/mollie_ideal/update", $token));
                 }
+                break;
             }
         }
 ]]></add>
@@ -743,7 +760,8 @@ if (!confirm('{{ text_confirm_refund }}')) {
                     $this->language->load('payment/mollie_ideal');
                     $this->data['success'] = sprintf($this->language->get('text_update_message'), $info["tag_name"], HTTPS_SERVER . 'index.php?route=payment/mollie_ideal/update&token=' . $this->session->data['token']);
                 }
-            }
+                break;
+            }            
         }
 ]]></add>
         </operation>

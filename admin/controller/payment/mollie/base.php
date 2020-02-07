@@ -360,6 +360,10 @@ class ControllerPaymentMollieBase extends Controller {
 		if (file_exists($catalogControllerDir . 'extension/payment/mollie-api-client')) {
 			$this->delTree($catalogControllerDir . 'extension/payment/mollie-api-client');
 		}
+
+		if (file_exists(DIR_APPLICATION . '../vqmod/xml/mollie_onepage_no_givenname.xml')) {
+			unlink(DIR_APPLICATION . '../vqmod/xml/mollie_onepage_no_givenname.xml');
+		}
 	}
 
 	public function delTree($dir) {
