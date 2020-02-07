@@ -66,6 +66,11 @@ class ModelPaymentMollieBase extends Model
 	 */
 	public function getMethod($address, $total)
 	{
+		$this->load->language("payment/mollie");
+		$modelCountry = Util::load()->model('localisation/country');
+		$currency = $this->session->data['currency'];
+		$moduleCode = MollieHelper::getModuleCode();
+		
 		// Return nothing if ApplePay is not available
 		if(static::MODULE_NAME == 'applepay') {
 			if(isset($_COOKIE['applePay']) && ($_COOKIE['applePay'] == 0)) {
@@ -79,9 +84,6 @@ class ModelPaymentMollieBase extends Model
 			return NULL;
 		}
 
-		$total = $this->currency->convert($total, $this->config->get("config_currency"), $this->session->data['currency']);
-		
-		$moduleCode = MollieHelper::getModuleCode();
 		try {
 			$payment_method = $this->getAPIClient()->methods->get(static::MODULE_NAME);
 
@@ -91,14 +93,8 @@ class ModelPaymentMollieBase extends Model
 
 			return NULL;
 		}
-		
-		//Get payment methods allowed for this amount and currency
-		$allowed_methods = array();
-		$currency 		 = $this->session->data['currency'];
 
-		// Get billing country
-		$modelCountry = Util::load()->model('localisation/country');
-
+		// Get billing country	
 		if (isset($this->session->data['payment_address'])) {
 			if(isset($this->session->data['payment_address']['iso_code_2']) && !empty($this->session->data['payment_address']['iso_code_2'])) {
 				$country = $this->session->data['payment_address']['iso_code_2'];
@@ -112,15 +108,18 @@ class ModelPaymentMollieBase extends Model
 			$countryDetails = $modelCountry->getCountry($country_id);
 			$country = $countryDetails['iso_code_2'];
 		}
-		
+
+		$total = $this->currency->convert($total, $this->config->get("config_currency"), $currency);		
 		$data = array(
-            "amount" 		 => ["value" => (string)number_format((float)$total, 2, '.', ''), "currency" => $currency,],
+            "amount" 		 => ["value" => (string)number_format((float)$total, 2, '.', ''), "currency" => $currency],
             "resource" 		 => "orders",
             "includeWallets" => "applepay",
 			"billingCountry" => $country
-        );
+        );        
 		$payment_methods = $this->getAPIClient()->methods->allActive($data);
 
+		//Get payment methods allowed for this amount and currency
+		$allowed_methods = array();
 		foreach ($payment_methods as $allowed_method)
 		{
 			$allowed_methods[] = $allowed_method->id;
@@ -137,8 +136,6 @@ class ModelPaymentMollieBase extends Model
 		}
 
 		// Translate payment method (if a translation is available).
-		$this->load->language("payment/mollie");
-
 		$key = "method_" . $payment_method->id;
 		$val = $this->language->get($key);
 
@@ -194,9 +191,7 @@ class ModelPaymentMollieBase extends Model
 	public function updatePayment($order_id, $mollie_order_id, $data, $consumer = NULL)
 	{
 		if (!empty($order_id) && !empty($mollie_order_id)) {
-			$this->db->query("UPDATE `" . DB_PREFIX . "mollie_payments` 
-					 SET `transaction_id` = '" . $this->db->escape($data['payment_id']) . "', `bank_status` = '" . $this->db->escape($data['status']) . "'
-					 WHERE `order_id` = '" . (int)$order_id . "' AND `mollie_order_id` = '" . $this->db->escape($mollie_order_id) . "'");
+			$this->db->query("UPDATE `" . DB_PREFIX . "mollie_payments` SET `transaction_id` = '" . $this->db->escape($data['payment_id']) . "', `bank_status` = '" . $this->db->escape($data['status']) . "' WHERE `order_id` = '" . (int)$order_id . "' AND `mollie_order_id` = '" . $this->db->escape($mollie_order_id) . "'");
 
 			return $this->db->countAffected() > 0;
 		}

@@ -205,12 +205,12 @@ class ControllerPaymentMollieBase extends Controller
         $payment_method = $this->getAPIClient()->methods->get(static::MODULE_NAME, array('include' => 'issuers'));
 
         // Set template data.
-        $data['action']                  = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/payment", "", "SSL");
+        $data['action']                  = Util::url()->link("payment/mollie_" . static::MODULE_NAME . "/payment");
         $data['image']                   = $payment_method->image->size1x;
         $data['message']                 = $this->language;
         $data['issuers']                 = isset($payment_method->issuers) ? $payment_method->issuers : array();
         $data['text_issuer']             = $this->language->get("text_issuer_" . static::MODULE_NAME);
-        $data['set_issuer_url']          = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/set_issuer", "", "SSL");
+        $data['set_issuer_url']          = Util::url()->link("payment/mollie_" . static::MODULE_NAME . "/set_issuer");
         $data['entry_card_holder']       = $this->language->get('entry_card_holder');
         $data['entry_card_number']       = $this->language->get('entry_card_number');
         $data['entry_expiry_date']       = $this->language->get('entry_expiry_date');
@@ -309,7 +309,7 @@ class ControllerPaymentMollieBase extends Controller
         $currency = $this->session->data['currency'];
         $amount = $this->convertCurrency($order['total']);
         $description = str_replace("%", $order['order_id'], html_entity_decode($this->config->get(MollieHelper::getModuleCode() . "_ideal_description"), ENT_QUOTES, "UTF-8"));
-        $return_url = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/callback&order_id=" . $order['order_id'], "", "SSL");
+        $return_url = Util::url()->link("payment/mollie_" . static::MODULE_NAME . "/callback", "order_id=" . $order['order_id']);
         $issuer = $this->getIssuer();
 
         try {
@@ -812,11 +812,12 @@ class ControllerPaymentMollieBase extends Controller
 
         if(!empty($data)) {
             $model->updatePayment($mollieOrder->metadata->order_id, $mollieOrderId, $data);
+            $this->writeToMollieLog("Updated mollie transaction_id and status for order - {$mollieOrder->metadata->order_id}, $mollieOrderId");
         }
 
         if($order['order_status_id'] != 0) {
             //Check for refund
-            if($molliePayment->amountRefunded->value > 0) {
+            if(isset($molliePayment->amountRefunded->value) && ($molliePayment->amountRefunded->value > 0)) {
                 $data = array(
                     'payment_id' => $payment_id,
                     'status'     => 'refunded'
@@ -824,6 +825,7 @@ class ControllerPaymentMollieBase extends Controller
 
                 if(!empty($data)) {
                     $model->updatePayment($mollieOrder->metadata->order_id, $mollieOrderId, $data);
+                    $this->writeToMollieLog("Updated mollie transaction_id and status for order - {$mollieOrder->metadata->order_id}, $mollieOrderId");
                 }
 
                 $this->writeToMollieLog("Order status has been updated to 'Refunded' for order " . $order['order_id'] . ".");
@@ -891,7 +893,7 @@ class ControllerPaymentMollieBase extends Controller
 
         $this->writeToMollieLog("Received webhook for order_id " . $order_id);
 
-        $mollieOrder = $this->getAPIClient()->orders->get($order_id);
+        $mollieOrder = $this->getAPIClient()->orders->get($order_id, ["embed" => "payments"]);
 
         // Check if order_id is saved in database
         $model = $this->getModuleModel();
@@ -899,6 +901,17 @@ class ControllerPaymentMollieBase extends Controller
         if(!$mollieOrderIdExists) {
             $model->setPayment($mollieOrder->metadata->order_id, $order_id, $mollieOrder->method);
             $this->writeToMollieLog("Updated database with mollie_order_id - " . $order_id);
+        }
+
+        // Update payment status
+        if(!empty($mollieOrder->_embedded->payments)) {
+            $payment = $mollieOrder->_embedded->payments[0];
+            $paymentData = array(
+                'payment_id' => $payment->id,
+                'status'     => $payment->status
+            );
+            $model->updatePayment($mollieOrder->metadata->order_id, $order_id, $paymentData);
+            $this->writeToMollieLog("Updated mollie transaction_id and status for order - {$mollieOrder->metadata->order_id}, $order_id");            
         }
 
         // Load essentials
@@ -1146,6 +1159,7 @@ class ControllerPaymentMollieBase extends Controller
                 'status'     => $payment->status
             );
             $model->updatePayment($orderDetails->metadata->order_id, $mollie_order_id, $paymentData);
+            $this->writeToMollieLog("Updated mollie transaction_id and status for order - {$orderDetails->metadata->order_id}, $mollie_order_id");
                         
         }
 
@@ -1208,7 +1222,7 @@ class ControllerPaymentMollieBase extends Controller
             unset($this->session->data['mollie_issuer']);
 
             // Redirect to 'success' page.
-            $this->redirect($this->url->link("checkout/success", "", "SSL"));
+            $this->redirect(Util::url()->link("checkout/success"));
             return '';
         }
 
@@ -1230,7 +1244,7 @@ class ControllerPaymentMollieBase extends Controller
 
         // The status is probably 'cancelled'. Allow the admin to redirect their customers back to the shopping cart directly in these cases.
         if (!(bool)$this->config->get($moduleCode . "_show_order_canceled_page")) {
-            $this->redirect($this->url->link("checkout/checkout", "", "SSL"));
+            $this->redirect(Util::url()->link("checkout/checkout"));
         }
 
         // Show a 'transaction failed' page if all else fails.
@@ -1250,7 +1264,7 @@ class ControllerPaymentMollieBase extends Controller
         $data['breadcrumbs'] = array();
 
         $data['breadcrumbs'][] = array(
-            "href" => $this->url->link("common/home", (isset($this->session->data['token'])) ? "token=" . $this->session->data['token'] : "", "SSL"),
+            "href" => Util::url()->link("common/home", (isset($this->session->data['token'])) ? "token=" . $this->session->data['token'] : ""),
             "text" => $this->language->get("text_home"),
             "separator" => false,
         );
@@ -1296,7 +1310,7 @@ class ControllerPaymentMollieBase extends Controller
         }
 
         if ($show_retry_button) {
-            $data['checkout_url'] = $this->url->link("checkout/checkout", "", "SSL");
+            $data['checkout_url'] = Util::url()->link("checkout/checkout");
             $data['button_retry'] = $this->language->get("button_retry");
         }
 
@@ -1321,7 +1335,7 @@ class ControllerPaymentMollieBase extends Controller
      */
     public function getWebhookUrl()
     {
-        $system_webhook_url = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/webhook", "", "SSL");
+        $system_webhook_url = Util::url()->link("payment/mollie_" . static::MODULE_NAME . "/webhook");
 
         if (strpos($system_webhook_url, $this->getAdminDirectory()) !== false) {
             return str_replace($this->getAdminDirectory(), "", $system_webhook_url);
@@ -1393,7 +1407,7 @@ class ControllerPaymentMollieBase extends Controller
             $html = $this->load->view($template, $data);
 
         } else {
-            $this->template = $template . '.tpl';
+            $this->template = $template;
             $this->children = array();
 
             foreach ($data as $field => $value) {

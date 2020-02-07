@@ -2,6 +2,11 @@
 
 # Changelog #
 
+#### Changes in release 9.2.4
+  + Small bugfix for invalid amount message
+  + Fixed loading of MollieHttpClient
+  + Added file to cleanup
+
 #### Changes in release 9.2.3
   + Bugfix status returning to paid
   + Bugfix notice on admin dashboard
