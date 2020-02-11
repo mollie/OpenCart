@@ -103,6 +103,7 @@ $_['text_enquiry'] 	                = "Como podemos ayudarte?";
 $_['text_enquiry_success'] 	        = "Éxito: su consulta ha sido enviada. Nos pondremos en contacto con usted pronto. ¡Gracias!";
 $_['text_update_message']           = "Mollie: hay una versión actualizada (%s) disponible del módulo Mollie. Haga clic en <a href='%s'>aquí</a> para actualizar.";
 $_['text_update_success']          = "Éxito: el módulo Mollie se ha actualizado a la versión %s.";
+$_['text_default_currency']        = "Moneda utilizada en la tienda";
 
 // Entry
 $_['entry_payment_method']           = "Método de pago";
@@ -126,6 +127,7 @@ $_['entry_debug_mode'] 			 	 = "Debug mode";
 $_['entry_mollie_component_base'] 	 = "Custom CSS for Base input field";
 $_['entry_mollie_component_valid'] 	 = "Custom CSS for Valid input field";
 $_['entry_mollie_component_invalid'] = "Custom CSS for Invalid input field";
+$_['entry_default_currency'] 		 = "Paga siempre con";
 
 
 // Help

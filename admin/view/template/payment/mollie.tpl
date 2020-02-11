@@ -405,6 +405,21 @@
 												</select>
 											</div>
 										</div>
+										<div class="form-group">
+											<label class="col-sm-2 control-label" for="input-default-currency"><?php echo $entry_default_currency; ?></label>
+											<div class="col-sm-10">
+												<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_default_currency" id="input-default-currency" class="form-control">
+													<option value="DEF" selected="selected"><?php echo $text_default_currency; ?></option>
+													<?php foreach ($currencies as $key=>$currency) { ?>
+								                    <?php if ($currency['code'] == $store[$code . '_default_currency']) { ?>
+								                    <option value="<?php echo $currency['code']; ?>" selected="selected"><?php echo $currency['title']; ?></option>
+								                    <?php } else { ?>
+								                    <option value="<?php echo $currency['code']; ?>"><?php echo $currency['title']; ?></option>
+								                    <?php } ?>
+								                    <?php } ?>
+												</select>
+											</div>
+										</div>
 									</fieldset>
 									<fieldset>
 										<legend>Custom CSS For Mollie Components</legend>

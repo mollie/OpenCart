@@ -476,6 +476,7 @@ class ControllerPaymentMollieBase extends Controller {
 		$modelOrderStatus = Util::load()->model("localisation/order_status");
 		$modelGeoZone     = Util::load()->model("localisation/geo_zone");
 		$modelLanguage     = Util::load()->model("localisation/language");
+		$modelCurrency     = Util::load()->model("localisation/currency");
 		Util::load()->library("mollieHttpClient");
 
 		$code = MollieHelper::getModuleCode();
@@ -545,7 +546,7 @@ class ControllerPaymentMollieBase extends Controller {
         	$paymentGeoZone[] 	= $code . '_' . $module_name . '_geo_zone';
 		}
 
-        $fields = array("show_icons", "show_order_canceled_page", "ideal_description", "api_key", "client_id", "client_secret", "refresh_token", "ideal_processing_status_id", "ideal_expired_status_id", "ideal_canceled_status_id", "ideal_failed_status_id", "ideal_pending_status_id", "ideal_shipping_status_id", "create_shipment_status_id", "ideal_refund_status_id", "create_shipment", "payment_screen_language", "debug_mode", "mollie_component", "mollie_component_css_base", "mollie_component_css_valid", "mollie_component_css_invalid");
+        $fields = array("show_icons", "show_order_canceled_page", "ideal_description", "api_key", "client_id", "client_secret", "refresh_token", "ideal_processing_status_id", "ideal_expired_status_id", "ideal_canceled_status_id", "ideal_failed_status_id", "ideal_pending_status_id", "ideal_shipping_status_id", "create_shipment_status_id", "ideal_refund_status_id", "create_shipment", "payment_screen_language", "debug_mode", "mollie_component", "mollie_component_css_base", "mollie_component_css_valid", "mollie_component_css_invalid", "default_currency");
 
         $settingFields = Util::arrayHelper()->prefixAllValues($code . '_', $fields);
 
@@ -589,6 +590,7 @@ class ControllerPaymentMollieBase extends Controller {
 		$data['geo_zones']			= $modelGeoZone->getGeoZones();
 		$data['order_statuses']		= $modelOrderStatus->getOrderStatuses();
 		$data['languages']			= $modelLanguage->getLanguages();
+		$data['currencies']			= $modelCurrency->getCurrencies();
 
 		$imageModel = Util::load()->model('tool/image');
 		if (is_file(DIR_IMAGE . 'mollie_connect.png')) {
@@ -634,6 +636,7 @@ class ControllerPaymentMollieBase extends Controller {
 			$code . "_create_shipment"  		  				=> 1,
 			$code . "_refresh_token"  		  					=> '',
 			$code . "_payment_screen_language"  		  		=> 'en-gb',
+			$code . "_default_currency"  		  				=> 'DEF',
 			$code . "_debug_mode"  		  						=> FALSE,
 			$code . "_mollie_component"  		  				=> FALSE,
 			$code . "_mollie_component_css_base"  		  		=> array(

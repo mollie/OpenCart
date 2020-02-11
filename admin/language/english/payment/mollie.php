@@ -103,6 +103,7 @@ $_['text_enquiry'] 	  = "How can we help you?";
 $_['text_enquiry_success'] 	  = "Success: Your enquiry has been submitted. We'll get back to you soon. Thank you!";
 $_['text_update_message']          = "Mollie: There is an updated version (%s) available of the Mollie module. Click <a href='%s'>here</a> to update.";
 $_['text_update_success']          = "Success: Mollie module has been updated to version %s.";
+$_['text_default_currency']        = "Currency used in the store";
 
 // Entry
 $_['entry_payment_method']           = "Payment method";
@@ -128,6 +129,7 @@ $_['entry_test_mode'] 		 		 = "Test mode";
 $_['entry_mollie_component_base'] 	 = "Custom CSS for Base input field";
 $_['entry_mollie_component_valid'] 	 = "Custom CSS for Valid input field";
 $_['entry_mollie_component_invalid'] = "Custom CSS for Invalid input field";
+$_['entry_default_currency'] 		 = "Always pay with";
 
 // Help
 $_['help_view_profile']             = 'You can find your API key in <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank" class="alert-link">your Mollie website profiles</a>.';
