@@ -194,6 +194,26 @@ class ControllerPaymentMollieBase extends Controller
         return $model->getRewardPointDetails($orderID);
     }
 
+    public function numberFormat($amount) {
+        $currency = $this->getCurrency();
+        $intCurrencies = array("ISK", "JPY");
+        if(!in_array($currency, $intCurrencies)) {
+            $formattedAmount = number_format((float)$amount, 2, '.', '');
+        } else {
+            $formattedAmount = number_format($amount, 0);
+        }   
+        return $formattedAmount;    
+    }
+
+    public function getCurrency() {
+        if($this->config->get(MollieHelper::getModuleCode() . "_default_currency") == "DEF") {
+            $currency = $this->session->data['currency'];
+        } else {
+            $currency = $this->config->get(MollieHelper::getModuleCode() . "_default_currency");
+        }
+        return $currency;
+    }
+
     /**
      * This gets called by OpenCart at the final checkout step and should generate a confirmation button.
      * @return string
@@ -272,7 +292,7 @@ class ControllerPaymentMollieBase extends Controller
     protected function convertCurrency($amount) {
         $currency = Util::load()->model("localisation/currency");
         $currencies = $currency->getCurrencies();
-        $convertedAmount = $amount * $currencies[$this->session->data['currency']]['value'];
+        $convertedAmount = $amount * $currencies[$this->getCurrency()]['value'];
 
         return $convertedAmount;
     }
@@ -306,7 +326,7 @@ class ControllerPaymentMollieBase extends Controller
         $order_id = $this->getOrderID();
         $order = $this->getOpenCartOrder($order_id);
 
-        $currency = $this->session->data['currency'];
+        $currency = $this->getCurrency();
         $amount = $this->convertCurrency($order['total']);
         $description = str_replace("%", $order['order_id'], html_entity_decode($this->config->get(MollieHelper::getModuleCode() . "_ideal_description"), ENT_QUOTES, "UTF-8"));
         $return_url = Util::url()->link("payment/mollie_" . static::MODULE_NAME . "/callback", "order_id=" . $order['order_id']);
@@ -314,7 +334,7 @@ class ControllerPaymentMollieBase extends Controller
 
         try {
             $data = array(
-                "amount" => ["currency" => $currency, "value" => (string)number_format((float)$amount, 2, '.', '')],
+                "amount" => ["currency" => $currency, "value" => (string)$this->numberFormat($amount)],
                 "orderNumber" => $order['order_id'],
                 "redirectUrl" => $this->formatText($return_url),
                 "webhookUrl" => $this->getWebhookUrl(),
@@ -343,7 +363,7 @@ class ControllerPaymentMollieBase extends Controller
                 $rates = $this->getTaxRate($tax_rates);
                 //Since Mollie only supports VAT so '$rates' must contains only one(VAT) rate.
                 $vatRate = isset($rates[0]) ? $rates[0] : 0;
-                $total = number_format((float)$this->convertCurrency(($orderProduct['price'] + $orderProduct['tax']) * $orderProduct['quantity']), 2, '.', '');
+                $total = $this->numberFormat($this->convertCurrency(($orderProduct['price'] + $orderProduct['tax']) * $orderProduct['quantity']));
 
                 // Fix for qty < 1
                 if(!is_int($orderProduct['quantity'])) {
@@ -361,10 +381,10 @@ class ControllerPaymentMollieBase extends Controller
                     'type'          =>  'physical',
                     'name'          =>  $this->formatText($orderProduct['name']),
                     'quantity'      =>  $qty,
-                    'unitPrice'     =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($price + $tax), 2, '.', '')],
-                    'totalAmount'   =>  ["currency" => $currency, "value" => (string)number_format((float)$total, 2, '.', '')],
-                    'vatRate'       =>  (string)number_format((float)$vatRate, 2, '.', ''),
-                    'vatAmount'     =>  ["currency" => $currency, "value" => (string)number_format((float)$vatAmount, 2, '.', '')]
+                    'unitPrice'     =>  ["currency" => $currency, "value" => (string)$this->numberFormat($this->convertCurrency($price + $tax))],
+                    'totalAmount'   =>  ["currency" => $currency, "value" => (string)$this->numberFormat($total)],
+                    'vatRate'       =>  (string)$this->numberFormat($vatRate),
+                    'vatAmount'     =>  ["currency" => $currency, "value" => (string)$this->numberFormat($vatAmount)]
                 );
             }
 
@@ -377,7 +397,7 @@ class ControllerPaymentMollieBase extends Controller
                 $rates = $this->getTaxRate($tax_rates);
                 $vatRate = isset($rates[0]) ? $rates[0] : 0;
                 $costWithTax = $this->tax->calculate($cost, $taxClass, true);
-                $costWithTax = number_format((float)$this->convertCurrency($costWithTax), 2, '.', '');
+                $costWithTax = $this->numberFormat($this->convertCurrency($costWithTax));
                 $shippingVATAmount = $costWithTax * ( $vatRate / (100 +  $vatRate));
                 $lineForShipping[] = array(
                     'type'          =>  'shipping_fee',
@@ -385,8 +405,8 @@ class ControllerPaymentMollieBase extends Controller
                     'quantity'      =>  1,
                     'unitPrice'     =>  ["currency" => $currency, "value" => (string)$costWithTax],
                     'totalAmount'   =>  ["currency" => $currency, "value" => (string)$costWithTax],
-                    'vatRate'       =>  (string)number_format((float)$vatRate, 2, '.', ''),
-                    'vatAmount'     =>  ["currency" => $currency, "value" => (string)number_format((float)$shippingVATAmount, 2, '.', '')]
+                    'vatRate'       =>  (string)$this->numberFormat($vatRate),
+                    'vatAmount'     =>  ["currency" => $currency, "value" => (string)$this->numberFormat($shippingVATAmount)]
                 );
 
                 $lines = array_merge($lines, $lineForShipping);
@@ -469,15 +489,15 @@ class ControllerPaymentMollieBase extends Controller
 
                     $vatRate = ($couponVATAmount * 100) / ($discount_total);
 
-                    $vatRate = number_format((float)$vatRate, 2, '.', '');
+                    $vatRate = $this->numberFormat($vatRate);
 
-                    $unitPriceWithTax = number_format((float)$this->convertCurrency($discount_total + $couponVATAmount), 2, '.', '');
+                    $unitPriceWithTax = $this->numberFormat($this->convertCurrency($discount_total + $couponVATAmount));
 
-                    $couponVATAmount = number_format((float)$this->convertCurrency($couponVATAmount), 2, '.', '');
+                    $couponVATAmount = $this->numberFormat($this->convertCurrency($couponVATAmount));
 
                     // Rounding fix
                     $couponVATAmount1 = $unitPriceWithTax * ($vatRate / (100 + $vatRate));
-                    $couponVATAmount1 = number_format((float)$couponVATAmount1, 2, '.', '');
+                    $couponVATAmount1 = $this->numberFormat($couponVATAmount1);
                     if($couponVATAmount != $couponVATAmount1) {
                         if($couponVATAmount1 > $couponVATAmount) {
                             $couponVATAmount = $couponVATAmount + ($couponVATAmount1 - $couponVATAmount);
@@ -490,10 +510,10 @@ class ControllerPaymentMollieBase extends Controller
                         'type'          =>  'discount',
                         'name'          =>  $this->formatText($coupon_info['name']),
                         'quantity'      =>  1,
-                        'unitPrice'     =>  ["currency" => $currency, "value" => (string)number_format(-$unitPriceWithTax, 2, '.', '')],
-                        'totalAmount'   =>  ["currency" => $currency, "value" => (string)number_format(-$unitPriceWithTax, 2, '.', '')],
+                        'unitPrice'     =>  ["currency" => $currency, "value" => (string)$this->numberFormat(-$unitPriceWithTax)],
+                        'totalAmount'   =>  ["currency" => $currency, "value" => (string)$this->numberFormat(-$unitPriceWithTax)],
                         'vatRate'       =>  (string)$vatRate,
-                        'vatAmount'     =>  ["currency" => $currency, "value" => (string)number_format(-$couponVATAmount, 2, '.', '')]
+                        'vatAmount'     =>  ["currency" => $currency, "value" => (string)$this->numberFormat(-$couponVATAmount)]
                     );
 
                     $lines = array_merge($lines, $lineForCoupon);
@@ -508,10 +528,10 @@ class ControllerPaymentMollieBase extends Controller
                     'type'          =>  'gift_card',
                     'name'          =>  $this->formatText($voucher['title']),
                     'quantity'      =>  1,
-                    'unitPrice'     =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($voucher['value']), 2, '.', '')],
-                    'totalAmount'   =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($voucher['value']), 2, '.', '')],
+                    'unitPrice'     =>  ["currency" => $currency, "value" => (string)$this->numberFormat($this->convertCurrency($voucher['value']))],
+                    'totalAmount'   =>  ["currency" => $currency, "value" => (string)$this->numberFormat($this->convertCurrency($voucher['value']))],
                     'vatRate'       =>  "0.00",
-                    'vatAmount'     =>  ["currency" => $currency, "value" => "0.00"]
+                    'vatAmount'     =>  ["currency" => $currency, "value" => (string)$this->numberFormat(0.00)]
                 );
 
                 $lines = array_merge($lines, $lineForVoucher);
@@ -539,7 +559,7 @@ class ControllerPaymentMollieBase extends Controller
                 }
 
                 $unitPriceWithTax = $this->tax->calculate($rewardPoints['value'], $taxClass, true);
-                $unitPriceWithTax = number_format((float)$this->convertCurrency($unitPriceWithTax), 2, '.', '');
+                $unitPriceWithTax = $this->numberFormat($this->convertCurrency($unitPriceWithTax));
 
                 $rewardVATAmount = $unitPriceWithTax * ( $vatRate / (100 +  $vatRate));
 
@@ -549,8 +569,8 @@ class ControllerPaymentMollieBase extends Controller
                     'quantity'      =>  1,
                     'unitPrice'     =>  ["currency" => $currency, "value" => (string)$unitPriceWithTax],
                     'totalAmount'   =>  ["currency" => $currency, "value" => (string)$unitPriceWithTax],
-                    'vatRate'       =>  (string)number_format((float)$vatRate, 2, '.', ''),
-                    'vatAmount'     =>  ["currency" => $currency, "value" => (string)number_format((float)$rewardVATAmount, 2, '.', '')]
+                    'vatRate'       =>  (string)$this->numberFormat($vatRate),
+                    'vatAmount'     =>  ["currency" => $currency, "value" => (string)$this->numberFormat($rewardVATAmount)]
                 );
 
                 $lines = array_merge($lines, $lineForRewardPoints);
@@ -563,10 +583,10 @@ class ControllerPaymentMollieBase extends Controller
                         'type'                  => 'physical',
                         'name'                  => $voucher['description'],
                         'quantity'              => 1,
-                        'unitPrice'             =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($voucher['amount']), 2, '.', '')],
-                        'totalAmount'           =>  ["currency" => $currency, "value" => (string)number_format((float)$this->convertCurrency($voucher['amount']), 2, '.', '')],
+                        'unitPrice'             =>  ["currency" => $currency, "value" => (string)$this->numberFormat($this->convertCurrency($voucher['amount']))],
+                        'totalAmount'           =>  ["currency" => $currency, "value" => (string)$this->numberFormat($this->convertCurrency($voucher['amount']))],
                         'vatRate'               =>  "0.00",
-                        'vatAmount'             =>  ["currency" => $currency, "value" => "0.00"]
+                        'vatAmount'             =>  ["currency" => $currency, "value" => (string)$this->numberFormat(0.00)]
                     );
                 }
 
@@ -596,7 +616,7 @@ class ControllerPaymentMollieBase extends Controller
                     $rates = $this->getTaxRate($tax_rates);
                     $vatRate = isset($rates[0]) ? $rates[0] : 0;
                     $unitPriceWithTax = $this->tax->calculate($orderTotals['value'], $taxClass, true);
-                    $unitPriceWithTax = number_format((float)$this->convertCurrency($unitPriceWithTax), 2, '.', '');
+                    $unitPriceWithTax = $this->numberFormat($this->convertCurrency($unitPriceWithTax));
                     $totalsVATAmount = $unitPriceWithTax * ( $vatRate / (100 +  $vatRate));
 
                     $type = 'discount';
@@ -610,8 +630,8 @@ class ControllerPaymentMollieBase extends Controller
                         'quantity'      =>  1,
                         'unitPrice'     =>  ["currency" => $currency, "value" => (string)$unitPriceWithTax],
                         'totalAmount'   =>  ["currency" => $currency, "value" => (string)$unitPriceWithTax],
-                        'vatRate'       =>  (string)number_format((float)$vatRate, 2, '.', ''),
-                        'vatAmount'     =>  ["currency" => $currency, "value" => (string)number_format((float)$totalsVATAmount, 2, '.', '')]
+                        'vatRate'       =>  (string)$this->numberFormat($vatRate),
+                        'vatAmount'     =>  ["currency" => $currency, "value" => (string)$this->numberFormat($totalsVATAmount)]
                     );
                 }
 
@@ -619,17 +639,17 @@ class ControllerPaymentMollieBase extends Controller
             }
             
             //Check for rounding off issue in a general way (for all possible totals)
-            $orderTotal = number_format($amount, 2, '.', '');
+            $orderTotal = $this->numberFormat($amount);
             $orderLineTotal = 0;
 
             foreach($lines as $line) {
                 $orderLineTotal += $line['totalAmount']['value'];
             }
             
-            $orderLineTotal = number_format($orderLineTotal, 2, '.', '');
+            $orderLineTotal = $this->numberFormat($orderLineTotal);
             
             if($orderTotal > $orderLineTotal) {
-                $amountDiff = number_format(($orderTotal - $orderLineTotal), 2, '.', '');
+                $amountDiff = $this->numberFormat(($orderTotal - $orderLineTotal));
                 $lineForDiscount[] = array(
                     'type'          =>  'discount',
                     'name'          =>  $this->formatText($this->language->get("roundoff_description")),
@@ -637,14 +657,14 @@ class ControllerPaymentMollieBase extends Controller
                     'unitPrice'     =>  ["currency" => $currency, "value" => (string)$amountDiff],
                     'totalAmount'   =>  ["currency" => $currency, "value" => (string)$amountDiff],
                     'vatRate'       =>  "0",
-                    'vatAmount'     =>  ["currency" => $currency, "value" => "0.00"]
+                    'vatAmount'     =>  ["currency" => $currency, "value" => (string)$this->numberFormat(0.00)]
                 );
 
                 $lines = array_merge($lines, $lineForDiscount);
             }
 
             if($orderTotal < $orderLineTotal) {
-                $amountDiff = number_format(-($orderLineTotal - $orderTotal), 2, '.', '');
+                $amountDiff = $this->numberFormat(-($orderLineTotal - $orderTotal));
                 $lineForSurcharge[] = array(
                     'type'          =>  'surcharge',
                     'name'          =>  $this->formatText($this->language->get("roundoff_description")),
@@ -652,7 +672,7 @@ class ControllerPaymentMollieBase extends Controller
                     'unitPrice'     =>  ["currency" => $currency, "value" => (string)$amountDiff],
                     'totalAmount'   =>  ["currency" => $currency, "value" => (string)$amountDiff],
                     'vatRate'       =>  "0",
-                    'vatAmount'     =>  ["currency" => $currency, "value" => "0.00"]
+                    'vatAmount'     =>  ["currency" => $currency, "value" => (string)$this->numberFormat(0.00)]
                 );
 
                 $lines = array_merge($lines, $lineForSurcharge);

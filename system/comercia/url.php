@@ -49,13 +49,11 @@ class Url
             $tokenName = "token";
         }
 
-        if (isset($session->$tokenName) && $session->user_id && strpos($params, "route=") === false) {
-            if ($session->$tokenName) {
-                if ($params) {
-                    $params .= "&".$tokenName."=" . $session->$tokenName;
-                } else {
-                    $params = $tokenName."=" . $session->$tokenName;
-                }
+        if (Util::info()->IsInAdmin() && $session->$tokenName && $session->user_id && strpos($params, "route=") === false) {
+            if ($params) {
+                $params .= "&".$tokenName."=" . $session->$tokenName;
+            } else {
+                $params = $tokenName."=" . $session->$tokenName;
             }
         }
 

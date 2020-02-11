@@ -103,6 +103,7 @@ $_['text_enquiry'] 	                = "Comment pouvons-nous vous aider?";
 $_['text_enquiry_success'] 	        = "Succès: Votre demande a été soumise. Nous reviendrons vers vous bientôt. Je vous remercie!";
 $_['text_update_message']           = "Une nouvelle version (%s) du module Mollie est disponible. Cliquez <a href='%s'>ici</a> pour mettre à jour.";
 $_['text_update_success']          = "Succès: le module Mollie a été mis à jour vers la version %s.";
+$_['text_default_currency']        = "Devise utilisée dans le magasin";
 
 // Entry
 $_['entry_payment_method']           = "Procédé de paiement";
@@ -123,6 +124,10 @@ $_['entry_email'] 			 		 = "E-mail";
 $_['entry_subject'] 			     = "Matière";
 $_['entry_enquiry'] 			 	 = "Enquête";
 $_['entry_debug_mode'] 			 	 = "Debug mode";
+$_['entry_mollie_component_base'] 	 = "Custom CSS for Base input field";
+$_['entry_mollie_component_valid'] 	 = "Custom CSS for Valid input field";
+$_['entry_mollie_component_invalid'] = "Custom CSS for Invalid input field";
+$_['entry_default_currency'] 		 = "Payez toujours avec";
 
 // Help
 $_['help_view_profile']             = 'Vous pouvez trouver votre clé API dans <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank" class="alert-link">vos profils de site à Mollie</a>.';

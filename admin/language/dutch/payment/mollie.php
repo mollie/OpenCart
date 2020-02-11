@@ -103,6 +103,7 @@ $_['text_enquiry'] 	  = "Hoe kunnen we u helpen?";
 $_['text_enquiry_success'] 	  = "Succes: Uw aanvraag is ingediend. We nemen zo snel mogelijk contact met u op.";
 $_['text_update_message']          = "Mollie: Er is een geüpdatet versie (%s) van de Mollie module beschikbaar. Klik <a href='%s'>hier</a> om te updaten.";
 $_['text_update_success']          = "Succes: Mollie module is geüpdatet naar versie %s.";
+$_['text_default_currency']        = "Gebruikte valuta in de winkel";
 
 // Entry
 $_['entry_payment_method']           = "Betaalmethode";
@@ -126,6 +127,7 @@ $_['entry_debug_mode'] 			 	 = "Debug mode";
 $_['entry_mollie_component_base'] 	 = "Custom CSS for Base input field";
 $_['entry_mollie_component_valid'] 	 = "Custom CSS for Valid input field";
 $_['entry_mollie_component_invalid'] = "Custom CSS for Invalid input field";
+$_['entry_default_currency'] 		 = "Altijd betalen met";
 
 // Help
 $_['help_view_profile']             = 'U kunt uw API-sleutel vinden bij <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank" class="alert-link">uw Mollie-websiteprofielen</a>.';

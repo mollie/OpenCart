@@ -56,6 +56,48 @@ class ModelPaymentMollieBase extends Model
 		return MollieHelper::getAPIClient($this->config);
 	}
 
+	public function numberFormat($amount) {
+		$currency = $this->getCurrency();
+		$intCurrencies = array("ISK", "JPY");
+		if(!in_array($currency, $intCurrencies)) {
+			$formattedAmount = number_format((float)$amount, 2, '.', '');
+		} else {
+			$formattedAmount = number_format($amount, 0);
+		}	
+		return $formattedAmount;	
+	}
+
+	public function getAllActive($data) {
+		$allowed_methods = array();
+		try {
+			$payment_methods = $this->getAPIClient()->methods->allActive($data);
+		} catch (Mollie\Api\Exceptions\ApiException $e) {
+			$this->log->write("Error retrieving payment methods from Mollie: {$e->getMessage()}.");
+			return array();
+		}
+		
+		//Get payment methods allowed for this amount and currency
+		foreach ($payment_methods as $allowed_method)
+		{
+			$allowed_methods[] = $allowed_method->id;
+		}
+		
+		if(empty($allowed_methods)) {
+			$data["amount"]["currency"] = "EUR";
+			$allowed_methods = $this->getAllActive($data);
+		}		
+		return $allowed_methods;			
+	}
+
+	public function getCurrency() {
+		if($this->config->get(MollieHelper::getModuleCode() . "_default_currency") == "DEF") {
+			$currency = $this->session->data['currency'];
+		} else {
+			$currency = $this->config->get(MollieHelper::getModuleCode() . "_default_currency");
+		}
+		return $currency;
+	}
+
 	/**
 	 * On the checkout page this method gets called to get information about the payment method.
 	 *
@@ -68,7 +110,7 @@ class ModelPaymentMollieBase extends Model
 	{
 		$this->load->language("payment/mollie");
 		$modelCountry = Util::load()->model('localisation/country');
-		$currency = $this->session->data['currency'];
+		$currency = $this->getCurrency();
 		$moduleCode = MollieHelper::getModuleCode();
 		
 		// Return nothing if ApplePay is not available
@@ -111,19 +153,13 @@ class ModelPaymentMollieBase extends Model
 
 		$total = $this->currency->convert($total, $this->config->get("config_currency"), $currency);		
 		$data = array(
-            "amount" 		 => ["value" => (string)number_format((float)$total, 2, '.', ''), "currency" => $currency],
+            "amount" 		 => ["value" => (string)$this->numberFormat($total), "currency" => $currency],
             "resource" 		 => "orders",
             "includeWallets" => "applepay",
 			"billingCountry" => $country
         );        
-		$payment_methods = $this->getAPIClient()->methods->allActive($data);
-
-		//Get payment methods allowed for this amount and currency
-		$allowed_methods = array();
-		foreach ($payment_methods as $allowed_method)
-		{
-			$allowed_methods[] = $allowed_method->id;
-		}
+		
+		$allowed_methods = $this->getAllActive($data);
 		
 		if(!in_array($payment_method->id, $allowed_methods)) {
 			return NULL;

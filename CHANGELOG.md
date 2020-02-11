@@ -2,6 +2,10 @@
 
 # Changelog #
 
+#### Changes in release 9.2.5
+  + Bugfix URL creation
+  + Added option to force currency for payment
+  
 #### Changes in release 9.2.4
   + Small bugfix for invalid amount message
   + Fixed loading of MollieHttpClient
