@@ -6,7 +6,8 @@
   + Redirected to success page after 'Open' payment status
   + Made mollie_order_id primary in mollie_payments table 
   + Added date_modified field in mollie_payments table 
-  + Bugfix
+  + Call cleanup function on more occasions
+  + Added settings update to make sure module keeps working when an update introduces new settings
 
 #### Changes in release 9.2.5
   + Bugfix URL creation
