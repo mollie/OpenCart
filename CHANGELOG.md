@@ -2,6 +2,12 @@
 
 # Changelog #
 
+#### Changes in release 9.2.6
+  + Redirected to success page after 'Open' payment status
+  + Made mollie_order_id primary in mollie_payments table 
+  + Added date_modified field in mollie_payments table 
+  + Bugfix
+
 #### Changes in release 9.2.5
   + Bugfix URL creation
   + Added option to force currency for payment

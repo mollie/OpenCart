@@ -272,9 +272,22 @@ class ControllerPaymentMollieBase extends Controller {
 		$catalogControllerDir = DIR_CATALOG . 'controller/';
 		$catalogModelDir      = DIR_CATALOG . 'model/';
 
+		$files = array();
+
 		foreach (DEPRECATED_METHODS as $method) {
-			if (file_exists($adminControllerDir . 'extension/payment/mollie_' . $method . '.php')) {
-				unlink($adminControllerDir . 'extension/payment/mollie_' . $method . '.php');
+			$files = array(
+				$adminControllerDir . 'extension/payment/mollie_' . $method . '.php',
+				$catalogControllerDir . 'extension/payment/mollie_' . $method . '.php',
+				$catalogModelDir . 'extension/payment/mollie_' . $method . '.php',
+				$adminControllerDir . 'payment/mollie_' . $method . '.php',
+				$catalogControllerDir . 'payment/mollie_' . $method . '.php',
+				$catalogModelDir . 'payment/mollie_' . $method . '.php'
+			);
+
+			foreach ($files as $file) {
+				if (file_exists($file)) {
+					unlink($file);
+				}
 			}
 
 			$languageFiles = glob($adminLanguageDir . '*/extension/payment/mollie_' . $method . '.php');
@@ -284,67 +297,51 @@ class ControllerPaymentMollieBase extends Controller {
 				}
 			}
 
-			if (file_exists($catalogControllerDir . 'extension/payment/mollie_' . $method . '.php')) {
-				unlink($catalogControllerDir . 'extension/payment/mollie_' . $method . '.php');
-			}
-
-			if (file_exists($catalogModelDir . 'extension/payment/mollie_' . $method . '.php')) {
-				unlink($catalogModelDir . 'extension/payment/mollie_' . $method . '.php');
-			}
-
-			if (file_exists($adminControllerDir . 'payment/mollie_' . $method . '.php')) {
-				unlink($adminControllerDir . 'payment/mollie_' . $method . '.php');
-			}
-
 			$languageFiles = glob($adminLanguageDir . '*/payment/mollie_' . $method . '.php');
 			foreach ($languageFiles as $file) {
 				if (file_exists($file)) {
 					unlink($file);
 				}
 			}
-
-			if (file_exists($catalogControllerDir . 'payment/mollie_' . $method . '.php')) {
-				unlink($catalogControllerDir . 'payment/mollie_' . $method . '.php');
-			}
-
-			if (file_exists($catalogModelDir . 'payment/mollie_' . $method . '.php')) {
-				unlink($catalogModelDir . 'payment/mollie_' . $method . '.php');
-			}
 		}
 
 		if (MollieHelper::isOpenCart3x()) {
-			if(file_exists($adminThemeDir . 'extension/payment/mollie(max_1.5.6.4).tpl')) {
-				unlink($adminThemeDir . 'extension/payment/mollie(max_1.5.6.4).tpl');
-				unlink($adminThemeDir . 'payment/mollie(max_1.5.6.4).tpl');
-				unlink($catalogThemeDir . 'extension/payment/mollie_return.tpl');
-				unlink($catalogThemeDir . 'payment/mollie_return.tpl');
-				unlink($catalogThemeDir . 'extension/payment/mollie_checkout_form.tpl');
-				unlink($catalogThemeDir . 'payment/mollie_checkout_form.tpl');
-			}
-			//Remove twig file from old version
-			if(file_exists($adminThemeDir . 'extension/payment/mollie.twig')) {
-				unlink($adminThemeDir . 'extension/payment/mollie.twig');
-			}
-			if(file_exists($adminThemeDir . 'payment/mollie.twig')) {
-				unlink($adminThemeDir . 'payment/mollie.twig');
-			}
+			$files = array(
+				$adminThemeDir . 'extension/payment/mollie(max_1.5.6.4).tpl',
+				$adminThemeDir . 'payment/mollie(max_1.5.6.4).tpl',
+				$catalogThemeDir . 'extension/payment/mollie_return.tpl',
+				$catalogThemeDir . 'payment/mollie_return.tpl',
+				$catalogThemeDir . 'extension/payment/mollie_checkout_form.tpl',
+				$catalogThemeDir . 'payment/mollie_checkout_form.tpl',
+				$adminThemeDir . 'extension/payment/mollie.twig', //Remove twig file from old version
+				$adminThemeDir . 'payment/mollie.twig' //Remove twig file from old version
+			);
+			
 		} elseif (MollieHelper::isOpenCart2x()) {
-			if(file_exists($adminThemeDir . 'extension/payment/mollie(max_1.5.6.4).tpl')) {
-				unlink($adminThemeDir . 'extension/payment/mollie(max_1.5.6.4).tpl');
-				unlink($adminThemeDir . 'payment/mollie(max_1.5.6.4).tpl');
-				unlink($catalogThemeDir . 'extension/payment/mollie_return.twig');
-				unlink($catalogThemeDir . 'payment/mollie_return.twig');
-				unlink($catalogThemeDir . 'extension/payment/mollie_checkout_form.twig');
-				unlink($catalogThemeDir . 'payment/mollie_checkout_form.twig');
-			}
+			$files = array(
+				$adminThemeDir . 'extension/payment/mollie(max_1.5.6.4).tpl',
+				$adminThemeDir . 'payment/mollie(max_1.5.6.4).tpl',
+				$catalogThemeDir . 'extension/payment/mollie_return.twig',
+				$catalogThemeDir . 'payment/mollie_return.twig',
+				$catalogThemeDir . 'extension/payment/mollie_checkout_form.twig',
+				$catalogThemeDir . 'payment/mollie_checkout_form.twig'
+			);
+			
 		} else {
-			if(file_exists($adminThemeDir . 'extension/payment/mollie.tpl')) {
-				unlink($adminThemeDir . 'extension/payment/mollie.tpl');
-				unlink($adminThemeDir . 'payment/mollie.tpl');
-				unlink($catalogThemeDir . 'extension/payment/mollie_return.twig');
-				unlink($catalogThemeDir . 'payment/mollie_return.twig');
-				unlink($catalogThemeDir . 'extension/payment/mollie_checkout_form.twig');
-				unlink($catalogThemeDir . 'payment/mollie_checkout_form.twig');
+			$files = array(
+				$adminThemeDir . 'extension/payment/mollie.tpl',
+				$adminThemeDir . 'payment/mollie.tpl',
+				$catalogThemeDir . 'extension/payment/mollie_return.twig',
+				$catalogThemeDir . 'payment/mollie_return.twig',
+				$catalogThemeDir . 'extension/payment/mollie_checkout_form.twig',
+				$catalogThemeDir . 'payment/mollie_checkout_form.twig'
+			);
+			
+		}
+
+		foreach ($files as $file) {
+			if (file_exists($file)) {
+				unlink($file);
 			}
 		}
 
@@ -372,6 +369,24 @@ class ControllerPaymentMollieBase extends Controller {
 	      (is_dir("$dir/$file")) ? $this->delTree("$dir/$file") : unlink("$dir/$file");
 	    }
 	    return rmdir($dir);
+	}
+
+	/**
+	 * Insert variables that are added in later versions.
+	*/
+	public function updateSettings() {
+		$code = MollieHelper::getModuleCode();
+        $stores = Util::info()->stores();
+        $vars = array(
+        	'default_currency' => 'DEF' // variable => default value
+        );
+        foreach($stores as $store) {
+        	foreach($vars as $var=>$val) {
+        		if (null == Util::config($store['store_id'])->get($code . '_' . $var, true)) {
+					Util::config($store['store_id'])->setValue($code, $code . '_' . $var, $val);
+				}
+        	}
+        }
 	}
 
 	/**
@@ -431,40 +446,20 @@ class ControllerPaymentMollieBase extends Controller {
 	public function index () {
 		// Double-check if clean-up has been done - For upgrades
 		if (empty($this->config->get('mollie_payment_version')) || $this->config->get('mollie_payment_version') < MOLLIE_VERSION) {
-			$this->cleanUp();
 			Util::config(0)->set('mollie_payment', 'mollie_payment_version', MOLLIE_VERSION);
 		}
 
-		$adminThemeDir = DIR_APPLICATION . 'view/template/';
-		if (MollieHelper::isOpenCart3x() || MollieHelper::isOpenCart2x()) {
-			if(file_exists($adminThemeDir . 'extension/payment/mollie(max_1.5.6.4).tpl') || file_exists($adminThemeDir . 'extension/payment/mollie.twig') || file_exists($adminThemeDir . 'payment/mollie.twig')) {
-				$this->cleanUp();
-			}
-		} else {
-			if(file_exists($adminThemeDir . 'extension/payment/mollie.tpl')) {
-				$this->cleanUp();
-			}
-		}
-
-		$adminControllerDir   = DIR_APPLICATION . 'controller/';
-		foreach (DEPRECATED_METHODS as $method) {
-			if (file_exists($adminControllerDir . 'extension/payment/mollie_' . $method . '.php') || file_exists($adminControllerDir . 'payment/mollie_' . $method . '.php')) {
-				$this->cleanUp();
-			}
-		}
-
-		$catalogControllerDir   = DIR_CATALOG . 'controller/';
-		
-		// Remove un-used files from version 8.x
-		if (file_exists($adminControllerDir . 'extension/payment/mollie') || file_exists($catalogControllerDir . 'extension/payment/mollie') || file_exists($catalogControllerDir . 'extension/payment/mollie-api-client')) {
-			$this->cleanUp();
-		}
+		// Run cleanup
+		$this->cleanUp();
 
 		//Also delete data related to deprecated modules from settings
 		$this->clearData();
 
 		// Run database patch
 		$this->patch();
+
+		// Update settings with newly added variables
+		$this->updateSettings();
 
 		//Load language data
 		$data = array("version" => MOLLIE_RELEASE);
@@ -633,7 +628,7 @@ class ControllerPaymentMollieBase extends Controller {
 			$code . "_ideal_shipping_status_id"   				=> 3,
 			$code . "_create_shipment_status_id"  				=> 3,
 			$code . "_ideal_refund_status_id"  					=> 11,
-			$code . "_create_shipment"  		  				=> 1,
+			$code . "_create_shipment"  		  				=> 3,
 			$code . "_refresh_token"  		  					=> '',
 			$code . "_payment_screen_language"  		  		=> 'en-gb',
 			$code . "_default_currency"  		  				=> 'DEF',

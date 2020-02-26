@@ -1191,7 +1191,7 @@ class ControllerPaymentMollieBase extends Controller
         } else if(!empty($orderDetails->_embedded->payments)) {
 
             $payment = $orderDetails->_embedded->payments[0];
-            if (($payment->status == 'paid') && !in_array($paid_status_id, $orderStatuses)) {
+            if (($payment->status == 'paid' || $payment->status == 'open') && !in_array($paid_status_id, $orderStatuses)) {
                 $this->addOrderHistory($order, $paid_status_id, $this->language->get("response_success"), true);
                 $order['order_status_id'] = $paid_status_id;
             }
