@@ -2,12 +2,14 @@
 
 # Changelog #
 
+#### Changes in release 9.2.7
+  + Deleted entries with empty mollie_order_id to fix primary key update error
+
 #### Changes in release 9.2.6
   + Redirected to success page after 'Open' payment status
   + Made mollie_order_id primary in mollie_payments table 
   + Added date_modified field in mollie_payments table 
-  + Call cleanup function on more occasions
-  + Added settings update to make sure module keeps working when an update introduces new settings
+  + Bugfix
 
 #### Changes in release 9.2.5
   + Bugfix URL creation
