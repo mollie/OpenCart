@@ -2,6 +2,10 @@
 
 # Changelog #
 
+#### Changes in release 9.2.8
+  + Fixed success message bug after module update
+  + Fixed journal theme bug for credit card
+
 #### Changes in release 9.2.7
   + Deleted entries with empty mollie_order_id to fix primary key update error
 

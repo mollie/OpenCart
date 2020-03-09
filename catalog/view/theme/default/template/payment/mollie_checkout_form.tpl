@@ -1,6 +1,6 @@
 <div class="checkout-content">
 	<form action="<?php echo $action; ?>" method="post" id="mollie_payment_form" <?php if(!$mollieComponents) { echo 'class="form-horizontal"'; } ?>>
-		<div class="buttons">
+		<div>
 			<?php if (!empty($issuers)) { ?>
 			<div class="form-group pull-left">
 		        <label class="col-sm-6 control-label"><img src="<?php echo $image; ?>" width="20" /> <strong><?php echo $text_issuer; ?>:</strong></label>
@@ -39,7 +39,7 @@
 			</div>
 			<input type="hidden" id="card-token" name="cardToken" value="">
 			<?php } ?>
-			<div class="right pull-right">
+			<div class="right pull-right buttons">
 				<input type="submit" value="<?php echo $message->get('button_confirm'); ?>" id="button-confirm" class="button btn btn-primary" form="mollie_payment_form">
 			</div>
 			<div class="mollie-text">
