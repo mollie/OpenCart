@@ -1,6 +1,6 @@
 <div class="checkout-content">
   <form action="{{ action }}" method="post" id="mollie_payment_form" {% if not mollieComponents %} class="form-horizontal" {% endif %}>
-    <div class="buttons clearfix">
+    <div class="clearfix">
       {% if issuers is not empty %}
       <div class="form-group pull-left">
         <label class="col-sm-6 control-label"><img src="{{ image }}" width="20" /> <strong>{{ text_issuer }}:</strong></label>
@@ -39,7 +39,7 @@
       </div>
       <input type="hidden" id="card-token" name="cardToken" value="">
       {% endif %}
-      <div class="right pull-right">
+      <div class="right pull-right buttons">
         <input type="submit" value="{{ message.get('button_confirm') }}" id="button-confirm" class="button btn btn-primary" form="mollie_payment_form">
       </div>
       <div class="mollie-text">

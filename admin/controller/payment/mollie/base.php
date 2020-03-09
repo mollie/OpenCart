@@ -1052,7 +1052,7 @@ class ControllerPaymentMollieBase extends Controller {
         if (!$this->getUpdateUrl()) {
             $data = array("version" => MOLLIE_RELEASE);
             Util::load()->language("payment/mollie", $data);
-            $this->session->data['success'] = sprintf($this->language->get['text_update_success'], MOLLIE_RELEASE);
+            $this->session->data['success'] = sprintf($this->language->get('text_update_success'), MOLLIE_RELEASE);
         }
 
         //go back

@@ -205,7 +205,7 @@ class ModelPaymentMollieBase extends Model
 	{
 		$bank_account = isset($this->session->data['mollie_issuer']) ? $this->session->data['mollie_issuer'] : NULL;
 		if (!empty($order_id) && !empty($mollie_order_id) && !empty($method)) {
-			$this->db->query("INSERT INTO `" . DB_PREFIX . "mollie_payments` SET `order_id` = '" . (int)$order_id . "', `mollie_order_id` = '" . $this->db->escape($mollie_order_id) . "', `method` = '" . $this->db->escape($method) . "', `bank_account` = '" . $this->db->escape($bank_account) . "', `date_modified` = NOW() ON DUPLICATE KEY UPDATE `order_id` = '" . (int)$order_id . "'");
+			$this->db->query("INSERT INTO `" . DB_PREFIX . "mollie_payments` SET `order_id` = '" . (int)$order_id . "', `mollie_order_id` = '" . $this->db->escape($mollie_order_id) . "', `method` = '" . $this->db->escape($method) . "', `bank_account` = '" . $this->db->escape($bank_account) . "', date_modified = NOW() ON DUPLICATE KEY UPDATE `order_id` = '" . (int)$order_id . "'");
 
 			if ($this->db->countAffected() > 0) {
 				return TRUE;
@@ -227,7 +227,7 @@ class ModelPaymentMollieBase extends Model
 	public function updatePayment($order_id, $mollie_order_id, $data, $consumer = NULL)
 	{
 		if (!empty($order_id) && !empty($mollie_order_id)) {
-			$this->db->query("UPDATE `" . DB_PREFIX . "mollie_payments` SET `transaction_id` = '" . $this->db->escape($data['payment_id']) . "', `bank_status` = '" . $this->db->escape($data['status']) . "', `date_modified` = NOW() WHERE `order_id` = '" . (int)$order_id . "' AND `mollie_order_id` = '" . $this->db->escape($mollie_order_id) . "'");
+			$this->db->query("UPDATE `" . DB_PREFIX . "mollie_payments` SET `transaction_id` = '" . $this->db->escape($data['payment_id']) . "', `bank_status` = '" . $this->db->escape($data['status']) . "', date_modified = NOW() WHERE `order_id` = '" . (int)$order_id . "' AND `mollie_order_id` = '" . $this->db->escape($mollie_order_id) . "'");
 
 			return $this->db->countAffected() > 0;
 		}
