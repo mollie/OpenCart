@@ -1284,9 +1284,9 @@ class ControllerPaymentMollieBase extends Controller
         $data['breadcrumbs'] = array();
 
         $data['breadcrumbs'][] = array(
-            "href" => Util::url()->link("common/home", (isset($this->session->data['token'])) ? "token=" . $this->session->data['token'] : ""),
-            "text" => $this->language->get("text_home"),
-            "separator" => false,
+            'href'		=> Util::url()->link('common/home', ( defined('DIR_CATALOG') && isset($this->session->data['token'])) ? 'token=' . $this->session->data['token'] : ''),
+            'text'		=> $this->language->get('text_home'),
+            'separator'	=> false,
         );
     }
 
