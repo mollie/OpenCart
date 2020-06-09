@@ -1,6 +1,6 @@
 <?php
 
-namespace _PhpScoper5ce26f1fe2920\GuzzleHttp\Promise;
+namespace _PhpScoper5e55118e73ab9\GuzzleHttp\Promise;
 
 /**
  * A promise that has been fulfilled.
@@ -8,7 +8,7 @@ namespace _PhpScoper5ce26f1fe2920\GuzzleHttp\Promise;
  * Thenning off of this promise will invoke the onFulfilled callback
  * immediately and ignore other callbacks.
  */
-class FulfilledPromise implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\Promise\PromiseInterface
+class FulfilledPromise implements \_PhpScoper5e55118e73ab9\GuzzleHttp\Promise\PromiseInterface
 {
     private $value;
     public function __construct($value)
@@ -25,7 +25,7 @@ class FulfilledPromise implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\Promise\Pr
             return $this;
         }
         $queue = queue();
-        $p = new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Promise\Promise([$queue, 'run']);
+        $p = new \_PhpScoper5e55118e73ab9\GuzzleHttp\Promise\Promise([$queue, 'run']);
         $value = $this->value;
         $queue->add(static function () use($p, $value, $onFulfilled) {
             if ($p->getState() === self::PENDING) {

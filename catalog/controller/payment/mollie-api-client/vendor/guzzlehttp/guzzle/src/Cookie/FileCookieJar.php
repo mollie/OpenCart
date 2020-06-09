@@ -1,11 +1,11 @@
 <?php
 
-namespace _PhpScoper5ce26f1fe2920\GuzzleHttp\Cookie;
+namespace _PhpScoper5e55118e73ab9\GuzzleHttp\Cookie;
 
 /**
  * Persists non-session cookies using a JSON formatted file
  */
-class FileCookieJar extends \_PhpScoper5ce26f1fe2920\GuzzleHttp\Cookie\CookieJar
+class FileCookieJar extends \_PhpScoper5e55118e73ab9\GuzzleHttp\Cookie\CookieJar
 {
     /** @var string filename */
     private $filename;
@@ -22,6 +22,7 @@ class FileCookieJar extends \_PhpScoper5ce26f1fe2920\GuzzleHttp\Cookie\CookieJar
      */
     public function __construct($cookieFile, $storeSessionCookies = \false)
     {
+        parent::__construct();
         $this->filename = $cookieFile;
         $this->storeSessionCookies = $storeSessionCookies;
         if (\file_exists($cookieFile)) {
@@ -46,12 +47,12 @@ class FileCookieJar extends \_PhpScoper5ce26f1fe2920\GuzzleHttp\Cookie\CookieJar
         $json = [];
         foreach ($this as $cookie) {
             /** @var SetCookie $cookie */
-            if (\_PhpScoper5ce26f1fe2920\GuzzleHttp\Cookie\CookieJar::shouldPersist($cookie, $this->storeSessionCookies)) {
+            if (\_PhpScoper5e55118e73ab9\GuzzleHttp\Cookie\CookieJar::shouldPersist($cookie, $this->storeSessionCookies)) {
                 $json[] = $cookie->toArray();
             }
         }
-        $jsonStr = \_PhpScoper5ce26f1fe2920\GuzzleHttp\json_encode($json);
-        if (\false === \file_put_contents($filename, $jsonStr)) {
+        $jsonStr = \_PhpScoper5e55118e73ab9\GuzzleHttp\json_encode($json);
+        if (\false === \file_put_contents($filename, $jsonStr, \LOCK_EX)) {
             throw new \RuntimeException("Unable to save file {$filename}");
         }
     }
@@ -71,10 +72,10 @@ class FileCookieJar extends \_PhpScoper5ce26f1fe2920\GuzzleHttp\Cookie\CookieJar
         } elseif ($json === '') {
             return;
         }
-        $data = \_PhpScoper5ce26f1fe2920\GuzzleHttp\json_decode($json, \true);
+        $data = \_PhpScoper5e55118e73ab9\GuzzleHttp\json_decode($json, \true);
         if (\is_array($data)) {
             foreach (\json_decode($json, \true) as $cookie) {
-                $this->setCookie(new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Cookie\SetCookie($cookie));
+                $this->setCookie(new \_PhpScoper5e55118e73ab9\GuzzleHttp\Cookie\SetCookie($cookie));
             }
         } elseif (\strlen($data)) {
             throw new \RuntimeException("Invalid cookie file: {$filename}");

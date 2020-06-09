@@ -2,6 +2,22 @@
 
 # Changelog #
 
+#### Changes in release 9.3.1
+  + Updated API to the latest
+  + Fixed payment title related bug for pdf invoice pro
+  + Added util
+  + Updated logging
+  + Removed 'Description' field(for now) from settings to avoid confusion
+  + Added VQMod version to support email
+  + Fixed minor error
+  + Updated util
+  + Used status 303 see other to payment redirect
+  + Stored images/icons locally in the module
+  + Added translation for hardcoded strings
+  + Fixed bug regarding options saving for '-Do not update the order status'
+  + Added a counter to keep track of payment attempts
+  + Fixed bug regarding incorrect order update
+
 #### Changes in release 9.2.8
   + Fixed success message bug after module update
   + Fixed journal theme bug for credit card

@@ -2,9 +2,8 @@
 
 namespace Mollie\Api\Endpoints;
 
-use Mollie\Api\Resources\BaseCollection;
-use Mollie\Api\Resources\BaseResource;
 use Mollie\Api\Resources\Customer;
+use Mollie\Api\Resources\ResourceFactory;
 use Mollie\Api\Resources\Subscription;
 use Mollie\Api\Resources\SubscriptionCollection;
 class SubscriptionEndpoint extends \Mollie\Api\Endpoints\CollectionEndpointAbstract
@@ -23,7 +22,7 @@ class SubscriptionEndpoint extends \Mollie\Api\Endpoints\CollectionEndpointAbstr
      * Get the collection object that is used by this API endpoint. Every API endpoint uses one type of collection object.
      *
      * @param int $count
-     * @param object[] $_links
+     * @param \stdClass $_links
      *
      * @return SubscriptionCollection
      */
@@ -82,5 +81,27 @@ class SubscriptionEndpoint extends \Mollie\Api\Endpoints\CollectionEndpointAbstr
     {
         $this->parentId = $customer->id;
         return parent::rest_delete($subscriptionId, $data);
+    }
+    /**
+     * Retrieves a collection of Subscriptions from Mollie.
+     *
+     * @param string $from The first payment ID you want to include in your list.
+     * @param int $limit
+     * @param array $parameters
+     *
+     * @return SubscriptionCollection
+     * @throws \Mollie\Api\Exceptions\ApiException
+     */
+    public function page($from = null, $limit = null, array $parameters = [])
+    {
+        $filters = \array_merge(["from" => $from, "limit" => $limit], $parameters);
+        $apiPath = 'subscriptions' . $this->buildQueryString($filters);
+        $result = $this->client->performHttpCall(self::REST_LIST, $apiPath);
+        /** @var SubscriptionCollection $collection */
+        $collection = $this->getResourceCollectionObject($result->count, $result->_links);
+        foreach ($result->_embedded->{$collection->getCollectionResourceName()} as $dataResult) {
+            $collection[] = \Mollie\Api\Resources\ResourceFactory::createFromApiResult($dataResult, $this->getResourceObject());
+        }
+        return $collection;
     }
 }

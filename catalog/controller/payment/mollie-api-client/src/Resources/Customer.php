@@ -34,7 +34,7 @@ class Customer extends \Mollie\Api\Resources\BaseResource
      */
     public $locale;
     /**
-     * @var object|mixed|null
+     * @var \stdClass|mixed|null
      */
     public $metadata;
     /**
@@ -46,7 +46,7 @@ class Customer extends \Mollie\Api\Resources\BaseResource
      */
     public $createdAt;
     /**
-     * @var object[]
+     * @var \stdClass
      */
     public $_links;
     /**
@@ -69,7 +69,7 @@ class Customer extends \Mollie\Api\Resources\BaseResource
      */
     public function createPayment(array $options = [], array $filters = [])
     {
-        return $this->client->customerPayments->createFor($this, $options, $filters);
+        return $this->client->customerPayments->createFor($this, $this->withPresetOptions($options), $filters);
     }
     /**
      * Get all payments for this customer
@@ -88,7 +88,7 @@ class Customer extends \Mollie\Api\Resources\BaseResource
      */
     public function createSubscription(array $options = [], array $filters = [])
     {
-        return $this->client->subscriptions->createFor($this, $options, $filters);
+        return $this->client->subscriptions->createFor($this, $this->withPresetOptions($options), $filters);
     }
     /**
      * @param string $subscriptionId
@@ -98,7 +98,7 @@ class Customer extends \Mollie\Api\Resources\BaseResource
      */
     public function getSubscription($subscriptionId, array $parameters = [])
     {
-        return $this->client->subscriptions->getFor($this, $subscriptionId, $parameters);
+        return $this->client->subscriptions->getFor($this, $subscriptionId, $this->withPresetOptions($parameters));
     }
     /**
      * @param string $subscriptionId
@@ -126,7 +126,7 @@ class Customer extends \Mollie\Api\Resources\BaseResource
      */
     public function createMandate(array $options = [], array $filters = [])
     {
-        return $this->client->mandates->createFor($this, $options, $filters);
+        return $this->client->mandates->createFor($this, $this->withPresetOptions($options), $filters);
     }
     /**
      * @param string $mandateId
@@ -198,5 +198,15 @@ class Customer extends \Mollie\Api\Resources\BaseResource
             $options["testmode"] = $this->mode === "test" ? \true : \false;
         }
         return $options;
+    }
+    /**
+     * Apply the preset options.
+     *
+     * @param array $options
+     * @return array
+     */
+    private function withPresetOptions(array $options)
+    {
+        return \array_merge($this->getPresetOptions(), $options);
     }
 }

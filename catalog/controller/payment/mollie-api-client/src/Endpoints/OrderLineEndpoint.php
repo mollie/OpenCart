@@ -29,7 +29,7 @@ class OrderLineEndpoint extends \Mollie\Api\Endpoints\CollectionEndpointAbstract
      * endpoint uses one type of collection object.
      *
      * @param int $count
-     * @param object[] $_links
+     * @param \stdClass $_links
      *
      * @return OrderLineCollection
      */
@@ -67,7 +67,7 @@ class OrderLineEndpoint extends \Mollie\Api\Endpoints\CollectionEndpointAbstract
      */
     public function cancelForId($orderId, array $data)
     {
-        if (!isset($data, $data['lines']) || !\is_array($data['lines'])) {
+        if (!isset($data['lines']) || !\is_array($data['lines'])) {
             throw new \Mollie\Api\Exceptions\ApiException("A lines array is required.");
         }
         $this->parentId = $orderId;

@@ -1,0 +1,76 @@
+<modification>
+    <id>Quality Works Utility</id>
+    <version>1.0.1</version>
+    <vqmver>2.3.0</vqmver>
+    <author>Quality Works</author>
+
+    <file name="system/startup.php">
+        <operation error="log">
+            <search position="after"><![CDATA[<?php]]></search>
+            <add><![CDATA[include_once(DIR_SYSTEM."/util/util.php");]]></add>
+        </operation>
+    </file>
+
+    <file name="system/framework.php">
+        <operation error="log">
+            <search position="before"><![CDATA[$registry = new Registry();]]></search>
+            <add><![CDATA[
+                global $registry;
+                global $application_context;
+                $application_context=$application_config;
+            ]]></add>
+        </operation>
+    </file>
+
+    <file name="catalog/view/theme/*/template/common/header.tpl">
+        <operation error="log">
+            <search position="after"><![CDATA[<head]]></search>
+            <add><![CDATA[<?php echo util\util::html()->variables();?>]]>
+            </add>
+        </operation>
+    </file>
+
+    <file name="admin/view/template/common/header.tpl">
+        <operation error="log">
+            <search position="after"><![CDATA[<head]]></search>
+            <add><![CDATA[<?php echo util\util::html()->variables();?>]]>
+            </add>
+        </operation>
+    </file>
+
+
+    <file name="catalog/view/theme/*/template/common/header.twig">
+        <operation error="log">
+            <search position="after"><![CDATA[<head]]></search>
+            <add><![CDATA[{{ html_variables() }}]]>
+            </add>
+        </operation>
+    </file>
+
+    <file name="admin/view/template/common/header.twig">
+        <operation error="log">
+            <search position="after"><![CDATA[<head]]></search>
+            <add><![CDATA[{{ html_variables() }}]]>
+            </add>
+        </operation>
+    </file>
+
+    <file name="system/library/template/twig.php">
+        <operation error="log">
+            <search position="after"><![CDATA[$this->twig = new \Twig_Environment]]></search>
+            <add><![CDATA[
+            \util\Util::twig()->prepare($this->twig);
+           ]]>
+            </add>
+        </operation>
+    </file>
+
+    <file name="system/engine/action.php">
+        <operation error="log">
+            <search position="replace"><![CDATA[if (is_dir(DIR_APPLICATION . 'controller/' . $path)) {]]></search>
+            <add>
+                <![CDATA[	if (is_dir(DIR_APPLICATION . 'controller/' . $path) && !is_file(DIR_APPLICATION . 'controller/' . str_replace(array('../', '..\\', '..'), '', $path) . '.php')) {]]>
+            </add>
+        </operation>
+    </file>
+</modification>

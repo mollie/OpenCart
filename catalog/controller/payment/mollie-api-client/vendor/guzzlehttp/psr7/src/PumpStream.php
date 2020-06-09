@@ -1,8 +1,8 @@
 <?php
 
-namespace _PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7;
+namespace _PhpScoper5e55118e73ab9\GuzzleHttp\Psr7;
 
-use _PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInterface;
+use _PhpScoper5e55118e73ab9\Psr\Http\Message\StreamInterface;
 /**
  * Provides a read only stream that pumps data from a PHP callable.
  *
@@ -13,7 +13,7 @@ use _PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInterface;
  * the read() function of the PumpStream. The provided callable MUST return
  * false when there is no more data to read.
  */
-class PumpStream implements \_PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInterface
+class PumpStream implements \_PhpScoper5e55118e73ab9\Psr\Http\Message\StreamInterface
 {
     /** @var callable */
     private $source;
@@ -40,7 +40,7 @@ class PumpStream implements \_PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInte
         $this->source = $source;
         $this->size = isset($options['size']) ? $options['size'] : null;
         $this->metadata = isset($options['metadata']) ? $options['metadata'] : [];
-        $this->buffer = new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\BufferStream();
+        $this->buffer = new \_PhpScoper5e55118e73ab9\GuzzleHttp\Psr7\BufferStream();
     }
     public function __toString()
     {

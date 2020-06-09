@@ -111,7 +111,7 @@ abstract class EndpointAbstract
      * @return BaseCollection
      * @throws ApiException
      */
-    protected function rest_list($from = null, $limit = null, array $filters)
+    protected function rest_list($from = null, $limit = null, array $filters = [])
     {
         $filters = \array_merge(["from" => $from, "limit" => $limit], $filters);
         $apiPath = $this->getResourcePath() . $this->buildQueryString($filters);
@@ -162,7 +162,7 @@ abstract class EndpointAbstract
             return null;
         }
         try {
-            $encoded = \_PhpScoper5ce26f1fe2920\GuzzleHttp\json_encode($body);
+            $encoded = \_PhpScoper5e55118e73ab9\GuzzleHttp\json_encode($body);
         } catch (\InvalidArgumentException $e) {
             throw new \Mollie\Api\Exceptions\ApiException("Error encoding parameters into JSON: '" . $e->getMessage() . "'.");
         }

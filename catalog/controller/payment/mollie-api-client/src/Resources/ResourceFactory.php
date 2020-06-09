@@ -22,22 +22,21 @@ class ResourceFactory
     }
     /**
      * @param MollieApiClient $client
-     * @param array $input
      * @param string $resourceClass
+     * @param array $data
      * @param null $_links
      * @param null $resourceCollectionClass
      * @return mixed
      */
-    public static function createBaseResourceCollection(\Mollie\Api\MollieApiClient $client, array $input, $resourceClass, $_links = null, $resourceCollectionClass = null)
+    public static function createBaseResourceCollection(\Mollie\Api\MollieApiClient $client, $resourceClass, $data, $_links = null, $resourceCollectionClass = null)
     {
-        if (null === $resourceCollectionClass) {
-            $resourceCollectionClass = $resourceClass . 'Collection';
+        $resourceCollectionClass = $resourceCollectionClass ?: $resourceClass . 'Collection';
+        $data = $data ?: [];
+        $result = new $resourceCollectionClass(\count($data), $_links);
+        foreach ($data as $item) {
+            $result[] = static::createFromApiResult($item, new $resourceClass($client));
         }
-        $data = new $resourceCollectionClass(\count($input), $_links);
-        foreach ($input as $item) {
-            $data[] = static::createFromApiResult($item, new $resourceClass($client));
-        }
-        return $data;
+        return $result;
     }
     /**
      * @param MollieApiClient $client

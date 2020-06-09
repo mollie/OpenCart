@@ -1,13 +1,13 @@
 <?php
 
-namespace _PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7;
+namespace _PhpScoper5e55118e73ab9\GuzzleHttp\Psr7;
 
-use _PhpScoper5ce26f1fe2920\Psr\Http\Message\ResponseInterface;
-use _PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInterface;
+use _PhpScoper5e55118e73ab9\Psr\Http\Message\ResponseInterface;
+use _PhpScoper5e55118e73ab9\Psr\Http\Message\StreamInterface;
 /**
  * PSR-7 response implementation.
  */
-class Response implements \_PhpScoper5ce26f1fe2920\Psr\Http\Message\ResponseInterface
+class Response implements \_PhpScoper5e55118e73ab9\Psr\Http\Message\ResponseInterface
 {
     use MessageTrait;
     /** @var array Map of standard HTTP status code/reason phrases */
@@ -25,10 +25,10 @@ class Response implements \_PhpScoper5ce26f1fe2920\Psr\Http\Message\ResponseInte
      */
     public function __construct($status = 200, array $headers = [], $body = null, $version = '1.1', $reason = null)
     {
-        if (\filter_var($status, \FILTER_VALIDATE_INT) === \false) {
-            throw new \InvalidArgumentException('Status code must be an integer value.');
-        }
-        $this->statusCode = (int) $status;
+        $this->assertStatusCodeIsInteger($status);
+        $status = (int) $status;
+        $this->assertStatusCodeRange($status);
+        $this->statusCode = $status;
         if ($body !== '' && $body !== null) {
             $this->stream = stream_for($body);
         }
@@ -50,12 +50,27 @@ class Response implements \_PhpScoper5ce26f1fe2920\Psr\Http\Message\ResponseInte
     }
     public function withStatus($code, $reasonPhrase = '')
     {
+        $this->assertStatusCodeIsInteger($code);
+        $code = (int) $code;
+        $this->assertStatusCodeRange($code);
         $new = clone $this;
-        $new->statusCode = (int) $code;
+        $new->statusCode = $code;
         if ($reasonPhrase == '' && isset(self::$phrases[$new->statusCode])) {
             $reasonPhrase = self::$phrases[$new->statusCode];
         }
         $new->reasonPhrase = $reasonPhrase;
         return $new;
+    }
+    private function assertStatusCodeIsInteger($statusCode)
+    {
+        if (\filter_var($statusCode, \FILTER_VALIDATE_INT) === \false) {
+            throw new \InvalidArgumentException('Status code must be an integer value.');
+        }
+    }
+    private function assertStatusCodeRange($statusCode)
+    {
+        if ($statusCode < 100 || $statusCode >= 600) {
+            throw new \InvalidArgumentException('Status code must be an integer value between 1xx and 5xx.');
+        }
     }
 }

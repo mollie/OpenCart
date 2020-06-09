@@ -1,19 +1,19 @@
 <?php
 
-namespace _PhpScoper5ce26f1fe2920\GuzzleHttp;
+namespace _PhpScoper5e55118e73ab9\GuzzleHttp;
 
-use _PhpScoper5ce26f1fe2920\GuzzleHttp\Exception\BadResponseException;
-use _PhpScoper5ce26f1fe2920\GuzzleHttp\Exception\TooManyRedirectsException;
-use _PhpScoper5ce26f1fe2920\GuzzleHttp\Promise\PromiseInterface;
-use _PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7;
-use _PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface;
-use _PhpScoper5ce26f1fe2920\Psr\Http\Message\ResponseInterface;
-use _PhpScoper5ce26f1fe2920\Psr\Http\Message\UriInterface;
+use _PhpScoper5e55118e73ab9\GuzzleHttp\Exception\BadResponseException;
+use _PhpScoper5e55118e73ab9\GuzzleHttp\Exception\TooManyRedirectsException;
+use _PhpScoper5e55118e73ab9\GuzzleHttp\Promise\PromiseInterface;
+use _PhpScoper5e55118e73ab9\GuzzleHttp\Psr7;
+use _PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface;
+use _PhpScoper5e55118e73ab9\Psr\Http\Message\ResponseInterface;
+use _PhpScoper5e55118e73ab9\Psr\Http\Message\UriInterface;
 /**
  * Request redirect middleware.
  *
  * Apply this middleware like other middleware using
- * {@see GuzzleHttp\Middleware::redirect()}.
+ * {@see \GuzzleHttp\Middleware::redirect()}.
  */
 class RedirectMiddleware
 {
@@ -35,7 +35,7 @@ class RedirectMiddleware
      *
      * @return PromiseInterface
      */
-    public function __invoke(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, array $options)
+    public function __invoke(\_PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface $request, array $options)
     {
         $fn = $this->nextHandler;
         if (empty($options['allow_redirects'])) {
@@ -52,18 +52,18 @@ class RedirectMiddleware
         if (empty($options['allow_redirects']['max'])) {
             return $fn($request, $options);
         }
-        return $fn($request, $options)->then(function (\_PhpScoper5ce26f1fe2920\Psr\Http\Message\ResponseInterface $response) use($request, $options) {
+        return $fn($request, $options)->then(function (\_PhpScoper5e55118e73ab9\Psr\Http\Message\ResponseInterface $response) use($request, $options) {
             return $this->checkRedirect($request, $options, $response);
         });
     }
     /**
      * @param RequestInterface  $request
      * @param array             $options
-     * @param ResponseInterface|PromiseInterface $response
+     * @param ResponseInterface $response
      *
      * @return ResponseInterface|PromiseInterface
      */
-    public function checkRedirect(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, array $options, \_PhpScoper5ce26f1fe2920\Psr\Http\Message\ResponseInterface $response)
+    public function checkRedirect(\_PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface $request, array $options, \_PhpScoper5e55118e73ab9\Psr\Http\Message\ResponseInterface $response)
     {
         if (\substr($response->getStatusCode(), 0, 1) != '3' || !$response->hasHeader('Location')) {
             return $response;
@@ -81,9 +81,14 @@ class RedirectMiddleware
         }
         return $promise;
     }
-    private function withTracking(\_PhpScoper5ce26f1fe2920\GuzzleHttp\Promise\PromiseInterface $promise, $uri, $statusCode)
+    /**
+     * Enable tracking on promise.
+     *
+     * @return PromiseInterface
+     */
+    private function withTracking(\_PhpScoper5e55118e73ab9\GuzzleHttp\Promise\PromiseInterface $promise, $uri, $statusCode)
     {
-        return $promise->then(function (\_PhpScoper5ce26f1fe2920\Psr\Http\Message\ResponseInterface $response) use($uri, $statusCode) {
+        return $promise->then(function (\_PhpScoper5e55118e73ab9\Psr\Http\Message\ResponseInterface $response) use($uri, $statusCode) {
             // Note that we are pushing to the front of the list as this
             // would be an earlier response than what is currently present
             // in the history header.
@@ -94,13 +99,20 @@ class RedirectMiddleware
             return $response->withHeader(self::HISTORY_HEADER, $historyHeader)->withHeader(self::STATUS_HISTORY_HEADER, $statusHeader);
         });
     }
-    private function guardMax(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, array &$options)
+    /**
+     * Check for too many redirects
+     *
+     * @return void
+     *
+     * @throws TooManyRedirectsException Too many redirects.
+     */
+    private function guardMax(\_PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface $request, array &$options)
     {
         $current = isset($options['__redirect_count']) ? $options['__redirect_count'] : 0;
         $options['__redirect_count'] = $current + 1;
         $max = $options['allow_redirects']['max'];
         if ($options['__redirect_count'] > $max) {
-            throw new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Exception\TooManyRedirectsException("Will not follow more than {$max} redirects", $request);
+            throw new \_PhpScoper5e55118e73ab9\GuzzleHttp\Exception\TooManyRedirectsException("Will not follow more than {$max} redirects", $request);
         }
     }
     /**
@@ -110,7 +122,7 @@ class RedirectMiddleware
      *
      * @return RequestInterface
      */
-    public function modifyRequest(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, array $options, \_PhpScoper5ce26f1fe2920\Psr\Http\Message\ResponseInterface $response)
+    public function modifyRequest(\_PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface $request, array $options, \_PhpScoper5e55118e73ab9\Psr\Http\Message\ResponseInterface $response)
     {
         // Request modifications to apply.
         $modify = [];
@@ -119,16 +131,21 @@ class RedirectMiddleware
         // not forcing RFC compliance, but rather emulating what all browsers
         // would do.
         $statusCode = $response->getStatusCode();
-        if ($statusCode == 303 || $statusCode <= 302 && $request->getBody() && !$options['allow_redirects']['strict']) {
+        if ($statusCode == 303 || $statusCode <= 302 && !$options['allow_redirects']['strict']) {
             $modify['method'] = 'GET';
             $modify['body'] = '';
         }
-        $modify['uri'] = $this->redirectUri($request, $response, $protocols);
-        \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\rewind_body($request);
+        $uri = $this->redirectUri($request, $response, $protocols);
+        if (isset($options['idn_conversion']) && $options['idn_conversion'] !== \false) {
+            $idnOptions = $options['idn_conversion'] === \true ? \IDNA_DEFAULT : $options['idn_conversion'];
+            $uri = _idn_uri_convert($uri, $idnOptions);
+        }
+        $modify['uri'] = $uri;
+        \_PhpScoper5e55118e73ab9\GuzzleHttp\Psr7\rewind_body($request);
         // Add the Referer header if it is told to do so and only
         // add the header if we are not redirecting from https to http.
         if ($options['allow_redirects']['referer'] && $modify['uri']->getScheme() === $request->getUri()->getScheme()) {
-            $uri = $request->getUri()->withUserInfo('', '');
+            $uri = $request->getUri()->withUserInfo('');
             $modify['set_headers']['Referer'] = (string) $uri;
         } else {
             $modify['remove_headers'][] = 'Referer';
@@ -137,7 +154,7 @@ class RedirectMiddleware
         if ($request->getUri()->getHost() !== $modify['uri']->getHost()) {
             $modify['remove_headers'][] = 'Authorization';
         }
-        return \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\modify_request($request, $modify);
+        return \_PhpScoper5e55118e73ab9\GuzzleHttp\Psr7\modify_request($request, $modify);
     }
     /**
      * Set the appropriate URL on the request based on the location header
@@ -148,12 +165,12 @@ class RedirectMiddleware
      *
      * @return UriInterface
      */
-    private function redirectUri(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, \_PhpScoper5ce26f1fe2920\Psr\Http\Message\ResponseInterface $response, array $protocols)
+    private function redirectUri(\_PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface $request, \_PhpScoper5e55118e73ab9\Psr\Http\Message\ResponseInterface $response, array $protocols)
     {
-        $location = \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\UriResolver::resolve($request->getUri(), new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\Uri($response->getHeaderLine('Location')));
+        $location = \_PhpScoper5e55118e73ab9\GuzzleHttp\Psr7\UriResolver::resolve($request->getUri(), new \_PhpScoper5e55118e73ab9\GuzzleHttp\Psr7\Uri($response->getHeaderLine('Location')));
         // Ensure that the redirect URI is allowed based on the protocols.
         if (!\in_array($location->getScheme(), $protocols)) {
-            throw new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Exception\BadResponseException(\sprintf('Redirect URI, %s, does not use one of the allowed redirect protocols: %s', $location, \implode(', ', $protocols)), $request, $response);
+            throw new \_PhpScoper5e55118e73ab9\GuzzleHttp\Exception\BadResponseException(\sprintf('Redirect URI, %s, does not use one of the allowed redirect protocols: %s', $location, \implode(', ', $protocols)), $request, $response);
         }
         return $location;
     }

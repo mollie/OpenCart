@@ -185,8 +185,10 @@
 		<?php } ?>
 
 		.mollie-text img {
-			position: relative;
-			top: -3px;
+		    position: relative;
+		    top: -3px;
+		    width: 58px;
+		    left: -5px;
 		}
 
 		.mollie-text {

@@ -1,19 +1,21 @@
 <?php
 
-namespace _PhpScoper5ce26f1fe2920\GuzzleHttp\Handler;
+namespace _PhpScoper5e55118e73ab9\GuzzleHttp\Handler;
 
-use _PhpScoper5ce26f1fe2920\GuzzleHttp\Exception\RequestException;
-use _PhpScoper5ce26f1fe2920\GuzzleHttp\Exception\ConnectException;
-use _PhpScoper5ce26f1fe2920\GuzzleHttp\Promise\FulfilledPromise;
-use _PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7;
-use _PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\LazyOpenStream;
-use _PhpScoper5ce26f1fe2920\GuzzleHttp\TransferStats;
-use _PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface;
+use _PhpScoper5e55118e73ab9\GuzzleHttp\Exception\ConnectException;
+use _PhpScoper5e55118e73ab9\GuzzleHttp\Exception\RequestException;
+use _PhpScoper5e55118e73ab9\GuzzleHttp\Promise\FulfilledPromise;
+use _PhpScoper5e55118e73ab9\GuzzleHttp\Psr7;
+use _PhpScoper5e55118e73ab9\GuzzleHttp\Psr7\LazyOpenStream;
+use _PhpScoper5e55118e73ab9\GuzzleHttp\TransferStats;
+use _PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface;
 /**
  * Creates curl resources from a request
  */
-class CurlFactory implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\CurlFactoryInterface
+class CurlFactory implements \_PhpScoper5e55118e73ab9\GuzzleHttp\Handler\CurlFactoryInterface
 {
+    const CURL_VERSION_STR = 'curl_version';
+    const LOW_CURL_VERSION_NUMBER = '7.21.2';
     /** @var array */
     private $handles = [];
     /** @var int Total number of idle handles to keep in cache */
@@ -25,13 +27,13 @@ class CurlFactory implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\CurlFac
     {
         $this->maxHandles = $maxHandles;
     }
-    public function create(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, array $options)
+    public function create(\_PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface $request, array $options)
     {
         if (isset($options['curl']['body_as_string'])) {
             $options['_body_as_string'] = $options['curl']['body_as_string'];
             unset($options['curl']['body_as_string']);
         }
-        $easy = new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\EasyHandle();
+        $easy = new \_PhpScoper5e55118e73ab9\GuzzleHttp\Handler\EasyHandle();
         $easy->request = $request;
         $easy->options = $options;
         $conf = $this->getDefaultConf($easy);
@@ -48,7 +50,7 @@ class CurlFactory implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\CurlFac
         \curl_setopt_array($easy->handle, $conf);
         return $easy;
     }
-    public function release(\_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\EasyHandle $easy)
+    public function release(\_PhpScoper5e55118e73ab9\GuzzleHttp\Handler\EasyHandle $easy)
     {
         $resource = $easy->handle;
         unset($easy->handle);
@@ -77,7 +79,7 @@ class CurlFactory implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\CurlFac
      *
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
-    public static function finish(callable $handler, \_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\EasyHandle $easy, \_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\CurlFactoryInterface $factory)
+    public static function finish(callable $handler, \_PhpScoper5e55118e73ab9\GuzzleHttp\Handler\EasyHandle $easy, \_PhpScoper5e55118e73ab9\GuzzleHttp\Handler\CurlFactoryInterface $factory)
     {
         if (isset($easy->options['on_stats'])) {
             self::invokeStats($easy);
@@ -92,18 +94,20 @@ class CurlFactory implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\CurlFac
         if ($body->isSeekable()) {
             $body->rewind();
         }
-        return new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Promise\FulfilledPromise($easy->response);
+        return new \_PhpScoper5e55118e73ab9\GuzzleHttp\Promise\FulfilledPromise($easy->response);
     }
-    private static function invokeStats(\_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\EasyHandle $easy)
+    private static function invokeStats(\_PhpScoper5e55118e73ab9\GuzzleHttp\Handler\EasyHandle $easy)
     {
         $curlStats = \curl_getinfo($easy->handle);
-        $stats = new \_PhpScoper5ce26f1fe2920\GuzzleHttp\TransferStats($easy->request, $easy->response, $curlStats['total_time'], $easy->errno, $curlStats);
+        $curlStats['appconnect_time'] = \curl_getinfo($easy->handle, \CURLINFO_APPCONNECT_TIME);
+        $stats = new \_PhpScoper5e55118e73ab9\GuzzleHttp\TransferStats($easy->request, $easy->response, $curlStats['total_time'], $easy->errno, $curlStats);
         \call_user_func($easy->options['on_stats'], $stats);
     }
-    private static function finishError(callable $handler, \_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\EasyHandle $easy, \_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\CurlFactoryInterface $factory)
+    private static function finishError(callable $handler, \_PhpScoper5e55118e73ab9\GuzzleHttp\Handler\EasyHandle $easy, \_PhpScoper5e55118e73ab9\GuzzleHttp\Handler\CurlFactoryInterface $factory)
     {
         // Get error information and release the handle to the factory.
-        $ctx = ['errno' => $easy->errno, 'error' => \curl_error($easy->handle)] + \curl_getinfo($easy->handle);
+        $ctx = ['errno' => $easy->errno, 'error' => \curl_error($easy->handle), 'appconnect_time' => \curl_getinfo($easy->handle, \CURLINFO_APPCONNECT_TIME)] + \curl_getinfo($easy->handle);
+        $ctx[self::CURL_VERSION_STR] = \curl_version()['version'];
         $factory->release($easy);
         // Retry when nothing is present or when curl failed to rewind.
         if (empty($easy->options['_err_message']) && (!$easy->errno || $easy->errno == 65)) {
@@ -111,20 +115,24 @@ class CurlFactory implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\CurlFac
         }
         return self::createRejection($easy, $ctx);
     }
-    private static function createRejection(\_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\EasyHandle $easy, array $ctx)
+    private static function createRejection(\_PhpScoper5e55118e73ab9\GuzzleHttp\Handler\EasyHandle $easy, array $ctx)
     {
         static $connectionErrors = [\CURLE_OPERATION_TIMEOUTED => \true, \CURLE_COULDNT_RESOLVE_HOST => \true, \CURLE_COULDNT_CONNECT => \true, \CURLE_SSL_CONNECT_ERROR => \true, \CURLE_GOT_NOTHING => \true];
         // If an exception was encountered during the onHeaders event, then
         // return a rejected promise that wraps that exception.
         if ($easy->onHeadersException) {
-            return \_PhpScoper5ce26f1fe2920\GuzzleHttp\Promise\rejection_for(new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Exception\RequestException('An error was encountered during the on_headers event', $easy->request, $easy->response, $easy->onHeadersException, $ctx));
+            return \_PhpScoper5e55118e73ab9\GuzzleHttp\Promise\rejection_for(new \_PhpScoper5e55118e73ab9\GuzzleHttp\Exception\RequestException('An error was encountered during the on_headers event', $easy->request, $easy->response, $easy->onHeadersException, $ctx));
         }
-        $message = \sprintf('cURL error %s: %s (%s)', $ctx['errno'], $ctx['error'], 'see http://curl.haxx.se/libcurl/c/libcurl-errors.html');
+        if (\version_compare($ctx[self::CURL_VERSION_STR], self::LOW_CURL_VERSION_NUMBER)) {
+            $message = \sprintf('cURL error %s: %s (%s)', $ctx['errno'], $ctx['error'], 'see https://curl.haxx.se/libcurl/c/libcurl-errors.html');
+        } else {
+            $message = \sprintf('cURL error %s: %s (%s) for %s', $ctx['errno'], $ctx['error'], 'see https://curl.haxx.se/libcurl/c/libcurl-errors.html', $easy->request->getUri());
+        }
         // Create a connection exception if it was a specific error code.
-        $error = isset($connectionErrors[$easy->errno]) ? new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Exception\ConnectException($message, $easy->request, null, $ctx) : new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Exception\RequestException($message, $easy->request, $easy->response, null, $ctx);
-        return \_PhpScoper5ce26f1fe2920\GuzzleHttp\Promise\rejection_for($error);
+        $error = isset($connectionErrors[$easy->errno]) ? new \_PhpScoper5e55118e73ab9\GuzzleHttp\Exception\ConnectException($message, $easy->request, null, $ctx) : new \_PhpScoper5e55118e73ab9\GuzzleHttp\Exception\RequestException($message, $easy->request, $easy->response, null, $ctx);
+        return \_PhpScoper5e55118e73ab9\GuzzleHttp\Promise\rejection_for($error);
     }
-    private function getDefaultConf(\_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\EasyHandle $easy)
+    private function getDefaultConf(\_PhpScoper5e55118e73ab9\GuzzleHttp\Handler\EasyHandle $easy)
     {
         $conf = ['_headers' => $easy->request->getHeaders(), \CURLOPT_CUSTOMREQUEST => $easy->request->getMethod(), \CURLOPT_URL => (string) $easy->request->getUri()->withFragment(''), \CURLOPT_RETURNTRANSFER => \false, \CURLOPT_HEADER => \false, \CURLOPT_CONNECTTIMEOUT => 150];
         if (\defined('CURLOPT_PROTOCOLS')) {
@@ -140,7 +148,7 @@ class CurlFactory implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\CurlFac
         }
         return $conf;
     }
-    private function applyMethod(\_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\EasyHandle $easy, array &$conf)
+    private function applyMethod(\_PhpScoper5e55118e73ab9\GuzzleHttp\Handler\EasyHandle $easy, array &$conf)
     {
         $body = $easy->request->getBody();
         $size = $body->getSize();
@@ -159,7 +167,7 @@ class CurlFactory implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\CurlFac
             unset($conf[\CURLOPT_WRITEFUNCTION], $conf[\CURLOPT_READFUNCTION], $conf[\CURLOPT_FILE], $conf[\CURLOPT_INFILE]);
         }
     }
-    private function applyBody(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, array $options, array &$conf)
+    private function applyBody(\_PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface $request, array $options, array &$conf)
     {
         $size = $request->hasHeader('Content-Length') ? (int) $request->getHeaderLine('Content-Length') : null;
         // Send the body as a string if the size is less than 1MB OR if the
@@ -192,7 +200,7 @@ class CurlFactory implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\CurlFac
             $conf[\CURLOPT_HTTPHEADER][] = 'Content-Type:';
         }
     }
-    private function applyHeaders(\_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\EasyHandle $easy, array &$conf)
+    private function applyHeaders(\_PhpScoper5e55118e73ab9\GuzzleHttp\Handler\EasyHandle $easy, array &$conf)
     {
         foreach ($conf['_headers'] as $name => $values) {
             foreach ($values as $value) {
@@ -226,7 +234,7 @@ class CurlFactory implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\CurlFac
             }
         }
     }
-    private function applyHandlerOptions(\_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\EasyHandle $easy, array &$conf)
+    private function applyHandlerOptions(\_PhpScoper5e55118e73ab9\GuzzleHttp\Handler\EasyHandle $easy, array &$conf)
     {
         $options = $easy->options;
         if (isset($options['verify'])) {
@@ -265,12 +273,12 @@ class CurlFactory implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\CurlFac
         if (isset($options['sink'])) {
             $sink = $options['sink'];
             if (!\is_string($sink)) {
-                $sink = \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\stream_for($sink);
+                $sink = \_PhpScoper5e55118e73ab9\GuzzleHttp\Psr7\stream_for($sink);
             } elseif (!\is_dir(\dirname($sink))) {
                 // Ensure that the directory exists before failing in curl.
                 throw new \RuntimeException(\sprintf('Directory %s does not exist for sink value of %s', \dirname($sink), $sink));
             } else {
-                $sink = new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\LazyOpenStream($sink, 'w+');
+                $sink = new \_PhpScoper5e55118e73ab9\GuzzleHttp\Psr7\LazyOpenStream($sink, 'w+');
             }
             $easy->sink = $sink;
             $conf[\CURLOPT_WRITEFUNCTION] = function ($ch, $write) use($sink) {
@@ -279,7 +287,7 @@ class CurlFactory implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\CurlFac
         } else {
             // Use a default temp stream if no sink was set.
             $conf[\CURLOPT_FILE] = \fopen('php://temp', 'w+');
-            $easy->sink = \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\stream_for($conf[\CURLOPT_FILE]);
+            $easy->sink = \_PhpScoper5e55118e73ab9\GuzzleHttp\Psr7\stream_for($conf[\CURLOPT_FILE]);
         }
         $timeoutRequiresNoSignal = \false;
         if (isset($options['timeout'])) {
@@ -308,7 +316,7 @@ class CurlFactory implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\CurlFac
                 $scheme = $easy->request->getUri()->getScheme();
                 if (isset($options['proxy'][$scheme])) {
                     $host = $easy->request->getUri()->getHost();
-                    if (!isset($options['proxy']['no']) || !\_PhpScoper5ce26f1fe2920\GuzzleHttp\is_host_in_noproxy($host, $options['proxy']['no'])) {
+                    if (!isset($options['proxy']['no']) || !\_PhpScoper5e55118e73ab9\GuzzleHttp\is_host_in_noproxy($host, $options['proxy']['no'])) {
                         $conf[\CURLOPT_PROXY] = $options['proxy'][$scheme];
                     }
                 }
@@ -326,11 +334,14 @@ class CurlFactory implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\CurlFac
             $conf[\CURLOPT_SSLCERT] = $cert;
         }
         if (isset($options['ssl_key'])) {
-            $sslKey = $options['ssl_key'];
-            if (\is_array($sslKey)) {
-                $conf[\CURLOPT_SSLKEYPASSWD] = $sslKey[1];
-                $sslKey = $sslKey[0];
+            if (\is_array($options['ssl_key'])) {
+                if (\count($options['ssl_key']) === 2) {
+                    list($sslKey, $conf[\CURLOPT_SSLKEYPASSWD]) = $options['ssl_key'];
+                } else {
+                    list($sslKey) = $options['ssl_key'];
+                }
             }
+            $sslKey = isset($sslKey) ? $sslKey : $options['ssl_key'];
             if (!\file_exists($sslKey)) {
                 throw new \InvalidArgumentException("SSL private key not found: {$sslKey}");
             }
@@ -352,7 +363,7 @@ class CurlFactory implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\CurlFac
             };
         }
         if (!empty($options['debug'])) {
-            $conf[\CURLOPT_STDERR] = \_PhpScoper5ce26f1fe2920\GuzzleHttp\debug_resource($options['debug']);
+            $conf[\CURLOPT_STDERR] = \_PhpScoper5e55118e73ab9\GuzzleHttp\debug_resource($options['debug']);
             $conf[\CURLOPT_VERBOSE] = \true;
         }
     }
@@ -365,7 +376,7 @@ class CurlFactory implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\CurlFac
      * error, causing the request to be sent through curl_multi_info_read()
      * without an error status.
      */
-    private static function retryFailedRewind(callable $handler, \_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\EasyHandle $easy, array $ctx)
+    private static function retryFailedRewind(callable $handler, \_PhpScoper5e55118e73ab9\GuzzleHttp\Handler\EasyHandle $easy, array $ctx)
     {
         try {
             // Only rewind if the body has been read from.
@@ -388,7 +399,7 @@ class CurlFactory implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\CurlFac
         }
         return $handler($easy->request, $easy->options);
     }
-    private function createHeaderFn(\_PhpScoper5ce26f1fe2920\GuzzleHttp\Handler\EasyHandle $easy)
+    private function createHeaderFn(\_PhpScoper5e55118e73ab9\GuzzleHttp\Handler\EasyHandle $easy)
     {
         if (isset($easy->options['on_headers'])) {
             $onHeaders = $easy->options['on_headers'];

@@ -26,13 +26,13 @@ class ShipmentEndpoint extends \Mollie\Api\Endpoints\CollectionEndpointAbstract
      * endpoint uses one type of collection object.
      *
      * @param int $count
-     * @param object[] $_links
+     * @param \stdClass $_links
      *
      * @return ShipmentCollection
      */
     protected function getResourceCollectionObject($count, $_links)
     {
-        return new \Mollie\Api\Resources\ShipmentCollection($this->client, $count, $_links);
+        return new \Mollie\Api\Resources\ShipmentCollection($count, $_links);
     }
     /**
      * Create a shipment for some order lines. You can provide an empty array for the

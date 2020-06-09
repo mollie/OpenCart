@@ -33,7 +33,7 @@ class Onboarding extends \Mollie\Api\Resources\BaseResource
      */
     public $canReceiveSettlements;
     /**
-     * @var object[]
+     * @var \stdClass
      */
     public $_links;
     /**

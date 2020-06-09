@@ -1,15 +1,17 @@
 <?php
 
-namespace _PhpScoper5ce26f1fe2920\GuzzleHttp;
+namespace _PhpScoper5e55118e73ab9\GuzzleHttp;
 
-use _PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface;
+use _PhpScoper5e55118e73ab9\GuzzleHttp\Promise\PromiseInterface;
+use _PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface;
+use _PhpScoper5e55118e73ab9\Psr\Http\Message\ResponseInterface;
 /**
  * Creates a composed Guzzle handler function by stacking middlewares on top of
  * an HTTP handler function.
  */
 class HandlerStack
 {
-    /** @var callable */
+    /** @var callable|null */
     private $handler;
     /** @var array */
     private $stack = [];
@@ -35,10 +37,10 @@ class HandlerStack
     public static function create(callable $handler = null)
     {
         $stack = new self($handler ?: choose_handler());
-        $stack->push(\_PhpScoper5ce26f1fe2920\GuzzleHttp\Middleware::httpErrors(), 'http_errors');
-        $stack->push(\_PhpScoper5ce26f1fe2920\GuzzleHttp\Middleware::redirect(), 'allow_redirects');
-        $stack->push(\_PhpScoper5ce26f1fe2920\GuzzleHttp\Middleware::cookies(), 'cookies');
-        $stack->push(\_PhpScoper5ce26f1fe2920\GuzzleHttp\Middleware::prepareBody(), 'prepare_body');
+        $stack->push(\_PhpScoper5e55118e73ab9\GuzzleHttp\Middleware::httpErrors(), 'http_errors');
+        $stack->push(\_PhpScoper5e55118e73ab9\GuzzleHttp\Middleware::redirect(), 'allow_redirects');
+        $stack->push(\_PhpScoper5e55118e73ab9\GuzzleHttp\Middleware::cookies(), 'cookies');
+        $stack->push(\_PhpScoper5e55118e73ab9\GuzzleHttp\Middleware::prepareBody(), 'prepare_body');
         return $stack;
     }
     /**
@@ -53,8 +55,10 @@ class HandlerStack
      *
      * @param RequestInterface $request
      * @param array            $options
+     *
+     * @return ResponseInterface|PromiseInterface
      */
-    public function __invoke(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, array $options)
+    public function __invoke(\_PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface $request, array $options)
     {
         $handler = $this->resolve();
         return $handler($request, $options);
@@ -180,7 +184,7 @@ class HandlerStack
         return $this->cached;
     }
     /**
-     * @param $name
+     * @param string $name
      * @return int
      */
     private function findByName($name)
@@ -195,10 +199,10 @@ class HandlerStack
     /**
      * Splices a function into the middleware list at a specific position.
      *
-     * @param          $findName
-     * @param          $withName
+     * @param string   $findName
+     * @param string   $withName
      * @param callable $middleware
-     * @param          $before
+     * @param bool     $before
      */
     private function splice($findName, $withName, callable $middleware, $before)
     {

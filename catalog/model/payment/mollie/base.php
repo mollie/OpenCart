@@ -41,7 +41,7 @@
  * @property URL $url
  */
 require_once(dirname(DIR_SYSTEM) . "/catalog/controller/payment/mollie/helper.php");
-use comercia\Util;
+use util\Util;
 
 class ModelPaymentMollieBase extends Model
 {
@@ -137,13 +137,9 @@ class ModelPaymentMollieBase extends Model
 		}
 
 		// Get billing country	
-		if (isset($this->session->data['payment_address'])) {
-			if(isset($this->session->data['payment_address']['iso_code_2']) && !empty($this->session->data['payment_address']['iso_code_2'])) {
-				$country = $this->session->data['payment_address']['iso_code_2'];
-			} else {
-				$countryDetails = $modelCountry->getCountry($this->session->data['payment_address']['country_id']);
-				$country = $countryDetails['iso_code_2'];
-			}
+		if (isset($this->session->data['payment_address']) && !empty($this->session->data['payment_address']['country_id'])) {
+			$countryDetails = $modelCountry->getCountry($this->session->data['payment_address']['country_id']);
+			$country = $countryDetails['iso_code_2'];
 		} else {
 			// Get billing country from store address
 			$country_id = $this->config->get('config_country_id');
@@ -182,7 +178,12 @@ class ModelPaymentMollieBase extends Model
 		$icon = "";
 
 		if ($this->config->get($moduleCode . "_show_icons")) {
-			$icon = '<img src="' . htmlspecialchars($payment_method->image->size1x) . '" height="20" style="margin:0 5px -5px 0" />';
+			if ($this->request->server['HTTPS']) {
+				$image =  $this->config->get('config_ssl') . 'image/mollie/' . $payment_method->id . '.png';
+			} else {
+				$image =  $this->config->get('config_url') . 'image/mollie/' . $payment_method->id . '.png';
+			}
+			$icon = '<img src="' . $image . '" height="20" style="margin:0 5px -5px 0" />';
 		}
 
 		return array(
@@ -203,9 +204,14 @@ class ModelPaymentMollieBase extends Model
 	 */
 	public function setPayment($order_id, $mollie_order_id, $method)
 	{
+		$payment_attempt = 1;
+		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `order_id` = '" . $order_id . "' ORDER BY payment_attempt DESC LIMIT 1");		
+		if($query->num_rows > 0) {
+			$payment_attempt += $query->row['payment_attempt'];
+		}
 		$bank_account = isset($this->session->data['mollie_issuer']) ? $this->session->data['mollie_issuer'] : NULL;
 		if (!empty($order_id) && !empty($mollie_order_id) && !empty($method)) {
-			$this->db->query("INSERT INTO `" . DB_PREFIX . "mollie_payments` SET `order_id` = '" . (int)$order_id . "', `mollie_order_id` = '" . $this->db->escape($mollie_order_id) . "', `method` = '" . $this->db->escape($method) . "', `bank_account` = '" . $this->db->escape($bank_account) . "', `date_modified` = NOW() ON DUPLICATE KEY UPDATE `order_id` = '" . (int)$order_id . "'");
+			$this->db->query("INSERT INTO `" . DB_PREFIX . "mollie_payments` SET `order_id` = '" . (int)$order_id . "', `mollie_order_id` = '" . $this->db->escape($mollie_order_id) . "', `method` = '" . $this->db->escape($method) . "', `bank_account` = '" . $this->db->escape($bank_account) . "', `payment_attempt` = '" . (int)$payment_attempt . "', date_modified = NOW() ON DUPLICATE KEY UPDATE `order_id` = '" . (int)$order_id . "'");
 
 			if ($this->db->countAffected() > 0) {
 				return TRUE;
@@ -227,7 +233,7 @@ class ModelPaymentMollieBase extends Model
 	public function updatePayment($order_id, $mollie_order_id, $data, $consumer = NULL)
 	{
 		if (!empty($order_id) && !empty($mollie_order_id)) {
-			$this->db->query("UPDATE `" . DB_PREFIX . "mollie_payments` SET `transaction_id` = '" . $this->db->escape($data['payment_id']) . "', `bank_status` = '" . $this->db->escape($data['status']) . "', `date_modified` = NOW() WHERE `order_id` = '" . (int)$order_id . "' AND `mollie_order_id` = '" . $this->db->escape($mollie_order_id) . "'");
+			$this->db->query("UPDATE `" . DB_PREFIX . "mollie_payments` SET `transaction_id` = '" . $this->db->escape($data['payment_id']) . "', `bank_status` = '" . $this->db->escape($data['status']) . "', date_modified = NOW() WHERE `order_id` = '" . (int)$order_id . "' AND `mollie_order_id` = '" . $this->db->escape($mollie_order_id) . "'");
 
 			return $this->db->countAffected() > 0;
 		}
@@ -247,7 +253,7 @@ class ModelPaymentMollieBase extends Model
 	public function getOrderID($order_id)
 	{
 		if (!empty($order_id)) {
-			$results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `order_id` = '" . $order_id . "'");
+			$results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `order_id` = '" . $order_id . "' ORDER BY date_modified DESC LIMIT 1");
 			if($results->num_rows == 0) return FALSE;
 			return $results->row['mollie_order_id'];
 		}

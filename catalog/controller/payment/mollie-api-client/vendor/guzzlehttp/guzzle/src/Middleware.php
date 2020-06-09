@@ -1,14 +1,13 @@
 <?php
 
-namespace _PhpScoper5ce26f1fe2920\GuzzleHttp;
+namespace _PhpScoper5e55118e73ab9\GuzzleHttp;
 
-use _PhpScoper5ce26f1fe2920\GuzzleHttp\Cookie\CookieJarInterface;
-use _PhpScoper5ce26f1fe2920\GuzzleHttp\Exception\RequestException;
-use _PhpScoper5ce26f1fe2920\GuzzleHttp\Promise\RejectedPromise;
-use _PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7;
-use _PhpScoper5ce26f1fe2920\Psr\Http\Message\ResponseInterface;
-use _PhpScoper5ce26f1fe2920\Psr\Log\LoggerInterface;
-use _PhpScoper5ce26f1fe2920\Psr\Log\LogLevel;
+use _PhpScoper5e55118e73ab9\GuzzleHttp\Cookie\CookieJarInterface;
+use _PhpScoper5e55118e73ab9\GuzzleHttp\Exception\RequestException;
+use _PhpScoper5e55118e73ab9\GuzzleHttp\Promise\RejectedPromise;
+use _PhpScoper5e55118e73ab9\GuzzleHttp\Psr7;
+use _PhpScoper5e55118e73ab9\Psr\Http\Message\ResponseInterface;
+use _PhpScoper5e55118e73ab9\Psr\Log\LoggerInterface;
 /**
  * Functions used to create and wrap handlers with handler middleware.
  */
@@ -28,8 +27,8 @@ final class Middleware
             return function ($request, array $options) use($handler) {
                 if (empty($options['cookies'])) {
                     return $handler($request, $options);
-                } elseif (!$options['cookies'] instanceof \_PhpScoper5ce26f1fe2920\GuzzleHttp\Cookie\CookieJarInterface) {
-                    throw new \InvalidArgumentException('_PhpScoper5ce26f1fe2920\\cookies must be an instance of GuzzleHttp\\Cookie\\CookieJarInterface');
+                } elseif (!$options['cookies'] instanceof \_PhpScoper5e55118e73ab9\GuzzleHttp\Cookie\CookieJarInterface) {
+                    throw new \InvalidArgumentException('_PhpScoper5e55118e73ab9\\cookies must be an instance of GuzzleHttp\\Cookie\\CookieJarInterface');
                 }
                 $cookieJar = $options['cookies'];
                 $request = $cookieJar->withCookieHeader($request);
@@ -53,12 +52,12 @@ final class Middleware
                 if (empty($options['http_errors'])) {
                     return $handler($request, $options);
                 }
-                return $handler($request, $options)->then(function (\_PhpScoper5ce26f1fe2920\Psr\Http\Message\ResponseInterface $response) use($request, $handler) {
+                return $handler($request, $options)->then(function (\_PhpScoper5e55118e73ab9\Psr\Http\Message\ResponseInterface $response) use($request) {
                     $code = $response->getStatusCode();
                     if ($code < 400) {
                         return $response;
                     }
-                    throw \_PhpScoper5ce26f1fe2920\GuzzleHttp\Exception\RequestException::create($request, $response);
+                    throw \_PhpScoper5e55118e73ab9\GuzzleHttp\Exception\RequestException::create($request, $response);
                 });
             };
         };
@@ -83,7 +82,7 @@ final class Middleware
                     return $value;
                 }, function ($reason) use($request, &$container, $options) {
                     $container[] = ['request' => $request, 'response' => null, 'error' => $reason, 'options' => $options];
-                    return \_PhpScoper5ce26f1fe2920\GuzzleHttp\Promise\rejection_for($reason);
+                    return \_PhpScoper5e55118e73ab9\GuzzleHttp\Promise\rejection_for($reason);
                 });
             };
         };
@@ -124,7 +123,7 @@ final class Middleware
     public static function redirect()
     {
         return function (callable $handler) {
-            return new \_PhpScoper5ce26f1fe2920\GuzzleHttp\RedirectMiddleware($handler);
+            return new \_PhpScoper5e55118e73ab9\GuzzleHttp\RedirectMiddleware($handler);
         };
     }
     /**
@@ -145,7 +144,7 @@ final class Middleware
     public static function retry(callable $decider, callable $delay = null)
     {
         return function (callable $handler) use($decider, $delay) {
-            return new \_PhpScoper5ce26f1fe2920\GuzzleHttp\RetryMiddleware($decider, $handler, $delay);
+            return new \_PhpScoper5e55118e73ab9\GuzzleHttp\RetryMiddleware($decider, $handler, $delay);
         };
     }
     /**
@@ -158,7 +157,7 @@ final class Middleware
      *
      * @return callable Returns a function that accepts the next handler.
      */
-    public static function log(\_PhpScoper5ce26f1fe2920\Psr\Log\LoggerInterface $logger, \_PhpScoper5ce26f1fe2920\GuzzleHttp\MessageFormatter $formatter, $logLevel = \_PhpScoper5ce26f1fe2920\Psr\Log\LogLevel::INFO)
+    public static function log(\_PhpScoper5e55118e73ab9\Psr\Log\LoggerInterface $logger, \_PhpScoper5e55118e73ab9\GuzzleHttp\MessageFormatter $formatter, $logLevel = 'info')
     {
         return function (callable $handler) use($logger, $formatter, $logLevel) {
             return function ($request, array $options) use($handler, $logger, $formatter, $logLevel) {
@@ -167,10 +166,10 @@ final class Middleware
                     $logger->log($logLevel, $message);
                     return $response;
                 }, function ($reason) use($logger, $request, $formatter) {
-                    $response = $reason instanceof \_PhpScoper5ce26f1fe2920\GuzzleHttp\Exception\RequestException ? $reason->getResponse() : null;
+                    $response = $reason instanceof \_PhpScoper5e55118e73ab9\GuzzleHttp\Exception\RequestException ? $reason->getResponse() : null;
                     $message = $formatter->format($request, $response, $reason);
                     $logger->notice($message);
-                    return \_PhpScoper5ce26f1fe2920\GuzzleHttp\Promise\rejection_for($reason);
+                    return \_PhpScoper5e55118e73ab9\GuzzleHttp\Promise\rejection_for($reason);
                 });
             };
         };
@@ -184,7 +183,7 @@ final class Middleware
     public static function prepareBody()
     {
         return function (callable $handler) {
-            return new \_PhpScoper5ce26f1fe2920\GuzzleHttp\PrepareBodyMiddleware($handler);
+            return new \_PhpScoper5e55118e73ab9\GuzzleHttp\PrepareBodyMiddleware($handler);
         };
     }
     /**

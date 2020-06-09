@@ -27,17 +27,21 @@
     "require": {
         "php": ">=5.4.0",
         "psr\/http-message": "~1.0",
-        "ralouphie\/getallheaders": "^2.0.5"
+        "ralouphie\/getallheaders": "^2.0.5 || ^3.0.0"
     },
     "require-dev": {
-        "phpunit\/phpunit": "~4.8.36 || ^5.7.27 || ^6.5.8"
+        "phpunit\/phpunit": "~4.8.36 || ^5.7.27 || ^6.5.8",
+        "ext-zlib": "*"
     },
     "provide": {
         "psr\/http-message-implementation": "1.0"
     },
+    "suggest": {
+        "zendframework\/zend-httphandlerrunner": "Emit PSR-7 responses"
+    },
     "autoload": {
         "psr-4": {
-            "_PhpScoper5ce26f1fe2920\\GuzzleHttp\\Psr7\\": "src\/"
+            "_PhpScoper5e55118e73ab9\\GuzzleHttp\\Psr7\\": "src\/"
         },
         "files": [
             "src\/functions_include.php"
@@ -45,12 +49,12 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "_PhpScoper5ce26f1fe2920\\GuzzleHttp\\Tests\\Psr7\\": "tests\/"
+            "_PhpScoper5e55118e73ab9\\GuzzleHttp\\Tests\\Psr7\\": "tests\/"
         }
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "1.5-dev"
+            "dev-master": "1.6-dev"
         }
     }
 }

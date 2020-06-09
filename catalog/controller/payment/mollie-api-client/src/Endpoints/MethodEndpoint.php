@@ -54,13 +54,13 @@ class MethodEndpoint extends \Mollie\Api\Endpoints\CollectionEndpointAbstract
     {
         $url = 'methods/all' . $this->buildQueryString($parameters);
         $result = $this->client->performHttpCall('GET', $url);
-        return \Mollie\Api\Resources\ResourceFactory::createBaseResourceCollection($this->client, $result->_embedded->methods, \Mollie\Api\Resources\Method::class, $result->_links);
+        return \Mollie\Api\Resources\ResourceFactory::createBaseResourceCollection($this->client, \Mollie\Api\Resources\Method::class, $result->_embedded->methods, $result->_links);
     }
     /**
      * Get the collection object that is used by this API endpoint. Every API endpoint uses one type of collection object.
      *
      * @param int $count
-     * @param object[] $_links
+     * @param \stdClass $_links
      *
      * @return MethodCollection
      */

@@ -1,5 +1,5 @@
 <?php
-use comercia\Util;
+use util\Util;
 
 return function () {
     Util::patch()->table("mollie_payments")

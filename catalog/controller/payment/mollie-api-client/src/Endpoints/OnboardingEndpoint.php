@@ -9,6 +9,10 @@ use Mollie\Api\Resources\ResourceFactory;
 class OnboardingEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
 {
     protected $resourcePath = "onboarding/me";
+    protected function getResourceCollectionObject($count, $links)
+    {
+        throw new \BadMethodCallException('not implemented');
+    }
     /**
      * Get the object that is used by this API endpoint. Every API endpoint uses one type of object.
      *

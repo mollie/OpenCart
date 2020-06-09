@@ -1,10 +1,10 @@
 <?php
 
-namespace _PhpScoper5ce26f1fe2920\GuzzleHttp\Promise;
+namespace _PhpScoper5e55118e73ab9\GuzzleHttp\Promise;
 
 /**
  * Exception that is set as the reason for a promise that has been cancelled.
  */
-class CancellationException extends \_PhpScoper5ce26f1fe2920\GuzzleHttp\Promise\RejectionException
+class CancellationException extends \_PhpScoper5e55118e73ab9\GuzzleHttp\Promise\RejectionException
 {
 }

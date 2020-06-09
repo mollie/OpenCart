@@ -37,12 +37,12 @@ class Shipment extends \Mollie\Api\Resources\BaseResource
     public $lines;
     /**
      * An object containing tracking details for the shipment, if available.
-     * @var object|null
+     * @var \stdClass|null
      */
     public $tracking;
     /**
      * An object with several URL objects relevant to the customer. Every URL object will contain an href and a type field.
-     * @var object[]
+     * @var \stdClass
      */
     public $_links;
     /**
@@ -82,7 +82,7 @@ class Shipment extends \Mollie\Api\Resources\BaseResource
      */
     public function lines()
     {
-        return \Mollie\Api\Resources\ResourceFactory::createBaseResourceCollection($this->client, $this->lines, \Mollie\Api\Resources\OrderLine::class);
+        return \Mollie\Api\Resources\ResourceFactory::createBaseResourceCollection($this->client, \Mollie\Api\Resources\OrderLine::class, $this->lines);
     }
     /**
      * Get the Order object for this shipment

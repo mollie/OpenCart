@@ -50,7 +50,7 @@ use Mollie\Api\Types\PaymentStatus;
 
 require_once(dirname(DIR_SYSTEM) . "/catalog/controller/payment/mollie/helper.php");
 
-use comercia\Util;
+use util\Util;
 
 class ControllerPaymentMollieBase extends Controller
 {
@@ -237,7 +237,7 @@ class ControllerPaymentMollieBase extends Controller
         $data['entry_verification_code'] = $this->language->get('entry_verification_code');
         $data['text_card_details']       = $this->language->get('text_card_details');
         $data['error_card']              = $this->language->get('error_card');
-        $data['text_mollie_payments']    = sprintf($this->language->get('text_mollie_payments'), '<a href="https://www.mollie.com/" target="_blank"><img src="https://www.mollie.com/checkout/v3/images/icons/ui/logo.svg" alt="Mollie" border="0"></a>');
+        $data['text_mollie_payments']    = sprintf($this->language->get('text_mollie_payments'), '<a href="https://www.mollie.com/" target="_blank"><img src="./image/mollie/mollie_logo.png" alt="Mollie" border="0"></a>');
 
         // Mollie components
         $data['mollieComponents'] = false;
@@ -328,7 +328,7 @@ class ControllerPaymentMollieBase extends Controller
 
         $currency = $this->getCurrency();
         $amount = $this->convertCurrency($order['total']);
-        $description = str_replace("%", $order['order_id'], html_entity_decode($this->config->get(MollieHelper::getModuleCode() . "_ideal_description"), ENT_QUOTES, "UTF-8"));
+        //$description = str_replace("%", $order['order_id'], html_entity_decode($this->config->get(MollieHelper::getModuleCode() . "_ideal_description"), ENT_QUOTES, "UTF-8"));
         $return_url = Util::url()->link("payment/mollie_" . static::MODULE_NAME . "/callback", "order_id=" . $order['order_id']);
         $issuer = $this->getIssuer();
 
@@ -338,7 +338,7 @@ class ControllerPaymentMollieBase extends Controller
                 "orderNumber" => $order['order_id'],
                 "redirectUrl" => $this->formatText($return_url),
                 "webhookUrl" => $this->getWebhookUrl(),
-                "metadata" => array("order_id" => $order['order_id'], "description" => $this->formatText($description)),
+                "metadata" => array("order_id" => $order['order_id']),
                 "method" => static::MODULE_NAME,
             );
 
@@ -758,7 +758,7 @@ class ControllerPaymentMollieBase extends Controller
         }
 
         // Redirect to payment gateway.
-        $this->redirect($orderObject->_links->checkout->href);
+        $this->redirect($orderObject->_links->checkout->href, 303);
     }
 
     /**
@@ -798,7 +798,7 @@ class ControllerPaymentMollieBase extends Controller
 
         $moduleCode = MollieHelper::getModuleCode();
 
-        $this->writeToMollieLog("Received webhook for payment_id " . $payment_id);
+        $this->writeToMollieLog("Received webhook for payment : {$payment_id}");
 
         $molliePayment = $this->getAPIClient()->payments->get($payment_id);
 
@@ -832,7 +832,7 @@ class ControllerPaymentMollieBase extends Controller
 
         if(!empty($data)) {
             $model->updatePayment($mollieOrder->metadata->order_id, $mollieOrderId, $data);
-            $this->writeToMollieLog("Updated mollie transaction_id and status for order - {$mollieOrder->metadata->order_id}, $mollieOrderId");
+            $this->writeToMollieLog("Webhook for payment : transaction_id - {$payment_id}, status - {$data['status']}, order_id - {$mollieOrder->metadata->order_id}, mollie_order_id - $mollieOrderId");
         }
 
         if($order['order_status_id'] != 0) {
@@ -845,17 +845,17 @@ class ControllerPaymentMollieBase extends Controller
 
                 if(!empty($data)) {
                     $model->updatePayment($mollieOrder->metadata->order_id, $mollieOrderId, $data);
-                    $this->writeToMollieLog("Updated mollie transaction_id and status for order - {$mollieOrder->metadata->order_id}, $mollieOrderId");
+                    $this->writeToMollieLog("Webhook for payment : Updated mollie payment. transaction_id - {$payment_id}, status - {$data['status']}, order_id - {$mollieOrder->metadata->order_id}, mollie_order_id - $mollieOrderId");
                 }
 
-                $this->writeToMollieLog("Order status has been updated to 'Refunded' for order " . $order['order_id'] . ".");
+                $this->writeToMollieLog("Webhook for payment : Order status has been updated to 'Refunded' for order - {$order['order_id']}, {$mollieOrderId}");
             } else {
                 if (!empty($order['order_status_id']) && $order['order_status_id'] == $this->config->get($moduleCode . "_ideal_refund_status_id")) {
                     $data['refund_id'] = '';
                     $model->cancelReturn($mollieOrder->metadata->order_id, $mollieOrderId, $data);
                     $this->addOrderHistory($order, $this->config->get($moduleCode . "_ideal_processing_status_id"), $this->language->get("refund_cancelled"), true);
-                    $this->writeToMollieLog("Refund has been cancelled for order " . $order['order_id']);
-                    $this->writeToMollieLog("Order status has been updated to 'Processing'.");
+                    $this->writeToMollieLog("Webhook for payment : Refund has been cancelled for order - {$order['order_id']}, {$mollieOrderId}");
+                    $this->writeToMollieLog("Webhook for payment : Order status has been updated to 'Processing' for order - {$order['order_id']}, {$mollieOrderId}");
                 }
             }
 
@@ -864,7 +864,7 @@ class ControllerPaymentMollieBase extends Controller
 
         // Only process the status if the order is stateless or in 'pending' status.
         if (!empty($order['order_status_id']) && $order['order_status_id'] != $this->config->get($moduleCode . "_ideal_pending_status_id")) {
-            $this->writeToMollieLog("The order " . $order['order_id'] . " was already processed before (order status ID: " . intval($order['order_status_id']) . ")");
+            $this->writeToMollieLog("Webhook for payment : The order {$order['order_id']}, {$mollieOrderId} was already processed before (order status ID: " . intval($order['order_status_id']) . ")");
             return;
         }
 
@@ -873,11 +873,11 @@ class ControllerPaymentMollieBase extends Controller
             $new_status_id = intval($this->config->get($moduleCode . "_ideal_canceled_status_id"));
 
             if (!$new_status_id) {
-                $this->writeToMollieLog("The payment was cancelled. No 'cancelled' status ID is configured, so the order status for order " . $order['order_id'] . " could not be updated.", true);
+                $this->writeToMollieLog("Webhook for payment : The payment was cancelled. No 'cancelled' status ID is configured, so the order status for order {$order['order_id']}, {$mollieOrderId} could not be updated.", true);
                 return;
             }
             $this->addOrderHistory($order, $new_status_id, $this->language->get("response_cancelled"), false);
-            $this->writeToMollieLog("The payment was cancelled and the order " . $order['order_id'] . " was moved to the 'cancelled' status (new status ID: {$new_status_id}).", true);
+            $this->writeToMollieLog("Webhook for payment : The payment was cancelled and the order {$order['order_id']}, {$mollieOrderId} was moved to the 'cancelled' status (new status ID: {$new_status_id}).", true);
             return;
         }
 
@@ -886,11 +886,11 @@ class ControllerPaymentMollieBase extends Controller
             $new_status_id = intval($this->config->get($moduleCode . "_ideal_expired_status_id"));
 
             if (!$new_status_id) {
-                $this->writeToMollieLog("The payment expired. No 'expired' status ID is configured, so the order status for order " . $order['order_id'] . " could not be updated.", true);
+                $this->writeToMollieLog("Webhook for payment : The payment expired. No 'expired' status ID is configured, so the order status for order {$order['order_id']}, {$mollieOrderId} could not be updated.", true);
                 return;
             }
             $this->addOrderHistory($order, $new_status_id, $this->language->get("response_expired"), false);
-            $this->writeToMollieLog("The payment expired and the order " . $order['order_id'] . " was moved to the 'expired' status (new status ID: {$new_status_id}).", true);
+            $this->writeToMollieLog("Webhook for payment : The payment expired and the order {$order['order_id']}, {$mollieOrderId} was moved to the 'expired' status (new status ID: {$new_status_id}).", true);
             return;
         }
 
@@ -898,11 +898,11 @@ class ControllerPaymentMollieBase extends Controller
         $new_status_id = intval($this->config->get($moduleCode . "_ideal_failed_status_id"));
 
         if (!$new_status_id) {
-            $this->writeToMollieLog("The payment failed. No 'failed' status ID is configured, so the order status for order " . $order['order_id'] . " could not be updated.", true);
+            $this->writeToMollieLog("Webhook for payment : The payment failed. No 'failed' status ID is configured, so the order status for order {$order['order_id']}, {$mollieOrderId} could not be updated.", true);
             return;
         }
         $this->addOrderHistory($order, $new_status_id, $this->language->get("response_unknown"), false);
-        $this->writeToMollieLog("The payment failed for an unknown reason and the order " . $order['order_id'] . " was moved to the 'failed' status (new status ID: {$new_status_id}).", true);
+        $this->writeToMollieLog("Webhook for payment : The payment failed for an unknown reason and the order {$order['order_id']}, {$mollieOrderId} was moved to the 'failed' status (new status ID: {$new_status_id}).", true);
         return;
 
     }
@@ -911,7 +911,7 @@ class ControllerPaymentMollieBase extends Controller
 
         $moduleCode = MollieHelper::getModuleCode();
 
-        $this->writeToMollieLog("Received webhook for order_id " . $order_id);
+        $this->writeToMollieLog("Received webhook for order : {$order_id}");
 
         $mollieOrder = $this->getAPIClient()->orders->get($order_id, ["embed" => "payments"]);
 
@@ -920,7 +920,7 @@ class ControllerPaymentMollieBase extends Controller
         $mollieOrderIdExists = $model->checkMollieOrderID($order_id);
         if(!$mollieOrderIdExists) {
             $model->setPayment($mollieOrder->metadata->order_id, $order_id, $mollieOrder->method);
-            $this->writeToMollieLog("Updated database with mollie_order_id - " . $order_id);
+            $this->writeToMollieLog("Webhook for order : Updated database. order_id - {$mollieOrder->metadata->order_id}, mollie_order_id - {$order_id}");
         }
 
         // Update payment status
@@ -931,7 +931,7 @@ class ControllerPaymentMollieBase extends Controller
                 'status'     => $payment->status
             );
             $model->updatePayment($mollieOrder->metadata->order_id, $order_id, $paymentData);
-            $this->writeToMollieLog("Updated mollie transaction_id and status for order - {$mollieOrder->metadata->order_id}, $order_id");            
+            $this->writeToMollieLog("Webhook for order : Updated mollie payment. transaction_id - {$payment->id}, status - {$paymentData['status']}, order_id - {$mollieOrder->metadata->order_id}, mollie_order_id - $order_id");            
         }
 
         // Load essentials
@@ -954,7 +954,7 @@ class ControllerPaymentMollieBase extends Controller
 
         // Only process the status if the order is stateless or in 'pending' status.
         if (!empty($order['order_status_id']) && $order['order_status_id'] != $this->config->get($moduleCode . "_ideal_pending_status_id")) {
-            $this->writeToMollieLog("The order " . $order['order_id'] . " was already processed before (order status ID: " . intval($order['order_status_id']) . ")");
+            $this->writeToMollieLog("Webhook for order : The order {$order['order_id']}, {$order_id} was already processed before (order status ID: " . intval($order['order_status_id']) . ")");
             return;
         }
 
@@ -963,11 +963,11 @@ class ControllerPaymentMollieBase extends Controller
             $new_status_id = intval($this->config->get($moduleCode . "_ideal_processing_status_id"));
 
             if (!$new_status_id) {
-                $this->writeToMollieLog("The payment has been received/authorised. No 'processing' status ID is configured, so the order status for order " . $order['order_id'] . " could not be updated.", true);
+                $this->writeToMollieLog("Webhook for order : The payment has been received/authorised. No 'processing' status ID is configured, so the order status for order {$order['order_id']}, {$order_id} could not be updated.", true);
                 return;
             }
             $this->addOrderHistory($order, $new_status_id, $this->language->get("response_success"), true);
-            $this->writeToMollieLog("The payment was received/authorised and the order " . $order['order_id'] . " was moved to the 'processing' status (new status ID: {$new_status_id}.", true);
+            $this->writeToMollieLog("Webhook for order : The payment was received/authorised and the order {$order['order_id']}, {$order_id} was moved to the 'processing' status (new status ID: {$new_status_id}).", true);
             return;
         }
 
@@ -976,11 +976,11 @@ class ControllerPaymentMollieBase extends Controller
             $new_status_id = intval($this->config->get($moduleCode . "_ideal_canceled_status_id"));
 
             if (!$new_status_id) {
-                $this->writeToMollieLog("The payment was cancelled. No 'cancelled' status ID is configured, so the order status for order " . $order['order_id'] . " could not be updated.", true);
+                $this->writeToMollieLog("Webhook for order : The payment was cancelled. No 'cancelled' status ID is configured, so the order status for order {$order['order_id']}, {$order_id} could not be updated.", true);
                 return;
             }
             $this->addOrderHistory($order, $new_status_id, $this->language->get("response_cancelled"), false);
-            $this->writeToMollieLog("The payment was cancelled and the order " . $order['order_id'] . " was moved to the 'cancelled' status (new status ID: {$new_status_id}).", true);
+            $this->writeToMollieLog("Webhook for order : The payment was cancelled and the order {$order['order_id']}, {$order_id} was moved to the 'cancelled' status (new status ID: {$new_status_id}).", true);
             return;
         }
 
@@ -989,11 +989,11 @@ class ControllerPaymentMollieBase extends Controller
             $new_status_id = intval($this->config->get($moduleCode . "_ideal_expired_status_id"));
 
             if (!$new_status_id) {
-                $this->writeToMollieLog("The payment expired. No 'expired' status ID is configured, so the order status for order " . $order['order_id'] . " could not be updated.", true);
+                $this->writeToMollieLog("Webhook for order : The payment expired. No 'expired' status ID is configured, so the order status for order {$order['order_id']}, {$order_id} could not be updated.", true);
                 return;
             }
             $this->addOrderHistory($order, $new_status_id, $this->language->get("response_expired"), false);
-            $this->writeToMollieLog("The payment expired and the order " . $order['order_id'] . " was moved to the 'expired' status (new status ID: {$new_status_id}).", true);
+            $this->writeToMollieLog("Webhook for order : The payment expired and the order {$order['order_id']}, {$order_id} was moved to the 'expired' status (new status ID: {$new_status_id}).", true);
             return;
         }
 
@@ -1001,11 +1001,11 @@ class ControllerPaymentMollieBase extends Controller
         $new_status_id = intval($this->config->get($moduleCode . "_ideal_failed_status_id"));
 
         if (!$new_status_id) {
-            $this->writeToMollieLog("The payment failed. No 'failed' status ID is configured, so the order status for order " . $order['order_id'] . " could not be updated.", true);
+            $this->writeToMollieLog("Webhook for order : The payment failed. No 'failed' status ID is configured, so the order status for order {$order['order_id']}, {$order_id} could not be updated.", true);
             return;
         }
         $this->addOrderHistory($order, $new_status_id, $this->language->get("response_unknown"), false);
-        $this->writeToMollieLog("The payment failed for an unknown reason and the order " . $order['order_id'] . " was moved to the 'failed' status (new status ID: {$new_status_id}).", true);
+        $this->writeToMollieLog("Webhook for order : The payment failed for an unknown reason and the order {$order['order_id']}, {$order_id} was moved to the 'failed' status (new status ID: {$new_status_id}).", true);
         return;
 
     }
@@ -1073,11 +1073,14 @@ class ControllerPaymentMollieBase extends Controller
             header("HTTP/1.0 404 Not Found");
             echo "Could not find order.";
             return;
+        } elseif(!in_array($order['payment_code'], ['mollie_klarnapaylater', 'mollie_klarnasliceit'])) {
+            // Do nothing if payment method is not klarna
+            return;
         }
 
         $mollie_order_id = $mollieModel->getOrderID($order_id);
         if (empty($mollie_order_id)) {
-            $this->writeToMollieLog("Could not find mollie reference order id for shipment creation for order " . $order['order_id'] . " (It could be a non-mollie order).");
+            $this->writeToMollieLog("Could not find mollie reference order id for shipment creation for order {$order['order_id']}, {$mollie_order_id} (It could be a non-mollie order).");
             return;
         }
         
@@ -1113,7 +1116,7 @@ class ControllerPaymentMollieBase extends Controller
 
                 $shipmentData['lines'] = $shipmentLine;
                 $mollieShipment = $mollieOrder->createShipment($shipmentData);
-                $this->writeToMollieLog("Shipment created for order-".$order_id);
+                $this->writeToMollieLog("Shipment created for order - {$order_id}, {$mollie_order_id}");
             }
          }
     }
@@ -1126,11 +1129,12 @@ class ControllerPaymentMollieBase extends Controller
      */
     public function callback()
     {
-        $moduleCode = MollieHelper::getModuleCode();
         $order_id = $this->getOrderID();
+        $this->writeToMollieLog("Received callback for order : " . $order_id);
 
+        $moduleCode = MollieHelper::getModuleCode();
         if ($order_id === false) {
-            $this->writeToMollieLog("Failed to get order id.");
+            $this->writeToMollieLog("Callback : Failed to get order id.");
 
             return $this->showReturnPage(
                 $this->language->get("heading_failed"),
@@ -1149,8 +1153,6 @@ class ControllerPaymentMollieBase extends Controller
             );
         }
 
-        $this->writeToMollieLog("Received callback for order " . $order_id);
-
         // Load required translations.
         Util::load()->language("payment/mollie");
 
@@ -1158,10 +1160,11 @@ class ControllerPaymentMollieBase extends Controller
         $model = $this->getModuleModel();
 
         $paid_status_id = intval($this->config->get($moduleCode . "_ideal_processing_status_id"));
+        $pending_status_id = intval($this->config->get($moduleCode . "_ideal_pending_status_id"));
         $mollie_order_id = $model->getOrderID($order['order_id']);
 
         if ($mollie_order_id === false) {
-            $this->writeToMollieLog("Error getting order id for order " . $order['order_id']);
+            $this->writeToMollieLog("Error getting mollie_order_id for order " . $order['order_id']);
 
             return $this->showReturnPage(
                 $this->language->get("heading_failed"),
@@ -1179,7 +1182,7 @@ class ControllerPaymentMollieBase extends Controller
                 'status'     => $payment->status
             );
             $model->updatePayment($orderDetails->metadata->order_id, $mollie_order_id, $paymentData);
-            $this->writeToMollieLog("Updated mollie transaction_id and status for order - {$orderDetails->metadata->order_id}, $mollie_order_id");
+            $this->writeToMollieLog("Updated mollie payment. transaction_id - {$payment->id}, status - {$paymentData['status']}, order_id - {$orderDetails->metadata->order_id}, mollie_order_id - $mollie_order_id");
                         
         }
 
@@ -1191,9 +1194,12 @@ class ControllerPaymentMollieBase extends Controller
         } else if(!empty($orderDetails->_embedded->payments)) {
 
             $payment = $orderDetails->_embedded->payments[0];
-            if (($payment->status == 'paid' || $payment->status == 'open') && !in_array($paid_status_id, $orderStatuses)) {
+            if (($payment->status == 'paid') && !in_array($paid_status_id, $orderStatuses)) {
                 $this->addOrderHistory($order, $paid_status_id, $this->language->get("response_success"), true);
                 $order['order_status_id'] = $paid_status_id;
+            } elseif(($payment->status == 'open') && !in_array($pending_status_id, $orderStatuses)) {
+                $this->addOrderHistory($order, $pending_status_id, $this->language->get("response_none"), true);
+                $order['order_status_id'] = $pending_status_id;
             }
             
         }
@@ -1216,7 +1222,7 @@ class ControllerPaymentMollieBase extends Controller
             $mollieShipment = $orderDetails->createShipment($shipmentData);
             $shipped_status_id = intval($this->config->get($moduleCode . "_ideal_shipping_status_id"));
             $this->addOrderHistory($order, $shipped_status_id, $this->language->get("shipment_success"), true);
-            $this->writeToMollieLog("Shipment created for order-".$order_id);
+            $this->writeToMollieLog("Shipment created for order - {$order_id}, {$mollie_order_id}");
             $order['order_status_id'] = $shipped_status_id;
         }
         // Show a 'transaction failed' page if we couldn't find the order or if the payment failed.
@@ -1224,9 +1230,9 @@ class ControllerPaymentMollieBase extends Controller
 
         if (!$order || ($failed_status_id && $order['order_status_id'] == $failed_status_id)) {
             if ($failed_status_id && $order['order_status_id'] == $failed_status_id) {
-                $this->writeToMollieLog("Error payment failed for order " . $order['order_id']);
+                $this->writeToMollieLog("Error payment failed for order - {$order['order_id']}, {$mollie_order_id}");
             } else {
-                $this->writeToMollieLog("Error couldn't find order " . $order['order_id']);
+                $this->writeToMollieLog("Error couldn't find order - {$order['order_id']}, {$mollie_order_id}");
             }
 
             return $this->showReturnPage(
@@ -1237,7 +1243,7 @@ class ControllerPaymentMollieBase extends Controller
 
         // If the order status is 'processing' (i.e. 'paid'), redirect to OpenCart's default 'success' page.
         if ($order["order_status_id"] == $this->config->get($moduleCode . "_ideal_processing_status_id") || $order["order_status_id"] == $this->config->get($moduleCode . "_ideal_shipping_status_id")) {
-            $this->writeToMollieLog("Success redirect to success page for order " . $order['order_id']);
+            $this->writeToMollieLog("Success redirect to success page for order - {$order['order_id']}, {$mollie_order_id}");
 
             unset($this->session->data['mollie_issuer']);
 
@@ -1248,7 +1254,7 @@ class ControllerPaymentMollieBase extends Controller
 
         // If the status is 'pending' (i.e. a bank transfer), the report is not delivered yet.
         if ($order['order_status_id'] == $this->config->get($moduleCode . "_ideal_pending_status_id")) {
-            $this->writeToMollieLog("Unknown payment status for order " . $order['order_id']);
+            $this->writeToMollieLog("Unknown payment status for order - {$order['order_id']}, {$mollie_order_id}");
 
             if ($this->cart) {
                 $this->cart->clear();
@@ -1268,7 +1274,7 @@ class ControllerPaymentMollieBase extends Controller
         }
 
         // Show a 'transaction failed' page if all else fails.
-        $this->writeToMollieLog("Everything else failed for order " . $order['order_id']);
+        $this->writeToMollieLog("Everything else failed for order - {$order['order_id']}, {$mollie_order_id}");
 
         return $this->showReturnPage(
             $this->language->get("heading_failed"),
@@ -1284,7 +1290,7 @@ class ControllerPaymentMollieBase extends Controller
         $data['breadcrumbs'] = array();
 
         $data['breadcrumbs'][] = array(
-            "href" => Util::url()->link("common/home", (isset($this->session->data['token'])) ? "token=" . $this->session->data['token'] : ""),
+            "href" => Util::url()->link("common/home"),
             "text" => $this->language->get("text_home"),
             "separator" => false,
         );

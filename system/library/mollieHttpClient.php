@@ -1,8 +1,4 @@
 <?php
-/**
- * This class is used by to send requests to the api
- * @author Mark Smit <m.smit@comercia.nl>
- */
 class mollieHttpClient
 {
 

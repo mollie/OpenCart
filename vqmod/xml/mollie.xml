@@ -1,6 +1,6 @@
 <modification>
     <id>Quality Works - Mollie</id>
-    <version>1.3.6</version>
+    <version>1.3.8</version>
     <vqmver>2.3.0</vqmver>
     <author>Quality Works</author>
 
@@ -27,7 +27,7 @@
     public function getOrderID($order_id)
     {
         if (!empty($order_id)) {
-            $results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `order_id` = '" . $order_id . "'");
+            $results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `order_id` = '" . $order_id . "' ORDER BY payment_attempt DESC LIMIT 1");
             if($results->num_rows == 0) return FALSE;
             return $results->row['mollie_order_id'];
         }
@@ -120,7 +120,7 @@
         <operation error="log">
             <search position="before"><![CDATA[public function getOrder($order_id)]]></search>
             <add><![CDATA[public function getMolliePayment($order_id) {
-        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE order_id = '" . (int)$order_id . "'");
+        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE order_id = '" . (int)$order_id . "' ORDER BY payment_attempt DESC LIMIT 1");
 
         if ($query->num_rows) {
             return $query->row;
@@ -155,7 +155,7 @@
                   <?php } elseif($payment_status == 'settled') { ?>
                     <span id="payment-status" class="label label-success"><?php echo strtoupper($payment_status); ?></span>
                   <?php } ?>
-                  <?php if(($payment_status) && ($payment_status != 'expired') && ($payment_status != 'refunded') && ($payment_status != 'failed') && ($payment_status != 'canceled') && $showRefundButton) { ?>
+                  <?php if(($payment_status) && !in_array($payment_status, ['expired', 'refunded', 'failed', 'canceled', 'open']) && $showRefundButton) { ?>
                   <a href="javascript:void(0)" id="button-refund" class="label label-primary"><?php echo $button_refund; ?></a>
                   <?php } ?>
                 </td>]]></add>
@@ -185,7 +185,7 @@
                   {% elseif(payment_status == 'settled') %}
                     <span id="payment-status" class="label label-success">{{ payment_status | upper }}</span>
                   {% endif %}
-                  {% if((payment_status) and (payment_status != 'expired') and (payment_status != 'refunded') and (payment_status != 'failed') and (payment_status != 'canceled') and showRefundButton) %}
+                  {% if((payment_status) and (payment_status not in ['expired', 'refunded', 'failed', 'canceled', 'open']) and showRefundButton) %}
                   <a href="javascript:void(0)" id="button-refund" class="label label-primary">{{ button_refund }}</a>
                   {% endif %}
                 </td>]]></add>
@@ -346,7 +346,7 @@
                     $json['order_status_id'] = $this->config->get($moduleCode . "_ideal_refund_status_id");
                     $json['comment'] = $this->language->get('text_refund_success');
 
-                    $this->model_sale_order->updateMolliePayment($order_id, $refundObject->id, 'refunded');
+                    $this->model_sale_order->updateMolliePayment($mollieOrderDetails['mollie_order_id'], $refundObject->id, 'refunded');
 
                 } else {
                     $log->write("Refund process can not be processed for order_id - $order_id.");
@@ -371,8 +371,8 @@
         <operation error="log">
             <search position="before"><![CDATA[public function getOrder($order_id)]]></search>
             <add><![CDATA[
-    public function updateMolliePayment($order_id, $refund_id, $payment_status) {
-        $this->db->query("UPDATE `" . DB_PREFIX . "mollie_payments` SET refund_id = '" . $refund_id . "', bank_status = '" . $payment_status . "' WHERE order_id = '" . (int)$order_id . "'");
+    public function updateMolliePayment($mollie_order_id, $refund_id, $payment_status) {
+        $this->db->query("UPDATE `" . DB_PREFIX . "mollie_payments` SET refund_id = '" . $refund_id . "', bank_status = '" . $payment_status . "' WHERE mollie_order_id = '" . (int)$mollie_order_id . "'");
     }
     ]]></add>
         </operation>
@@ -773,6 +773,18 @@ if (!confirm('{{ text_confirm_refund }}')) {
             <search position="after"><![CDATA[public function index() {]]></search>
             <add><![CDATA[
                 $this->document->addScript('https://js.mollie.com/v1/mollie.js');
+                ]]></add>
+        </operation>
+    </file>
+    <!-- PDP Invoice Pro Fix -->
+    <file name="catalog/controller/checkout/confirm.php">
+        <operation error="log">
+            <search position="after" offset="1"><![CDATA[$order_data['payment_method'] = '';]]></search>
+            <add><![CDATA[
+                if (($order_data['payment_method'] == 'text_title') && (substr($this->session->data['payment_method']['code'], 0, 6) == 'mollie')) {
+                    $title = $this->session->data['payment_method']['title'];
+                    $order_data['payment_method'] = $title;
+                }
                 ]]></add>
         </operation>
     </file>

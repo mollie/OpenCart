@@ -65,6 +65,10 @@ class PaymentMethod
      */
     const KLARNA_SLICE_IT = "klarnasliceit";
     /**
+     * @link https://www.mollie.com/en/payments/mybank
+     */
+    const MYBANK = "mybank";
+    /**
      * @link https://www.mollie.com/en/payments/paypal
      */
     const PAYPAL = "paypal";

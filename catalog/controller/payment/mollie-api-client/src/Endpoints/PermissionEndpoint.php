@@ -23,13 +23,13 @@ class PermissionEndpoint extends \Mollie\Api\Endpoints\CollectionEndpointAbstrac
      * endpoint uses one type of collection object.
      *
      * @param int $count
-     * @param object[] $_links
+     * @param \stdClass $_links
      *
      * @return PermissionCollection
      */
     protected function getResourceCollectionObject($count, $_links)
     {
-        return new \Mollie\Api\Resources\PermissionCollection($this->client, $count, $_links);
+        return new \Mollie\Api\Resources\PermissionCollection($count, $_links);
     }
     /**
      * Retrieve a single Permission from Mollie.

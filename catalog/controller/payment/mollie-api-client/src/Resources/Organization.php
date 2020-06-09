@@ -31,7 +31,7 @@ class Organization extends \Mollie\Api\Resources\BaseResource
     /**
      * The address of the organization.
      *
-     * @var object
+     * @var \stdClass
      */
     public $address;
     /**
@@ -49,7 +49,7 @@ class Organization extends \Mollie\Api\Resources\BaseResource
      */
     public $vatNumber;
     /**
-     * @var object[]
+     * @var \stdClass
      */
     public $_links;
 }

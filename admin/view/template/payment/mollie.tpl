@@ -293,7 +293,7 @@
 											<div class="col-sm-10">
 												<div class="input-group">
 													<span class="input-group-addon"><?php echo ($store['mollie_connection']) ? '<i class="fa fa-check text-success"></i>' : '<i class="fa fa-minus"></i>' ;?></span>
-													<a href="<?php echo $store['mollie_connect']; ?>" id="<?php echo $store['store_id']; ?>_button_mollie_connect" mollie-connection="<?php echo ($store['mollie_connection']) ? '1' : '0' ;?>" style="<?php echo (($store[$code . '_client_id'] == '') || ($store[$code . '_client_secret'] == '') || ($store['mollie_connection'])) ? 'opacity: 0.6; pointer-events: none;' : ''; ?>"><img src="<?php echo $image; ?>" alt="<?php echo $button_mollie_connect; ?>" style="width: 152px;height: auto;" /></a>
+													<a href="<?php echo $store['mollie_connect']; ?>" id="<?php echo $store['store_id']; ?>_button_mollie_connect" mollie-connection="<?php echo ($store['mollie_connection']) ? '1' : '0' ;?>" style="<?php echo (($store[$code . '_client_id'] == '') || ($store[$code . '_client_secret'] == '') || ($store['mollie_connection'])) ? 'opacity: 0.6; pointer-events: none;' : ''; ?>"><img src="../image/mollie/mollie_connect.png" alt="<?php echo $button_mollie_connect; ?>" style="width: 152px;height: auto;" /></a>
 												</div>
 											</div>
 										</div>
@@ -302,7 +302,7 @@
 									</fieldset>
 									<fieldset>
 										<legend><?php echo $text_general; ?></legend>
-										<div class="form-group required">
+										<!-- <div class="form-group required">
 											<label class="col-sm-2 control-label" for="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_ideal_description"><span data-toggle="tooltip" title="<?php echo $help_description; ?>"><?php echo $entry_description; ?></span></label>
 											<div class="col-sm-10">
 												<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_ideal_description" value="<?php echo $store[$code . '_ideal_description']; ?>" id="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_ideal_description" class="form-control"/>
@@ -310,7 +310,7 @@
 												<div class="text-danger"><?php echo $store['error_description']; ?></div>
 												<?php } ?>
 											</div>
-										</div>
+										</div> -->
 										<div class="form-group">
 											<label class="col-sm-2 control-label" for="input-status"><span data-toggle="tooltip" title="<?php echo $help_show_icons; ?>"><?php echo $entry_show_icons; ?></span></label>
 											<div class="col-sm-10">
@@ -422,30 +422,30 @@
 										</div>
 									</fieldset>
 									<fieldset>
-										<legend>Custom CSS For Mollie Components</legend>
+										<legend><?php echo $text_custom_css; ?></legend>
 										<div class="row">
 											<div class="col-sm-4">
 												<div class="col-sm-12 text-center form-group"><h4><?php echo $entry_mollie_component_base; ?></h4></div>
 												<div class="form-group">
-													<label class="col-sm-6 control-label" for="input-bg-color-base">Background color</label>
+													<label class="col-sm-6 control-label" for="input-bg-color-base"><?php echo $text_bg_color; ?></label>
 													<div class="col-sm-6">
 														<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component_css_base[background_color]" id="input-bg-color-base" class="form-control" value="<?php echo $store[$code . '_mollie_component_css_base']['background_color']; ?>">
 													</div>
 												</div>
 												<div class="form-group">
-													<label class="col-sm-6 control-label" for="input-color-base">Color</label>
+													<label class="col-sm-6 control-label" for="input-color-base"><?php echo $text_color; ?></label>
 													<div class="col-sm-6">
 														<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component_css_base[color]" id="input-color-base" class="form-control" value="<?php echo $store[$code . '_mollie_component_css_base']['color']; ?>">
 													</div>
 												</div>
 												<div class="form-group">
-													<label class="col-sm-6 control-label" for="input-font-size-base">Font size</label>
+													<label class="col-sm-6 control-label" for="input-font-size-base"><?php echo $text_font_size; ?></label>
 													<div class="col-sm-6">
 														<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component_css_base[font_size]" id="input-font-size-base" class="form-control" value="<?php echo $store[$code . '_mollie_component_css_base']['font_size']; ?>">
 													</div>
 												</div>
 												<div class="form-group">
-													<label class="col-sm-6 control-label" for="input-other-css">Other CSS</label>
+													<label class="col-sm-6 control-label" for="input-other-css"><?php echo $text_other_css; ?></label>
 													<div class="col-sm-6">
 														<textarea name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component_css_base[other_css]" id="input-other-css" class="form-control"><?php echo $store[$code . '_mollie_component_css_base']['other_css']; ?></textarea>
 													</div>
@@ -454,25 +454,25 @@
 											<div class="col-sm-4">
 												<div class="col-sm-12 text-center form-group"><h4><?php echo $entry_mollie_component_valid; ?></h4></div>
 												<div class="form-group">
-													<label class="col-sm-6 control-label" for="input-bg-color-valid">Background color</label>
+													<label class="col-sm-6 control-label" for="input-bg-color-valid"><?php echo $text_bg_color; ?></label>
 													<div class="col-sm-6">
 														<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component_css_valid[background_color]" id="input-bg-color-valid" class="form-control" value="<?php echo $store[$code . '_mollie_component_css_valid']['background_color']; ?>">
 													</div>
 												</div>
 												<div class="form-group">
-													<label class="col-sm-6 control-label" for="input-color-valid">Color</label>
+													<label class="col-sm-6 control-label" for="input-color-valid"><?php echo $text_color; ?></label>
 													<div class="col-sm-6">
 														<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component_css_valid[color]" id="input-color-valid" class="form-control" value="<?php echo $store[$code . '_mollie_component_css_valid']['color']; ?>">
 													</div>
 												</div>
 												<div class="form-group">
-													<label class="col-sm-6 control-label" for="input-font-size-valid">Font size</label>
+													<label class="col-sm-6 control-label" for="input-font-size-valid"><?php echo $text_font_size; ?></label>
 													<div class="col-sm-6">
 														<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component_css_valid[font_size]" id="input-font-size-valid" class="form-control" value="<?php echo $store[$code . '_mollie_component_css_valid']['font_size']; ?>">
 													</div>
 												</div>
 												<div class="form-group">
-													<label class="col-sm-6 control-label" for="input-other-css">Other CSS</label>
+													<label class="col-sm-6 control-label" for="input-other-css"><?php echo $text_other_css; ?></label>
 													<div class="col-sm-6">
 														<textarea name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component_css_valid[other_css]" id="input-other-css" class="form-control"><?php echo $store[$code . '_mollie_component_css_valid']['other_css']; ?></textarea>
 													</div>
@@ -481,25 +481,25 @@
 											<div class="col-sm-4">
 												<div class="col-sm-12 text-center form-group"><h4><?php echo $entry_mollie_component_invalid; ?></h4></div>
 												<div class="form-group">
-													<label class="col-sm-6 control-label" for="input-bg-color-invalid">Background color</label>
+													<label class="col-sm-6 control-label" for="input-bg-color-invalid"><?php echo $text_bg_color; ?></label>
 													<div class="col-sm-6">
 														<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component_css_invalid[background_color]" id="input-bg-color-invalid" class="form-control" value="<?php echo $store[$code . '_mollie_component_css_invalid']['background_color']; ?>">
 													</div>
 												</div>
 												<div class="form-group">
-													<label class="col-sm-6 control-label" for="input-color-invalid">Color</label>
+													<label class="col-sm-6 control-label" for="input-color-invalid"><?php echo $text_color; ?></label>
 													<div class="col-sm-6">
 														<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component_css_invalid[color]" id="input-color-invalid" class="form-control" value="<?php echo $store[$code . '_mollie_component_css_invalid']['color']; ?>">
 													</div>
 												</div>
 												<div class="form-group">
-													<label class="col-sm-6 control-label" for="input-font-size-invalid">Font size</label>
+													<label class="col-sm-6 control-label" for="input-font-size-invalid"><?php echo $text_font_size; ?></label>
 													<div class="col-sm-6">
 														<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component_css_invalid[font_size]" id="input-font-size-invalid" class="form-control" value="<?php echo $store[$code . '_mollie_component_css_invalid']['font_size']; ?>">
 													</div>
 												</div>
 												<div class="form-group">
-													<label class="col-sm-6 control-label" for="input-other-css">Other CSS</label>
+													<label class="col-sm-6 control-label" for="input-other-css"><?php echo $text_other_css; ?></label>
 													<div class="col-sm-6">
 														<textarea name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component_css_invalid[other_css]" id="input-other-css" class="form-control"><?php echo $store[$code . '_mollie_component_css_invalid']['other_css']; ?></textarea>
 													</div>
@@ -524,7 +524,7 @@
 									</div>
 									<div class="form-group">
 										<div class="col-sm-offset-2 col-sm-10">
-											<a href="https://www.mollie.com/" target="_blank"><img src=" https://www.mollie.com/images/logo.png" border="0" alt="Mollie"/></a><br/><br/>
+											<a href="https://www.mollie.com/" target="_blank"><img src=" ../image/mollie/mollie_logo.png" border="0" alt="Mollie"/></a><br/><br/>
 											&copy; 2004-<?php echo date('Y'); ?> Mollie
 											B.V. <?php echo $footer_text; ?>
 										</div>
@@ -533,7 +533,7 @@
 
 								<div id="support-<?php echo $store['store_id']; ?>" class="tab-pane fade in">
 									<fieldset>
-										<legend>Module by Quality Works - Technical Support</legend>
+										<legend><?php echo $text_module_by; ?></legend>
 										<div class="row">
 											<label class="col-sm-2 control-label">Quality Works B.V.</label>
 											<div class="col-sm-10">Tel: +31(0)85 7430150<br>E-mail: <a href="mailto:support.mollie@qualityworks.eu">support.mollie@qualityworks.eu</a><br>Internet: <a href="https://www.qualityworks.eu" target="_blank">www.qualityworks.eu</a>
@@ -541,46 +541,46 @@
 										</div>										
 									</fieldset>
 									<fieldset>
-										<legend>Mollie - Support</legend>
-										<div class="row">
+										<legend><?php echo $text_mollie_support; ?></legend>
+										<div class="form-group">
 											<label class="col-sm-2 control-label">Mollie B.V.</label>
 											<div class="col-sm-10">
-												<a href="https://www.mollie.com/bedrijf/contact" target="_blank">Contact</a>
+												<a href="https://www.mollie.com/bedrijf/contact" target="_blank"><?php echo $text_contact; ?></a>
+											</div>
+										</div>									
+										<div class="form-group">
+											<label class="col-sm-2 control-label" for="input-debug-mode"><?php echo $entry_debug_mode; ?></label>
+											<div class="col-sm-10">
+												<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_debug_mode" id="input-debug-mode" class="form-control">
+													<?php if ($store[$code . '_debug_mode']) { ?>
+													<option value="1" selected="selected"><?php echo $text_enabled; ?></option>
+													<option value="0"><?php echo $text_disabled; ?></option>
+													<?php } else { ?>
+													<option value="1"><?php echo $text_enabled; ?></option>
+													<option value="0" selected="selected"><?php echo $text_disabled; ?></option>
+													<?php } ?>
+												</select>
+											</div>
+										</div>
+										<div class="form-group">
+											<div class="col-sm-2">&nbsp;</div>
+											<div class="col-sm-10">
+												<div class="panel-heading">
+													<h3 class="panel-title"><i class="fa fa-exclamation-triangle"></i> <?php echo $text_log_list; ?></h3>
+
+												<div class="pull-right" style="position: relative;bottom: 8px;">
+													<a href="<?php echo $download; ?>" data-toggle="tooltip" title="<?php echo $button_download; ?>" class="btn btn-primary"><i class="fa fa-download"></i></a>
+													<a onclick="confirm('<?php echo $text_confirm; ?>') ? location.href='<?php echo $clear; ?>' : false;" data-toggle="tooltip" title="<?php echo $button_clear; ?>" class="btn btn-danger"><i class="fa fa-eraser"></i></a>
+												  </div>
+												</div>
+												<div class="panel-body">
+												    <textarea wrap="off" rows="15" readonly class="form-control"><?php echo $log; ?></textarea>
+												</div>
 											</div>
 										</div>
 									</fieldset>
-									<div class="form-group">
-										<label class="col-sm-2 control-label" for="input-debug-mode"><?php echo $entry_debug_mode; ?></label>
-										<div class="col-sm-10">
-											<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_debug_mode" id="input-debug-mode" class="form-control">
-												<?php if ($store[$code . '_debug_mode']) { ?>
-												<option value="1" selected="selected"><?php echo $text_enabled; ?></option>
-												<option value="0"><?php echo $text_disabled; ?></option>
-												<?php } else { ?>
-												<option value="1"><?php echo $text_enabled; ?></option>
-												<option value="0" selected="selected"><?php echo $text_disabled; ?></option>
-												<?php } ?>
-											</select>
-										</div>
-									</div>
-									<div class="form-group">
-										<div class="col-sm-2">&nbsp;</div>
-										<div class="col-sm-10">
-											<div class="panel-heading">
-												<h3 class="panel-title"><i class="fa fa-exclamation-triangle"></i> <?php echo $text_log_list; ?></h3>
-
-											<div class="pull-right" style="position: relative;bottom: 8px;">
-												<a href="<?php echo $download; ?>" data-toggle="tooltip" title="<?php echo $button_download; ?>" class="btn btn-primary"><i class="fa fa-download"></i></a>
-												<a onclick="confirm('<?php echo $text_confirm; ?>') ? location.href='<?php echo $clear; ?>' : false;" data-toggle="tooltip" title="<?php echo $button_clear; ?>" class="btn btn-danger"><i class="fa fa-eraser"></i></a>
-											  </div>
-											</div>
-											<div class="panel-body">
-											    <textarea wrap="off" rows="15" readonly class="form-control"><?php echo $log; ?></textarea>
-											</div>
-										</div>
-									</div>
 									<fieldset>
-										<legend>Contact Us - Technical Support</legend>
+										<legend><?php echo $text_contact_us; ?></legend>
 											<div id="contact-<?php echo $store['store_id']; ?>"></div>
 											<div class="form-group required">
 												<label class="col-sm-2 control-label"><?php echo $entry_name; ?></label>

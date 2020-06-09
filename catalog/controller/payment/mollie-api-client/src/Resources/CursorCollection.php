@@ -12,7 +12,7 @@ abstract class CursorCollection extends \Mollie\Api\Resources\BaseCollection
     /**
      * @param MollieApiClient $client
      * @param int $count
-     * @param object[] $_links
+     * @param \stdClass $_links
      */
     public final function __construct(\Mollie\Api\MollieApiClient $client, $count, $_links)
     {

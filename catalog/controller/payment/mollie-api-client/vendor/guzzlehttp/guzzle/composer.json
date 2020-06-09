@@ -22,33 +22,38 @@
     ],
     "require": {
         "php": ">=5.5",
-        "guzzlehttp\/psr7": "^1.4",
-        "guzzlehttp\/promises": "^1.0"
+        "ext-json": "*",
+        "guzzlehttp\/promises": "^1.0",
+        "guzzlehttp\/psr7": "^1.6.1"
     },
     "require-dev": {
         "ext-curl": "*",
         "phpunit\/phpunit": "^4.8.35 || ^5.7 || ^6.4 || ^7.0",
-        "psr\/log": "^1.0"
-    },
-    "autoload": {
-        "files": [
-            "src\/functions_include.php"
-        ],
-        "psr-4": {
-            "_PhpScoper5ce26f1fe2920\\GuzzleHttp\\": "src\/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "_PhpScoper5ce26f1fe2920\\GuzzleHttp\\Tests\\": "tests\/"
-        }
+        "psr\/log": "^1.1"
     },
     "suggest": {
-        "psr\/log": "Required for using the Log middleware"
+        "psr\/log": "Required for using the Log middleware",
+        "ext-intl": "Required for Internationalized Domain Name (IDN) support"
+    },
+    "config": {
+        "sort-packages": true
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "6.3-dev"
+            "dev-master": "6.5-dev"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "_PhpScoper5e55118e73ab9\\GuzzleHttp\\": "src\/"
+        },
+        "files": [
+            "src\/functions_include.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "_PhpScoper5e55118e73ab9\\GuzzleHttp\\Tests\\": "tests\/"
         }
     }
 }
