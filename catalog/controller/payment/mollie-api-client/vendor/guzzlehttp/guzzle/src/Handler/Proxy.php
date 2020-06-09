@@ -1,9 +1,9 @@
 <?php
 
-namespace _PhpScoper5ce26f1fe2920\GuzzleHttp\Handler;
+namespace _PhpScoper5e55118e73ab9\GuzzleHttp\Handler;
 
-use _PhpScoper5ce26f1fe2920\GuzzleHttp\RequestOptions;
-use _PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface;
+use _PhpScoper5e55118e73ab9\GuzzleHttp\RequestOptions;
+use _PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface;
 /**
  * Provides basic proxies for handlers.
  */
@@ -20,8 +20,8 @@ class Proxy
      */
     public static function wrapSync(callable $default, callable $sync)
     {
-        return function (\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, array $options) use($default, $sync) {
-            return empty($options[\_PhpScoper5ce26f1fe2920\GuzzleHttp\RequestOptions::SYNCHRONOUS]) ? $default($request, $options) : $sync($request, $options);
+        return function (\_PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface $request, array $options) use($default, $sync) {
+            return empty($options[\_PhpScoper5e55118e73ab9\GuzzleHttp\RequestOptions::SYNCHRONOUS]) ? $default($request, $options) : $sync($request, $options);
         };
     }
     /**
@@ -39,7 +39,7 @@ class Proxy
      */
     public static function wrapStreaming(callable $default, callable $streaming)
     {
-        return function (\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, array $options) use($default, $streaming) {
+        return function (\_PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface $request, array $options) use($default, $streaming) {
             return empty($options['stream']) ? $default($request, $options) : $streaming($request, $options);
         };
     }

@@ -48,7 +48,7 @@ class Profile extends \Mollie\Api\Resources\BaseResource
      */
     public $status;
     /**
-     * @var object
+     * @var \stdClass
      */
     public $review;
     /**
@@ -59,7 +59,7 @@ class Profile extends \Mollie\Api\Resources\BaseResource
      */
     public $createdAt;
     /**
-     * @var object[]
+     * @var \stdClass
      */
     public $_links;
     /**

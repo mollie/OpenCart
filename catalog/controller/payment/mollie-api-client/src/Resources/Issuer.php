@@ -26,7 +26,7 @@ class Issuer extends \Mollie\Api\Resources\BaseResource
     /**
      * Object containing a size1x or size2x image
      *
-     * @var object
+     * @var \stdClass
      */
     public $image;
 }

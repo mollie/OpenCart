@@ -1,26 +1,26 @@
 <?php
 
-namespace _PhpScoper5ce26f1fe2920\GuzzleHttp\Exception;
+namespace _PhpScoper5e55118e73ab9\GuzzleHttp\Exception;
 
-use _PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface;
-use _PhpScoper5ce26f1fe2920\Psr\Http\Message\ResponseInterface;
-use _PhpScoper5ce26f1fe2920\GuzzleHttp\Promise\PromiseInterface;
-use _PhpScoper5ce26f1fe2920\Psr\Http\Message\UriInterface;
+use _PhpScoper5e55118e73ab9\GuzzleHttp\Promise\PromiseInterface;
+use _PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface;
+use _PhpScoper5e55118e73ab9\Psr\Http\Message\ResponseInterface;
+use _PhpScoper5e55118e73ab9\Psr\Http\Message\UriInterface;
 /**
  * HTTP Request exception
  */
-class RequestException extends \_PhpScoper5ce26f1fe2920\GuzzleHttp\Exception\TransferException
+class RequestException extends \_PhpScoper5e55118e73ab9\GuzzleHttp\Exception\TransferException
 {
     /** @var RequestInterface */
     private $request;
-    /** @var ResponseInterface */
+    /** @var ResponseInterface|null */
     private $response;
     /** @var array */
     private $handlerContext;
-    public function __construct($message, \_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, \_PhpScoper5ce26f1fe2920\Psr\Http\Message\ResponseInterface $response = null, \Exception $previous = null, array $handlerContext = [])
+    public function __construct($message, \_PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface $request, \_PhpScoper5e55118e73ab9\Psr\Http\Message\ResponseInterface $response = null, \Exception $previous = null, array $handlerContext = [])
     {
         // Set the code of the exception if the response is set and not future.
-        $code = $response && !$response instanceof \_PhpScoper5ce26f1fe2920\GuzzleHttp\Promise\PromiseInterface ? $response->getStatusCode() : 0;
+        $code = $response && !$response instanceof \_PhpScoper5e55118e73ab9\GuzzleHttp\Promise\PromiseInterface ? $response->getStatusCode() : 0;
         parent::__construct($message, $code, $previous);
         $this->request = $request;
         $this->response = $response;
@@ -34,9 +34,9 @@ class RequestException extends \_PhpScoper5ce26f1fe2920\GuzzleHttp\Exception\Tra
      *
      * @return RequestException
      */
-    public static function wrapException(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, \Exception $e)
+    public static function wrapException(\_PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface $request, \Exception $e)
     {
-        return $e instanceof \_PhpScoper5ce26f1fe2920\GuzzleHttp\Exception\RequestException ? $e : new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Exception\RequestException($e->getMessage(), $request, null, $e);
+        return $e instanceof \_PhpScoper5e55118e73ab9\GuzzleHttp\Exception\RequestException ? $e : new \_PhpScoper5e55118e73ab9\GuzzleHttp\Exception\RequestException($e->getMessage(), $request, null, $e);
     }
     /**
      * Factory method to create a new exception with a normalized error message
@@ -48,7 +48,7 @@ class RequestException extends \_PhpScoper5ce26f1fe2920\GuzzleHttp\Exception\Tra
      *
      * @return self
      */
-    public static function create(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, \_PhpScoper5ce26f1fe2920\Psr\Http\Message\ResponseInterface $response = null, \Exception $previous = null, array $ctx = [])
+    public static function create(\_PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface $request, \_PhpScoper5e55118e73ab9\Psr\Http\Message\ResponseInterface $response = null, \Exception $previous = null, array $ctx = [])
     {
         if (!$response) {
             return new self('Error completing request', $request, null, $previous, $ctx);
@@ -56,10 +56,10 @@ class RequestException extends \_PhpScoper5ce26f1fe2920\GuzzleHttp\Exception\Tra
         $level = (int) \floor($response->getStatusCode() / 100);
         if ($level === 4) {
             $label = 'Client error';
-            $className = \_PhpScoper5ce26f1fe2920\GuzzleHttp\Exception\ClientException::class;
+            $className = \_PhpScoper5e55118e73ab9\GuzzleHttp\Exception\ClientException::class;
         } elseif ($level === 5) {
             $label = 'Server error';
-            $className = \_PhpScoper5ce26f1fe2920\GuzzleHttp\Exception\ServerException::class;
+            $className = \_PhpScoper5e55118e73ab9\GuzzleHttp\Exception\ServerException::class;
         } else {
             $label = 'Unsuccessful request';
             $className = __CLASS__;
@@ -84,36 +84,18 @@ class RequestException extends \_PhpScoper5ce26f1fe2920\GuzzleHttp\Exception\Tra
      *
      * @return string|null
      */
-    public static function getResponseBodySummary(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\ResponseInterface $response)
+    public static function getResponseBodySummary(\_PhpScoper5e55118e73ab9\Psr\Http\Message\ResponseInterface $response)
     {
-        $body = $response->getBody();
-        if (!$body->isSeekable()) {
-            return null;
-        }
-        $size = $body->getSize();
-        if ($size === 0) {
-            return null;
-        }
-        $summary = $body->read(120);
-        $body->rewind();
-        if ($size > 120) {
-            $summary .= ' (truncated...)';
-        }
-        // Matches any printable character, including unicode characters:
-        // letters, marks, numbers, punctuation, spacing, and separators.
-        if (\preg_match('/[^\\pL\\pM\\pN\\pP\\pS\\pZ\\n\\r\\t]/', $summary)) {
-            return null;
-        }
-        return $summary;
+        return \_PhpScoper5e55118e73ab9\GuzzleHttp\Psr7\get_message_body_summary($response);
     }
     /**
-     * Obfuscates URI if there is an username and a password present
+     * Obfuscates URI if there is a username and a password present
      *
      * @param UriInterface $uri
      *
      * @return UriInterface
      */
-    private static function obfuscateUri($uri)
+    private static function obfuscateUri(\_PhpScoper5e55118e73ab9\Psr\Http\Message\UriInterface $uri)
     {
         $userInfo = $uri->getUserInfo();
         if (\false !== ($pos = \strpos($userInfo, ':'))) {

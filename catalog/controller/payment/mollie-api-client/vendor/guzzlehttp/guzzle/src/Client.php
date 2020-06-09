@@ -1,13 +1,14 @@
 <?php
 
-namespace _PhpScoper5ce26f1fe2920\GuzzleHttp;
+namespace _PhpScoper5e55118e73ab9\GuzzleHttp;
 
-use _PhpScoper5ce26f1fe2920\GuzzleHttp\Cookie\CookieJar;
-use _PhpScoper5ce26f1fe2920\GuzzleHttp\Promise;
-use _PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7;
-use _PhpScoper5ce26f1fe2920\Psr\Http\Message\UriInterface;
-use _PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface;
-use _PhpScoper5ce26f1fe2920\Psr\Http\Message\ResponseInterface;
+use _PhpScoper5e55118e73ab9\GuzzleHttp\Cookie\CookieJar;
+use _PhpScoper5e55118e73ab9\GuzzleHttp\Exception\InvalidArgumentException;
+use _PhpScoper5e55118e73ab9\GuzzleHttp\Promise;
+use _PhpScoper5e55118e73ab9\GuzzleHttp\Psr7;
+use _PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface;
+use _PhpScoper5e55118e73ab9\Psr\Http\Message\ResponseInterface;
+use _PhpScoper5e55118e73ab9\Psr\Http\Message\UriInterface;
 /**
  * @method ResponseInterface get(string|UriInterface $uri, array $options = [])
  * @method ResponseInterface head(string|UriInterface $uri, array $options = [])
@@ -22,7 +23,7 @@ use _PhpScoper5ce26f1fe2920\Psr\Http\Message\ResponseInterface;
  * @method Promise\PromiseInterface patchAsync(string|UriInterface $uri, array $options = [])
  * @method Promise\PromiseInterface deleteAsync(string|UriInterface $uri, array $options = [])
  */
-class Client implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\ClientInterface
+class Client implements \_PhpScoper5e55118e73ab9\GuzzleHttp\ClientInterface
 {
     /** @var array Default request options */
     private $config;
@@ -61,16 +62,22 @@ class Client implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\ClientInterface
     public function __construct(array $config = [])
     {
         if (!isset($config['handler'])) {
-            $config['handler'] = \_PhpScoper5ce26f1fe2920\GuzzleHttp\HandlerStack::create();
+            $config['handler'] = \_PhpScoper5e55118e73ab9\GuzzleHttp\HandlerStack::create();
         } elseif (!\is_callable($config['handler'])) {
             throw new \InvalidArgumentException('handler must be a callable');
         }
         // Convert the base_uri to a UriInterface
         if (isset($config['base_uri'])) {
-            $config['base_uri'] = \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\uri_for($config['base_uri']);
+            $config['base_uri'] = \_PhpScoper5e55118e73ab9\GuzzleHttp\Psr7\uri_for($config['base_uri']);
         }
         $this->configureDefaults($config);
     }
+    /**
+     * @param string $method
+     * @param array  $args
+     *
+     * @return Promise\PromiseInterface
+     */
     public function __call($method, $args)
     {
         if (\count($args) < 1) {
@@ -80,17 +87,48 @@ class Client implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\ClientInterface
         $opts = isset($args[1]) ? $args[1] : [];
         return \substr($method, -5) === 'Async' ? $this->requestAsync(\substr($method, 0, -5), $uri, $opts) : $this->request($method, $uri, $opts);
     }
-    public function sendAsync(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, array $options = [])
+    /**
+     * Asynchronously send an HTTP request.
+     *
+     * @param array $options Request options to apply to the given
+     *                       request and to the transfer. See \GuzzleHttp\RequestOptions.
+     *
+     * @return Promise\PromiseInterface
+     */
+    public function sendAsync(\_PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface $request, array $options = [])
     {
         // Merge the base URI into the request URI if needed.
         $options = $this->prepareDefaults($options);
         return $this->transfer($request->withUri($this->buildUri($request->getUri(), $options), $request->hasHeader('Host')), $options);
     }
-    public function send(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, array $options = [])
+    /**
+     * Send an HTTP request.
+     *
+     * @param array $options Request options to apply to the given
+     *                       request and to the transfer. See \GuzzleHttp\RequestOptions.
+     *
+     * @return ResponseInterface
+     * @throws GuzzleException
+     */
+    public function send(\_PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface $request, array $options = [])
     {
-        $options[\_PhpScoper5ce26f1fe2920\GuzzleHttp\RequestOptions::SYNCHRONOUS] = \true;
+        $options[\_PhpScoper5e55118e73ab9\GuzzleHttp\RequestOptions::SYNCHRONOUS] = \true;
         return $this->sendAsync($request, $options)->wait();
     }
+    /**
+     * Create and send an asynchronous HTTP request.
+     *
+     * Use an absolute path to override the base path of the client, or a
+     * relative path to append to the base path of the client. The URL can
+     * contain the query string as well. Use an array to provide a URL
+     * template and additional variables to use in the URL template expansion.
+     *
+     * @param string              $method  HTTP method
+     * @param string|UriInterface $uri     URI object or string.
+     * @param array               $options Request options to apply. See \GuzzleHttp\RequestOptions.
+     *
+     * @return Promise\PromiseInterface
+     */
     public function requestAsync($method, $uri = '', array $options = [])
     {
         $options = $this->prepareDefaults($options);
@@ -103,26 +141,60 @@ class Client implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\ClientInterface
         if (\is_array($body)) {
             $this->invalidBody();
         }
-        $request = new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\Request($method, $uri, $headers, $body, $version);
+        $request = new \_PhpScoper5e55118e73ab9\GuzzleHttp\Psr7\Request($method, $uri, $headers, $body, $version);
         // Remove the option so that they are not doubly-applied.
         unset($options['headers'], $options['body'], $options['version']);
         return $this->transfer($request, $options);
     }
+    /**
+     * Create and send an HTTP request.
+     *
+     * Use an absolute path to override the base path of the client, or a
+     * relative path to append to the base path of the client. The URL can
+     * contain the query string as well.
+     *
+     * @param string              $method  HTTP method.
+     * @param string|UriInterface $uri     URI object or string.
+     * @param array               $options Request options to apply. See \GuzzleHttp\RequestOptions.
+     *
+     * @return ResponseInterface
+     * @throws GuzzleException
+     */
     public function request($method, $uri = '', array $options = [])
     {
-        $options[\_PhpScoper5ce26f1fe2920\GuzzleHttp\RequestOptions::SYNCHRONOUS] = \true;
+        $options[\_PhpScoper5e55118e73ab9\GuzzleHttp\RequestOptions::SYNCHRONOUS] = \true;
         return $this->requestAsync($method, $uri, $options)->wait();
     }
+    /**
+     * Get a client configuration option.
+     *
+     * These options include default request options of the client, a "handler"
+     * (if utilized by the concrete client), and a "base_uri" if utilized by
+     * the concrete client.
+     *
+     * @param string|null $option The config option to retrieve.
+     *
+     * @return mixed
+     */
     public function getConfig($option = null)
     {
         return $option === null ? $this->config : (isset($this->config[$option]) ? $this->config[$option] : null);
     }
+    /**
+     * @param  string|null $uri
+     *
+     * @return UriInterface
+     */
     private function buildUri($uri, array $config)
     {
         // for BC we accept null which would otherwise fail in uri_for
-        $uri = \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\uri_for($uri === null ? '' : $uri);
+        $uri = \_PhpScoper5e55118e73ab9\GuzzleHttp\Psr7\uri_for($uri === null ? '' : $uri);
         if (isset($config['base_uri'])) {
-            $uri = \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\UriResolver::resolve(\_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\uri_for($config['base_uri']), $uri);
+            $uri = \_PhpScoper5e55118e73ab9\GuzzleHttp\Psr7\UriResolver::resolve(\_PhpScoper5e55118e73ab9\GuzzleHttp\Psr7\uri_for($config['base_uri']), $uri);
+        }
+        if (isset($config['idn_conversion']) && $config['idn_conversion'] !== \false) {
+            $idnOptions = $config['idn_conversion'] === \true ? \IDNA_DEFAULT : $config['idn_conversion'];
+            $uri = _idn_uri_convert($uri, $idnOptions);
         }
         return $uri->getScheme() === '' && $uri->getHost() !== '' ? $uri->withScheme('http') : $uri;
     }
@@ -130,15 +202,18 @@ class Client implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\ClientInterface
      * Configures the default options for a client.
      *
      * @param array $config
+     * @return void
      */
     private function configureDefaults(array $config)
     {
-        $defaults = ['allow_redirects' => \_PhpScoper5ce26f1fe2920\GuzzleHttp\RedirectMiddleware::$defaultSettings, 'http_errors' => \true, 'decode_content' => \true, 'verify' => \true, 'cookies' => \false];
+        $defaults = ['allow_redirects' => \_PhpScoper5e55118e73ab9\GuzzleHttp\RedirectMiddleware::$defaultSettings, 'http_errors' => \true, 'decode_content' => \true, 'verify' => \true, 'cookies' => \false];
+        // idn_to_ascii() is a part of ext-intl and might be not available
+        $defaults['idn_conversion'] = \function_exists('idn_to_ascii') && (\defined('INTL_IDNA_VARIANT_UTS46') || \PHP_VERSION_ID < 70200);
         // Use the standard Linux HTTP_PROXY and HTTPS_PROXY if set.
         // We can only trust the HTTP_PROXY environment variable in a CLI
         // process due to the fact that PHP has no reliable mechanism to
         // get environment variables that start with "HTTP_".
-        if (\php_sapi_name() == 'cli' && \getenv('HTTP_PROXY')) {
+        if (\php_sapi_name() === 'cli' && \getenv('HTTP_PROXY')) {
             $defaults['proxy']['http'] = \getenv('HTTP_PROXY');
         }
         if ($proxy = \getenv('HTTPS_PROXY')) {
@@ -150,7 +225,7 @@ class Client implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\ClientInterface
         }
         $this->config = $config + $defaults;
         if (!empty($config['cookies']) && $config['cookies'] === \true) {
-            $this->config['cookies'] = new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Cookie\CookieJar();
+            $this->config['cookies'] = new \_PhpScoper5e55118e73ab9\GuzzleHttp\Cookie\CookieJar();
         }
         // Add the default user-agent header.
         if (!isset($this->config['headers'])) {
@@ -172,7 +247,7 @@ class Client implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\ClientInterface
      *
      * @return array
      */
-    private function prepareDefaults($options)
+    private function prepareDefaults(array $options)
     {
         $defaults = $this->config;
         if (!empty($defaults['headers'])) {
@@ -185,7 +260,7 @@ class Client implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\ClientInterface
         if (\array_key_exists('headers', $options)) {
             // Allows default headers to be unset.
             if ($options['headers'] === null) {
-                $defaults['_conditional'] = null;
+                $defaults['_conditional'] = [];
                 unset($options['headers']);
             } elseif (!\is_array($options['headers'])) {
                 throw new \InvalidArgumentException('headers must be an array');
@@ -207,12 +282,11 @@ class Client implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\ClientInterface
      * The URI of the request is not modified and the request options are used
      * as-is without merging in default options.
      *
-     * @param RequestInterface $request
-     * @param array            $options
+     * @param array $options See \GuzzleHttp\RequestOptions.
      *
      * @return Promise\PromiseInterface
      */
-    private function transfer(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, array $options)
+    private function transfer(\_PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface $request, array $options)
     {
         // save_to -> sink
         if (isset($options['save_to'])) {
@@ -225,11 +299,12 @@ class Client implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\ClientInterface
             unset($options['exceptions']);
         }
         $request = $this->applyOptions($request, $options);
+        /** @var HandlerStack $handler */
         $handler = $options['handler'];
         try {
-            return \_PhpScoper5ce26f1fe2920\GuzzleHttp\Promise\promise_for($handler($request, $options));
+            return \_PhpScoper5e55118e73ab9\GuzzleHttp\Promise\promise_for($handler($request, $options));
         } catch (\Exception $e) {
-            return \_PhpScoper5ce26f1fe2920\GuzzleHttp\Promise\rejection_for($e);
+            return \_PhpScoper5e55118e73ab9\GuzzleHttp\Promise\rejection_for($e);
         }
     }
     /**
@@ -240,7 +315,7 @@ class Client implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\ClientInterface
      *
      * @return RequestInterface
      */
-    private function applyOptions(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, array &$options)
+    private function applyOptions(\_PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface $request, array &$options)
     {
         $modify = ['set_headers' => []];
         if (isset($options['headers'])) {
@@ -254,30 +329,30 @@ class Client implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\ClientInterface
             $options['body'] = \http_build_query($options['form_params'], '', '&');
             unset($options['form_params']);
             // Ensure that we don't have the header in different case and set the new value.
-            $options['_conditional'] = \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\_caseless_remove(['Content-Type'], $options['_conditional']);
+            $options['_conditional'] = \_PhpScoper5e55118e73ab9\GuzzleHttp\Psr7\_caseless_remove(['Content-Type'], $options['_conditional']);
             $options['_conditional']['Content-Type'] = 'application/x-www-form-urlencoded';
         }
         if (isset($options['multipart'])) {
-            $options['body'] = new \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\MultipartStream($options['multipart']);
+            $options['body'] = new \_PhpScoper5e55118e73ab9\GuzzleHttp\Psr7\MultipartStream($options['multipart']);
             unset($options['multipart']);
         }
         if (isset($options['json'])) {
-            $options['body'] = \_PhpScoper5ce26f1fe2920\GuzzleHttp\json_encode($options['json']);
+            $options['body'] = \_PhpScoper5e55118e73ab9\GuzzleHttp\json_encode($options['json']);
             unset($options['json']);
             // Ensure that we don't have the header in different case and set the new value.
-            $options['_conditional'] = \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\_caseless_remove(['Content-Type'], $options['_conditional']);
+            $options['_conditional'] = \_PhpScoper5e55118e73ab9\GuzzleHttp\Psr7\_caseless_remove(['Content-Type'], $options['_conditional']);
             $options['_conditional']['Content-Type'] = 'application/json';
         }
         if (!empty($options['decode_content']) && $options['decode_content'] !== \true) {
             // Ensure that we don't have the header in different case and set the new value.
-            $options['_conditional'] = \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\_caseless_remove(['Accept-Encoding'], $options['_conditional']);
+            $options['_conditional'] = \_PhpScoper5e55118e73ab9\GuzzleHttp\Psr7\_caseless_remove(['Accept-Encoding'], $options['_conditional']);
             $modify['set_headers']['Accept-Encoding'] = $options['decode_content'];
         }
         if (isset($options['body'])) {
             if (\is_array($options['body'])) {
                 $this->invalidBody();
             }
-            $modify['body'] = \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\stream_for($options['body']);
+            $modify['body'] = \_PhpScoper5e55118e73ab9\GuzzleHttp\Psr7\stream_for($options['body']);
             unset($options['body']);
         }
         if (!empty($options['auth']) && \is_array($options['auth'])) {
@@ -286,7 +361,7 @@ class Client implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\ClientInterface
             switch ($type) {
                 case 'basic':
                     // Ensure that we don't have the header in different case and set the new value.
-                    $modify['set_headers'] = \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\_caseless_remove(['Authorization'], $modify['set_headers']);
+                    $modify['set_headers'] = \_PhpScoper5e55118e73ab9\GuzzleHttp\Psr7\_caseless_remove(['Authorization'], $modify['set_headers']);
                     $modify['set_headers']['Authorization'] = 'Basic ' . \base64_encode("{$value[0]}:{$value[1]}");
                     break;
                 case 'digest':
@@ -318,11 +393,11 @@ class Client implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\ClientInterface
                 throw new \InvalidArgumentException('sink must not be a boolean');
             }
         }
-        $request = \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\modify_request($request, $modify);
-        if ($request->getBody() instanceof \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\MultipartStream) {
+        $request = \_PhpScoper5e55118e73ab9\GuzzleHttp\Psr7\modify_request($request, $modify);
+        if ($request->getBody() instanceof \_PhpScoper5e55118e73ab9\GuzzleHttp\Psr7\MultipartStream) {
             // Use a multipart/form-data POST if a Content-Type is not set.
             // Ensure that we don't have the header in different case and set the new value.
-            $options['_conditional'] = \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\_caseless_remove(['Content-Type'], $options['_conditional']);
+            $options['_conditional'] = \_PhpScoper5e55118e73ab9\GuzzleHttp\Psr7\_caseless_remove(['Content-Type'], $options['_conditional']);
             $options['_conditional']['Content-Type'] = 'multipart/form-data; boundary=' . $request->getBody()->getBoundary();
         }
         // Merge in conditional headers if they are not present.
@@ -334,12 +409,17 @@ class Client implements \_PhpScoper5ce26f1fe2920\GuzzleHttp\ClientInterface
                     $modify['set_headers'][$k] = $v;
                 }
             }
-            $request = \_PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7\modify_request($request, $modify);
+            $request = \_PhpScoper5e55118e73ab9\GuzzleHttp\Psr7\modify_request($request, $modify);
             // Don't pass this internal value along to middleware/handlers.
             unset($options['_conditional']);
         }
         return $request;
     }
+    /**
+     * Throw Exception with pre-set message.
+     * @return void
+     * @throws InvalidArgumentException Invalid body.
+     */
     private function invalidBody()
     {
         throw new \InvalidArgumentException('Passing in the "body" request ' . 'option as an array to send a POST request has been deprecated. ' . 'Please use the "form_params" request option to send a ' . 'application/x-www-form-urlencoded request, or the "multipart" ' . 'request option to send a multipart/form-data request.');

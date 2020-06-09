@@ -1,9 +1,9 @@
 <?php
 
-namespace _PhpScoper5ce26f1fe2920\GuzzleHttp\Cookie;
+namespace _PhpScoper5e55118e73ab9\GuzzleHttp\Cookie;
 
-use _PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface;
-use _PhpScoper5ce26f1fe2920\Psr\Http\Message\ResponseInterface;
+use _PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface;
+use _PhpScoper5e55118e73ab9\Psr\Http\Message\ResponseInterface;
 /**
  * Stores HTTP cookies.
  *
@@ -26,14 +26,14 @@ interface CookieJarInterface extends \Countable, \IteratorAggregate
      *
      * @return RequestInterface returns the modified request.
      */
-    public function withCookieHeader(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request);
+    public function withCookieHeader(\_PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface $request);
     /**
      * Extract cookies from an HTTP response and store them in the CookieJar.
      *
      * @param RequestInterface  $request  Request that was sent
      * @param ResponseInterface $response Response that was received
      */
-    public function extractCookies(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, \_PhpScoper5ce26f1fe2920\Psr\Http\Message\ResponseInterface $response);
+    public function extractCookies(\_PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface $request, \_PhpScoper5e55118e73ab9\Psr\Http\Message\ResponseInterface $response);
     /**
      * Sets a cookie in the cookie jar.
      *
@@ -41,7 +41,7 @@ interface CookieJarInterface extends \Countable, \IteratorAggregate
      *
      * @return bool Returns true on success or false on failure
      */
-    public function setCookie(\_PhpScoper5ce26f1fe2920\GuzzleHttp\Cookie\SetCookie $cookie);
+    public function setCookie(\_PhpScoper5e55118e73ab9\GuzzleHttp\Cookie\SetCookie $cookie);
     /**
      * Remove cookies currently held in the cookie jar.
      *
@@ -52,9 +52,9 @@ interface CookieJarInterface extends \Countable, \IteratorAggregate
      * arguments, then the cookie with the specified name, path and domain is
      * removed.
      *
-     * @param string $domain Clears cookies matching a domain
-     * @param string $path   Clears cookies matching a domain and path
-     * @param string $name   Clears cookies matching a domain, path, and name
+     * @param string|null $domain Clears cookies matching a domain
+     * @param string|null $path   Clears cookies matching a domain and path
+     * @param string|null $name   Clears cookies matching a domain, path, and name
      *
      * @return CookieJarInterface
      */

@@ -22,7 +22,7 @@ class Permission extends \Mollie\Api\Resources\BaseResource
      */
     public $granted;
     /**
-     * @var object[]
+     * @var \stdClass
      */
     public $_links;
 }

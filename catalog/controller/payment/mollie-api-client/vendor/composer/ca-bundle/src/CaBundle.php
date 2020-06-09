@@ -8,10 +8,10 @@
  * For the full copyright and license information, please view
  * the LICENSE file that was distributed with this source code.
  */
-namespace _PhpScoper5ce26f1fe2920\Composer\CaBundle;
+namespace _PhpScoper5e55118e73ab9\Composer\CaBundle;
 
-use _PhpScoper5ce26f1fe2920\Psr\Log\LoggerInterface;
-use _PhpScoper5ce26f1fe2920\Symfony\Component\Process\PhpProcess;
+use _PhpScoper5e55118e73ab9\Psr\Log\LoggerInterface;
+use _PhpScoper5e55118e73ab9\Symfony\Component\Process\PhpProcess;
 /**
  * @author Chris Smith <chris@cs278.org>
  * @author Jordi Boggiano <j.boggiano@seld.be>
@@ -58,32 +58,21 @@ class CaBundle
      * @param  LoggerInterface $logger optional logger for information about which CA files were loaded
      * @return string          path to a CA bundle file or directory
      */
-    public static function getSystemCaRootBundlePath(\_PhpScoper5ce26f1fe2920\Psr\Log\LoggerInterface $logger = null)
+    public static function getSystemCaRootBundlePath(\_PhpScoper5e55118e73ab9\Psr\Log\LoggerInterface $logger = null)
     {
         if (self::$caPath !== null) {
             return self::$caPath;
         }
+        $caBundlePaths = array();
         // If SSL_CERT_FILE env variable points to a valid certificate/bundle, use that.
         // This mimics how OpenSSL uses the SSL_CERT_FILE env variable.
-        $envCertFile = \getenv('SSL_CERT_FILE');
-        if ($envCertFile && \is_readable($envCertFile) && static::validateCaFile($envCertFile, $logger)) {
-            return self::$caPath = $envCertFile;
-        }
+        $caBundlePaths[] = self::getEnvVariable('SSL_CERT_FILE');
         // If SSL_CERT_DIR env variable points to a valid certificate/bundle, use that.
         // This mimics how OpenSSL uses the SSL_CERT_FILE env variable.
-        $envCertDir = \getenv('SSL_CERT_DIR');
-        if ($envCertDir && \is_dir($envCertDir) && \is_readable($envCertDir)) {
-            return self::$caPath = $envCertDir;
-        }
-        $configured = \ini_get('openssl.cafile');
-        if ($configured && \strlen($configured) > 0 && \is_readable($configured) && static::validateCaFile($configured, $logger)) {
-            return self::$caPath = $configured;
-        }
-        $configured = \ini_get('openssl.capath');
-        if ($configured && \is_dir($configured) && \is_readable($configured)) {
-            return self::$caPath = $configured;
-        }
-        $caBundlePaths = array(
+        $caBundlePaths[] = self::getEnvVariable('SSL_CERT_DIR');
+        $caBundlePaths[] = \ini_get('openssl.cafile');
+        $caBundlePaths[] = \ini_get('openssl.capath');
+        $otherLocations = array(
             '/etc/pki/tls/certs/ca-bundle.crt',
             // Fedora, RHEL, CentOS (ca-certificates package)
             '/etc/ssl/certs/ca-certificates.crt',
@@ -105,15 +94,18 @@ class CaBundle
             '/usr/local/etc/ssl/cert.pem',
             // FreeBSD 10.x
             '/usr/local/etc/openssl/cert.pem',
+            // OS X homebrew, openssl package
+            '/usr/local/etc/openssl@1.1/cert.pem',
         );
+        foreach ($otherLocations as $location) {
+            $otherLocations[] = \dirname($location);
+        }
+        $caBundlePaths = \array_merge($caBundlePaths, $otherLocations);
         foreach ($caBundlePaths as $caBundle) {
-            if (@\is_readable($caBundle) && static::validateCaFile($caBundle, $logger)) {
+            if (self::caFileUsable($caBundle, $logger)) {
                 return self::$caPath = $caBundle;
             }
-        }
-        foreach ($caBundlePaths as $caBundle) {
-            $caBundle = \dirname($caBundle);
-            if (@\is_dir($caBundle) && \glob($caBundle . '/*')) {
+            if (self::caDirUsable($caBundle)) {
                 return self::$caPath = $caBundle;
             }
         }
@@ -149,7 +141,7 @@ class CaBundle
      *
      * @return bool
      */
-    public static function validateCaFile($filename, \_PhpScoper5ce26f1fe2920\Psr\Log\LoggerInterface $logger = null)
+    public static function validateCaFile($filename, \_PhpScoper5e55118e73ab9\Psr\Log\LoggerInterface $logger = null)
     {
         static $warned = \false;
         if (isset(self::$caFileValidity[$filename])) {
@@ -212,7 +204,7 @@ class CaBundle
             return self::$useOpensslParse = \true;
         }
         // Symfony Process component is missing so we assume it is unsafe at this point
-        if (!\class_exists('_PhpScoper5ce26f1fe2920\\Symfony\\Component\\Process\\PhpProcess')) {
+        if (!\class_exists('_PhpScoper5e55118e73ab9\\Symfony\\Component\\Process\\PhpProcess')) {
             return self::$useOpensslParse = \false;
         }
         // This is where things get crazy, because distros backport security
@@ -233,7 +225,7 @@ var_dump(PHP_VERSION, $info['issuer']['emailAddress'], $info['validFrom_time_t']
 EOT;
         $script = '<' . "?php\n" . \sprintf($script, $cert);
         try {
-            $process = new \_PhpScoper5ce26f1fe2920\Symfony\Component\Process\PhpProcess($script);
+            $process = new \_PhpScoper5e55118e73ab9\Symfony\Component\Process\PhpProcess($script);
             $process->mustRun();
         } catch (\Exception $e) {
             // In the case of any exceptions just accept it is not possible to
@@ -256,5 +248,23 @@ EOT;
         self::$caFileValidity = array();
         self::$caPath = null;
         self::$useOpensslParse = null;
+    }
+    private static function getEnvVariable($name)
+    {
+        if (isset($_SERVER[$name])) {
+            return (string) $_SERVER[$name];
+        }
+        if (\PHP_SAPI === 'cli' && ($value = \getenv($name)) !== \false && $value !== null) {
+            return (string) $value;
+        }
+        return \false;
+    }
+    private static function caFileUsable($certFile, \_PhpScoper5e55118e73ab9\Psr\Log\LoggerInterface $logger = null)
+    {
+        return $certFile && @\is_file($certFile) && @\is_readable($certFile) && static::validateCaFile($certFile, $logger);
+    }
+    private static function caDirUsable($certDir)
+    {
+        return $certDir && @\is_dir($certDir) && @\is_readable($certDir) && \glob($certDir . '/*');
     }
 }

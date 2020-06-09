@@ -61,19 +61,19 @@ class OrderLine extends \Mollie\Api\Resources\BaseResource
     /**
      * The price of a single item in the order line.
      *
-     * @var object
+     * @var \stdClass
      */
     public $unitPrice;
     /**
      * Any discounts applied to the order line.
      *
-     * @var object|null
+     * @var \stdClass|null
      */
     public $discountAmount;
     /**
      * The total amount of the line, including VAT and discounts.
      *
-     * @var object
+     * @var \stdClass
      */
     public $totalAmount;
     /**
@@ -88,7 +88,7 @@ class OrderLine extends \Mollie\Api\Resources\BaseResource
     /**
      * The amount of value-added tax on the line.
      *
-     * @var object
+     * @var \stdClass
      */
     public $vatAmount;
     /**
@@ -116,6 +116,10 @@ class OrderLine extends \Mollie\Api\Resources\BaseResource
      * @var string
      */
     public $createdAt;
+    /**
+     * @var \stdClass
+     */
+    public $_links;
     /**
      * Is this order line created?
      *
@@ -242,5 +246,12 @@ class OrderLine extends \Mollie\Api\Resources\BaseResource
     public function isSurcharge()
     {
         return $this->type === \Mollie\Api\Types\OrderLineType::TYPE_SURCHARGE;
+    }
+    public function update()
+    {
+        $body = \json_encode(array("name" => $this->name, 'imageUrl' => $this->imageUrl, 'productUrl' => $this->productUrl, 'quantity' => $this->quantity, 'unitPrice' => $this->unitPrice, 'discountAmount' => $this->discountAmount, 'totalAmount' => $this->totalAmount, 'vatAmount' => $this->vatAmount, 'vatRate' => $this->vatRate));
+        $url = "orders/{$this->orderId}/lines/{$this->id}";
+        $result = $this->client->performHttpCall(\Mollie\Api\MollieApiClient::HTTP_PATCH, $url, $body);
+        return \Mollie\Api\Resources\ResourceFactory::createFromApiResult($result, new \Mollie\Api\Resources\Order($this->client));
     }
 }

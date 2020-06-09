@@ -32,7 +32,7 @@
  */
 
 // These are called automatically by the Payment modules list - do not change the names
-$method_list_logo              = '<a href="https://www.mollie.com" target="_blank"><img src="https://www.mollie.com/images/logo.png" alt="Mollie" title="Mollie" style="border:0px" /></a>';
+$method_list_logo              = '<a href="https://www.mollie.com" target="_blank"><img src="../image/mollie/mollie_logo.png" alt="Mollie" title="Mollie" style="border:0px" /></a>';
 $_['text_mollie_banktransfer']  = $method_list_logo;
 $_['text_mollie_belfius']       = $method_list_logo;
 $_['text_mollie_creditcard']    = $method_list_logo;
@@ -104,6 +104,15 @@ $_['text_enquiry_success'] 	        = "Éxito: su consulta ha sido enviada. Nos 
 $_['text_update_message']           = "Mollie: hay una versión actualizada (%s) disponible del módulo Mollie. Haga clic en <a href='%s'>aquí</a> para actualizar.";
 $_['text_update_success']          = "Éxito: el módulo Mollie se ha actualizado a la versión %s.";
 $_['text_default_currency']        = "Moneda utilizada en la tienda";
+$_['text_custom_css']              = "Custom CSS For Mollie Components";
+$_['text_contact_us']              = "Contáctenos - Soporte técnico";
+$_['text_bg_color']                = "Background color";
+$_['text_color']                   = "Color";
+$_['text_font_size']               = "Font size";
+$_['text_other_css']               = "Other CSS";
+$_['text_module_by']               = "Module by Quality Works - Technical Support";
+$_['text_mollie_support']          = "Mollie - Support";
+$_['text_contact']                 = "Contact";
 
 // Entry
 $_['entry_payment_method']           = "Método de pago";
@@ -160,6 +169,10 @@ $_['error_name']              = 'Advertencia: el nombre debe tener entre 3 y 25 
 $_['error_email']             = 'Advertencia: ¡La dirección de correo electrónico no parece ser válida!';
 $_['error_subject']           = 'Advertencia: ¡El asunto debe tener 3 caracteres!';
 $_['error_enquiry']           = 'Advertencia: ¡El texto de la consulta debe tener 25 caracteres de longitud!';
+$_['error_no_api_client']     = 'API client not found.';
+$_['error_api_help']          = 'You can ask your hosting provider to help with this.';
+$_['error_comm_failed']       = '<strong>Communicating with Mollie failed:</strong><br/>%s<br/><br/>Please check the following conditions. You can ask your hosting provider to help with this.<ul><li>Make sure outside connections to %s are not blocked.</li><li>Make sure SSL v3 is disabled on your server. Mollie does not support SSL v3.</li><li>Make sure your server is up-to-date and the latest security patches have been installed.</li></ul><br/>Contact <a href="mailto:info@mollie.nl">info@mollie.nl</a> if this still does not fix your problem.';
+$_['error_no_api_key']        = 'No API key provided. Please insert your API key.';
 
 // Status
 $_['entry_pending_status']   = "¡Clave de API Mollie inválida!";

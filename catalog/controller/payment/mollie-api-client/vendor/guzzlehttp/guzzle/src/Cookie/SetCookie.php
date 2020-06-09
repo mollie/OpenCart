@@ -1,6 +1,6 @@
 <?php
 
-namespace _PhpScoper5ce26f1fe2920\GuzzleHttp\Cookie;
+namespace _PhpScoper5e55118e73ab9\GuzzleHttp\Cookie;
 
 /**
  * Set-Cookie object
@@ -69,7 +69,7 @@ class SetCookie
         foreach ($this->data as $k => $v) {
             if ($k !== 'Name' && $k !== 'Value' && $v !== null && $v !== \false) {
                 if ($k === 'Expires') {
-                    $str .= 'Expires=' . \gmdate('_PhpScoper5ce26f1fe2920\\D, d M Y H:i:s \\G\\M\\T', $v) . '; ';
+                    $str .= 'Expires=' . \gmdate('_PhpScoper5e55118e73ab9\\D, d M Y H:i:s \\G\\M\\T', $v) . '; ';
                 } else {
                     $str .= ($v === \true ? $k : "{$k}={$v}") . '; ';
                 }
@@ -192,7 +192,7 @@ class SetCookie
     /**
      * Get whether or not this is a secure cookie
      *
-     * @return null|bool
+     * @return bool|null
      */
     public function getSecure()
     {
@@ -210,7 +210,7 @@ class SetCookie
     /**
      * Get whether or not this is a session cookie
      *
-     * @return null|bool
+     * @return bool|null
      */
     public function getDiscard()
     {

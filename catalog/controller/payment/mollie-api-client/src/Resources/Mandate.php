@@ -27,7 +27,7 @@ class Mandate extends \Mollie\Api\Resources\BaseResource
      */
     public $method;
     /**
-     * @var object|null
+     * @var \stdClass|null
      */
     public $details;
     /**
@@ -49,7 +49,7 @@ class Mandate extends \Mollie\Api\Resources\BaseResource
      */
     public $signatureDate;
     /**
-     * @var object
+     * @var \stdClass
      */
     public $_links;
     /**

@@ -1,12 +1,12 @@
 <?php
 
-namespace _PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7;
+namespace _PhpScoper5e55118e73ab9\GuzzleHttp\Psr7;
 
-use _PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInterface;
+use _PhpScoper5e55118e73ab9\Psr\Http\Message\StreamInterface;
 /**
  * Decorator used to return only a subset of a stream
  */
-class LimitStream implements \_PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInterface
+class LimitStream implements \_PhpScoper5e55118e73ab9\Psr\Http\Message\StreamInterface
 {
     use StreamDecoratorTrait;
     /** @var int Offset to start reading from */
@@ -20,7 +20,7 @@ class LimitStream implements \_PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInt
      * @param int             $offset Position to seek to before reading (only
      *                                works on seekable streams).
      */
-    public function __construct(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInterface $stream, $limit = -1, $offset = 0)
+    public function __construct(\_PhpScoper5e55118e73ab9\Psr\Http\Message\StreamInterface $stream, $limit = -1, $offset = 0)
     {
         $this->stream = $stream;
         $this->setLimit($limit);
@@ -59,7 +59,7 @@ class LimitStream implements \_PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInt
     public function seek($offset, $whence = \SEEK_SET)
     {
         if ($whence !== \SEEK_SET || $offset < 0) {
-            throw new \RuntimeException(\sprintf('Cannot seek to offset % with whence %s', $offset, $whence));
+            throw new \RuntimeException(\sprintf('Cannot seek to offset %s with whence %s', $offset, $whence));
         }
         $offset += $this->offset;
         if ($this->limit !== -1) {

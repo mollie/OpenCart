@@ -19,7 +19,7 @@ class Chargeback extends \Mollie\Api\Resources\BaseResource
     /**
      * The $amount that was refunded.
      *
-     * @var object
+     * @var \stdClass
      */
     public $amount;
     /**
@@ -38,11 +38,11 @@ class Chargeback extends \Mollie\Api\Resources\BaseResource
     /**
      * The settlement amount
      *
-     * @var object
+     * @var \stdClass
      */
     public $settlementAmount;
     /**
-     * @var object[]
+     * @var \stdClass
      */
     public $_links;
 }

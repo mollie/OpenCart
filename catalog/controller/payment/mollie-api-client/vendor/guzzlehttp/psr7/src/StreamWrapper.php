@@ -1,8 +1,8 @@
 <?php
 
-namespace _PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7;
+namespace _PhpScoper5e55118e73ab9\GuzzleHttp\Psr7;
 
-use _PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInterface;
+use _PhpScoper5e55118e73ab9\Psr\Http\Message\StreamInterface;
 /**
  * Converts Guzzle streams into PHP stream resources.
  */
@@ -22,7 +22,7 @@ class StreamWrapper
      * @return resource
      * @throws \InvalidArgumentException if stream is not readable or writable
      */
-    public static function getResource(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInterface $stream)
+    public static function getResource(\_PhpScoper5e55118e73ab9\Psr\Http\Message\StreamInterface $stream)
     {
         self::register();
         if ($stream->isReadable()) {
@@ -41,7 +41,7 @@ class StreamWrapper
      *
      * @return resource
      */
-    public static function createStreamContext(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\StreamInterface $stream)
+    public static function createStreamContext(\_PhpScoper5e55118e73ab9\Psr\Http\Message\StreamInterface $stream)
     {
         return \stream_context_create(['guzzle' => ['stream' => $stream]]);
     }

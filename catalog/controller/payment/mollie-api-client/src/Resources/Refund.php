@@ -19,7 +19,7 @@ class Refund extends \Mollie\Api\Resources\BaseResource
     /**
      * The $amount that was refunded.
      *
-     * @var object
+     * @var \stdClass
      */
     public $amount;
     /**
@@ -58,7 +58,7 @@ class Refund extends \Mollie\Api\Resources\BaseResource
     /**
      * The settlement amount
      *
-     * @var object
+     * @var \stdClass
      */
     public $settlementAmount;
     /**
@@ -68,7 +68,7 @@ class Refund extends \Mollie\Api\Resources\BaseResource
      */
     public $status;
     /**
-     * @var object[]
+     * @var \stdClass
      */
     public $_links;
     /**

@@ -27,7 +27,7 @@ class OrderEndpoint extends \Mollie\Api\Endpoints\CollectionEndpointAbstract
      * endpoint uses one type of collection object.
      *
      * @param int $count
-     * @param object[] $_links
+     * @param \stdClass $_links
      *
      * @return OrderCollection
      */
@@ -77,12 +77,13 @@ class OrderEndpoint extends \Mollie\Api\Endpoints\CollectionEndpointAbstract
      *
      * @param string $orderId
      *
+     * @param array $parameters
      * @return Order
-     * @throws ApiException
+     * @throws \Mollie\Api\Exceptions\ApiException
      */
-    public function cancel($orderId)
+    public function cancel($orderId, $parameters = [])
     {
-        return $this->rest_delete($orderId);
+        return $this->rest_delete($orderId, $parameters);
     }
     /**
      * Retrieves a collection of Orders from Mollie.

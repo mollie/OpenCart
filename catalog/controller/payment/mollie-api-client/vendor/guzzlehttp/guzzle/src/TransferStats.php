@@ -1,10 +1,10 @@
 <?php
 
-namespace _PhpScoper5ce26f1fe2920\GuzzleHttp;
+namespace _PhpScoper5e55118e73ab9\GuzzleHttp;
 
-use _PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface;
-use _PhpScoper5ce26f1fe2920\Psr\Http\Message\ResponseInterface;
-use _PhpScoper5ce26f1fe2920\Psr\Http\Message\UriInterface;
+use _PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface;
+use _PhpScoper5e55118e73ab9\Psr\Http\Message\ResponseInterface;
+use _PhpScoper5e55118e73ab9\Psr\Http\Message\UriInterface;
 /**
  * Represents data at the point after it was transferred either successfully
  * or after a network error.
@@ -17,13 +17,13 @@ final class TransferStats
     private $handlerStats;
     private $handlerErrorData;
     /**
-     * @param RequestInterface  $request          Request that was sent.
-     * @param ResponseInterface $response         Response received (if any)
-     * @param null              $transferTime     Total handler transfer time.
-     * @param mixed             $handlerErrorData Handler error data.
-     * @param array             $handlerStats     Handler specific stats.
+     * @param RequestInterface       $request          Request that was sent.
+     * @param ResponseInterface|null $response         Response received (if any)
+     * @param float|null             $transferTime     Total handler transfer time.
+     * @param mixed                  $handlerErrorData Handler error data.
+     * @param array                  $handlerStats     Handler specific stats.
      */
-    public function __construct(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, \_PhpScoper5ce26f1fe2920\Psr\Http\Message\ResponseInterface $response = null, $transferTime = null, $handlerErrorData = null, $handlerStats = [])
+    public function __construct(\_PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface $request, \_PhpScoper5e55118e73ab9\Psr\Http\Message\ResponseInterface $response = null, $transferTime = null, $handlerErrorData = null, $handlerStats = [])
     {
         $this->request = $request;
         $this->response = $response;
@@ -81,7 +81,7 @@ final class TransferStats
     /**
      * Get the estimated time the request was being transferred by the handler.
      *
-     * @return float Time in seconds.
+     * @return float|null Time in seconds.
      */
     public function getTransferTime()
     {

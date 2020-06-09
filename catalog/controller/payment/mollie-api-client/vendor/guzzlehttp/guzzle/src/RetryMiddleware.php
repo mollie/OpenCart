@@ -1,12 +1,12 @@
 <?php
 
-namespace _PhpScoper5ce26f1fe2920\GuzzleHttp;
+namespace _PhpScoper5e55118e73ab9\GuzzleHttp;
 
-use _PhpScoper5ce26f1fe2920\GuzzleHttp\Promise\PromiseInterface;
-use _PhpScoper5ce26f1fe2920\GuzzleHttp\Promise\RejectedPromise;
-use _PhpScoper5ce26f1fe2920\GuzzleHttp\Psr7;
-use _PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface;
-use _PhpScoper5ce26f1fe2920\Psr\Http\Message\ResponseInterface;
+use _PhpScoper5e55118e73ab9\GuzzleHttp\Promise\PromiseInterface;
+use _PhpScoper5e55118e73ab9\GuzzleHttp\Promise\RejectedPromise;
+use _PhpScoper5e55118e73ab9\GuzzleHttp\Psr7;
+use _PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface;
+use _PhpScoper5e55118e73ab9\Psr\Http\Message\ResponseInterface;
 /**
  * Middleware that retries requests based on the boolean result of
  * invoking the provided "decider" function.
@@ -17,6 +17,8 @@ class RetryMiddleware
     private $nextHandler;
     /** @var callable */
     private $decider;
+    /** @var callable */
+    private $delay;
     /**
      * @param callable $decider     Function that accepts the number of retries,
      *                              a request, [response], and [exception] and
@@ -36,13 +38,13 @@ class RetryMiddleware
     /**
      * Default exponential backoff delay function.
      *
-     * @param $retries
+     * @param int $retries
      *
-     * @return int
+     * @return int milliseconds.
      */
     public static function exponentialDelay($retries)
     {
-        return (int) \pow(2, $retries - 1);
+        return (int) \pow(2, $retries - 1) * 1000;
     }
     /**
      * @param RequestInterface $request
@@ -50,7 +52,7 @@ class RetryMiddleware
      *
      * @return PromiseInterface
      */
-    public function __invoke(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, array $options)
+    public function __invoke(\_PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface $request, array $options)
     {
         if (!isset($options['retries'])) {
             $options['retries'] = 0;
@@ -58,7 +60,12 @@ class RetryMiddleware
         $fn = $this->nextHandler;
         return $fn($request, $options)->then($this->onFulfilled($request, $options), $this->onRejected($request, $options));
     }
-    private function onFulfilled(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $req, array $options)
+    /**
+     * Execute fulfilled closure
+     *
+     * @return mixed
+     */
+    private function onFulfilled(\_PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface $req, array $options)
     {
         return function ($value) use($req, $options) {
             if (!\call_user_func($this->decider, $options['retries'], $req, $value, null)) {
@@ -67,16 +74,24 @@ class RetryMiddleware
             return $this->doRetry($req, $options, $value);
         };
     }
-    private function onRejected(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $req, array $options)
+    /**
+     * Execute rejected closure
+     *
+     * @return callable
+     */
+    private function onRejected(\_PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface $req, array $options)
     {
         return function ($reason) use($req, $options) {
             if (!\call_user_func($this->decider, $options['retries'], $req, null, $reason)) {
-                return \_PhpScoper5ce26f1fe2920\GuzzleHttp\Promise\rejection_for($reason);
+                return \_PhpScoper5e55118e73ab9\GuzzleHttp\Promise\rejection_for($reason);
             }
             return $this->doRetry($req, $options);
         };
     }
-    private function doRetry(\_PhpScoper5ce26f1fe2920\Psr\Http\Message\RequestInterface $request, array $options, \_PhpScoper5ce26f1fe2920\Psr\Http\Message\ResponseInterface $response = null)
+    /**
+     * @return self
+     */
+    private function doRetry(\_PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface $request, array $options, \_PhpScoper5e55118e73ab9\Psr\Http\Message\ResponseInterface $response = null)
     {
         $options['delay'] = \call_user_func($this->delay, ++$options['retries'], $response);
         return $this($request, $options);

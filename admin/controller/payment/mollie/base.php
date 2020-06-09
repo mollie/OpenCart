@@ -44,9 +44,13 @@
  */
  
 //Check if VQMod is installed
+$vqversion = '';
 if (!class_exists('VQMod')) {
      die('<div class="alert alert-warning"><i class="fa fa-exclamation-circle"></i> This extension requires VQMod. Please download and install it on your shop. You can find the latest release <a href="https://github.com/vqmod/vqmod/releases" target="_blank">here</a>!    <button type="button" class="close" data-dismiss="alert">×</button></div>');
+} else {
+	$vqversion = VQMod::$_vqversion;
 }
+define("VQ_VERSION", $vqversion);
 
 use Mollie\Api\Exceptions\ApiException;
 use Mollie\Api\Exceptions\IncompatiblePlatform;
@@ -64,7 +68,7 @@ if (!defined("MOLLIE_TMP")) {
     define("MOLLIE_TMP", sys_get_temp_dir());
 }
 
-use comercia\Util;
+use util\Util;
 
 class ControllerPaymentMollieBase extends Controller {
 	// Current module name - should be overwritten by subclass using one of the MollieHelper::MODULE_NAME_* values.
@@ -231,6 +235,8 @@ class ControllerPaymentMollieBase extends Controller {
 		// Just install all modules while we're at it.
 		$this->installAllModules();
 		$this->cleanUp();
+		// Run database patch
+		$this->patch();
 
 		//Add event to create shipment
 		if (Util::version()->isMinimal(2.2)) { // Events were added in OC2.2
@@ -671,7 +677,7 @@ class ControllerPaymentMollieBase extends Controller {
 					$data['stores'][$store['store_id']][$setting_name] = Util::request()->post()->get($store['store_id'] . '_' . $setting_name);
 				} else { // Otherwise, attempt to get the setting from the database
 					// same as $this->config->get() 
-					$stored_setting = !empty($this->data[$setting_name]) ? $this->data[$setting_name] : null;
+					$stored_setting = isset($this->data[$setting_name]) ? $this->data[$setting_name] : null;
 
 					if($stored_setting === NULL && $default_value !== NULL) {
 						$data['stores'][$store['store_id']][$setting_name] = $default_value;
@@ -724,7 +730,7 @@ class ControllerPaymentMollieBase extends Controller {
 				$payment_method['name']    = $this->language->get("name_mollie_" . $module_name);
 				$payment_method['disable']    = Util::url()->link("payment/mollie_" . static::MODULE_NAME . "/disablePaymentMethod", "method=" . $module_name . "&store_id=" . $store['store_id']);
 				$payment_method['enable']     = Util::url()->link("payment/mollie_" . static::MODULE_NAME . "/enablePaymentMethod", "method=" . $module_name . "&store_id=" . $store['store_id']);
-				$payment_method['icon']    = "https://www.mollie.com/external/icons/payment-methods/" . $module_name . "@2x.png";
+				$payment_method['icon']    = "../image/mollie/" . $module_name . "2x.png";
 				$payment_method['allowed'] = in_array($module_name, $allowed_methods);
 
 				if(($module_name == 'creditcard') && $payment_method['allowed']) {
@@ -818,6 +824,7 @@ class ControllerPaymentMollieBase extends Controller {
      *
      */
     public function validate_api_key() {
+    	Util::load()->language("payment/mollie");
 		$json = array(
 			'error' => false,
 			'invalid' => false,
@@ -827,14 +834,14 @@ class ControllerPaymentMollieBase extends Controller {
 
 		if (empty($this->request->get['key'])) {
 			$json['invalid'] = true;
-			$json['message'] = 'API client not found.';
+			$json['message'] = $this->language->get('error_no_api_client');
 		} else {
 			try {
 				$client = MollieHelper::getAPIClientForKey($this->request->get['key']);
 
 				if (!$client) {
 					$json['invalid'] = true;
-					$json['message'] = 'API client not found.';
+					$json['message'] = $this->language->get('error_no_api_client');
 				} else {
 					$client->methods->all();
 
@@ -843,19 +850,10 @@ class ControllerPaymentMollieBase extends Controller {
 				}
 			} catch (IncompatiblePlatform $e) {
 				$json['error'] = true;
-				$json['message'] = $e->getMessage() . ' You can ask your hosting provider to help with this.';
+				$json['message'] = $e->getMessage() . ' ' . $this->language->get('error_api_help');
 			} catch (ApiException $e) {
 				$json['error'] = true;
-				$json['message'] = '<strong>Communicating with Mollie failed:</strong><br/>'
-					. htmlspecialchars($e->getMessage())
-					. '<br/><br/>'
-					. 'Please check the following conditions. You can ask your hosting provider to help with this.'
-					. '<ul>'
-					. '<li>Make sure outside connections to ' . (isset($client) ? htmlspecialchars($client->getApiEndpoint()) : 'Mollie') . ' are not blocked.</li>'
-					. '<li>Make sure SSL v3 is disabled on your server. Mollie does not support SSL v3.</li>'
-					. '<li>Make sure your server is up-to-date and the latest security patches have been installed.</li>'
-					. '</ul><br/>'
-					. 'Contact <a href="mailto:info@mollie.nl">info@mollie.nl</a> if this still does not fix your problem.';
+				$json['message'] = sprintf($this->language->get('error_comm_failed'), htmlspecialchars($e->getMessage()), (isset($client) ? htmlspecialchars($client->getApiEndpoint()) : 'Mollie'));
 			}
 		}
 
@@ -880,10 +878,10 @@ class ControllerPaymentMollieBase extends Controller {
 			$this->error[$store]['api_key'] = $this->data["error_api_key"];
 		}
 
-		if (!Util::request()->post()->get($store . '_' . MollieHelper::getModuleCode() . '_ideal_description'))
-		{
-			$this->error[$store]['description'] = $this->data["error_description"];
-		}
+		// if (!Util::request()->post()->get($store . '_' . MollieHelper::getModuleCode() . '_ideal_description'))
+		// {
+		// 	$this->error[$store]['description'] = $this->data["error_description"];
+		// }
 		
 		return (count($this->error) == 0);
 	}
@@ -893,36 +891,25 @@ class ControllerPaymentMollieBase extends Controller {
 	 * @return string
 	 */
 	protected function checkCommunicationStatus ($api_key = null) {
+		Util::load()->language("payment/mollie");
 		if (empty($api_key)) {
-			return '<span style="color:red">No API key provided. Please insert your API key.</span>';
+			return '<span style="color:red">' .  $this->language->get('error_no_api_key') . '</span>';
 		}
 
 		try {
 			$client = MollieHelper::getAPIClientForKey($api_key);
 
 			if (!$client) {
-				return '<span style="color:red">API client not found.</span>';
+				return '<span style="color:red">' . $this->language->get('error_no_api_client') . '</span>';
 			}
 
 			$client->methods->all();
 
 			return '<span style="color: green">OK</span>';
 		} catch (Mollie\Api\Exceptions\ApiException_IncompatiblePlatform $e) {
-			return '<span style="color:red">' . $e->getMessage() . ' You can ask your hosting provider to help with this.</span>';
+			return '<span style="color:red">' . $e->getMessage() . ' ' . $this->language->get('error_api_help') . '</span>';
 		} catch (Mollie\Api\Exceptions\ApiException $e) {
-			return '<span style="color:red">'
-				. '<strong>Communicating with Mollie failed:</strong><br/>'
-				. htmlspecialchars($e->getMessage())
-				. '</span><br/><br/>'
-
-				. 'Please check the following conditions. You can ask your hosting provider to help with this.'
-				. '<ul>'
-				. '<li>Make sure outside connections to ' . ($client ? htmlspecialchars($client->getApiEndpoint()) : 'Mollie') . ' are not blocked.</li>'
-				. '<li>Make sure SSL v3 is disabled on your server. Mollie does not support SSL v3.</li>'
-				. '<li>Make sure your server is up-to-date and the latest security patches have been installed.</li>'
-				. '</ul><br/>'
-
-				. 'Contact <a href="mailto:info@mollie.nl">info@mollie.nl</a> if this still does not fix your problem.';
+			return '<span style="color:red">' . sprintf($this->language->get('error_comm_failed'), htmlspecialchars($e->getMessage()), (isset($client) ? htmlspecialchars($client->getApiEndpoint()) : 'Mollie')) . '</span>';				
 		}
 	}
 
@@ -1151,6 +1138,7 @@ class ControllerPaymentMollieBase extends Controller {
 				$subject = $this->request->post['subject'];
 				$enquiry = $this->request->post['enquiry'];
 				$enquiry .= "<br>Opencart version : " . VERSION;
+				$enquiry .= "<br>VQMod version : " . VQ_VERSION;
 				$enquiry .= "<br>Mollie version : " . MOLLIE_VERSION;
 
 				$mail = new Mail();
