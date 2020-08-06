@@ -1,6 +1,6 @@
 <?php
 
-namespace _PhpScoper5e55118e73ab9\Psr\Http\Message;
+namespace Psr\Http\Message;
 
 /**
  * Representation of an incoming, server-side HTTP request.
@@ -40,7 +40,7 @@ namespace _PhpScoper5e55118e73ab9\Psr\Http\Message;
  * be implemented such that they retain the internal state of the current
  * message and return an instance that contains the changed state.
  */
-interface ServerRequestInterface extends \_PhpScoper5e55118e73ab9\Psr\Http\Message\RequestInterface
+interface ServerRequestInterface extends RequestInterface
 {
     /**
      * Retrieve server parameters.
@@ -52,6 +52,7 @@ interface ServerRequestInterface extends \_PhpScoper5e55118e73ab9\Psr\Http\Messa
      * @return array
      */
     public function getServerParams();
+
     /**
      * Retrieve cookies.
      *
@@ -63,6 +64,7 @@ interface ServerRequestInterface extends \_PhpScoper5e55118e73ab9\Psr\Http\Messa
      * @return array
      */
     public function getCookieParams();
+
     /**
      * Return an instance with the specified cookies.
      *
@@ -81,6 +83,7 @@ interface ServerRequestInterface extends \_PhpScoper5e55118e73ab9\Psr\Http\Messa
      * @return static
      */
     public function withCookieParams(array $cookies);
+
     /**
      * Retrieve query string arguments.
      *
@@ -94,6 +97,7 @@ interface ServerRequestInterface extends \_PhpScoper5e55118e73ab9\Psr\Http\Messa
      * @return array
      */
     public function getQueryParams();
+
     /**
      * Return an instance with the specified query string arguments.
      *
@@ -117,6 +121,7 @@ interface ServerRequestInterface extends \_PhpScoper5e55118e73ab9\Psr\Http\Messa
      * @return static
      */
     public function withQueryParams(array $query);
+
     /**
      * Retrieve normalized file upload data.
      *
@@ -130,6 +135,7 @@ interface ServerRequestInterface extends \_PhpScoper5e55118e73ab9\Psr\Http\Messa
      *     array MUST be returned if no data is present.
      */
     public function getUploadedFiles();
+
     /**
      * Create a new instance with the specified uploaded files.
      *
@@ -142,6 +148,7 @@ interface ServerRequestInterface extends \_PhpScoper5e55118e73ab9\Psr\Http\Messa
      * @throws \InvalidArgumentException if an invalid structure is provided.
      */
     public function withUploadedFiles(array $uploadedFiles);
+
     /**
      * Retrieve any parameters provided in the request body.
      *
@@ -158,6 +165,7 @@ interface ServerRequestInterface extends \_PhpScoper5e55118e73ab9\Psr\Http\Messa
      *     These will typically be an array or object.
      */
     public function getParsedBody();
+
     /**
      * Return an instance with the specified body parameters.
      *
@@ -187,6 +195,7 @@ interface ServerRequestInterface extends \_PhpScoper5e55118e73ab9\Psr\Http\Messa
      *     provided.
      */
     public function withParsedBody($data);
+
     /**
      * Retrieve attributes derived from the request.
      *
@@ -199,6 +208,7 @@ interface ServerRequestInterface extends \_PhpScoper5e55118e73ab9\Psr\Http\Messa
      * @return array Attributes derived from the request.
      */
     public function getAttributes();
+
     /**
      * Retrieve a single derived request attribute.
      *
@@ -215,6 +225,7 @@ interface ServerRequestInterface extends \_PhpScoper5e55118e73ab9\Psr\Http\Messa
      * @return mixed
      */
     public function getAttribute($name, $default = null);
+
     /**
      * Return an instance with the specified derived request attribute.
      *
@@ -231,6 +242,7 @@ interface ServerRequestInterface extends \_PhpScoper5e55118e73ab9\Psr\Http\Messa
      * @return static
      */
     public function withAttribute($name, $value);
+
     /**
      * Return an instance that removes the specified derived request attribute.
      *

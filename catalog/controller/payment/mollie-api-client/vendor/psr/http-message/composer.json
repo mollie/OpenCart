@@ -1,20 +1,13 @@
 {
-    "name": "psr\/http-message",
+    "name": "psr/http-message",
     "description": "Common interface for HTTP messages",
-    "keywords": [
-        "psr",
-        "psr-7",
-        "http",
-        "http-message",
-        "request",
-        "response"
-    ],
-    "homepage": "https:\/\/github.com\/php-fig\/http-message",
+    "keywords": ["psr", "psr-7", "http", "http-message", "request", "response"],
+    "homepage": "https://github.com/php-fig/http-message",
     "license": "MIT",
     "authors": [
         {
             "name": "PHP-FIG",
-            "homepage": "http:\/\/www.php-fig.org\/"
+            "homepage": "http://www.php-fig.org/"
         }
     ],
     "require": {
@@ -22,7 +15,7 @@
     },
     "autoload": {
         "psr-4": {
-            "_PhpScoper5e55118e73ab9\\Psr\\Http\\Message\\": "src\/"
+            "Psr\\Http\\Message\\": "src/"
         }
     },
     "extra": {

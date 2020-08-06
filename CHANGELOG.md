@@ -2,6 +2,13 @@
 
 # Changelog #
 
+#### Changes in release 9.4.0
+  + Updated mollie API to 2.21.0
+
+#### Changes in release 9.3.2
+  + Fixed bug regarding "Custom CSS illegal offset"
+  + Fixed fetching incorrect order_id by callback in case of multiple payment attempt
+
 #### Changes in release 9.3.1
   + Updated API to the latest
   + Fixed payment title related bug for pdf invoice pro
