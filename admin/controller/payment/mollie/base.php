@@ -586,8 +586,8 @@ class ControllerPaymentMollieBase extends Controller {
         $data['entry_version']      = $this->language->get("entry_version") . " " . MollieHelper::PLUGIN_VERSION;
         $data['code']               = $code;
 		$data['token']          	= $this->getTokenUriPart();
-		$data['update_url']         = $this->getUpdateUrl()['updateUrl'];
-        $data['text_update']        = sprintf($this->language->get('text_update_message'), $this->getUpdateUrl()['updateVersion'], $data['update_url']);
+		$data['update_url']         = ($this->getUpdateUrl()) ? $this->getUpdateUrl()['updateUrl'] : '';
+        $data['text_update']        = ($this->getUpdateUrl()) ? sprintf($this->language->get('text_update_message'), $this->getUpdateUrl()['updateVersion'], $data['update_url']) : '';
 		$data['geo_zones']			= $modelGeoZone->getGeoZones();
 		$data['order_statuses']		= $modelOrderStatus->getOrderStatuses();
 		$data['languages']			= $modelLanguage->getLanguages();
@@ -677,7 +677,14 @@ class ControllerPaymentMollieBase extends Controller {
 					$data['stores'][$store['store_id']][$setting_name] = Util::request()->post()->get($store['store_id'] . '_' . $setting_name);
 				} else { // Otherwise, attempt to get the setting from the database
 					// same as $this->config->get() 
-					$stored_setting = isset($this->data[$setting_name]) ? $this->data[$setting_name] : null;
+					$stored_setting = null;
+					if(isset($this->data[$setting_name])) {
+						if(!empty($this->data[$setting_name])) {
+							$stored_setting = $this->data[$setting_name];
+						} elseif($default_value !== NULL) {
+							$stored_setting = $default_value;
+						}						
+					}
 
 					if($stored_setting === NULL && $default_value !== NULL) {
 						$data['stores'][$store['store_id']][$setting_name] = $default_value;
@@ -967,7 +974,7 @@ class ControllerPaymentMollieBase extends Controller {
 	private function getUpdateUrl() {
         $client = new mollieHttpClient();
         $info = $client->get(MOLLIE_VERSION_URL);
-        if ($info["tag_name"] && $info["tag_name"] != MOLLIE_VERSION && version_compare(MOLLIE_VERSION, $info["tag_name"], "<")) {
+        if (isset($info["tag_name"]) && ($info["tag_name"] != MOLLIE_VERSION) && version_compare(MOLLIE_VERSION, $info["tag_name"], "<")) {
             $updateUrl = array(
                 "updateUrl" => Util::url()->link("payment/mollie_" . static::MODULE_NAME . "/update"),
                 "updateVersion" => $info["tag_name"]

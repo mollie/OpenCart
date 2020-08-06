@@ -1,16 +1,17 @@
 <?php
-
-namespace _PhpScoper5e55118e73ab9\GuzzleHttp\Cookie;
+namespace GuzzleHttp\Cookie;
 
 /**
  * Persists non-session cookies using a JSON formatted file
  */
-class FileCookieJar extends \_PhpScoper5e55118e73ab9\GuzzleHttp\Cookie\CookieJar
+class FileCookieJar extends CookieJar
 {
     /** @var string filename */
     private $filename;
+
     /** @var bool Control whether to persist session cookies or not. */
     private $storeSessionCookies;
+
     /**
      * Create a new FileCookieJar object
      *
@@ -20,15 +21,17 @@ class FileCookieJar extends \_PhpScoper5e55118e73ab9\GuzzleHttp\Cookie\CookieJar
      *
      * @throws \RuntimeException if the file cannot be found or created
      */
-    public function __construct($cookieFile, $storeSessionCookies = \false)
+    public function __construct($cookieFile, $storeSessionCookies = false)
     {
         parent::__construct();
         $this->filename = $cookieFile;
         $this->storeSessionCookies = $storeSessionCookies;
-        if (\file_exists($cookieFile)) {
+
+        if (file_exists($cookieFile)) {
             $this->load($cookieFile);
         }
     }
+
     /**
      * Saves the file when shutting down
      */
@@ -36,6 +39,7 @@ class FileCookieJar extends \_PhpScoper5e55118e73ab9\GuzzleHttp\Cookie\CookieJar
     {
         $this->save($this->filename);
     }
+
     /**
      * Saves the cookies to a file.
      *
@@ -47,15 +51,17 @@ class FileCookieJar extends \_PhpScoper5e55118e73ab9\GuzzleHttp\Cookie\CookieJar
         $json = [];
         foreach ($this as $cookie) {
             /** @var SetCookie $cookie */
-            if (\_PhpScoper5e55118e73ab9\GuzzleHttp\Cookie\CookieJar::shouldPersist($cookie, $this->storeSessionCookies)) {
+            if (CookieJar::shouldPersist($cookie, $this->storeSessionCookies)) {
                 $json[] = $cookie->toArray();
             }
         }
-        $jsonStr = \_PhpScoper5e55118e73ab9\GuzzleHttp\json_encode($json);
-        if (\false === \file_put_contents($filename, $jsonStr, \LOCK_EX)) {
+
+        $jsonStr = \GuzzleHttp\json_encode($json);
+        if (false === file_put_contents($filename, $jsonStr, LOCK_EX)) {
             throw new \RuntimeException("Unable to save file {$filename}");
         }
     }
+
     /**
      * Load cookies from a JSON formatted file.
      *
@@ -66,18 +72,19 @@ class FileCookieJar extends \_PhpScoper5e55118e73ab9\GuzzleHttp\Cookie\CookieJar
      */
     public function load($filename)
     {
-        $json = \file_get_contents($filename);
-        if (\false === $json) {
+        $json = file_get_contents($filename);
+        if (false === $json) {
             throw new \RuntimeException("Unable to load file {$filename}");
         } elseif ($json === '') {
             return;
         }
-        $data = \_PhpScoper5e55118e73ab9\GuzzleHttp\json_decode($json, \true);
-        if (\is_array($data)) {
-            foreach (\json_decode($json, \true) as $cookie) {
-                $this->setCookie(new \_PhpScoper5e55118e73ab9\GuzzleHttp\Cookie\SetCookie($cookie));
+
+        $data = \GuzzleHttp\json_decode($json, true);
+        if (is_array($data)) {
+            foreach (json_decode($json, true) as $cookie) {
+                $this->setCookie(new SetCookie($cookie));
             }
-        } elseif (\strlen($data)) {
+        } elseif (strlen($data)) {
             throw new \RuntimeException("Invalid cookie file: {$filename}");
         }
     }

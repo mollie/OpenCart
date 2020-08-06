@@ -253,7 +253,7 @@ class ModelPaymentMollieBase extends Model
 	public function getOrderID($order_id)
 	{
 		if (!empty($order_id)) {
-			$results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `order_id` = '" . $order_id . "' ORDER BY date_modified DESC LIMIT 1");
+			$results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `order_id` = '" . $order_id . "' ORDER BY payment_attempt DESC LIMIT 1");
 			if($results->num_rows == 0) return FALSE;
 			return $results->row['mollie_order_id'];
 		}

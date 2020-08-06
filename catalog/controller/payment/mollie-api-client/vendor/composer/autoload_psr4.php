@@ -6,12 +6,14 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    '_PhpScoper5e55118e73ab9\\Tests\\Mollie\\Api\\' => array($baseDir . '/tests/Mollie/API'),
-    '_PhpScoper5e55118e73ab9\\Tests\\' => array($baseDir . '/tests'),
-    '_PhpScoper5e55118e73ab9\\Psr\\Http\\Message\\' => array($vendorDir . '/psr/http-message/src'),
-    '_PhpScoper5e55118e73ab9\\GuzzleHttp\\Psr7\\' => array($vendorDir . '/guzzlehttp/psr7/src'),
-    '_PhpScoper5e55118e73ab9\\GuzzleHttp\\Promise\\' => array($vendorDir . '/guzzlehttp/promises/src'),
-    '_PhpScoper5e55118e73ab9\\GuzzleHttp\\' => array($vendorDir . '/guzzlehttp/guzzle/src'),
-    '_PhpScoper5e55118e73ab9\\Composer\\CaBundle\\' => array($vendorDir . '/composer/ca-bundle/src'),
-    'Mollie\\Api\\' => array($baseDir . '/src'),
+    'Symfony\\Polyfill\\Php72\\' => array($vendorDir . '/symfony/polyfill-php72'),
+    'Symfony\\Polyfill\\Php70\\' => array($vendorDir . '/symfony/polyfill-php70'),
+    'Symfony\\Polyfill\\Intl\\Normalizer\\' => array($vendorDir . '/symfony/polyfill-intl-normalizer'),
+    'Symfony\\Polyfill\\Intl\\Idn\\' => array($vendorDir . '/symfony/polyfill-intl-idn'),
+    'Psr\\Http\\Message\\' => array($vendorDir . '/psr/http-message/src'),
+    'Mollie\\Api\\' => array($vendorDir . '/mollie/mollie-api-php/src'),
+    'GuzzleHttp\\Psr7\\' => array($vendorDir . '/guzzlehttp/psr7/src'),
+    'GuzzleHttp\\Promise\\' => array($vendorDir . '/guzzlehttp/promises/src'),
+    'GuzzleHttp\\' => array($vendorDir . '/guzzlehttp/guzzle/src'),
+    'Composer\\CaBundle\\' => array($vendorDir . '/composer/ca-bundle/src'),
 );
