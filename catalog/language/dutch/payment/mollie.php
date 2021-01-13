@@ -46,6 +46,10 @@ $_['text_issuer_kbc']       = 'Kies uw betaalknop';
 $_['button_retry']          = 'Opnieuw proberen af te rekenen';
 $_['text_card_details']     = 'Voer uw creditcardgegevens in.';
 $_['text_mollie_payments']  = 'Veilige betalingen geleverd door %s';
+$_['text_recurring_desc']   = '%s - %s, elke %s voor %s';
+$_['text_recurring']		= '%s elke %s %s';
+$_['text_length']			= ' voor %s betalingen';
+$_['text_trial']			= '%s elke %s %s voor %s betalingen dan ';
 
 // Entry
 $_['entry_card_holder']     	= 'Card Holder Name';

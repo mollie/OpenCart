@@ -2,7 +2,7 @@
 
 namespace Mollie\Api\Resources;
 
-class CustomerCollection extends CursorCollection
+class CustomerCollection extends \Mollie\Api\Resources\CursorCollection
 {
     /**
      * @return string
@@ -11,12 +11,11 @@ class CustomerCollection extends CursorCollection
     {
         return "customers";
     }
-
     /**
      * @return BaseResource
      */
     protected function createResourceObject()
     {
-        return new Customer($this->client);
+        return new \Mollie\Api\Resources\Customer($this->client);
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
-class ArithmeticError extends Error
+namespace _PhpScoper5f491826ce6ce;
+
+class ArithmeticError extends \Error
 {
 }

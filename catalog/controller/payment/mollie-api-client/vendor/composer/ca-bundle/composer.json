@@ -1,5 +1,5 @@
 {
-    "name": "composer/ca-bundle",
+    "name": "composer\/ca-bundle",
     "description": "Lets you find a path to the system CA bundle, and includes a fallback to the Mozilla CA bundle.",
     "type": "library",
     "license": "MIT",
@@ -14,12 +14,12 @@
         {
             "name": "Jordi Boggiano",
             "email": "j.boggiano@seld.be",
-            "homepage": "http://seld.be"
+            "homepage": "http:\/\/seld.be"
         }
     ],
     "support": {
-        "irc": "irc://irc.freenode.org/composer",
-        "issues": "https://github.com/composer/ca-bundle/issues"
+        "irc": "irc:\/\/irc.freenode.org\/composer",
+        "issues": "https:\/\/github.com\/composer\/ca-bundle\/issues"
     },
     "require": {
         "ext-openssl": "*",
@@ -27,18 +27,18 @@
         "php": "^5.3.2 || ^7.0 || ^8.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^4.8.35 || ^5.7 || 6.5 - 8",
-        "psr/log": "^1.0",
-        "symfony/process": "^2.5 || ^3.0 || ^4.0 || ^5.0"
+        "phpunit\/phpunit": "^4.8.35 || ^5.7 || 6.5 - 8",
+        "psr\/log": "^1.0",
+        "symfony\/process": "^2.5 || ^3.0 || ^4.0 || ^5.0"
     },
     "autoload": {
         "psr-4": {
-            "Composer\\CaBundle\\": "src"
+            "_PhpScoper5f491826ce6ce\\Composer\\CaBundle\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Composer\\CaBundle\\": "tests"
+            "_PhpScoper5f491826ce6ce\\Composer\\CaBundle\\": "tests"
         }
     },
     "extra": {

@@ -46,6 +46,10 @@ $_['text_issuer_kbc']       = 'Select your payment button.';
 $_['button_retry']          = 'Return to checkout page';
 $_['text_card_details']     = 'Please enter your credit card details.';
 $_['text_mollie_payments']  = 'Secure payments provided by %s';
+$_['text_recurring_desc']   = '%s - %s, Every %s for %s';
+$_['text_recurring']		= '%s every %s %s';
+$_['text_length']			= ' for %s payments';
+$_['text_trial']			= '%s every %s %s for %s payments then ';
 
 // Entry
 $_['entry_card_holder']     	= 'Card Holder Name';

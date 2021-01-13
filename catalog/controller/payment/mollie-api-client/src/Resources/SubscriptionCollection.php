@@ -2,9 +2,8 @@
 
 namespace Mollie\Api\Resources;
 
-class SubscriptionCollection extends CursorCollection
+class SubscriptionCollection extends \Mollie\Api\Resources\CursorCollection
 {
-
     /**
      * @return string
      */
@@ -12,12 +11,11 @@ class SubscriptionCollection extends CursorCollection
     {
         return "subscriptions";
     }
-
     /**
      * @return BaseResource
      */
     protected function createResourceObject()
     {
-        return new Subscription($this->client);
+        return new \Mollie\Api\Resources\Subscription($this->client);
     }
 }

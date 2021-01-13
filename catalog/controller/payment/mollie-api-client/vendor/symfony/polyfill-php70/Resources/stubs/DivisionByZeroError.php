@@ -1,5 +1,7 @@
 <?php
 
-class DivisionByZeroError extends Error
+namespace _PhpScoper5f491826ce6ce;
+
+class DivisionByZeroError extends \Error
 {
 }

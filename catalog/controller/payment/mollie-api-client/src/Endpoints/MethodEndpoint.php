@@ -6,19 +6,16 @@ use Mollie\Api\Exceptions\ApiException;
 use Mollie\Api\Resources\Method;
 use Mollie\Api\Resources\MethodCollection;
 use Mollie\Api\Resources\ResourceFactory;
-
-class MethodEndpoint extends CollectionEndpointAbstract
+class MethodEndpoint extends \Mollie\Api\Endpoints\CollectionEndpointAbstract
 {
     protected $resourcePath = "methods";
-
     /**
      * @return Method
      */
     protected function getResourceObject()
     {
-        return new Method($this->client);
+        return new \Mollie\Api\Resources\Method($this->client);
     }
-
     /**
      * Retrieve all active methods. In test mode, this includes pending methods. The results are not paginated.
      *
@@ -32,7 +29,6 @@ class MethodEndpoint extends CollectionEndpointAbstract
     {
         return $this->allActive($parameters);
     }
-
     /**
      * Retrieve all active methods for the organization. In test mode, this includes pending methods.
      * The results are not paginated.
@@ -46,7 +42,6 @@ class MethodEndpoint extends CollectionEndpointAbstract
     {
         return parent::rest_list(null, null, $parameters);
     }
-
     /**
      * Retrieve all available methods for the organization, including activated and not yet activated methods. The
      * results are not paginated. Make sure to include the profileId parameter if using an OAuth Access Token.
@@ -58,17 +53,9 @@ class MethodEndpoint extends CollectionEndpointAbstract
     public function allAvailable(array $parameters = [])
     {
         $url = 'methods/all' . $this->buildQueryString($parameters);
-
         $result = $this->client->performHttpCall('GET', $url);
-
-        return ResourceFactory::createBaseResourceCollection(
-            $this->client,
-            Method::class,
-            $result->_embedded->methods,
-            $result->_links
-        );
+        return \Mollie\Api\Resources\ResourceFactory::createBaseResourceCollection($this->client, \Mollie\Api\Resources\Method::class, $result->_embedded->methods, $result->_links);
     }
-
     /**
      * Get the collection object that is used by this API endpoint. Every API endpoint uses one type of collection object.
      *
@@ -79,9 +66,8 @@ class MethodEndpoint extends CollectionEndpointAbstract
      */
     protected function getResourceCollectionObject($count, $_links)
     {
-        return new MethodCollection($count, $_links);
+        return new \Mollie\Api\Resources\MethodCollection($count, $_links);
     }
-
     /**
      * Retrieve a payment method from Mollie.
      *
@@ -95,9 +81,8 @@ class MethodEndpoint extends CollectionEndpointAbstract
     public function get($methodId, array $parameters = [])
     {
         if (empty($methodId)) {
-            throw new ApiException("Method ID is empty.");
+            throw new \Mollie\Api\Exceptions\ApiException("Method ID is empty.");
         }
-
         return parent::rest_read($methodId, $parameters);
     }
 }

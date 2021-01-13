@@ -2,7 +2,7 @@
 
 namespace Mollie\Api\Resources;
 
-class MethodPriceCollection extends BaseCollection
+class MethodPriceCollection extends \Mollie\Api\Resources\BaseCollection
 {
     /**
      * @return string|null

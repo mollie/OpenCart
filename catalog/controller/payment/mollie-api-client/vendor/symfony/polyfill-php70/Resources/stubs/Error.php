@@ -1,5 +1,7 @@
 <?php
 
-class Error extends Exception
+namespace _PhpScoper5f491826ce6ce;
+
+class Error extends \Exception
 {
 }
