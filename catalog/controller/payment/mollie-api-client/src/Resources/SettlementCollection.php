@@ -2,7 +2,7 @@
 
 namespace Mollie\Api\Resources;
 
-class SettlementCollection extends CursorCollection
+class SettlementCollection extends \Mollie\Api\Resources\CursorCollection
 {
     /**
      * @return string
@@ -11,12 +11,11 @@ class SettlementCollection extends CursorCollection
     {
         return "settlements";
     }
-
     /**
      * @return BaseResource
      */
     protected function createResourceObject()
     {
-        return new Settlement($this->client);
+        return new \Mollie\Api\Resources\Settlement($this->client);
     }
 }

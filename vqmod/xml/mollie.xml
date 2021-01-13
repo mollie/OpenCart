@@ -1,29 +1,29 @@
 <modification>
     <id>Quality Works - Mollie</id>
-    <version>1.3.8</version>
+    <version>2.0.0</version>
     <vqmver>2.3.0</vqmver>
     <author>Quality Works</author>
 
-    <file name="catalog/controller/event/compatibility.php">
-        <operation error="log">
-            <search position="replace"><![CDATA['model/' . $route . '.php']]></search>
-            <add><![CDATA['model/'.((strpos($route,'get') !== false) ? dirname($route) : $route).'.php']]></add>
+        <file path="catalog/controller/event/compatibility.php">
+        <operation error="skip">
+            <search><![CDATA['model/' . $route . '.php']]></search>
+            <add position="replace"><![CDATA['model/'.((strpos($route,'get') !== false) ? dirname($route) : $route).'.php']]></add>
         </operation>
     </file>
-    <file name="admin/controller/event/compatibility.php">
-        <operation error="log">
-            <search position="after" index="1"><![CDATA[$route = $part[1] . '/' . $part[2];]]></search>
-            <add><![CDATA[if(array_key_exists(3, $part)) {
+    <file path="admin/controller/event/compatibility.php">
+        <operation error="skip">
+            <search offset="1"><![CDATA[if (!is_file(DIR_APPLICATION . 'controller/' . $route . '.php') && is_file(DIR_APPLICATION . 'controller/' . $part[1] . '/' . $part[2] . '.php')) {]]></search>
+            <add position="after"><![CDATA[if(array_key_exists(3, $part)) {
                 $route = $part[1] . '/' . $part[2] . '/' . $part[3];
             }]]></add>
         </operation>
     </file>
 
     <!-- Shipment creation for Klarna method for versions older than 2.2 -->
-    <file name="admin/model/sale/order.php">
-        <operation error="log">
-            <search position="before"><![CDATA[public function getOrderHistories($order_id, $start = 0, $limit = 10) {]]></search>
-            <add><![CDATA[//Get order reference id for mollie payment
+    <file path="admin/model/sale/order.php">
+        <operation error="skip">
+            <search><![CDATA[public function getOrderHistories($order_id, $start = 0, $limit = 10) {]]></search>
+            <add position="before"><![CDATA[//Get order reference id for mollie payment
     public function getOrderID($order_id)
     {
         if (!empty($order_id)) {
@@ -35,38 +35,38 @@
     }]]></add>
         </operation>
     </file>
-    <file name="catalog/controller/api/order.php">
-        <operation error="log">
-            <search position="after" index="3"><![CDATA[$this->model_checkout_order->addOrderHistory]]></search>
-            <add><![CDATA[// Shipment creation for Klarna for versions older than 2.2
+    <file path="catalog/controller/api/order.php">
+        <operation error="skip">
+            <search><![CDATA[$this->model_checkout_order->addOrderHistory($order_id, $this->request->post['order_status_id'], $this->request->post['comment'], $this->request->post['notify'], $this->request->post['override']);]]></search>
+            <add position="after"><![CDATA[// Shipment creation for Klarna for versions older than 2.2
                 if(VERSION < "2.2") {
                     $orderdata = array("0" => $order_id, "1" => $this->request->post['order_status_id']);
                     $route = null;
-                    require(DIR_APPLICATION . "controller/payment/mollie/base.php");
-                    $controller = new ControllerPaymentMollieBase($this->registry);
+                    require(DIR_APPLICATION . "controller/payment/mollie.php");
+                    $controller = new ControllerPaymentMollie($this->registry);
                     $controller->createShipment($route, $orderdata, "", "");
                 } ]]></add>
         </operation>
     </file>
-    <file name="admin/controller/sale/order.php">
-        <operation error="log">
-            <search position="before" index="4"><![CDATA[$this->data['success']]]></search>
-            <add><![CDATA[// Shipment creation for Klarna for versions older than 2.2
+    <file path="admin/controller/sale/order.php">
+        <operation error="skip">
+            <search index="4"><![CDATA[$this->data['success']]]></search>
+            <add position="before"><![CDATA[// Shipment creation for Klarna for versions older than 2.2
                 if(VERSION <= "1.5.6.4") {
                     $orderdata = array("0" => $this->request->get['order_id'], "1" => $this->request->post['order_status_id']);
                     $route = null;
-                    require(DIR_CATALOG . "controller/payment/mollie/base.php");
-                    $controller = new ControllerPaymentMollieBase($this->registry);
+                    require(DIR_CATALOG . "controller/payment/mollie.php");
+                    $controller = new ControllerPaymentMollie($this->registry);
                     $controller->createShipment($route, $orderdata, "", "");
                 } ]]></add>
         </operation>
     </file>
 
     <!-- Showing mollie payment status on order info page -->
-    <file name="admin/controller/sale/order.php">
-        <operation error="log">
-            <search position="after" index="2"><![CDATA[$data['payment_method'] = $order_info['payment_method'];]]></search>
-            <add><![CDATA[$data['payment_status'] = '';
+    <file path="admin/controller/sale/order.php">
+        <operation error="skip">
+            <search><![CDATA[$this->response->setOutput($this->load->view('sale/order_info', $data));]]></search>
+            <add position="before"><![CDATA[$data['payment_status'] = '';
             $molliePaymentDetails = $this->model_sale_order->getMolliePayment($this->request->get['order_id']);
             if(isset($molliePaymentDetails['transaction_id']) && !empty($molliePaymentDetails['transaction_id'])) {
                 try {
@@ -77,10 +77,12 @@
                     if($molliePayment->hasRefunds()) {
                         $data['payment_status'] = 'refunded';
                     }
+
                     if(!empty($molliePayment->settlementId)) {
-                        $accessToken = MollieHelper::generateAccessToken($order_info['store_id']);
+                        $mollieHelper = new MollieHelper($this->registry);
+                        $accessToken = $mollieHelper->generateAccessToken($order_info['store_id']);
                         if($accessToken && !empty($accessToken)) {
-                            $mollieSettlement = MollieHelper::getAPIClientForAccessToken($accessToken)->settlements->get($molliePayment->settlementId);
+                            $mollieSettlement = $mollieHelper->getAPIClientForAccessToken($accessToken)->settlements->get($molliePayment->settlementId);
                             if($mollieSettlement->isPaidout()) {
                                 $data['payment_status'] = 'settled';
                             }
@@ -89,9 +91,9 @@
                 } catch (Mollie\Api\Exceptions\ApiException $e) {}
             } ]]></add>
         </operation>
-        <operation error="log">
-            <search position="after" index="2"><![CDATA[$this->data['payment_method'] = $order_info['payment_method'];]]></search>
-            <add><![CDATA[$this->data['payment_status'] = '';
+        <operation error="skip">
+            <search><![CDATA[$this->template = 'sale/order_info.tpl';]]></search>
+            <add position="before"><![CDATA[$this->data['payment_status'] = '';
             $molliePaymentDetails = $this->model_sale_order->getMolliePayment($this->request->get['order_id']);
             if(isset($molliePaymentDetails['transaction_id']) && !empty($molliePaymentDetails['transaction_id'])) {
                  try {
@@ -103,9 +105,10 @@
                         $this->data['payment_status'] = 'refunded';
                     }
                     if(!empty($molliePayment->settlementId)) {
-                        $accessToken = MollieHelper::generateAccessToken($order_info['store_id']);
+                        $mollieHelper = new MollieHelper($this->registry);
+                        $accessToken = $mollieHelper->generateAccessToken($order_info['store_id']);
                         if($accessToken && !empty($accessToken)) {
-                            $mollieSettlement = MollieHelper::getAPIClientForAccessToken($accessToken)->settlements->get($molliePayment->settlementId);
+                            $mollieSettlement = $mollieHelper->getAPIClientForAccessToken($accessToken)->settlements->get($molliePayment->settlementId);
                             if($mollieSettlement->isPaidout()) {
                                 $this->data['payment_status'] = 'settled';
                             }
@@ -116,10 +119,10 @@
         </operation>
     </file>
 
-    <file name="admin/model/sale/order.php">
-        <operation error="log">
-            <search position="before"><![CDATA[public function getOrder($order_id)]]></search>
-            <add><![CDATA[public function getMolliePayment($order_id) {
+    <file path="admin/model/sale/order.php">
+        <operation error="skip">
+            <search><![CDATA[public function getOrder($order_id)]]></search>
+            <add position="before"><![CDATA[public function getMolliePayment($order_id) {
         $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE order_id = '" . (int)$order_id . "' ORDER BY payment_attempt DESC LIMIT 1");
 
         if ($query->num_rows) {
@@ -132,10 +135,10 @@
         </operation>
     </file>
 
-    <file name="admin/view/template/sale/order_info.tpl">
-        <operation error="log">
-            <search position="replace"><![CDATA[<td><?php echo $payment_method; ?></td>]]></search>
-            <add><![CDATA[<td><?php echo $payment_method; ?>&nbsp;&nbsp;
+    <file path="admin/view/template/sale/order_info.tpl">
+        <operation error="skip">
+            <search><![CDATA[<td><?php echo $payment_method; ?></td>]]></search>
+            <add position="replace"><![CDATA[<td><?php echo $payment_method; ?>&nbsp;&nbsp;
                   <?php if($payment_status == 'paid') { ?>
                     <span id="payment-status" class="label label-success"><?php echo strtoupper($payment_status); ?></span>
                   <?php } elseif($payment_status == 'failed') { ?>
@@ -162,10 +165,10 @@
         </operation>
     </file>
 
-    <file name="admin/view/template/sale/order_info.twig">
-        <operation error="log">
-            <search position="replace"><![CDATA[<td>{{ payment_method }}</td>]]></search>
-            <add><![CDATA[<td>{{ payment_method }}&nbsp;&nbsp;
+    <file path="admin/view/template/sale/order_info.twig">
+        <operation error="skip">
+            <search><![CDATA[<td>{{ payment_method }}</td>]]></search>
+            <add position="replace"><![CDATA[<td>{{ payment_method }}&nbsp;&nbsp;
                   {% if(payment_status == 'paid') %}
                     <span id="payment-status" class="label label-success">{{ payment_status | upper }}</span>
                   {% elseif(payment_status == 'failed') %}
@@ -193,79 +196,80 @@
     </file>
 
     <!-- Ignore token check -->
-    <file name="admin/controller/startup/login.php">
-        <operation error="log">
-            <search position="after"><![CDATA['common/login',]]></search>
-            <add><![CDATA['extension/payment/mollie_bancontact/mollieConnectCallback',
-                'payment/mollie_bancontact/mollieConnectCallback',]]></add>
+    <file path="admin/controller/startup/login.php">
+        <operation error="skip">
+            <search><![CDATA['common/login',]]></search>
+            <add position="after"><![CDATA['extension/payment/mollie/mollieConnectCallback',
+                'payment/mollie/mollieConnectCallback',]]></add>
         </operation>
     </file>
 
-    <file name="admin/controller/common/login.php">
-        <operation error="log">
-            <search position="after"><![CDATA[$ignore = array(]]></search>
-            <add><![CDATA['extension/payment/mollie_bancontact/mollieConnectCallback',
-                'payment/mollie_bancontact/mollieConnectCallback',]]></add>
+    <file path="admin/controller/common/login.php">
+        <operation error="skip">
+            <search><![CDATA[$ignore = array(]]></search>
+            <add position="after"><![CDATA['extension/payment/mollie/mollieConnectCallback',
+                'payment/mollie/mollieConnectCallback',]]></add>
         </operation>
     </file>
 
-    <file name="admin/controller/common/home.php">
-        <operation error="log">
-            <search position="after" index="1" offset="2"><![CDATA[if (isset($part[1])) {]]></search>
-            <add><![CDATA[if (isset($part[2])) {
+    <file path="admin/controller/common/home.php">
+        <operation error="skip">
+            <search index="1" offset="2"><![CDATA[if (isset($part[1])) {]]></search>
+            <add position="after"><![CDATA[if (isset($part[2])) {
                 $route .= '/' . $part[2];
             }]]></add>
         </operation>
-        <operation error="log">
-            <search position="after" index="2"><![CDATA['common/login',]]></search>
-            <add><![CDATA['extension/payment/mollie_bancontact/mollieConnectCallback',
-                'payment/mollie_bancontact/mollieConnectCallback',]]></add>
+        <operation error="skip">
+            <search index="2"><![CDATA['common/login',]]></search>
+            <add position="after"><![CDATA['extension/payment/mollie/mollieConnectCallback',
+                'payment/mollie/mollieConnectCallback',]]></add>
         </operation>
     </file>
+    <!-- Load JS file only on checkout -->
+    <!-- <file path="catalog/view/theme/*/template/common/header.tpl">
+        <operation error="skip">
+            <search><![CDATA[</head>]]></search>
+            <add position="before"><![CDATA[<script src="catalog/view/javascript/mollie.js" type="text/javascript"></script>]]></add>
+        </operation>
+    </file> -->
 
-    <file name="catalog/view/theme/*/template/common/header.tpl">
-        <operation error="log">
-            <search position="before"><![CDATA[</head>]]></search>
-            <add><![CDATA[<script src="catalog/view/javascript/mollie.js" type="text/javascript"></script>]]></add>
+    <!-- <file path="catalog/view/theme/*/template/common/header.twig">
+        <operation error="skip">
+            <search><![CDATA[</head>]]></search>
+            <add position="before"><![CDATA[<script src="catalog/view/javascript/mollie.js" type="text/javascript"></script>]]></add>
         </operation>
-    </file>
-
-    <file name="catalog/view/theme/*/template/common/header.twig">
-        <operation error="log">
-            <search position="before"><![CDATA[</head>]]></search>
-            <add><![CDATA[<script src="catalog/view/javascript/mollie.js" type="text/javascript"></script>]]></add>
-        </operation>
-    </file>
+    </file> -->
 
     <!-- Order refund button -->
-    <file name="admin/controller/sale/order.php">
-        <operation error="log">
-            <search position="before"><![CDATA[class ControllerSaleOrder]]></search>
-            <add><![CDATA[require_once(dirname(DIR_SYSTEM) . "/catalog/controller/payment/mollie/helper.php");]]></add>
+    <file path="admin/controller/sale/order.php">
+        <operation error="skip">
+            <search><![CDATA[class ControllerSaleOrder]]></search>
+            <add position="before"><![CDATA[require_once(dirname(DIR_SYSTEM) . "/catalog/controller/payment/mollie-api-client/helper.php");]]></add>
         </operation>
-        <operation error="log">
-            <search position="after"><![CDATA[$data['heading_title']]]></search>
-            <add><![CDATA[$data['button_refund'] = $this->language->get('button_refund');
+        <operation error="skip">
+            <search><![CDATA[$data['heading_title']]]></search>
+            <add position="after"><![CDATA[$data['button_refund'] = $this->language->get('button_refund');
                 $data['text_confirm_refund'] = $this->language->get('text_confirm_refund');]]></add>
         </operation>
-        <operation error="log">
-            <search position="after"><![CDATA[$this->data['button_add_history']]]></search>
-            <add><![CDATA[$this->data['button_refund'] = $this->language->get('button_refund');
+        <operation error="skip">
+            <search><![CDATA[$this->data['button_add_history']]]></search>
+            <add position="after"><![CDATA[$this->data['button_refund'] = $this->language->get('button_refund');
                 $this->data['text_confirm_refund'] = $this->language->get('text_confirm_refund');]]></add>
         </operation>
-        <operation error="log">
-            <search position="after"><![CDATA[public function info() {]]></search>
-            <add><![CDATA[
-                if(version_compare(VERSION, '2.0', '<') == true) {
+        <operation error="skip">
+            <search><![CDATA[public function info() {]]></search>
+            <add position="after"><![CDATA[
+                if(version_compare(VERSION, '2.0', '<')) {
                     $this->data['isVersion15x'] = true;
                     $data['isVersion15x'] = true;
                 }]]></add>
         </operation>
-        <operation error="log">
-            <search position="before" index="4"><![CDATA[$this->data['email']]]></search>
-            <add><![CDATA[
-            $moduleCode = MollieHelper::getModuleCode();
-            $apiKey = MollieHelper::getApiKey($order_info['store_id']);
+        <operation error="skip">
+            <search index="4"><![CDATA[$this->data['email']]]></search>
+            <add position="before"><![CDATA[
+            $mollieHelper = new MollieHelper($this->registry);
+            $moduleCode = $mollieHelper->getModuleCode();
+            $apiKey = $mollieHelper->getApiKey($order_info['store_id']);
 
             $this->data['showRefundButton'] = true;
             if(!$apiKey || ($apiKey == '')) {
@@ -279,11 +283,12 @@
             }
             ]]></add>
         </operation>
-        <operation error="log">
-            <search position="before" index="2"><![CDATA[$data['shipping']]]></search>
-            <add><![CDATA[
-            $moduleCode = MollieHelper::getModuleCode();
-            $apiKey = MollieHelper::getApiKey($order_info['store_id']);
+        <operation error="skip">
+            <search><![CDATA[if ($order_info['store_id'] == 0) {]]></search>
+            <add position="before"><![CDATA[
+            $mollieHelper = new MollieHelper($this->registry);
+            $moduleCode = $mollieHelper->getModuleCode();
+            $apiKey = $mollieHelper->getApiKey($order_info['store_id']);
 
             $data['showRefundButton'] = true;
             if(!$apiKey || ($apiKey == '')) {
@@ -293,15 +298,17 @@
             $data['catalog'] = $this->request->server['HTTPS'] ? HTTPS_CATALOG : HTTP_CATALOG;
             ]]></add>
         </operation>
-        <operation error="log">
-            <search position="before"><![CDATA[public function index()]]></search>
-            <add><![CDATA[
+        <operation error="skip">
+            <search><![CDATA[public function index()]]></search>
+            <add position="before"><![CDATA[
+
     protected function getAPIClient($store)
     {
+        $mollieHelper = new MollieHelper($this->registry);
         $data = $this->config;
-        $data->set(MollieHelper::getModuleCode() . "_api_key", MollieHelper::getApiKey($store));
+        $data->set($mollieHelper->getModuleCode() . "_api_key", $mollieHelper->getApiKey($store));
 
-        return MollieHelper::getAPIClient($data);
+        return $mollieHelper->getAPIClient($data);
     }
 
     public function refund() {
@@ -315,8 +322,8 @@
         $json['error'] = false;
 
         $log = new Log('Mollie.log');
-    
-        $moduleCode = MollieHelper::getModuleCode();
+        $mollieHelper = new MollieHelper($this->registry);
+        $moduleCode = $mollieHelper->getModuleCode();
         
         $order_id = $this->request->get['order_id'];
         $order = $this->model_sale_order->getOrder($order_id);
@@ -367,10 +374,10 @@
         </operation>
     </file>
 
-    <file name="admin/model/sale/order.php">
-        <operation error="log">
-            <search position="before"><![CDATA[public function getOrder($order_id)]]></search>
-            <add><![CDATA[
+    <file path="admin/model/sale/order.php">
+        <operation error="skip">
+            <search><![CDATA[public function getOrder($order_id)]]></search>
+            <add position="before"><![CDATA[
     public function updateMolliePayment($mollie_order_id, $refund_id, $payment_status) {
         $this->db->query("UPDATE `" . DB_PREFIX . "mollie_payments` SET refund_id = '" . $refund_id . "', bank_status = '" . $payment_status . "' WHERE mollie_order_id = '" . (int)$mollie_order_id . "'");
     }
@@ -378,10 +385,10 @@
         </operation>
     </file>
 
-    <file name="admin/language/en-gb/sale/order.php">
-        <operation error="log">
-            <search position="after"><![CDATA[// Text]]></search>
-            <add><![CDATA[$_['button_refund'] = 'Refund';
+    <file path="admin/language/en-gb/sale/order.php">
+        <operation error="skip">
+            <search><![CDATA[// Text]]></search>
+            <add position="after"><![CDATA[$_['button_refund'] = 'Refund';
                 $_['text_order_not_found'] = 'Mollie order details not found!';
                 $_['text_no_refund'] = 'Refund cannot be processed!';
                 $_['text_refunded_already'] = 'Refund has been processed already!';
@@ -391,10 +398,10 @@
         </operation>
     </file>
 
-    <file name="admin/language/english/sale/order.php">
-        <operation error="log">
-            <search position="after"><![CDATA[// Text]]></search>
-            <add><![CDATA[$_['button_refund'] = 'Refund';
+    <file path="admin/language/english/sale/order.php">
+        <operation error="skip">
+            <search><![CDATA[// Text]]></search>
+            <add position="after"><![CDATA[$_['button_refund'] = 'Refund';
                 $_['text_order_not_found'] = 'Mollie order details not found!';
                 $_['text_no_refund'] = 'Refund cannot be processed!';
                 $_['text_refunded_already'] = 'Refund has been processed already!';
@@ -404,10 +411,10 @@
         </operation>
     </file>
 
-    <file name="admin/language/de-de/sale/order.php">
-        <operation error="log">
-            <search position="after"><![CDATA[// Text]]></search>
-            <add><![CDATA[$_['button_refund'] = 'Rückerstattung';
+    <file path="admin/language/de-de/sale/order.php">
+        <operation error="skip">
+            <search><![CDATA[// Text]]></search>
+            <add position="after"><![CDATA[$_['button_refund'] = 'Rückerstattung';
                 $_['text_order_not_found'] = 'Mollie Bestelldetails nicht gefunden!';
                 $_['text_no_refund'] = 'Rückerstattung kann nicht bearbeitet werden!';
                 $_['text_refunded_already'] = 'Rückerstattung wurde bereits bearbeitet!';
@@ -417,10 +424,10 @@
         </operation>
     </file>
 
-    <file name="admin/language/german/sale/order.php">
-        <operation error="log">
-            <search position="after"><![CDATA[// Text]]></search>
-            <add><![CDATA[$_['button_refund'] = 'Rückerstattung';
+    <file path="admin/language/german/sale/order.php">
+        <operation error="skip">
+            <search><![CDATA[// Text]]></search>
+            <add position="after"><![CDATA[$_['button_refund'] = 'Rückerstattung';
                 $_['text_order_not_found'] = 'Mollie Bestelldetails nicht gefunden!';
                 $_['text_no_refund'] = 'Rückerstattung kann nicht bearbeitet werden!';
                 $_['text_refunded_already'] = 'Rückerstattung wurde bereits bearbeitet!';
@@ -430,10 +437,10 @@
         </operation>
     </file>
 
-    <file name="admin/language/nl-nl/sale/order.php">
-        <operation error="log">
-            <search position="after"><![CDATA[// Text]]></search>
-            <add><![CDATA[$_['button_refund'] = 'Terugbetaling';
+    <file path="admin/language/nl-nl/sale/order.php">
+        <operation error="skip">
+            <search><![CDATA[// Text]]></search>
+            <add position="after"><![CDATA[$_['button_refund'] = 'Terugbetaling';
                 $_['text_order_not_found'] = 'Mollie bestelgegevens niet gevonden!';
                 $_['text_no_refund'] = 'Restitutie kan niet worden verwerkt!';
                 $_['text_refunded_already'] = 'Restitutie is al verwerkt!';
@@ -443,10 +450,10 @@
         </operation>
     </file>
 
-    <file name="admin/language/dutch/sale/order.php">
-        <operation error="log">
-            <search position="after"><![CDATA[// Text]]></search>
-            <add><![CDATA[$_['button_refund'] = 'Terugbetaling';
+    <file path="admin/language/dutch/sale/order.php">
+        <operation error="skip">
+            <search><![CDATA[// Text]]></search>
+            <add position="after"><![CDATA[$_['button_refund'] = 'Terugbetaling';
                 $_['text_order_not_found'] = 'Mollie bestelgegevens niet gevonden!';
                 $_['text_no_refund'] = 'Restitutie kan niet worden verwerkt!';
                 $_['text_refunded_already'] = 'Restitutie is al verwerkt!';
@@ -456,10 +463,10 @@
         </operation>
     </file>
 
-    <file name="admin/language/es-es/sale/order.php">
-        <operation error="log">
-            <search position="after"><![CDATA[// Text]]></search>
-            <add><![CDATA[$_['button_refund'] = 'Reembolso';
+    <file path="admin/language/es-es/sale/order.php">
+        <operation error="skip">
+            <search><![CDATA[// Text]]></search>
+            <add position="after"><![CDATA[$_['button_refund'] = 'Reembolso';
                 $_['text_order_not_found'] = '¡No se han encontrado los detalles del pedido de Mollie!';
                 $_['text_no_refund'] = '¡No se puede procesar el reembolso!';
                 $_['text_refunded_already'] = '¡El reembolso ya se ha procesado!';
@@ -469,10 +476,10 @@
         </operation>
     </file>
 
-    <file name="admin/language/spanish/sale/order.php">
-        <operation error="log">
-            <search position="after"><![CDATA[// Text]]></search>
-            <add><![CDATA[$_['button_refund'] = 'Reembolso';
+    <file path="admin/language/spanish/sale/order.php">
+        <operation error="skip">
+            <search><![CDATA[// Text]]></search>
+            <add position="after"><![CDATA[$_['button_refund'] = 'Reembolso';
                 $_['text_order_not_found'] = '¡No se han encontrado los detalles del pedido de Mollie!';
                 $_['text_no_refund'] = '¡No se puede procesar el reembolso!';
                 $_['text_refunded_already'] = '¡El reembolso ya se ha procesado!';
@@ -482,10 +489,10 @@
         </operation>
     </file>
 
-    <file name="admin/language/fr-fr/sale/order.php">
-        <operation error="log">
-            <search position="after"><![CDATA[// Text]]></search>
-            <add><![CDATA[$_['button_refund'] = 'Rembourser';
+    <file path="admin/language/fr-fr/sale/order.php">
+        <operation error="skip">
+            <search><![CDATA[// Text]]></search>
+            <add position="after"><![CDATA[$_['button_refund'] = 'Rembourser';
                 $_['text_order_not_found'] = 'Détails de commande Mollie non trouvés!';
                 $_['text_no_refund'] = 'Le remboursement ne peut être traité!';
                 $_['text_refunded_already'] = 'Le remboursement a déjà été traité!';
@@ -495,10 +502,10 @@
         </operation>
     </file>
 
-    <file name="admin/language/french/sale/order.php">
-        <operation error="log">
-            <search position="after"><![CDATA[// Text]]></search>
-            <add><![CDATA[$_['button_refund'] = 'Rembourser';
+    <file path="admin/language/french/sale/order.php">
+        <operation error="skip">
+            <search><![CDATA[// Text]]></search>
+            <add position="after"><![CDATA[$_['button_refund'] = 'Rembourser';
                 $_['text_order_not_found'] = 'Détails de commande Mollie non trouvés!';
                 $_['text_no_refund'] = 'Le remboursement ne peut être traité!';
                 $_['text_refunded_already'] = 'Le remboursement a déjà été traité!';
@@ -508,10 +515,10 @@
         </operation>
     </file>
 
-    <file name="admin/view/template/sale/order_info.tpl">
-        <operation error="log">
-            <search position="before"><![CDATA[<?php echo $footer; ?>]]></search>
-            <add><![CDATA[
+    <file path="admin/view/template/sale/order_info.tpl">
+        <operation error="skip">
+            <search><![CDATA[<?php echo $footer; ?>]]></search>
+            <add position="before"><![CDATA[
 <script type="text/javascript"><!--
 <?php if(isset($isVersion15x)) { ?>
 $('#button-refund').live('click', function() {
@@ -617,10 +624,10 @@ $('.alert').remove();
         </operation>
     </file>
 
-    <file name="admin/view/template/sale/order_info.twig">
-        <operation error="log">
-            <search position="before"><![CDATA[{{ footer }}]]></search>
-            <add><![CDATA[
+    <file path="admin/view/template/sale/order_info.twig">
+        <operation error="skip">
+            <search><![CDATA[{{ footer }}]]></search>
+            <add position="before"><![CDATA[
 <script type="text/javascript"><!--
 $('#button-refund').on('click', function() {
 if (!confirm('{{ text_confirm_refund }}')) {
@@ -672,38 +679,38 @@ if (!confirm('{{ text_confirm_refund }}')) {
 ]]></add>
         </operation>
     </file>
-    <file name="admin/view/template/common/dashboard.twig">
-        <operation error="log">
-            <search position="replace"><![CDATA[<div class="container-fluid">{% if error_install %}]]></search>
-            <add><![CDATA[<div class="container-fluid">{% if success %}
+    <file path="admin/view/template/common/dashboard.twig">
+        <operation error="skip">
+            <search><![CDATA[<div class="container-fluid">{% if error_install %}]]></search>
+            <add position="replace"><![CDATA[<div class="container-fluid">{% if success %}
     <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
         <button type="button" class="close" data-dismiss="alert">&times;</button>
     </div>
     {% endif %}{% if error_install %}]]></add>
         </operation>
     </file>
-    <file name="admin/view/template/common/dashboard.tpl">
-        <operation error="log">
-            <search position="after" index="2"><![CDATA[<div class="container-fluid">]]></search>
-            <add><![CDATA[<?php if ($success) { ?>
+    <file path="admin/view/template/common/dashboard.tpl">
+        <operation error="skip">
+            <search><![CDATA[<?php if ($error_install) { ?>]]></search>
+            <add position="before"><![CDATA[<?php if ($success) { ?>
     <div class="alert alert-success"><i class="fa fa-check-circle"></i> <?php echo $success; ?>
       <button type="button" class="close" data-dismiss="alert">&times;</button>
     </div>
     <?php } ?>]]></add>
         </operation>
     </file>
-    <file name="admin/view/template/common/home.tpl">
-        <operation error="log">
-            <search position="after"><![CDATA[<?php echo $header; ?>]]></search>
-            <add><![CDATA[    <?php if ($success) { ?>
+    <file path="admin/view/template/common/home.tpl">
+        <operation error="skip">
+            <search><![CDATA[<?php echo $header; ?>]]></search>
+            <add position="after"><![CDATA[    <?php if ($success) { ?>
     <div class="success"><?php echo $success; ?></div>
     <?php } ?>]]></add>
         </operation>
     </file>
-    <file name="admin/controller/common/dashboard.php">
-        <operation error="log">
-            <search position="before"><![CDATA[$this->load->language('common/dashboard');]]></search>
-            <add><![CDATA[      if(version_compare(VERSION, '3.0', '<') == true) {
+    <file path="admin/controller/common/dashboard.php">
+        <operation error="skip">
+            <search><![CDATA[$this->load->language('common/dashboard');]]></search>
+            <add position="before"><![CDATA[      if(version_compare(VERSION, '3.0', '<')) {
             $this->load->model('extension/extension');
 
             $extensions = $this->model_extension_extension->getInstalled('payment');
@@ -716,24 +723,24 @@ if (!confirm('{{ text_confirm_refund }}')) {
 
         $data['success'] = '';
         foreach ($extensions as $key => $value) {
-            if ($value == 'mollie_ideal') {
-                require_once(dirname(DIR_SYSTEM) . "/catalog/controller/payment/mollie/helper.php");
+            if ($value == 'mollie') {
+                require_once(dirname(DIR_SYSTEM) . "/catalog/controller/payment/mollie-api-client/helper.php");
                 if(!class_exists('mollieHttpClient')) {
                     require_once(DIR_SYSTEM . "/library/mollieHttpClient.php");
                 }
                 $client = new mollieHttpClient();
                 $info = $client->get("https://api.github.com/repos/mollie/OpenCart/releases/latest");
+                $mollieHelper = new MollieHelper($this->registry);
+                if (isset($info["tag_name"]) && ($info["tag_name"] != $mollieHelper::PLUGIN_VERSION) && version_compare($mollieHelper::PLUGIN_VERSION, $info["tag_name"], "<")) {
+                    $this->load->language('payment/mollie');
 
-                if (isset($info["tag_name"]) && ($info["tag_name"] != MollieHelper::PLUGIN_VERSION) && version_compare(MollieHelper::PLUGIN_VERSION, $info["tag_name"], "<")) {
-                    $this->load->language('payment/mollie_ideal');
-
-                    if(version_compare(VERSION, '3.0', '<') == true) {
+                    if(version_compare(VERSION, '3.0', '<')) {
                         $token = 'token=' . $this->session->data['token'];
                     } else {
                         $token = 'user_token=' . $this->session->data['user_token'];
                     }
 
-                    $data['success'] = sprintf($this->language->get('text_update_message'), $info["tag_name"], $this->url->link("payment/mollie_ideal/update", $token));
+                    $data['success'] = sprintf($this->language->get('text_update_message'), $info["tag_name"], $this->url->link("payment/mollie/update", $token));
                 }
                 break;
             }
@@ -741,24 +748,24 @@ if (!confirm('{{ text_confirm_refund }}')) {
 ]]></add>
         </operation>
     </file>
-    <file name="admin/controller/common/home.php">
-        <operation error="log">
-            <search position="before"><![CDATA[$this->language->load('common/home');]]></search>
-            <add><![CDATA[      $this->load->model('setting/extension');
+    <file path="admin/controller/common/home.php">
+        <operation error="skip">
+            <search><![CDATA[$this->language->load('common/home');]]></search>
+            <add position="before"><![CDATA[      $this->load->model('setting/extension');
 
         $extensions = $this->model_setting_extension->getInstalled('payment');
 
         $this->data['success'] = '';
         foreach ($extensions as $key => $value) {
-            if ($value == 'mollie_ideal') {
-                require_once(dirname(DIR_SYSTEM) . "/catalog/controller/payment/mollie/helper.php");
+            if ($value == 'mollie') {
+                require_once(dirname(DIR_SYSTEM) . "/catalog/controller/payment/mollie-api-client/helper.php");
                 $this->load->library("mollieHttpClient");
                 $client = new mollieHttpClient();
                 $info = $client->get("https://api.github.com/repos/mollie/OpenCart/releases/latest");
-
-                if (isset($info["tag_name"]) && ($info["tag_name"] != MollieHelper::PLUGIN_VERSION) && version_compare(MollieHelper::PLUGIN_VERSION, $info["tag_name"], "<")) {
-                    $this->language->load('payment/mollie_ideal');
-                    $this->data['success'] = sprintf($this->language->get('text_update_message'), $info["tag_name"], HTTPS_SERVER . 'index.php?route=payment/mollie_ideal/update&token=' . $this->session->data['token']);
+                $mollieHelper = new MollieHelper($this->registry);
+                if (isset($info["tag_name"]) && ($info["tag_name"] != $mollieHelper::PLUGIN_VERSION) && version_compare($mollieHelper::PLUGIN_VERSION, $info["tag_name"], "<")) {
+                    $this->language->load('payment/mollie');
+                    $this->data['success'] = sprintf($this->language->get('text_update_message'), $info["tag_name"], HTTPS_SERVER . 'index.php?route=payment/mollie/update&token=' . $this->session->data['token']);
                 }
                 break;
             }            
@@ -768,24 +775,91 @@ if (!confirm('{{ text_confirm_refund }}')) {
     </file>
 
     <!-- Mollie components -->
-    <file name="catalog/controller/*/checkout.php">
-        <operation error="log">
-            <search position="after"><![CDATA[public function index() {]]></search>
-            <add><![CDATA[
+    <file path="catalog/controller/*/checkout.php">
+        <operation error="skip">
+            <search><![CDATA[public function index() {]]></search>
+            <add position="after"><![CDATA[
+                $this->document->addScript('catalog/view/javascript/mollie.js');
                 $this->document->addScript('https://js.mollie.com/v1/mollie.js');
                 ]]></add>
         </operation>
     </file>
+    <!--*******************-->
     <!-- PDP Invoice Pro Fix -->
-    <file name="catalog/controller/checkout/confirm.php">
-        <operation error="log">
-            <search position="after" offset="1"><![CDATA[$order_data['payment_method'] = '';]]></search>
-            <add><![CDATA[
+    <file path="catalog/controller/checkout/confirm.php">
+        <operation error="skip">
+            <search offset="1"><![CDATA[$order_data['payment_method'] = '';]]></search>
+            <add position="after"><![CDATA[
                 if (($order_data['payment_method'] == 'text_title') && (substr($this->session->data['payment_method']['code'], 0, 6) == 'mollie')) {
                     $title = $this->session->data['payment_method']['title'];
                     $order_data['payment_method'] = $title;
                 }
                 ]]></add>
+        </operation>
+    </file>
+    <!--*****************-->
+    <file path="system/library/cart/cart.php">
+        <operation error="skip">
+            <search><![CDATA[$recurring = array(]]></search>
+            <add position="after"><![CDATA[
+                'quantity'        => $cart['quantity'],
+                'product_id'      => $product_query->row['product_id'],
+                ]]></add>
+        </operation>
+    </file>
+    <file path="system/library/cart.php">
+        <operation error="skip">
+            <search><![CDATA[$recurring = array(]]></search>
+            <add position="after"><![CDATA[
+                'quantity'        => $cart['quantity'],
+                'product_id'      => $product_query->row['product_id'],
+                ]]></add>
+        </operation>
+    </file>
+    <!-- Reorder payment methods -->
+    <file path="catalog/model/setting/extension.php">
+        <operation error="skip">
+            <search><![CDATA[$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "extension WHERE `type` = '" . $this->db->escape($type) . "'");]]></search>
+            <add position="replace"><![CDATA[$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "extension WHERE `type` = '" . $this->db->escape($type) . "' ORDER BY extension_id ASC");]]></add>
+        </operation>
+    </file>
+    <!-- *** -->
+    <file path="catalog/controller/checkout/confirm.php">
+        <operation error="skip">
+            <search><![CDATA[$this->data['payment'] = $this->getChild('payment/' . $this->session->data['payment_method']['code']);]]></search>
+            <add position="replace"><![CDATA[$this->data['payment'] = $this->getChild('payment/' . preg_replace('/mollie_[a-z]*/i', 'mollie', $this->session->data['payment_method']['code']));]]></add>
+        </operation>
+        <operation error="skip">
+            <search><![CDATA[$data['payment'] = $this->load->controller('payment/' . $this->session->data['payment_method']['code']);]]></search>
+            <add position="replace"><![CDATA[$data['payment'] = $this->load->controller('payment/' . preg_replace('/mollie_[a-z]*/i', 'mollie', $this->session->data['payment_method']['code']);]]></add>
+        </operation>
+    </file>
+    <file path="catalog/controller/checkout/payment_method.php">
+        <operation error="skip">
+            <search><![CDATA[$this->load->model('payment/' . $result['code']);]]></search>
+            <add position="replace"><![CDATA[
+            if(strpos($result['code'], 'mollie_') === false) {
+                $this->load->model('payment/' . $result['code']);
+            }]]></add>
+        </operation>
+    </file>
+    <!-- Twig modification fix -->
+    <file path="system/library/template/twig.php" error="skip">
+        <operation error="skip">
+            <search><![CDATA[$file = DIR_TEMPLATE . $filename . '.twig';]]></search>
+            <add position="replace">
+                <![CDATA[$file = modification( DIR_TEMPLATE . $filename . '.twig' );]]>
+            </add>
+        </operation>
+    </file>
+    <!-- J3 FIx -->
+    <file path="system/engine/{front,router}.php">
+        <operation error="skip">
+            <search><![CDATA[if (version_compare(phpversion(), '7.1', '>=') && is_file(DIR_SYSTEM . 'library/journal3/vendor-composer/autoload.php')) {]]></search>
+            <add position="replace">
+                <![CDATA[
+                if (version_compare(phpversion(), '7.1', '>=') && is_file(DIR_SYSTEM . 'library/journal3/vendor-composer/autoload.php') && !is_file(DIR_SYSTEM . 'library/mollieHttpClient.php')) {]]>
+            </add>
         </operation>
     </file>
 </modification>

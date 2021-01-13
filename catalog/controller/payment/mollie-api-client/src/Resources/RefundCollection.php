@@ -2,7 +2,7 @@
 
 namespace Mollie\Api\Resources;
 
-class RefundCollection extends CursorCollection
+class RefundCollection extends \Mollie\Api\Resources\CursorCollection
 {
     /**
      * @return string
@@ -11,12 +11,11 @@ class RefundCollection extends CursorCollection
     {
         return "refunds";
     }
-
     /**
      * @return BaseResource
      */
     protected function createResourceObject()
     {
-        return new Refund($this->client);
+        return new \Mollie\Api\Resources\Refund($this->client);
     }
 }

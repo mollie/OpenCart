@@ -1,6 +1,8 @@
 <?php
 
-class Normalizer extends Symfony\Polyfill\Intl\Normalizer\Normalizer
+namespace _PhpScoper5f491826ce6ce;
+
+class Normalizer extends \_PhpScoper5f491826ce6ce\Symfony\Polyfill\Intl\Normalizer\Normalizer
 {
     /**
      * @deprecated since ICU 56 and removed in PHP 8

@@ -2,7 +2,7 @@
 
 namespace Mollie\Api\Resources;
 
-class CaptureCollection extends CursorCollection
+class CaptureCollection extends \Mollie\Api\Resources\CursorCollection
 {
     /**
      * @return string
@@ -11,12 +11,11 @@ class CaptureCollection extends CursorCollection
     {
         return "captures";
     }
-
     /**
      * @return BaseResource
      */
     protected function createResourceObject()
     {
-        return new Capture($this->client);
+        return new \Mollie\Api\Resources\Capture($this->client);
     }
 }

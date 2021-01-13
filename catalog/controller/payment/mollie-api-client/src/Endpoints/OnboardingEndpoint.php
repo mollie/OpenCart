@@ -6,11 +6,9 @@ use Mollie\Api\Exceptions\ApiException;
 use Mollie\Api\Resources\BaseResource;
 use Mollie\Api\Resources\Onboarding;
 use Mollie\Api\Resources\ResourceFactory;
-
-class OnboardingEndpoint extends EndpointAbstract
+class OnboardingEndpoint extends \Mollie\Api\Endpoints\EndpointAbstract
 {
     protected $resourcePath = "onboarding/me";
-
     protected function getResourceCollectionObject($count, $links)
     {
         throw new \BadMethodCallException('not implemented');
@@ -22,9 +20,8 @@ class OnboardingEndpoint extends EndpointAbstract
      */
     protected function getResourceObject()
     {
-        return new Onboarding($this->client);
+        return new \Mollie\Api\Resources\Onboarding($this->client);
     }
-
     /**
      * Retrieve the organization's onboarding status from Mollie.
      *
@@ -37,7 +34,6 @@ class OnboardingEndpoint extends EndpointAbstract
     {
         return $this->rest_read('', []);
     }
-
     /**
      * Submit data that will be prefilled in the merchant’s onboarding.
      * Please note that the data you submit will only be processed when the onboarding status is needs-data.
@@ -51,26 +47,15 @@ class OnboardingEndpoint extends EndpointAbstract
      */
     public function submit(array $parameters = [])
     {
-
         return $this->rest_create($parameters, []);
     }
-
     protected function rest_read($id, array $filters)
     {
-        $result = $this->client->performHttpCall(
-            self::REST_READ,
-            $this->getResourcePath() . $this->buildQueryString($filters)
-        );
-
-        return ResourceFactory::createFromApiResult($result, $this->getResourceObject());
+        $result = $this->client->performHttpCall(self::REST_READ, $this->getResourcePath() . $this->buildQueryString($filters));
+        return \Mollie\Api\Resources\ResourceFactory::createFromApiResult($result, $this->getResourceObject());
     }
-
     protected function rest_create(array $body, array $filters)
     {
-        $this->client->performHttpCall(
-            self::REST_CREATE,
-            $this->getResourcePath() . $this->buildQueryString($filters),
-            $this->parseRequestBody($body)
-        );
+        $this->client->performHttpCall(self::REST_CREATE, $this->getResourcePath() . $this->buildQueryString($filters), $this->parseRequestBody($body));
     }
 }

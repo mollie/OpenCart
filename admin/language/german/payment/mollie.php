@@ -33,24 +33,7 @@
 
 // These are called automatically by the Payment modules list - do not change the names
 $method_list_logo              = '<a href="https://www.mollie.com" target="_blank"><img src="../image/mollie/mollie_logo.png" alt="Mollie" title="Mollie" style="border:0px" /></a>';
-$_['text_mollie_banktransfer']  = $method_list_logo;
-$_['text_mollie_belfius']       = $method_list_logo;
-$_['text_mollie_creditcard']    = $method_list_logo;
-$_['text_mollie_directdebit']   = $method_list_logo;
-$_['text_mollie_ideal']         = $method_list_logo;
-$_['text_mollie_kbc']           = $method_list_logo;
-$_['text_mollie_mistercash']    = $method_list_logo;
-$_['text_mollie_paypal']        = $method_list_logo;
-$_['text_mollie_paysafecard']   = $method_list_logo;
-$_['text_mollie_sofort']        = $method_list_logo;
-$_['text_mollie_giftcard']      = $method_list_logo;
-$_['text_mollie_inghomepay']    = $method_list_logo;
-$_['text_mollie_eps']           = $method_list_logo;
-$_['text_mollie_giropay']       = $method_list_logo;
-$_['text_mollie_klarnapaylater'] = $method_list_logo;
-$_['text_mollie_klarnasliceit']  = $method_list_logo;
-$_['text_mollie_przelewy24']  	 = $method_list_logo;
-$_['text_mollie_applepay']  	 = $method_list_logo;
+$_['text_mollie']  = $method_list_logo;
 
 // Heading
 $_['heading_title']         = "Mollie";
@@ -58,6 +41,7 @@ $_['title_global_options']  = "Einstellungen";
 $_['title_payment_status']  = "Bezahlungs-Status";
 $_['title_mod_about']       = "Über dieses Modul";
 $_['footer_text']           = "Zahlungsdienste";
+$_['title_mail']              = "Email";
 
 // Module names
 $_['name_mollie_bancontact']    = "Bancontact";
@@ -113,6 +97,10 @@ $_['text_other_css']               = "Other CSS";
 $_['text_module_by']               = "Module by Quality Works - Technical Support";
 $_['text_mollie_support']          = "Mollie - Support";
 $_['text_contact']                 = "Contact";
+$_['text_allowed_variables']       = "Zulässige Variablen: {first_name}, {last_name}, {next_payment}, {product_name}, {order_id}";
+$_['text_browse']                  = 'Browse';
+$_['text_clear']                   = 'Clear';
+$_['text_image_manager']           = 'Image Manager';
 
 // Entry
 $_['entry_payment_method']           = "Zahlungsart";
@@ -137,6 +125,11 @@ $_['entry_mollie_component_base'] 	 = "Custom CSS for Base input field";
 $_['entry_mollie_component_valid'] 	 = "Custom CSS for Valid input field";
 $_['entry_mollie_component_invalid'] = "Custom CSS for Invalid input field";
 $_['entry_default_currency'] 		 = "Immer mit bezahlen";
+$_['entry_email_subject'] 		 	 = "Betreff (Bei wiederkehrender Zahlung)";
+$_['entry_email_body'] 			 	 = "Körper (für wiederkehrende Zahlung)";
+$_['entry_title']	 			 	 = "Titel";
+$_['entry_image']	 			 	 = "Bild";
+$_['entry_status']	 			 	 = "Status";
 
 // Help
 $_['help_view_profile']             = 'Sie können Ihren API Key auf <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank" class="alert-link">Ihren Mollie-Webseiten-Profilen finden</a>.';

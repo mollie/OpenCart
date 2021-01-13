@@ -2,7 +2,7 @@
 
 namespace Mollie\Api\Resources;
 
-class IssuerCollection extends BaseCollection
+class IssuerCollection extends \Mollie\Api\Resources\BaseCollection
 {
     /**
      * @return string|null

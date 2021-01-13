@@ -1,5 +1,7 @@
 <?php
 
+namespace _PhpScoper5f491826ce6ce;
+
 interface SessionUpdateTimestampHandlerInterface
 {
     /**
@@ -10,7 +12,6 @@ interface SessionUpdateTimestampHandlerInterface
      * @return bool
      */
     public function validateId($key);
-
     /**
      * Updates the timestamp of a session when its data didn't change.
      *

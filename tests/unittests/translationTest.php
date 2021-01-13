@@ -5,7 +5,7 @@ class TranslationTest extends PHPUnit_Framework_TestCase
 	/**
 	 * @var array
 	 */
-	private static $LANGUAGES = array("dutch", "english", "french", "nl-nl", "en-gb", "fr-fr");
+	private static $LANGUAGES = array("dutch", "english", "french", "german", "spanish", "nl-nl", "en-gb", "fr-fr", "de-de", "es-es");
 
 	/**
 	 * @var array

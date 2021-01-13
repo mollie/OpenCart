@@ -2,7 +2,7 @@
 
 namespace Mollie\Api\Exceptions;
 
-class IncompatiblePlatform extends ApiException
+class IncompatiblePlatform extends \Mollie\Api\Exceptions\ApiException
 {
     const INCOMPATIBLE_PHP_VERSION = 1000;
     const INCOMPATIBLE_CURL_EXTENSION = 2000;

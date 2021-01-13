@@ -10,7 +10,6 @@ class PaymentMethodStatus
      * @link https://docs.mollie.com/reference/v2/methods-api/get-method#parameters
      */
     const ACTIVATED = "activated";
-
     /**
      * Mollie is waiting for you to finish onboarding in the Merchant Dashboard before
      * the payment method can be activated.
@@ -18,14 +17,12 @@ class PaymentMethodStatus
      * @link https://docs.mollie.com/reference/v2/methods-api/get-method#parameters
      */
     const PENDING_ONBOARDING = "pending-onboarding";
-
     /**
      * Mollie needs to review your request for this payment method before it can be activated.
      *
      * @link https://docs.mollie.com/reference/v2/methods-api/get-method#parameters
      */
     const PENDING_REVIEW = "pending-review";
-
     /**
      * Activation of this payment method relies on you taking action with an external party,
      * for example signing up with PayPal or a giftcard issuer.
@@ -33,7 +30,6 @@ class PaymentMethodStatus
      * @link https://docs.mollie.com/reference/v2/methods-api/get-method#parameters
      */
     const PENDING_EXTERNAL = "pending-external";
-
     /**
      * Your request for this payment method was rejected.
      * Whenever Mollie rejects such a request, you will always be informed via email.
@@ -41,12 +37,10 @@ class PaymentMethodStatus
      * @link https://docs.mollie.com/reference/v2/methods-api/get-method#parameters
      */
     const REJECTED = "rejected";
-
     /**
      * This payment method was not requested.
      *
      * @link https://docs.mollie.com/reference/v2/methods-api/get-method#parameters
      */
     const NOT_REQUESTED = null;
-
 }

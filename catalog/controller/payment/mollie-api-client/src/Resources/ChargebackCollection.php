@@ -2,7 +2,7 @@
 
 namespace Mollie\Api\Resources;
 
-class ChargebackCollection extends CursorCollection
+class ChargebackCollection extends \Mollie\Api\Resources\CursorCollection
 {
     /**
      * @return string
@@ -11,12 +11,11 @@ class ChargebackCollection extends CursorCollection
     {
         return "chargebacks";
     }
-
     /**
      * @return BaseResource
      */
     protected function createResourceObject()
     {
-        return new Chargeback($this->client);
+        return new \Mollie\Api\Resources\Chargeback($this->client);
     }
 }

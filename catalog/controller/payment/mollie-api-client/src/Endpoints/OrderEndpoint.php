@@ -5,16 +5,13 @@ namespace Mollie\Api\Endpoints;
 use Mollie\Api\Exceptions\ApiException;
 use Mollie\Api\Resources\Order;
 use Mollie\Api\Resources\OrderCollection;
-
-class OrderEndpoint extends CollectionEndpointAbstract
+class OrderEndpoint extends \Mollie\Api\Endpoints\CollectionEndpointAbstract
 {
     protected $resourcePath = "orders";
-
     /**
      * @var string
      */
     const RESOURCE_ID_PREFIX = 'ord_';
-
     /**
      * Get the object that is used by this API endpoint. Every API endpoint uses one
      * type of object.
@@ -23,9 +20,8 @@ class OrderEndpoint extends CollectionEndpointAbstract
      */
     protected function getResourceObject()
     {
-        return new Order($this->client);
+        return new \Mollie\Api\Resources\Order($this->client);
     }
-
     /**
      * Get the collection object that is used by this API endpoint. Every API
      * endpoint uses one type of collection object.
@@ -37,9 +33,8 @@ class OrderEndpoint extends CollectionEndpointAbstract
      */
     protected function getResourceCollectionObject($count, $_links)
     {
-        return new OrderCollection($this->client, $count, $_links);
+        return new \Mollie\Api\Resources\OrderCollection($this->client, $count, $_links);
     }
-
     /**
      * Creates a order in Mollie.
      *
@@ -53,7 +48,6 @@ class OrderEndpoint extends CollectionEndpointAbstract
     {
         return $this->rest_create($data, $filters);
     }
-
     /**
      * Retrieve a single order from Mollie.
      *
@@ -67,13 +61,11 @@ class OrderEndpoint extends CollectionEndpointAbstract
      */
     public function get($orderId, array $parameters = [])
     {
-        if (empty($orderId) || strpos($orderId, self::RESOURCE_ID_PREFIX) !== 0) {
-            throw new ApiException("Invalid order ID: '{$orderId}'. An order ID should start with '".self::RESOURCE_ID_PREFIX."'.");
+        if (empty($orderId) || \strpos($orderId, self::RESOURCE_ID_PREFIX) !== 0) {
+            throw new \Mollie\Api\Exceptions\ApiException("Invalid order ID: '{$orderId}'. An order ID should start with '" . self::RESOURCE_ID_PREFIX . "'.");
         }
-
         return parent::rest_read($orderId, $parameters);
     }
-
     /**
      * Cancel the given Order.
      *
@@ -93,7 +85,6 @@ class OrderEndpoint extends CollectionEndpointAbstract
     {
         return $this->rest_delete($orderId, $parameters);
     }
-
     /**
      * Retrieves a collection of Orders from Mollie.
      *

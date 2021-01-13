@@ -2,6 +2,17 @@
 
 # Changelog #
 
+#### Changes in release 10.0.0
+  + Created two separate versions of the module for OCMOD and VQMOD
+  + Removed "util" support
+  + Recurring payments functionality is added for SEPA Direct Debit payment method
+  + Hide/Show API Key in admin
+  + Added option to edit/set payment method title
+  + Added option to add images for payment methods (Default image will be used if no image added)
+  + Added recurring payment functionality for recurring profiles
+  + Updated mollie API to 2.22.3
+  + Added missing language variable(s)
+
 #### Changes in release 9.4.0
   + Updated mollie API to 2.21.0
 

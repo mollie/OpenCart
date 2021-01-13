@@ -3,8 +3,7 @@
 namespace Mollie\Api\Resources;
 
 use Mollie\Api\Exceptions\ApiException;
-
-class CurrentProfile extends Profile
+class CurrentProfile extends \Mollie\Api\Resources\Profile
 {
     /**
      * Enable a payment method for this profile.
@@ -18,7 +17,6 @@ class CurrentProfile extends Profile
     {
         return $this->client->profileMethods->createForCurrentProfile($methodId, $data);
     }
-
     /**
      * Disable a payment method for this profile.
      *

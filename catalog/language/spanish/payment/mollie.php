@@ -46,6 +46,10 @@ $_['text_issuer_kbc']       = 'Seleccione su botón de pago';
 $_['button_retry']          = 'Intente pagar de nuevo';
 $_['text_card_details']     = 'Por favor ingrese los detalles de su tarjeta de crédito.';
 $_['text_mollie_payments']  = 'Pagos seguros proporcionados por %s';
+$_['text_recurring_desc']   = '%s - %s, cada %s durante %s';
+$_['text_recurring']		= '%s cada %s %s';
+$_['text_length']			= ' para pagos de %s';
+$_['text_trial']			= '%s cada %s %s para %s pagos luego ';
 
 // Entry
 $_['entry_card_holder']     	= 'Card Holder Name';

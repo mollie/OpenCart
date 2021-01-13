@@ -63,7 +63,6 @@ class ModelPaymentMollieIdealTest extends Mollie_OpenCart_TestCase
 	{
 		$this->model->db->expects($this->once())
 			->method("query")
-
 			->with("SELECT * FROM `prefix_mollie_payments` WHERE `order_id` = '1337' ORDER BY payment_attempt DESC LIMIT 1");
 
 		$this->model->db->expects($this->once())
