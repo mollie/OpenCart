@@ -886,7 +886,12 @@ if (!confirm('{{ text_confirm_refund }}')) {
         <operation error="skip">
             <search><![CDATA[$data['extensions'][] = array(]]></search>
             <add position="before">
-                <![CDATA[if (preg_match('/mollie_[a-z]*/i', $extension)) continue;]]>
+                <![CDATA[
+                if (version_compare(VERSION, '2.3.0.2', '==') && ($file == DIR_APPLICATION . 'controller/payment/mollie.php')) {
+                    continue;
+                }
+
+                if (preg_match('/mollie_[a-z]*/i', $extension)) continue;]]>
             </add>
         </operation>
     </file>
