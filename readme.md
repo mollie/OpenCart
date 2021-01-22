@@ -5,8 +5,11 @@
 
 # Installation [![Build Status](https://travis-ci.org/mollie/OpenCart.png)](https://travis-ci.org/mollie/OpenCart) #
 + Download the latest release on the [OpenCart Releases](https://github.com/mollie/OpenCart/releases)-page.
-+ Upload all files from the "upload" folder in the zip to the root of your opencart shop.
-+ For this module to work correctly you need to have vQmod installed, you can find the latest version on the vQmod [Releases page](https://github.com/vqmod/vqmod/releases).
++ Upload all files from the "upload" folder in the zip to the root of your opencart shop or use the update button in the admin of your shop if you have an earlier version installed.
++ From version 10.0.0 onwards the module will support both the OCmod and vQmod. You are free to use either of them as per your requirements. However we will automatically install (on upgrade or on fresh install) the one which is best suited for you.
++ To switch from vQmod to OCmod just rename the file "root-dir/system/mollie.ocmod.xml_" to "root-dir/system/mollie.ocmod.xml", disable the vQmod file by renaming or deleting it. Finally refresh the modification from admin panel under "Extensions".
++ To switch from OCmod to vQmod just rename the file "root-dir/vqmod/xml/mollie.xml_" to "root-dir/vqmod/xml/mollie.xml", disable the OCmod file by renaming or deleting it. Finally refresh the modification from admin panel under "Extensions". Please make sure you have vQmod installed on your system before switching from OCmod to vQmod.
++ You can find the latest version of vQmod on the vQmod [Releases page](https://github.com/vqmod/vqmod/releases).
 + After a correct installation, Mollie payment methods should be visible in the _Payments_ overview.
 + Click on _Install (green button or text)_ and then _Edit (blue button or text)_.
 + Fill out your _Mollie API key_ on the settings tab. You can find your API key on your Mollie dashboard [Websiteprofiles](https://www.mollie.com/beheer/account/profielen/).

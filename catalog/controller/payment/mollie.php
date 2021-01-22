@@ -1257,7 +1257,7 @@ class ControllerPaymentMollie extends Controller
                             "interval" => $interval,
                             "mandateId" => $mandate->id,
                             "startDate" => date_format($subscription_start->modify('+' . $cycle . ' ' . $frequency), 'Y-m-d'),
-                            "description" => sprintf($this->language->get('text_recurring_desc'), $order['store_name'], date('Y-m-d H:i:s'), $interval, $product['name']),
+                            "description" => sprintf($this->language->get('text_recurring_desc'), $order['order_id'], $order['store_name'], date('Y-m-d H:i:s'), $interval, $product['name']),
                             "webhookUrl" => $this->getWebhookUrl() 
                         );
 

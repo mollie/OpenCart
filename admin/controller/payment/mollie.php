@@ -45,18 +45,20 @@
  
 //Check if VQMod is installed
 $vqversion = '';
-if(VERSION < 2.0) {
+if(version_compare(VERSION, '2.0', '<')) {
 	if (!class_exists('VQMod')) {
 	     die('<div class="alert alert-warning"><i class="fa fa-exclamation-circle"></i> This extension requires VQMod. Please download and install it on your shop. You can find the latest release <a href="https://github.com/vqmod/vqmod/releases" target="_blank">here</a>!    <button type="button" class="close" data-dismiss="alert">×</button></div>');
-	} else {
-		$vqversion = VQMod::$_vqversion;
 	}
-	define("VQ_VERSION", $vqversion);
 }
 
-if (is_file(DIR_SYSTEM.'../vqmod/xml/mollie.xml') && is_file(DIR_SYSTEM.'../system/mollie.ocmod.xml')) {
-  die('<div class="alert alert-warning"><i class="fa fa-exclamation-circle"></i> Warning : Both VQMOD and OCMOD version are installed<br/>- delete /vqmod/xml/mollie.xml if you want to use OCMOD version<br/>- or delete /system/mollie.ocmod.xml if you want to use VQMOD version. OCMOD is recommended for opencart versions 2.x and later. <button type="button" class="close" data-dismiss="alert">×</button></div>');
+if (class_exists('VQMod')) {     
+	$vqversion = VQMod::$_vqversion;
 }
+define("VQ_VERSION", $vqversion);
+
+// if (is_file(DIR_SYSTEM.'../vqmod/xml/mollie.xml') && is_file(DIR_SYSTEM.'../system/mollie.ocmod.xml')) {
+//   die('<div class="alert alert-warning"><i class="fa fa-exclamation-circle"></i> Warning : Both VQMOD and OCMOD version are installed<br/>- delete /vqmod/xml/mollie.xml if you want to use OCMOD version<br/>- or delete /system/mollie.ocmod.xml if you want to use VQMOD version. OCMOD is recommended for opencart versions 2.x and later. <button type="button" class="close" data-dismiss="alert">×</button></div>');
+// }
 
 use Mollie\Api\Exceptions\ApiException;
 use Mollie\Api\Exceptions\IncompatiblePlatform;
@@ -106,7 +108,7 @@ class ControllerPaymentMollie extends Controller {
 	public function mollieConnect() {
 
 		$this->session->data['mollie_connect_store_id'] = $this->request->get['store_id'];
-		if(version_compare(VERSION, '2.3', '>=') == true) {
+		if(version_compare(VERSION, '2.3', '>=')) {
 			$redirect_uri = HTTPS_SERVER . 'index.php?route=extension/payment/mollie/mollieConnectCallback';
 		} else {
 			$redirect_uri = HTTPS_SERVER . 'index.php?route=payment/mollie/mollieConnectCallback';
@@ -147,13 +149,13 @@ class ControllerPaymentMollie extends Controller {
 			}
 		}
 
-		$token = $this->token;
+		$token = isset($this->session->data['user_token']) ? $this->session->data['user_token'] : $this->session->data['token'];
 
 		if(!isset($this->request->get['state']) || ($this->request->get['state'] != $token)) {
 			return new Action('common/login');
 		}
 
-		if(version_compare(VERSION, '2.3', '>=') == true) {
+		if(version_compare(VERSION, '2.3', '>=')) {
 			$redirect_uri = HTTPS_SERVER . 'index.php?route=extension/payment/mollie/mollieConnectCallback';
 		} else {
 			$redirect_uri = HTTPS_SERVER . 'index.php?route=payment/mollie/mollieConnectCallback';
@@ -174,7 +176,7 @@ class ControllerPaymentMollie extends Controller {
 		// Save refresh token
 		$this->db->query("DELETE FROM `" . DB_PREFIX . "setting` WHERE `key` = '" . $code . "_refresh_token' AND `store_id` = '" . $this->session->data['mollie_connect_store_id'] . "'");
 
-		if(version_compare(VERSION, '2.0', '<') == true) {
+		if(version_compare(VERSION, '2.0', '<')) {
 			$this->db->query("INSERT INTO " . DB_PREFIX . "setting SET store_id = '" . $this->session->data['mollie_connect_store_id'] . "', `group` = '" . $code . "', `key` = '" . $code . "_refresh_token', `value` = '" . $result->refresh_token . "'");
 		} else {
 			$this->db->query("INSERT INTO " . DB_PREFIX . "setting SET store_id = '" . $this->session->data['mollie_connect_store_id'] . "', `code` = '" . $code . "', `key` = '" . $code . "_refresh_token', `value` = '" . $result->refresh_token . "'");
@@ -408,6 +410,23 @@ class ControllerPaymentMollie extends Controller {
 		$this->model_user_user_group->addPermission($user_id, "access", "extension/payment/mollie");
 		$this->model_user_user_group->addPermission($user_id, "modify", "payment/mollie");
 		$this->model_user_user_group->addPermission($user_id, "modify", "extension/payment/mollie");
+
+		// Manage OCMod and VQMod files
+		if (version_compare(VERSION, '2.0', '>=')) {
+			if (class_exists('VQMod')) {
+				if (is_file(DIR_SYSTEM.'../system/mollie.ocmod.xml')) {
+					rename(DIR_SYSTEM.'../system/mollie.ocmod.xml', DIR_SYSTEM.'../system/mollie.ocmod.xml_');
+				}
+			} else {
+				if (is_file(DIR_SYSTEM.'../vqmod/xml/mollie.xml')) {
+					rename(DIR_SYSTEM.'../vqmod/xml/mollie.xml', DIR_SYSTEM.'../vqmod/xml/mollie.xml_');
+				}
+			}
+		} else {
+			if (is_file(DIR_SYSTEM.'../system/mollie.ocmod.xml')) {
+				rename(DIR_SYSTEM.'../system/mollie.ocmod.xml', DIR_SYSTEM.'../system/mollie.ocmod.xml_');
+			}
+		}
 	}
 	
 	/**
@@ -607,6 +626,9 @@ class ControllerPaymentMollie extends Controller {
 	 * Trigger installation of all Mollie modules.
 	 */
 	protected function installAllModules () {
+		// First uninstall all modules to make sure "mollie" is on the top of the modules list and other modules "mollie_*" are after it.
+		$this->uninstallAllModules();
+
 		// Load models.
 		if(version_compare(VERSION, '3.0', '>=') || version_compare(VERSION, '2.0', '<')) {
 			$this->load->model('setting/extension');
@@ -694,12 +716,16 @@ class ControllerPaymentMollie extends Controller {
 		$this->load->model("localisation/currency");
 		$this->load->model('setting/setting');
 		// Double-check if clean-up has been done - For upgrades
-		if (empty($this->config->get('mollie_version')) || $this->config->get('mollie_version') < MOLLIE_VERSION) {
+		if (null === $this->config->get($this->mollieHelper->getModuleCode() . '_version')) {
+			if(version_compare(VERSION, '1.5.6.4', '<=')) {
+	            $code = 'group';
+	        } else {
+	            $code = 'code';
+	        }
+			$this->db->query("INSERT INTO " . DB_PREFIX . "setting SET store_id = '0', `" . $code . "` = '" . $this->db->escape($this->mollieHelper->getModuleCode()) . "', `key` = '" . $this->db->escape($this->mollieHelper->getModuleCode() . '_version') . "', `value` = '" . $this->db->escape(MOLLIE_VERSION) . "'");
+		} elseif (version_compare($this->config->get($this->mollieHelper->getModuleCode() . '_version'), MOLLIE_VERSION, '<')) {
 			$this->model_setting_setting->editSettingValue($this->mollieHelper->getModuleCode(), $this->mollieHelper->getModuleCode() . '_version', MOLLIE_VERSION);
 		}
-
-		// Run cleanup
-		$this->cleanUp();
 
 		//Also delete data related to deprecated modules from settings
 		$this->clearData();
@@ -980,7 +1006,7 @@ class ControllerPaymentMollie extends Controller {
 			$data['image'] = '';
 		}
 
-		if(version_compare(VERSION, '2.0.2.0', '>=') == true) {
+		if(version_compare(VERSION, '2.0.2.0', '>=')) {
 			$no_image = 'no_image.png';
 		} else {
 			$no_image = 'no_image.jpg';
