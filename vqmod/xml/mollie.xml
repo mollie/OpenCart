@@ -12,8 +12,8 @@
     </file>
     <file path="admin/controller/event/compatibility.php">
         <operation error="skip">
-            <search offset="1"><![CDATA[if (!is_file(DIR_APPLICATION . 'controller/' . $route . '.php') && is_file(DIR_APPLICATION . 'controller/' . $part[1] . '/' . $part[2] . '.php')) {]]></search>
-            <add position="after"><![CDATA[if(array_key_exists(3, $part)) {
+            <search><![CDATA[if (!is_file(DIR_APPLICATION . 'controller/' . $route . '.php') && is_file(DIR_APPLICATION . 'controller/' . $part[1] . '/' . $part[2] . '.php')) {]]></search>
+            <add position="after" offset="1"><![CDATA[if(array_key_exists(3, $part)) {
                 $route = $part[1] . '/' . $part[2] . '/' . $part[3];
             }]]></add>
         </operation>
@@ -859,6 +859,34 @@ if (!confirm('{{ text_confirm_refund }}')) {
             <add position="replace">
                 <![CDATA[
                 if (version_compare(phpversion(), '7.1', '>=') && is_file(DIR_SYSTEM . 'library/journal3/vendor-composer/autoload.php') && !is_file(DIR_SYSTEM . 'library/mollieHttpClient.php')) {]]>
+            </add>
+        </operation>
+    </file>
+    <file path="admin/controller/extension/extension/payment.php">
+        <operation error="skip">
+            <search><![CDATA[foreach ($extensions as $key => $value) {]]></search>
+            <add position="after">
+                <![CDATA[if (preg_match('/mollie_[a-z]*/i', $value)) continue;]]>
+            </add>
+        </operation>
+        <operation error="skip">
+            <search><![CDATA[$data['extensions'][] = array(]]></search>
+            <add position="before">
+                <![CDATA[if (preg_match('/mollie_[a-z]*/i', $extension)) continue;]]>
+            </add>
+        </operation>
+    </file>
+    <file path="admin/controller/extension/payment.php">
+        <operation error="skip">
+            <search><![CDATA[foreach ($extensions as $key => $value) {]]></search>
+            <add position="after">
+                <![CDATA[if (preg_match('/mollie_[a-z]*/i', $value)) continue;]]>
+            </add>
+        </operation>
+        <operation error="skip">
+            <search><![CDATA[$data['extensions'][] = array(]]></search>
+            <add position="before">
+                <![CDATA[if (preg_match('/mollie_[a-z]*/i', $extension)) continue;]]>
             </add>
         </operation>
     </file>

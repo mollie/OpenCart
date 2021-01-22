@@ -510,8 +510,8 @@ class ModelPaymentMollie extends Model
 				// Send mail to the customer
 				$subject = $this->config->get($this->mollieHelper->getModuleCode() . "_recurring_email")[$this->config->get('config_language_id')]['subject'];
 				$body = $this->config->get($this->mollieHelper->getModuleCode() . "_recurring_email")[$this->config->get('config_language_id')]['body'];
-				$find = array("{first_name}", "{last_name}", "{next_payment}", "{product_name}", "{order_id}");
-				$replace = array($order_info['firstname'], $order_info['lastname'], date('d-m-Y', strtotime($next_payment)), $profile['recurring_name'], $profile['order_id']);
+				$find = array("{firstname}", "{lastname}", "{next_payment}", "{product_name}", "{order_id}", "{store_name}");
+				$replace = array($order_info['firstname'], $order_info['lastname'], date('d-m-Y', strtotime($next_payment)), $profile['recurring_name'], $profile['order_id'], $order_info['store_name']);
 				$body = html_entity_decode(str_replace($find, $replace, $body), ENT_QUOTES, 'UTF-8');
 		
 				$mail = new Mail($this->config->get('config_mail_engine'));
@@ -538,23 +538,28 @@ class ModelPaymentMollie extends Model
 		$qry = $this->db->query("SELECT * FROM " . DB_PREFIX . "order_recurring WHERE order_recurring_id = " . (int)$order_recurring_id);
 		return $qry->row;
 	}
-
-	public function recurringPayments() {
-		/*
-		 * Used by the checkout to state the module
-		 * supports recurring profiles.
-		 */
-		return true;
-	}
-
 }
 
 class Mollie {
     private $method;
+    private $recurringPayments;
+
     public function __construct($method) {
        $this->method = $method;
+
+       $allowedMethodsForFirstPayment = ["mollie_bancontact", "mollie_belfius", "mollie_creditcard", "mollie_eps", "mollie_giropay", "mollie_ideal", "mollie_inghomepay", "mollie_kbc", "mollie_mybank", "mollie_paypal", "mollie_sofort"];
+       if (in_array($method['code'], $allowedMethodsForFirstPayment)) {
+       		$this->recurringPayments = true;
+       } else {
+       		$this->recurringPayments = false;
+       }
     }
+
     public function getMethod($address, $total) {
        return $this->method;
     }
+
+    public function recurringPayments() {
+		return $this->recurringPayments;
+	}
 }
