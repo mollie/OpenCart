@@ -276,7 +276,7 @@
 										<div class="input-group message-block">
 											<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_api_key" value="<?php echo $store[$code . '_api_key']; ?>" placeholder="live_..." id="<?php echo $code; ?>_api_key" class="form-control" store="<?php echo $store['store_id']; ?>" <?php echo $store['store_id']; ?>-data-payment-mollie-api-key/>
 											<input type="text" value="" class="form-control" <?php echo $store['store_id']; ?>-data-payment-mollie-api-key-hide>
-											<span class="toggleAPIKey">Show</span>
+											<span class="toggleAPIKey<?php echo $store['store_id']; ?>">Show</span>
 										</div>
 										<?php if ($store['error_api_key']) { ?>
 										<div class="text-danger"><?php echo $store['error_api_key']; ?></div>
@@ -824,7 +824,7 @@ $(document).ready(function () {
 		$('[<?php echo $store["store_id"] ?>-data-payment-mollie-api-key]').hide();
 		$('[<?php echo $store["store_id"] ?>-data-payment-mollie-api-key-hide]').val(prefix + '******************************');
 
-		const toggleAPIKey = document.querySelector('.toggleAPIKey');
+		const toggleAPIKey = document.querySelector('.toggleAPIKey<?php echo $store['store_id']; ?>');
 
 		toggleAPIKey.addEventListener('click', function (e) {
 			var elem1 = $('[<?php echo $store["store_id"] ?>-data-payment-mollie-api-key-hide]');

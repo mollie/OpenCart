@@ -2,6 +2,10 @@
 
 # Changelog #
 
+#### Changes in release 10.0.1
+  + Fixed bug while saving API keys in multi-store setup
+  + Fixed bug that showed Mollie in payments list twice in admin
+
 #### Changes in release 10.0.0
   + Created two separate versions of the module for OCMOD and VQMOD
   + Removed "util" support
