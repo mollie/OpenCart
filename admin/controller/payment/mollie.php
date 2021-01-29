@@ -47,7 +47,7 @@
 $vqversion = '';
 if(version_compare(VERSION, '2.0', '<')) {
 	if (!class_exists('VQMod')) {
-	     die('<div class="alert alert-warning"><i class="fa fa-exclamation-circle"></i> This extension requires VQMod. Please download and install it on your shop. You can find the latest release <a href="https://github.com/vqmod/vqmod/releases" target="_blank">here</a>!    <button type="button" class="close" data-dismiss="alert">×</button></div>');
+	     die('<div class="alert alert-warning"><i class="fa fa-exclamation-circle"></i> This extension requires VQMod. Please download and install it on your shop. You can find the latest release <a href="https://github.com/vqmod/vqmod/releases" target="_blank">here</a>!    <button type="button" class="close" data-dismiss="alert">Ã—</button></div>');
 	}
 }
 
@@ -57,7 +57,7 @@ if (class_exists('VQMod')) {
 define("VQ_VERSION", $vqversion);
 
 // if (is_file(DIR_SYSTEM.'../vqmod/xml/mollie.xml') && is_file(DIR_SYSTEM.'../system/mollie.ocmod.xml')) {
-//   die('<div class="alert alert-warning"><i class="fa fa-exclamation-circle"></i> Warning : Both VQMOD and OCMOD version are installed<br/>- delete /vqmod/xml/mollie.xml if you want to use OCMOD version<br/>- or delete /system/mollie.ocmod.xml if you want to use VQMOD version. OCMOD is recommended for opencart versions 2.x and later. <button type="button" class="close" data-dismiss="alert">×</button></div>');
+//   die('<div class="alert alert-warning"><i class="fa fa-exclamation-circle"></i> Warning : Both VQMOD and OCMOD version are installed<br/>- delete /vqmod/xml/mollie.xml if you want to use OCMOD version<br/>- or delete /system/mollie.ocmod.xml if you want to use VQMOD version. OCMOD is recommended for opencart versions 2.x and later. <button type="button" class="close" data-dismiss="alert">Ã—</button></div>');
 // }
 
 use Mollie\Api\Exceptions\ApiException;
@@ -413,7 +413,7 @@ class ControllerPaymentMollie extends Controller {
 
 		// Manage OCMod and VQMod files
 		if (version_compare(VERSION, '2.0', '>=')) {
-			if (class_exists('VQMod')) {
+			if (class_exists('VQMod') && is_file(DIR_SYSTEM.'../vqmod/xml/mollie.xml')) {
 				if (is_file(DIR_SYSTEM.'../system/mollie.ocmod.xml')) {
 					rename(DIR_SYSTEM.'../system/mollie.ocmod.xml', DIR_SYSTEM.'../system/mollie.ocmod.xml_');
 				}
@@ -707,6 +707,58 @@ class ControllerPaymentMollie extends Controller {
 	 * Render the payment method's settings page.
 	 */
 	public function index () {
+		// We need to remove the new mollie module added in v10
+		if(version_compare(VERSION, '3.0', '>=') || version_compare(VERSION, '2.0', '<')) {
+			$this->load->model('setting/extension');
+			$model = 'model_setting_extension';
+		} else {
+			$this->load->model('extension/extension');
+			$model = 'model_extension_extension';
+		}
+
+		// Preserve old settings
+		$this->load->model('setting/setting');
+		$oldSettings = array();
+		foreach($this->getStores() as $store) {
+			$oldSettings[$store['store_id']] = $this->model_setting_setting->getSetting($this->mollieHelper->getModuleCode(), $store['store_id']);
+		}
+		$this->session->data['mollie_settings'] = $oldSettings;
+
+		$extensions = $this->{$model}->getInstalled('payment');
+		if (in_array('mollie', $extensions)) {
+			$this->{$model}->uninstall("payment", "mollie");
+		}
+
+		$adminControllerDir   = DIR_APPLICATION . 'controller/';
+		if (file_exists($adminControllerDir . 'extension/payment/mollie.php')) {
+			unlink($adminControllerDir . 'extension/payment/mollie.php');
+		}
+		if (file_exists($adminControllerDir . 'payment/mollie.php')) {
+			unlink($adminControllerDir . 'payment/mollie.php');
+		}
+
+		// Install new modules (originally old modules)
+		$user_id = $this->getUserId();
+		foreach ($this->mollieHelper->MODULE_NAMES as $module_name) {
+			// Install extension.
+			$this->{$model}->install("payment", "mollie_" . $module_name);
+
+			// Set permissions.
+			$this->model_user_user_group->addPermission($user_id, "access", "payment/mollie_" . $module_name);
+			$this->model_user_user_group->addPermission($user_id, "access", "extension/payment/mollie_" . $module_name);
+			$this->model_user_user_group->addPermission($user_id, "modify", "payment/mollie_" . $module_name);
+			$this->model_user_user_group->addPermission($user_id, "modify", "extension/payment/mollie_" . $module_name);
+		}
+
+        if (version_compare(VERSION, '2.3', '>=')) {
+			$this->response->redirect($this->url->link('extension/payment/mollie_applepay', $this->token, true));
+		} elseif (version_compare(VERSION, '2', '>=')) {
+			$this->response->redirect($this->url->link('payment/mollie_applepay', $this->token, 'SSL'));
+		} else {
+			$this->redirect($this->url->link('payment/mollie_applepay', $this->token, 'SSL'));
+		}
+
+
 		// Double check for database and permissions
 		$this->install();
 		// Load essential models
@@ -1216,8 +1268,8 @@ class ControllerPaymentMollie extends Controller {
 			
 		}
 
-		$data['download'] = $this->url->link("payment/mollie/download");
-		$data['clear'] = $this->url->link("payment/mollie/clear");
+		$data['download'] = $this->url->link("payment/mollie/download", $this->token, 'SSL');
+		$data['clear'] = $this->url->link("payment/mollie/clear", $this->token, 'SSL');
 
 		$data['log'] = '';
 
@@ -1429,7 +1481,7 @@ class ControllerPaymentMollie extends Controller {
 		
 		$this->model_setting_setting->editSetting($code, $data, $store_id);
 
-		$json['connect_url'] = $this->url->link("payment/mollie/mollieConnect", "client_id=" . $_POST['client_id'] . "&store_id=" . $store_id);
+		$json['connect_url'] = $this->url->link("payment/mollie/mollieConnect", $this->token . "&client_id=" . $_POST['client_id'] . "&store_id=" . $store_id);
 
 		$this->response->addHeader('Content-Type: application/json');
 		$this->response->setOutput(json_encode($json));
@@ -1440,7 +1492,7 @@ class ControllerPaymentMollie extends Controller {
         $info = $client->get(MOLLIE_VERSION_URL);
         if (isset($info["tag_name"]) && ($info["tag_name"] != MOLLIE_VERSION) && version_compare(MOLLIE_VERSION, $info["tag_name"], "<")) {
             $updateUrl = array(
-                "updateUrl" => $this->url->link("payment/mollie/update"),
+                "updateUrl" => $this->url->link("payment/mollie/update", $this->token, 'SSL'),
                 "updateVersion" => $info["tag_name"]
             );
 

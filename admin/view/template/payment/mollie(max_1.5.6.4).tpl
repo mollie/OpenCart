@@ -322,20 +322,6 @@
 							<fieldset>
 								<legend><?php echo $text_general; ?></legend>
 								<div class="form-group">
-									<label class="col-sm-2 control-label" for="input-mollie-status"><?php echo $entry_status; ?></label>
-									<div class="col-sm-10">
-										<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_status" id="input-mollie-status" class="form-control">
-											<?php if ($store[$code . '_status']) { ?>
-											<option value="1" selected="selected"><?php echo $text_enabled; ?></option>
-											<option value="0"><?php echo $text_disabled; ?></option>
-											<?php } else { ?>
-											<option value="1"><?php echo $text_enabled; ?></option>
-											<option value="0" selected="selected"><?php echo $text_disabled; ?></option>
-											<?php } ?>
-										</select>
-									</div>
-								</div>
-								<div class="form-group">
 									<label class="col-sm-2 control-label" for="input-status"><span data-toggle="tooltip" title="<?php echo $help_show_icons; ?>"><?php echo $entry_show_icons; ?></span></label>
 									<div class="col-sm-10">
 										<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_show_icons" id="input-status" class="form-control">
@@ -722,7 +708,7 @@
             };
 			$.ajax({
 			  type: "POST",
-			  url: 'index.php?route=payment/mollie/saveAPIKey&<?php echo $token; ?>',
+			  url: 'index.php?route=payment/mollie_<?php echo $module_name; ?>/saveAPIKey&<?php echo $token; ?>',
 			  data: data,
 			  success: function() {
 			  	window.location.reload();
