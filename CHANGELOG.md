@@ -2,6 +2,13 @@
 
 # Changelog #
 
+#### Changes in release 10.1.0
+  + Fixed bug for multistores
+  + Fixed error caused when both files are enabled
+  + Fixed bug related to javascript for quick checkout
+  + Fixed error while loading model
+  + Put and updated older payment files back that might cause issues
+
 #### Changes in release 10.0.1
   + Fixed bug while saving API keys in multi-store setup
   + Fixed bug that showed Mollie in payments list twice in admin

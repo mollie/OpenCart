@@ -17,7 +17,10 @@
 		</div>
 	</div>
 	<div class="container-fluid">
-		<form action="<?php echo $action; ?>" method="post" enctype="multipart/form-data" id="form-mollie" class="form-horizontal">
+		<?php if ($modFilesError) { ?>
+			<?php echo $modFilesError; ?>
+		<?php } ?>
+		<form action="<?php echo $action; ?>" method="post" enctype="multipart/form-data" id="form-mollie" class="form-horizontal" <?php echo ($modFilesError) ? 'style="display: none;"' : ''?>>
 			<?php $api_key = false; ?>
 			<?php foreach ($stores as $store) { ?>
 				<?php if ($error_warning) { ?>
@@ -320,21 +323,7 @@
 										<input type="hidden" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_refresh_token" value="<?php echo $store[$code . '_refresh_token']; ?>">
 									</fieldset>
 									<fieldset>
-										<legend><?php echo $text_general; ?></legend>
-										<div class="form-group">
-											<label class="col-sm-2 control-label" for="input-mollie-status"><?php echo $entry_status; ?></label>
-											<div class="col-sm-10">
-												<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_status" id="input-mollie-status" class="form-control">
-													<?php if ($store[$code . '_status']) { ?>
-													<option value="1" selected="selected"><?php echo $text_enabled; ?></option>
-													<option value="0"><?php echo $text_disabled; ?></option>
-													<?php } else { ?>
-													<option value="1"><?php echo $text_enabled; ?></option>
-													<option value="0" selected="selected"><?php echo $text_disabled; ?></option>
-													<?php } ?>
-												</select>
-											</div>
-										</div>										
+										<legend><?php echo $text_general; ?></legend>		
 										<div class="form-group">
 											<label class="col-sm-2 control-label" for="input-status"><span data-toggle="tooltip" title="<?php echo $help_show_icons; ?>"><?php echo $entry_show_icons; ?></span></label>
 											<div class="col-sm-10">
@@ -671,7 +660,7 @@
 
 		$.ajax({
 		  type: "POST",
-		  url: 'index.php?route=payment/mollie/sendMessage&<?php echo $token; ?>',
+		  url: 'index.php?route=payment/mollie_<?php echo $module_name; ?>/sendMessage&<?php echo $token; ?>',
 		  data: data,
 		  beforeSend: function() {
 				$('#button-support').button('loading');
@@ -738,7 +727,7 @@
             };
 			$.ajax({
 			  type: "POST",
-			  url: 'index.php?route=payment/mollie/saveAPIKey&<?php echo $token; ?>',
+			  url: 'index.php?route=payment/mollie_<?php echo $module_name; ?>/saveAPIKey&<?php echo $token; ?>',
 			  data: data,
 			  success: function() {
 			  	window.location.reload();
@@ -846,7 +835,7 @@
             };
 			$.ajax({
 			  type: "POST",
-			  url: 'index.php?route=payment/mollie/saveAppData&<?php echo $token; ?>',
+			  url: 'index.php?route=payment/mollie_<?php echo $module_name; ?>/saveAppData&<?php echo $token; ?>',
 			  data: data,
 			  dataType: 'json',
 			  success: function(json) {
