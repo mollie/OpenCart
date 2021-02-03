@@ -705,6 +705,12 @@ class ControllerPaymentMollieBase extends Controller {
 			// Install extension.
 			$this->{$model}->install("payment", "mollie_" . $module_name);
 
+			// First remove permissions to avoid memory overflow
+			$this->model_user_user_group->removePermission($user_id, "access", "payment/mollie_" . $module_name);
+			$this->model_user_user_group->removePermission($user_id, "access", "extension/payment/mollie_" . $module_name);
+			$this->model_user_user_group->removePermission($user_id, "modify", "payment/mollie_" . $module_name);
+			$this->model_user_user_group->removePermission($user_id, "modify", "extension/payment/mollie_" . $module_name);
+			
 			// Set permissions.
 			$this->model_user_user_group->addPermission($user_id, "access", "payment/mollie_" . $module_name);
 			$this->model_user_user_group->addPermission($user_id, "access", "extension/payment/mollie_" . $module_name);

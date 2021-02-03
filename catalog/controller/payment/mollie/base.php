@@ -229,12 +229,12 @@ class ControllerPaymentMollieBase extends Controller
         $payment_method = $this->getAPIClient()->methods->get($method, array('include' => 'issuers'));
 
         // Set template data.
-        $data['action']                  = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/payment");
+        $data['action']                  = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/payment", '', 'SSL');
         $data['image']                   = $payment_method->image->size1x;
         $data['message']                 = $this->language;
         $data['issuers']                 = isset($payment_method->issuers) ? $payment_method->issuers : array();
         $data['text_issuer']             = $this->language->get("text_issuer_" . $method);
-        $data['set_issuer_url']          = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/set_issuer");
+        $data['set_issuer_url']          = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/set_issuer", '', 'SSL');
         $data['entry_card_holder']       = $this->language->get('entry_card_holder');
         $data['entry_card_number']       = $this->language->get('entry_card_number');
         $data['entry_expiry_date']       = $this->language->get('entry_expiry_date');

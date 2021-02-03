@@ -1,18 +1,18 @@
 <modification>
     <id>Quality Works - Mollie</id>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
     <vqmver>2.3.0</vqmver>
     <author>Quality Works</author>
 
     <file path="catalog/controller/event/compatibility.php">
         <operation error="skip">
-            <search><![CDATA['model/' . $route . '.php']]></search>
+            <search position="replace"><![CDATA['model/' . $route . '.php']]></search>
             <add position="replace"><![CDATA['model/'.((strpos($route,'get') !== false) ? dirname($route) : $route).'.php']]></add>
         </operation>
     </file>
     <file path="admin/controller/event/compatibility.php">
         <operation error="skip">
-            <search><![CDATA[if (!is_file(DIR_APPLICATION . 'controller/' . $route . '.php') && is_file(DIR_APPLICATION . 'controller/' . $part[1] . '/' . $part[2] . '.php')) {]]></search>
+            <search position="after"><![CDATA[if (!is_file(DIR_APPLICATION . 'controller/' . $route . '.php') && is_file(DIR_APPLICATION . 'controller/' . $part[1] . '/' . $part[2] . '.php')) {]]></search>
             <add position="after" offset="1"><![CDATA[if(array_key_exists(3, $part)) {
                 $route = $part[1] . '/' . $part[2] . '/' . $part[3];
             }]]></add>
@@ -22,7 +22,7 @@
     <!-- Shipment creation for Klarna method for versions older than 2.2 -->
     <file path="admin/model/sale/order.php">
         <operation error="skip">
-            <search><![CDATA[public function getOrderHistories($order_id, $start = 0, $limit = 10) {]]></search>
+            <search position="before"><![CDATA[public function getOrderHistories($order_id, $start = 0, $limit = 10) {]]></search>
             <add position="before"><![CDATA[//Get order reference id for mollie payment
     public function getOrderID($order_id)
     {
@@ -37,7 +37,7 @@
     </file>
     <file path="catalog/controller/api/order.php">
         <operation error="skip">
-            <search><![CDATA[$this->model_checkout_order->addOrderHistory($order_id, $this->request->post['order_status_id'], $this->request->post['comment'], $this->request->post['notify'], $this->request->post['override']);]]></search>
+            <search position="after"><![CDATA[$this->model_checkout_order->addOrderHistory($order_id, $this->request->post['order_status_id'], $this->request->post['comment'], $this->request->post['notify'], $this->request->post['override']);]]></search>
             <add position="after"><![CDATA[// Shipment creation for Klarna for versions older than 2.2
                 if(VERSION < "2.2") {
                     $orderdata = array("0" => $order_id, "1" => $this->request->post['order_status_id']);
@@ -50,7 +50,7 @@
     </file>
     <file path="admin/controller/sale/order.php">
         <operation error="skip">
-            <search index="4"><![CDATA[$this->data['success']]]></search>
+            <search position="before" index="4"><![CDATA[$this->data['success']]]></search>
             <add position="before"><![CDATA[// Shipment creation for Klarna for versions older than 2.2
                 if(VERSION <= "1.5.6.4") {
                     $orderdata = array("0" => $this->request->get['order_id'], "1" => $this->request->post['order_status_id']);
@@ -65,7 +65,7 @@
     <!-- Showing mollie payment status on order info page -->
     <file path="admin/controller/sale/order.php">
         <operation error="skip">
-            <search><![CDATA[$this->response->setOutput($this->load->view('sale/order_info', $data));]]></search>
+            <search position="before"><![CDATA[$this->response->setOutput($this->load->view('sale/order_info', $data));]]></search>
             <add position="before"><![CDATA[$data['payment_status'] = '';
             $molliePaymentDetails = $this->model_sale_order->getMolliePayment($this->request->get['order_id']);
             if(isset($molliePaymentDetails['transaction_id']) && !empty($molliePaymentDetails['transaction_id'])) {
@@ -92,7 +92,7 @@
             } ]]></add>
         </operation>
         <operation error="skip">
-            <search><![CDATA[$this->template = 'sale/order_info.tpl';]]></search>
+            <search position="before"><![CDATA[$this->template = 'sale/order_info.tpl';]]></search>
             <add position="before"><![CDATA[$this->data['payment_status'] = '';
             $molliePaymentDetails = $this->model_sale_order->getMolliePayment($this->request->get['order_id']);
             if(isset($molliePaymentDetails['transaction_id']) && !empty($molliePaymentDetails['transaction_id'])) {
@@ -121,7 +121,7 @@
 
     <file path="admin/model/sale/order.php">
         <operation error="skip">
-            <search><![CDATA[public function getOrder($order_id)]]></search>
+            <search position="before"><![CDATA[public function getOrder($order_id)]]></search>
             <add position="before"><![CDATA[public function getMolliePayment($order_id) {
         $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE order_id = '" . (int)$order_id . "' ORDER BY payment_attempt DESC LIMIT 1");
 
@@ -137,7 +137,7 @@
 
     <file path="admin/view/template/sale/order_info.tpl">
         <operation error="skip">
-            <search><![CDATA[<td><?php echo $payment_method; ?></td>]]></search>
+            <search position="replace"><![CDATA[<td><?php echo $payment_method; ?></td>]]></search>
             <add position="replace"><![CDATA[<td><?php echo $payment_method; ?>&nbsp;&nbsp;
                   <?php if($payment_status == 'paid') { ?>
                     <span id="payment-status" class="label label-success"><?php echo strtoupper($payment_status); ?></span>
@@ -167,7 +167,7 @@
 
     <file path="admin/view/template/sale/order_info.twig">
         <operation error="skip">
-            <search><![CDATA[<td>{{ payment_method }}</td>]]></search>
+            <search position="replace"><![CDATA[<td>{{ payment_method }}</td>]]></search>
             <add position="replace"><![CDATA[<td>{{ payment_method }}&nbsp;&nbsp;
                   {% if(payment_status == 'paid') %}
                     <span id="payment-status" class="label label-success">{{ payment_status | upper }}</span>
@@ -198,7 +198,7 @@
     <!-- Ignore token check -->
     <file path="admin/controller/startup/login.php">
         <operation error="skip">
-            <search><![CDATA['common/login',]]></search>
+            <search position="after"><![CDATA['common/login',]]></search>
             <add position="after"><![CDATA['extension/payment/mollie_bancontact/mollieConnectCallback',
                 'payment/mollie_bancontact/mollieConnectCallback',]]></add>
         </operation>
@@ -206,7 +206,7 @@
 
     <file path="admin/controller/common/login.php">
         <operation error="skip">
-            <search><![CDATA[$ignore = array(]]></search>
+            <search position="after"><![CDATA[$ignore = array(]]></search>
             <add position="after"><![CDATA['extension/payment/mollie_bancontact/mollieConnectCallback',
                 'payment/mollie_bancontact/mollieConnectCallback',]]></add>
         </operation>
@@ -214,13 +214,13 @@
 
     <file path="admin/controller/common/home.php">
         <operation error="skip">
-            <search index="1" offset="2"><![CDATA[if (isset($part[1])) {]]></search>
+            <search position="after" index="1" offset="2"><![CDATA[if (isset($part[1])) {]]></search>
             <add position="after"><![CDATA[if (isset($part[2])) {
                 $route .= '/' . $part[2];
             }]]></add>
         </operation>
         <operation error="skip">
-            <search index="2"><![CDATA['common/login',]]></search>
+            <search position="after" index="2"><![CDATA['common/login',]]></search>
             <add position="after"><![CDATA['extension/payment/mollie_bancontact/mollieConnectCallback',
                 'payment/mollie_bancontact/mollieConnectCallback',]]></add>
         </operation>
@@ -228,14 +228,14 @@
     <!-- Load JS file only on checkout -->
     <!-- <file path="catalog/view/theme/*/template/common/header.tpl">
         <operation error="skip">
-            <search><![CDATA[</head>]]></search>
+            <search position="before"><![CDATA[</head>]]></search>
             <add position="before"><![CDATA[<script src="catalog/view/javascript/mollie.js" type="text/javascript"></script>]]></add>
         </operation>
     </file> -->
 
     <!-- <file path="catalog/view/theme/*/template/common/header.twig">
         <operation error="skip">
-            <search><![CDATA[</head>]]></search>
+            <search position="before"><![CDATA[</head>]]></search>
             <add position="before"><![CDATA[<script src="catalog/view/javascript/mollie.js" type="text/javascript"></script>]]></add>
         </operation>
     </file> -->
@@ -243,21 +243,21 @@
     <!-- Order refund button -->
     <file path="admin/controller/sale/order.php">
         <operation error="skip">
-            <search><![CDATA[class ControllerSaleOrder]]></search>
+            <search position="beforebefore"><![CDATA[class ControllerSaleOrder]]></search>
             <add position="before"><![CDATA[require_once(dirname(DIR_SYSTEM) . "/catalog/controller/payment/mollie-api-client/helper.php");]]></add>
         </operation>
         <operation error="skip">
-            <search><![CDATA[$data['heading_title']]]></search>
+            <search position="after"><![CDATA[$data['heading_title']]]></search>
             <add position="after"><![CDATA[$data['button_refund'] = $this->language->get('button_refund');
                 $data['text_confirm_refund'] = $this->language->get('text_confirm_refund');]]></add>
         </operation>
         <operation error="skip">
-            <search><![CDATA[$this->data['button_add_history']]]></search>
+            <search position="after"><![CDATA[$this->data['button_add_history']]]></search>
             <add position="after"><![CDATA[$this->data['button_refund'] = $this->language->get('button_refund');
                 $this->data['text_confirm_refund'] = $this->language->get('text_confirm_refund');]]></add>
         </operation>
         <operation error="skip">
-            <search><![CDATA[public function info() {]]></search>
+            <search position="after"><![CDATA[public function info() {]]></search>
             <add position="after"><![CDATA[
                 if(version_compare(VERSION, '2.0', '<')) {
                     $this->data['isVersion15x'] = true;
@@ -265,7 +265,7 @@
                 }]]></add>
         </operation>
         <operation error="skip">
-            <search index="4"><![CDATA[$this->data['email']]]></search>
+            <search position="before" index="4"><![CDATA[$this->data['email']]]></search>
             <add position="before"><![CDATA[
             $mollieHelper = new MollieHelper($this->registry);
             $moduleCode = $mollieHelper->getModuleCode();
@@ -284,7 +284,7 @@
             ]]></add>
         </operation>
         <operation error="skip">
-            <search><![CDATA[if ($order_info['store_id'] == 0) {]]></search>
+            <search position="before"><![CDATA[if ($order_info['store_id'] == 0) {]]></search>
             <add position="before"><![CDATA[
             $mollieHelper = new MollieHelper($this->registry);
             $moduleCode = $mollieHelper->getModuleCode();
@@ -299,7 +299,7 @@
             ]]></add>
         </operation>
         <operation error="skip">
-            <search><![CDATA[public function index()]]></search>
+            <search position="before"><![CDATA[public function index()]]></search>
             <add position="before"><![CDATA[
 
     protected function getAPIClient($store)
@@ -376,7 +376,7 @@
 
     <file path="admin/model/sale/order.php">
         <operation error="skip">
-            <search><![CDATA[public function getOrder($order_id)]]></search>
+            <search position="before"><![CDATA[public function getOrder($order_id)]]></search>
             <add position="before"><![CDATA[
     public function updateMolliePayment($mollie_order_id, $refund_id, $payment_status) {
         $this->db->query("UPDATE `" . DB_PREFIX . "mollie_payments` SET refund_id = '" . $refund_id . "', bank_status = '" . $payment_status . "' WHERE mollie_order_id = '" . (int)$mollie_order_id . "'");
@@ -387,7 +387,7 @@
 
     <file path="admin/language/en-gb/sale/order.php">
         <operation error="skip">
-            <search><![CDATA[// Text]]></search>
+            <search position="after"><![CDATA[// Text]]></search>
             <add position="after"><![CDATA[$_['button_refund'] = 'Refund';
                 $_['text_order_not_found'] = 'Mollie order details not found!';
                 $_['text_no_refund'] = 'Refund cannot be processed!';
@@ -400,7 +400,7 @@
 
     <file path="admin/language/english/sale/order.php">
         <operation error="skip">
-            <search><![CDATA[// Text]]></search>
+            <search position="after"><![CDATA[// Text]]></search>
             <add position="after"><![CDATA[$_['button_refund'] = 'Refund';
                 $_['text_order_not_found'] = 'Mollie order details not found!';
                 $_['text_no_refund'] = 'Refund cannot be processed!';
@@ -413,7 +413,7 @@
 
     <file path="admin/language/de-de/sale/order.php">
         <operation error="skip">
-            <search><![CDATA[// Text]]></search>
+            <search position="after"><![CDATA[// Text]]></search>
             <add position="after"><![CDATA[$_['button_refund'] = 'Rückerstattung';
                 $_['text_order_not_found'] = 'Mollie Bestelldetails nicht gefunden!';
                 $_['text_no_refund'] = 'Rückerstattung kann nicht bearbeitet werden!';
@@ -426,7 +426,7 @@
 
     <file path="admin/language/german/sale/order.php">
         <operation error="skip">
-            <search><![CDATA[// Text]]></search>
+            <search position="after"><![CDATA[// Text]]></search>
             <add position="after"><![CDATA[$_['button_refund'] = 'Rückerstattung';
                 $_['text_order_not_found'] = 'Mollie Bestelldetails nicht gefunden!';
                 $_['text_no_refund'] = 'Rückerstattung kann nicht bearbeitet werden!';
@@ -439,7 +439,7 @@
 
     <file path="admin/language/nl-nl/sale/order.php">
         <operation error="skip">
-            <search><![CDATA[// Text]]></search>
+            <search position="after"><![CDATA[// Text]]></search>
             <add position="after"><![CDATA[$_['button_refund'] = 'Terugbetaling';
                 $_['text_order_not_found'] = 'Mollie bestelgegevens niet gevonden!';
                 $_['text_no_refund'] = 'Restitutie kan niet worden verwerkt!';
@@ -452,7 +452,7 @@
 
     <file path="admin/language/dutch/sale/order.php">
         <operation error="skip">
-            <search><![CDATA[// Text]]></search>
+            <search position="after"><![CDATA[// Text]]></search>
             <add position="after"><![CDATA[$_['button_refund'] = 'Terugbetaling';
                 $_['text_order_not_found'] = 'Mollie bestelgegevens niet gevonden!';
                 $_['text_no_refund'] = 'Restitutie kan niet worden verwerkt!';
@@ -465,7 +465,7 @@
 
     <file path="admin/language/es-es/sale/order.php">
         <operation error="skip">
-            <search><![CDATA[// Text]]></search>
+            <search position="after"><![CDATA[// Text]]></search>
             <add position="after"><![CDATA[$_['button_refund'] = 'Reembolso';
                 $_['text_order_not_found'] = '¡No se han encontrado los detalles del pedido de Mollie!';
                 $_['text_no_refund'] = '¡No se puede procesar el reembolso!';
@@ -478,7 +478,7 @@
 
     <file path="admin/language/spanish/sale/order.php">
         <operation error="skip">
-            <search><![CDATA[// Text]]></search>
+            <search position="after"><![CDATA[// Text]]></search>
             <add position="after"><![CDATA[$_['button_refund'] = 'Reembolso';
                 $_['text_order_not_found'] = '¡No se han encontrado los detalles del pedido de Mollie!';
                 $_['text_no_refund'] = '¡No se puede procesar el reembolso!';
@@ -491,7 +491,7 @@
 
     <file path="admin/language/fr-fr/sale/order.php">
         <operation error="skip">
-            <search><![CDATA[// Text]]></search>
+            <search position="after"><![CDATA[// Text]]></search>
             <add position="after"><![CDATA[$_['button_refund'] = 'Rembourser';
                 $_['text_order_not_found'] = 'Détails de commande Mollie non trouvés!';
                 $_['text_no_refund'] = 'Le remboursement ne peut être traité!';
@@ -504,7 +504,7 @@
 
     <file path="admin/language/french/sale/order.php">
         <operation error="skip">
-            <search><![CDATA[// Text]]></search>
+            <search position="after"><![CDATA[// Text]]></search>
             <add position="after"><![CDATA[$_['button_refund'] = 'Rembourser';
                 $_['text_order_not_found'] = 'Détails de commande Mollie non trouvés!';
                 $_['text_no_refund'] = 'Le remboursement ne peut être traité!';
@@ -517,7 +517,7 @@
 
     <file path="admin/view/template/sale/order_info.tpl">
         <operation error="skip">
-            <search><![CDATA[<?php echo $footer; ?>]]></search>
+            <search position="before"><![CDATA[<?php echo $footer; ?>]]></search>
             <add position="before"><![CDATA[
 <script type="text/javascript"><!--
 <?php if(isset($isVersion15x)) { ?>
@@ -626,7 +626,7 @@ $('.alert').remove();
 
     <file path="admin/view/template/sale/order_info.twig">
         <operation error="skip">
-            <search><![CDATA[{{ footer }}]]></search>
+            <search position="before"><![CDATA[{{ footer }}]]></search>
             <add position="before"><![CDATA[
 <script type="text/javascript"><!--
 $('#button-refund').on('click', function() {
@@ -681,7 +681,7 @@ if (!confirm('{{ text_confirm_refund }}')) {
     </file>
     <file path="admin/view/template/common/dashboard.twig">
         <operation error="skip">
-            <search><![CDATA[<div class="container-fluid">{% if error_install %}]]></search>
+            <search position="replace"><![CDATA[<div class="container-fluid">{% if error_install %}]]></search>
             <add position="replace"><![CDATA[<div class="container-fluid">{% if success %}
     <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
         <button type="button" class="close" data-dismiss="alert">&times;</button>
@@ -691,7 +691,7 @@ if (!confirm('{{ text_confirm_refund }}')) {
     </file>
     <file path="admin/view/template/common/dashboard.tpl">
         <operation error="skip">
-            <search><![CDATA[<?php if ($error_install) { ?>]]></search>
+            <search position="before"><![CDATA[<?php if ($error_install) { ?>]]></search>
             <add position="before"><![CDATA[<?php if ($success) { ?>
     <div class="alert alert-success"><i class="fa fa-check-circle"></i> <?php echo $success; ?>
       <button type="button" class="close" data-dismiss="alert">&times;</button>
@@ -701,7 +701,7 @@ if (!confirm('{{ text_confirm_refund }}')) {
     </file>
     <file path="admin/view/template/common/home.tpl">
         <operation error="skip">
-            <search><![CDATA[<?php echo $header; ?>]]></search>
+            <search position="after"><![CDATA[<?php echo $header; ?>]]></search>
             <add position="after"><![CDATA[    <?php if ($success) { ?>
     <div class="success"><?php echo $success; ?></div>
     <?php } ?>]]></add>
@@ -709,7 +709,7 @@ if (!confirm('{{ text_confirm_refund }}')) {
     </file>
     <file path="admin/controller/common/dashboard.php">
         <operation error="skip">
-            <search><![CDATA[$this->load->language('common/dashboard');]]></search>
+            <search position="before"><![CDATA[$this->load->language('common/dashboard');]]></search>
             <add position="before"><![CDATA[      if(version_compare(VERSION, '3.0', '<')) {
             $this->load->model('extension/extension');
 
@@ -750,7 +750,7 @@ if (!confirm('{{ text_confirm_refund }}')) {
     </file>
     <file path="admin/controller/common/home.php">
         <operation error="skip">
-            <search><![CDATA[$this->language->load('common/home');]]></search>
+            <search position="before"><![CDATA[$this->language->load('common/home');]]></search>
             <add position="before"><![CDATA[      $this->load->model('setting/extension');
 
         $extensions = $this->model_setting_extension->getInstalled('payment');
@@ -777,7 +777,7 @@ if (!confirm('{{ text_confirm_refund }}')) {
     <!-- Mollie components -->
     <file path="catalog/controller/*/checkout.php">
         <operation error="skip">
-            <search><![CDATA[public function index() {]]></search>
+            <search position="after"><![CDATA[public function index() {]]></search>
             <add position="after"><![CDATA[
                 $this->document->addScript('catalog/view/javascript/mollie.js');
                 $this->document->addScript('https://js.mollie.com/v1/mollie.js');
@@ -786,7 +786,7 @@ if (!confirm('{{ text_confirm_refund }}')) {
     </file>
     <file path="catalog/controller/*/*/checkout.php">
         <operation error="skip">
-            <search><![CDATA[public function index() {]]></search>
+            <search position="after"><![CDATA[public function index() {]]></search>
             <add position="after"><![CDATA[
                 $this->document->addScript('catalog/view/javascript/mollie.js');
                 $this->document->addScript('https://js.mollie.com/v1/mollie.js');
@@ -797,7 +797,7 @@ if (!confirm('{{ text_confirm_refund }}')) {
     <!-- PDP Invoice Pro Fix -->
     <file path="catalog/controller/checkout/confirm.php">
         <operation error="skip">
-            <search offset="1"><![CDATA[$order_data['payment_method'] = '';]]></search>
+            <search position="after" offset="1"><![CDATA[$order_data['payment_method'] = '';]]></search>
             <add position="after"><![CDATA[
                 if (($order_data['payment_method'] == 'text_title') && (substr($this->session->data['payment_method']['code'], 0, 6) == 'mollie')) {
                     $title = $this->session->data['payment_method']['title'];
@@ -809,7 +809,7 @@ if (!confirm('{{ text_confirm_refund }}')) {
     <!--*****************-->
     <file path="system/library/cart/cart.php">
         <operation error="skip">
-            <search><![CDATA[$recurring = array(]]></search>
+            <search position="after"><![CDATA[$recurring = array(]]></search>
             <add position="after"><![CDATA[
                 'quantity'        => $cart['quantity'],
                 'product_id'      => $product_query->row['product_id'],
@@ -818,7 +818,7 @@ if (!confirm('{{ text_confirm_refund }}')) {
     </file>
     <file path="system/library/cart.php">
         <operation error="skip">
-            <search><![CDATA[$recurring = array(]]></search>
+            <search position="after"><![CDATA[$recurring = array(]]></search>
             <add position="after"><![CDATA[
                 'quantity'        => $cart['quantity'],
                 'product_id'      => $product_query->row['product_id'],
@@ -828,7 +828,7 @@ if (!confirm('{{ text_confirm_refund }}')) {
     <!-- Twig modification fix -->
     <file path="system/library/template/twig.php" error="skip">
         <operation error="skip">
-            <search><![CDATA[$file = DIR_TEMPLATE . $filename . '.twig';]]></search>
+            <search position="replace"><![CDATA[$file = DIR_TEMPLATE . $filename . '.twig';]]></search>
             <add position="replace">
                 <![CDATA[$file = modification(DIR_TEMPLATE . $filename . '.twig');]]>
             </add>
@@ -838,7 +838,7 @@ if (!confirm('{{ text_confirm_refund }}')) {
     <!-- J3 FIx -->
     <file path="system/engine/front.php">
         <operation error="skip">
-            <search><![CDATA[if (version_compare(phpversion(), '7.1', '>=') && is_file(DIR_SYSTEM . 'library/journal3/vendor-composer/autoload.php')) {]]></search>
+            <search position="replace"><![CDATA[if (version_compare(phpversion(), '7.1', '>=') && is_file(DIR_SYSTEM . 'library/journal3/vendor-composer/autoload.php')) {]]></search>
             <add position="replace">
                 <![CDATA[
                 if (version_compare(phpversion(), '7.1', '>=') && is_file(DIR_SYSTEM . 'library/journal3/vendor-composer/autoload.php') && !is_file(DIR_SYSTEM . 'library/mollieHttpClient.php')) {]]>
@@ -847,7 +847,7 @@ if (!confirm('{{ text_confirm_refund }}')) {
     </file>
     <file path="system/engine/router.php">
         <operation error="skip">
-            <search><![CDATA[if (version_compare(phpversion(), '7.1', '>=') && is_file(DIR_SYSTEM . 'library/journal3/vendor-composer/autoload.php')) {]]></search>
+            <search position="replace"><![CDATA[if (version_compare(phpversion(), '7.1', '>=') && is_file(DIR_SYSTEM . 'library/journal3/vendor-composer/autoload.php')) {]]></search>
             <add position="replace">
                 <![CDATA[
                 if (version_compare(phpversion(), '7.1', '>=') && is_file(DIR_SYSTEM . 'library/journal3/vendor-composer/autoload.php') && !is_file(DIR_SYSTEM . 'library/mollieHttpClient.php')) {]]>
@@ -857,7 +857,7 @@ if (!confirm('{{ text_confirm_refund }}')) {
     <!-- ******** -->
     <file path="admin/controller/extension/extension/payment.php">
         <operation error="skip">
-            <search><![CDATA[$data['extensions'][] = array(]]></search>
+            <search position="before"><![CDATA[$data['extensions'][] = array(]]></search>
             <add position="before">
                 <![CDATA[
                 if (version_compare(VERSION, '3.0.0.0', '<') && is_file(DIR_APPLICATION . 'controller/payment/' . $extension . '.php') && (strpos($file, 'extension/payment') === false)) {

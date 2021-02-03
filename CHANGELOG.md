@@ -2,6 +2,10 @@
 
 # Changelog #
 
+#### Changes in release 10.1.1
+  + Fixed white page issue on checkout
+  + Fixed permission overwrite issue
+
 #### Changes in release 10.1.0
   + Fixed bug for multistores
   + Fixed error caused when both files are enabled
