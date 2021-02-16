@@ -243,7 +243,7 @@
     <!-- Order refund button -->
     <file path="admin/controller/sale/order.php">
         <operation error="skip">
-            <search position="beforebefore"><![CDATA[class ControllerSaleOrder]]></search>
+            <search position="before"><![CDATA[class ControllerSaleOrder]]></search>
             <add position="before"><![CDATA[require_once(dirname(DIR_SYSTEM) . "/catalog/controller/payment/mollie-api-client/helper.php");]]></add>
         </operation>
         <operation error="skip">
