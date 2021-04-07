@@ -1,5 +1,5 @@
 <?php
-require_once(dirname(__FILE__) . "/mollie/base.php");
+require_once(DIR_APPLICATION . "model/payment/mollie/base.php");
 class ModelPaymentMollieEPS extends ModelPaymentMollieBase
 {
 	const MODULE_NAME = MollieHelper::MODULE_NAME_EPS;

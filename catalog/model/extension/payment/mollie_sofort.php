@@ -1,5 +1,5 @@
 <?php
-include_once(__DIR__."/../../payment/mollie_sofort.php");
+include_once(DIR_APPLICATION . "model/payment/mollie_sofort.php");
 class ModelExtensionPaymentMollieSOFORT extends ModelPaymentMollieSOFORT
 {
 }

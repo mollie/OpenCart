@@ -40,7 +40,7 @@
  * @property Session $session
  * @property URL $url
  */
-require_once(dirname(DIR_SYSTEM) . "/catalog/controller/payment/mollie-api-client/helper.php");
+require_once(DIR_SYSTEM . "library/mollie/helper.php");
 
 class ModelPaymentMollieBase extends Model
 {
@@ -150,13 +150,21 @@ class ModelPaymentMollieBase extends Model
 			$country = $countryDetails['iso_code_2'];
 		}
 
-		$total = $this->currency->convert($total, $this->config->get("config_currency"), $currency);		
+		$total = $this->currency->convert($total, $this->config->get("config_currency"), $currency);	
+		if (version_compare(VERSION, '1.5.6.4', '<')) {
+			$sequence = 'oneoff';
+		} elseif ($this->cart->hasRecurringProducts()) {
+			$sequence = 'first';
+		} else {
+			$sequence = 'oneoff';
+		}
+			
 		$data = array(
             "amount" 		 => ["value" => (string)$this->numberFormat($total), "currency" => $currency],
             "resource" 		 => "orders",
             "includeWallets" => "applepay",
 			"billingCountry" => $country,
-			"sequenceType" => ($this->cart->hasRecurringProducts()) ? "first":"oneoff"
+			"sequenceType" => $sequence
         );
 
         $allowed_methods = $this->getAllActive($data);        
@@ -383,7 +391,15 @@ class ModelPaymentMollieBase extends Model
 			$recurring_description .= sprintf($this->language->get('text_length'), $item['recurring']['duration']);
 		}
 
-		$order_recurring_id = $this->model_checkout_recurring->addRecurring($this->session->data['order_id'], $recurring_description, $item['recurring']);
+		if (version_compare(VERSION, '3.0', '>=')) {
+			if (version_compare(VERSION, '3.0.3.7', '>=')) {
+				$order_recurring_id = $this->model_checkout_recurring->addRecurring($this->session->data['order_id'], $recurring_description, $item);
+			} else {
+				$order_recurring_id = $this->model_checkout_recurring->addRecurring($this->session->data['order_id'], $recurring_description, $item['recurring']);
+			}
+		} else {
+			$order_recurring_id = $this->model_checkout_recurring->create($item, $this->session->data['order_id'], $recurring_description);
+		}
 		
 		$this->model_checkout_recurring->editReference($order_recurring_id, $order_id_rand);
 
@@ -462,7 +478,7 @@ class ModelPaymentMollieBase extends Model
 		$this->load->model('checkout/order');
 		$order_info = $this->model_checkout_order->getOrder($profile['order_id']);
 
-		$price = $this->currency->format($profile['recurring_price'], $order_info['currency_code'], false, false);
+		$price = $this->currency->convert($data['amount'], $data['currency'], $this->config->get("config_currency")); // Convert to default currency to display the right amount in the admin
 		$frequency = $profile['recurring_frequency'];
 		$cycle = $profile['recurring_cycle'];
 

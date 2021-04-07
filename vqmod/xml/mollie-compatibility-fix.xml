@@ -1,0 +1,17 @@
+<modification>
+    <id>Quality Works - Mollie Fixes</id>
+    <version>1.0.0</version>
+    <vqmver>2.3.0</vqmver>
+    <author>Quality Works</author>
+    
+    <!-- Payment Overview Page Not Found Fix -->
+    <file path="system/engine/action.php">
+        <operation error="skip">
+            <search><![CDATA[if (is_dir(DIR_APPLICATION . 'controller/' . $path)) {]]></search>
+            <add position="replace">
+                <![CDATA[   if (is_dir(DIR_APPLICATION . 'controller/' . $path) && !is_file(DIR_APPLICATION . 'controller/' . str_replace(array('../', '..\\', '..'), '', $path) . '.php')) {]]>
+            </add>
+        </operation>
+    </file>
+    <!-- ******* -->
+</modification>

@@ -59,14 +59,15 @@ define("VQ_VERSION", $vqversion);
 use Mollie\Api\Exceptions\ApiException;
 use Mollie\Api\Exceptions\IncompatiblePlatform;
 use Mollie\Api\MollieApiClient;
+use Mollie\mollieHttpClient;
 
-require_once(dirname(DIR_SYSTEM) . "/catalog/controller/payment/mollie-api-client/helper.php");
+require_once(DIR_SYSTEM . "library/mollie/helper.php");
 
 define("MOLLIE_VERSION", MollieHelper::PLUGIN_VERSION);
 define("MOLLIE_RELEASE", "v" . MOLLIE_VERSION);
 define("MOLLIE_VERSION_URL", "https://api.github.com/repos/mollie/OpenCart/releases/latest");
 // Defining arrays in a constant cannot be done with "define" until PHP 7, so using this syntax for backwards compatibility.
-const DEPRECATED_METHODS = array('mistercash', 'bitcoin');
+const DEPRECATED_METHODS = array('mistercash', 'bitcoin', 'directdebit', 'inghomepay');
 
 if (!defined("MOLLIE_TMP")) {
     define("MOLLIE_TMP", sys_get_temp_dir());
@@ -582,6 +583,11 @@ class ControllerPaymentMollieBase extends Controller {
 			$this->delTree($catalogControllerDir . 'extension/payment/mollie-api-client');
 		}
 
+		//API has been moved to library folder
+		if (file_exists($catalogControllerDir . 'payment/mollie-api-client')) {
+			$this->delTree($catalogControllerDir . 'payment/mollie-api-client');
+		}
+
 		if (file_exists(DIR_APPLICATION . '../vqmod/xml/mollie_onepage_no_givenname.xml')) {
 			unlink(DIR_APPLICATION . '../vqmod/xml/mollie_onepage_no_givenname.xml');
 		}
@@ -614,6 +620,9 @@ class ControllerPaymentMollieBase extends Controller {
 		}
 		if (file_exists($adminControllerDir . 'payment/mollie.php')) {
 			unlink($adminControllerDir . 'payment/mollie.php');
+		}
+		if (file_exists(DIR_SYSTEM . 'library/mollieHttpClient.php')) {
+			unlink(DIR_SYSTEM . 'library/mollieHttpClient.php');
 		}
 	}
 
@@ -833,7 +842,7 @@ class ControllerPaymentMollieBase extends Controller {
 	      $this->load->language('payment/mollie');
 	    }
 		$this->data = $data;		
-		$this->load->library("mollieHttpClient");
+		$this->load->library("mollie/mollieHttpClient");
 		$code = $this->mollieHelper->getModuleCode();
 
 		if (($this->request->server['REQUEST_METHOD'] == 'POST')) {
@@ -874,6 +883,8 @@ class ControllerPaymentMollieBase extends Controller {
 					$this->response->redirect($this->url->link('marketplace/extension', 'type=payment&' . $this->token, 'SSL'));
 				} elseif (version_compare(VERSION, '2.3', '>=')) {
 					$this->response->redirect($this->url->link('extension/extension', 'type=payment&' . $this->token, 'SSL'));
+				} elseif (version_compare(VERSION, '2.0', '>=')) {
+					$this->response->redirect($this->url->link('extension/payment', $this->token, 'SSL'));
 				} else {
 					$this->redirect($this->url->link('extension/payment', $this->token, 'SSL'));
 				}
@@ -978,7 +989,6 @@ class ControllerPaymentMollieBase extends Controller {
 		$data['name_mollie_banktransfer'] = $this->language->get('name_mollie_banktransfer');
 		$data['name_mollie_belfius'] = $this->language->get('name_mollie_belfius');
 		$data['name_mollie_creditcard'] = $this->language->get('name_mollie_creditcard');
-		$data['name_mollie_directdebit'] = $this->language->get('name_mollie_directdebit');
 		$data['name_mollie_ideal'] = $this->language->get('name_mollie_ideal');
 		$data['name_mollie_kbc'] = $this->language->get('name_mollie_kbc');
 		$data['name_mollie_bancontact'] = $this->language->get('name_mollie_bancontact');
@@ -986,7 +996,6 @@ class ControllerPaymentMollieBase extends Controller {
 		$data['name_mollie_paysafecard'] = $this->language->get('name_mollie_paysafecard');
 		$data['name_mollie_sofort'] = $this->language->get('name_mollie_sofort');
 		$data['name_mollie_giftcard'] = $this->language->get('name_mollie_giftcard');
-		$data['name_mollie_inghomepay'] = $this->language->get('name_mollie_inghomepay');
 		$data['name_mollie_eps'] = $this->language->get('name_mollie_eps');
 		$data['name_mollie_giropay'] = $this->language->get('name_mollie_giropay');
 		$data['name_mollie_klarnapaylater'] = $this->language->get('name_mollie_klarnapaylater');
@@ -1227,7 +1236,7 @@ class ControllerPaymentMollieBase extends Controller {
 			// Check which payment methods we can use with the current API key.
 			$allowed_methods = array();
 			try {
-				$api_methods = $this->getAPIClient($store['store_id'])->methods->allAvailable();
+				$api_methods = $this->getAPIClient($store['store_id'])->methods->allActive(array('resource' => 'orders', 'includeWallets' => 'applepay'));
 				foreach ($api_methods as $api_method) {
 					$allowed_methods[] = $api_method->id;
 				}
@@ -1539,7 +1548,7 @@ class ControllerPaymentMollieBase extends Controller {
     }
 
     function update() {
-        $this->load->library("mollieHttpClient");
+        $this->load->library("mollie/mollieHttpClient");
 
         //get info
         $client = new mollieHttpClient();

@@ -1,5 +1,5 @@
 <?php
-require_once(dirname(__FILE__) . "/mollie/base.php");
+require_once(DIR_APPLICATION . "controller/payment/mollie/base.php");
 
 class ControllerPaymentMollieApplepay extends ControllerPaymentMollieBase
 {

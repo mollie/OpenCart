@@ -2,6 +2,19 @@
 
 # Changelog #
 
+#### Changes in release 10.2.0
+  + Added removePermission function in OC1.5
+  + Fixed typo in xml file
+  + Updated mollie API
+  + Fixed bug related to inactive payment method in mollie dashboard
+  + Fixed other minor bugs
+  + Fixed incorrect recurring amount bug in admin
+  + Fixed GuzzleHttp Error
+  + Removed 'inghomepay' and 'directdebit' methods
+  + Moved API inside library folder
+  + Removed Guzzle dependency. It will fix the 'choose_handler()' error
+  + Updated payment method icons
+  
 #### Changes in release 10.1.1
   + Fixed white page issue on checkout
   + Fixed permission overwrite issue

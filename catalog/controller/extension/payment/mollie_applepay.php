@@ -1,5 +1,5 @@
 <?php
-include_once(__DIR__."/../../payment/mollie_applepay.php");
+include_once(DIR_APPLICATION . "controller/payment/mollie_applepay.php");
 class ControllerExtensionPaymentMollieApplepay extends ControllerPaymentMollieApplepay
 {
 }

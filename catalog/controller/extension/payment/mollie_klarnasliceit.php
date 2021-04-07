@@ -1,5 +1,5 @@
 <?php
-include_once(__DIR__."/../../payment/mollie_klarnasliceit.php");
+include_once(DIR_APPLICATION . "controller/payment/mollie_klarnasliceit.php");
 class ControllerExtensionPaymentMollieKlarnasliceit extends ControllerPaymentMollieKlarnasliceit
 {
 }
