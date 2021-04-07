@@ -2,7 +2,7 @@
 <modification>
     <name>Quality Works - Mollie</name>
     <code>mollie</code>
-    <version>2.0.2</version>
+    <version>2.0.3</version>
     <author>Quality Works</author>
     
     <file path="catalog/controller/event/compatibility.php">
@@ -245,7 +245,7 @@
     <file path="admin/controller/sale/order.php">
         <operation error="skip">
             <search position="beforebefore"><![CDATA[class ControllerSaleOrder]]></search>
-            <add position="before"><![CDATA[require_once(dirname(DIR_SYSTEM) . "/catalog/controller/payment/mollie-api-client/helper.php");]]></add>
+            <add position="before"><![CDATA[require_once(DIR_SYSTEM . "library/mollie/helper.php");]]></add>
         </operation>
         <operation error="skip">
             <search position="after"><![CDATA[$data['heading_title']]]></search>
@@ -725,11 +725,9 @@ if (!confirm('{{ text_confirm_refund }}')) {
         $data['success'] = '';
         foreach ($extensions as $key => $value) {
             if ($value == 'mollie_ideal') {
-                require_once(dirname(DIR_SYSTEM) . "/catalog/controller/payment/mollie-api-client/helper.php");
-                if(!class_exists('mollieHttpClient')) {
-                    require_once(DIR_SYSTEM . "/library/mollieHttpClient.php");
-                }
-                $client = new mollieHttpClient();
+                require_once(DIR_SYSTEM . "library/mollie/helper.php");
+                require_once(DIR_SYSTEM . "/library/mollie/mollieHttpClient.php");
+                $client = new Mollie\mollieHttpClient();
                 $info = $client->get("https://api.github.com/repos/mollie/OpenCart/releases/latest");
                 $mollieHelper = new MollieHelper($this->registry);
                 if (isset($info["tag_name"]) && ($info["tag_name"] != $mollieHelper::PLUGIN_VERSION) && version_compare($mollieHelper::PLUGIN_VERSION, $info["tag_name"], "<")) {
@@ -759,9 +757,9 @@ if (!confirm('{{ text_confirm_refund }}')) {
         $this->data['success'] = '';
         foreach ($extensions as $key => $value) {
             if ($value == 'mollie_ideal') {
-                require_once(dirname(DIR_SYSTEM) . "/catalog/controller/payment/mollie-api-client/helper.php");
-                $this->load->library("mollieHttpClient");
-                $client = new mollieHttpClient();
+                require_once(DIR_SYSTEM . "library/mollie/helper.php");
+                require_once(DIR_SYSTEM . "/library/mollie/mollieHttpClient.php");
+                $client = new Mollie\mollieHttpClient();
                 $info = $client->get("https://api.github.com/repos/mollie/OpenCart/releases/latest");
                 $mollieHelper = new MollieHelper($this->registry);
                 if (isset($info["tag_name"]) && ($info["tag_name"] != $mollieHelper::PLUGIN_VERSION) && version_compare($mollieHelper::PLUGIN_VERSION, $info["tag_name"], "<")) {
@@ -832,26 +830,6 @@ if (!confirm('{{ text_confirm_refund }}')) {
             <search position="replace"><![CDATA[$file = DIR_TEMPLATE . $filename . '.twig';]]></search>
             <add position="replace">
                 <![CDATA[$file = modification(DIR_TEMPLATE . $filename . '.twig');]]>
-            </add>
-        </operation>
-    </file>
-    <!-- ******** -->
-    <!-- J3 FIx -->
-    <file path="system/engine/front.php">
-        <operation error="skip">
-            <search position="replace"><![CDATA[if (version_compare(phpversion(), '7.1', '>=') && is_file(DIR_SYSTEM . 'library/journal3/vendor-composer/autoload.php')) {]]></search>
-            <add position="replace">
-                <![CDATA[
-                if (version_compare(phpversion(), '7.1', '>=') && is_file(DIR_SYSTEM . 'library/journal3/vendor-composer/autoload.php') && !is_file(DIR_SYSTEM . 'library/mollieHttpClient.php')) {]]>
-            </add>
-        </operation>
-    </file>
-    <file path="system/engine/router.php">
-        <operation error="skip">
-            <search position="replace"><![CDATA[if (version_compare(phpversion(), '7.1', '>=') && is_file(DIR_SYSTEM . 'library/journal3/vendor-composer/autoload.php')) {]]></search>
-            <add position="replace">
-                <![CDATA[
-                if (version_compare(phpversion(), '7.1', '>=') && is_file(DIR_SYSTEM . 'library/journal3/vendor-composer/autoload.php') && !is_file(DIR_SYSTEM . 'library/mollieHttpClient.php')) {]]>
             </add>
         </operation>
     </file>

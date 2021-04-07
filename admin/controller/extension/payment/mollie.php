@@ -1,3 +1,3 @@
 <?php
-    include(__DIR__."/../../payment/mollie.php");
+    include(DIR_APPLICATION . "controller/payment/mollie.php");
     class ControllerExtensionPaymentMollie extends ControllerPaymentMollie{}

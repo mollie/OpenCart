@@ -88,14 +88,12 @@ $_['method_ideal']                      = 'iDEAL';
 $_['method_creditcard']                 = 'Creditcard';
 $_['method_mistercash']                 = 'Bancontact';
 $_['method_banktransfer']               = 'Übertragung';
-$_['method_directdebit']                = 'Einmaliges Inkasso';
 $_['method_belfius']                    = 'Belfius Direct Net';
 $_['method_kbc']                        = 'KBC/CBC-Betaalknop';
 $_['method_sofort']                     = 'SOFORT Banking';
 $_['method_paypal']                     = 'PayPal';
 $_['method_paysafecard']                = 'paysafecard';
 $_['method_giftcard']                   = 'Giftcard';
-$_['method_inghomepay']                 = 'ING Home\'Pay';
 $_['method_eps']                        = 'EPS';
 $_['method_giropay']                    = 'Giropay';
 $_['method_klarnapaylater'] 			= 'Klarna Pay Later';
@@ -104,3 +102,6 @@ $_['method_przelewy24']  				= 'P24';
 
 //Round Off Description
 $_['roundoff_description']  = 'Rundungsdifferenzen aufgrund von Währungsumrechnungen';
+
+//Warning
+$_['warning_secure_connection']  = 'Bitte stellen Sie sicher, dass Sie eine sichere Verbindung verwenden.';

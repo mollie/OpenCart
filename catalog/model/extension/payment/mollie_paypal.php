@@ -1,5 +1,5 @@
 <?php
-include_once(__DIR__."/../../payment/mollie_paypal.php");
+include_once(DIR_APPLICATION . "model/payment/mollie_paypal.php");
 class ModelExtensionPaymentMolliePayPal extends ModelPaymentMolliePayPal
 {
 }

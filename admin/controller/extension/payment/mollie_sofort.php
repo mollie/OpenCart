@@ -1,4 +1,4 @@
 <?php
-	include_once(__DIR__."/../../payment/mollie_sofort.php");
+include_once(DIR_APPLICATION . "controller/payment/mollie_sofort.php");
 	class ControllerExtensionPaymentMollieSOFORT extends ControllerPaymentMollieSOFORT{}
 ?>

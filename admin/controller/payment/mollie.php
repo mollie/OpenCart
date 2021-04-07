@@ -939,7 +939,6 @@ class ControllerPaymentMollie extends Controller {
 		$data['name_mollie_banktransfer'] = $this->language->get('name_mollie_banktransfer');
 		$data['name_mollie_belfius'] = $this->language->get('name_mollie_belfius');
 		$data['name_mollie_creditcard'] = $this->language->get('name_mollie_creditcard');
-		$data['name_mollie_directdebit'] = $this->language->get('name_mollie_directdebit');
 		$data['name_mollie_ideal'] = $this->language->get('name_mollie_ideal');
 		$data['name_mollie_kbc'] = $this->language->get('name_mollie_kbc');
 		$data['name_mollie_bancontact'] = $this->language->get('name_mollie_bancontact');
@@ -947,7 +946,6 @@ class ControllerPaymentMollie extends Controller {
 		$data['name_mollie_paysafecard'] = $this->language->get('name_mollie_paysafecard');
 		$data['name_mollie_sofort'] = $this->language->get('name_mollie_sofort');
 		$data['name_mollie_giftcard'] = $this->language->get('name_mollie_giftcard');
-		$data['name_mollie_inghomepay'] = $this->language->get('name_mollie_inghomepay');
 		$data['name_mollie_eps'] = $this->language->get('name_mollie_eps');
 		$data['name_mollie_giropay'] = $this->language->get('name_mollie_giropay');
 		$data['name_mollie_klarnapaylater'] = $this->language->get('name_mollie_klarnapaylater');

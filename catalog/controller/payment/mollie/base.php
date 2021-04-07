@@ -48,7 +48,7 @@
 use Mollie\Api\MollieApiClient;
 use Mollie\Api\Types\PaymentStatus;
 
-require_once(dirname(DIR_SYSTEM) . "/catalog/controller/payment/mollie-api-client/helper.php");
+require_once(DIR_SYSTEM . "library/mollie/helper.php");
 
 class ControllerPaymentMollieBase extends Controller
 {
@@ -313,9 +313,15 @@ class ControllerPaymentMollieBase extends Controller
      */
     public function payment()
     {
+        // Load essentials
+        $this->load->language("payment/mollie");
+
         if ($this->request->server['REQUEST_METHOD'] != 'POST') {
+            $this->showErrorPage($this->language->get('warning_secure_connection'));
+            $this->writeToMollieLog("Creating payment failed, connection is not secure.");
             return;
         }
+        
         try {
             $api = $this->getAPIClient();
         } catch (Mollie\Api\Exceptions\ApiException $e) {
@@ -323,8 +329,6 @@ class ControllerPaymentMollieBase extends Controller
             $this->writeToMollieLog("Creating payment failed, API did not load; " . $e->getMessage());
             return;
         }
-        // Load essentials
-        $this->load->language("payment/mollie");
 
         $model = $this->getModuleModel();
         $order_id = $this->getOrderID();
@@ -339,8 +343,10 @@ class ControllerPaymentMollieBase extends Controller
 
         // Check for recurring profiles
         $mollie_customer_id = '';
-        if ($this->cart->hasRecurringProducts()) {
-            $mollie_customer_id = $this->createCustomer($order);
+        if (version_compare(VERSION, '1.5.6.4', '>=')) {
+            if ($this->cart->hasRecurringProducts()) {
+                $mollie_customer_id = $this->createCustomer($order);
+            }
         }
 
         try {
@@ -842,6 +848,8 @@ class ControllerPaymentMollieBase extends Controller
                     'mollie_customer_id' => $molliePayment->customerId,
                     'method' => $molliePayment->method,
                     'status' => $molliePayment->status,
+                    'amount' => $molliePayment->amount->value,
+                    'currency' => $molliePayment->amount->currency,
                     'order_recurring_id' => $firstPaymentDetails['order_recurring_id']
                 );
                 $model->addRecurringPayment($data);
@@ -1260,13 +1268,17 @@ class ControllerPaymentMollieBase extends Controller
                                                     
                         $data = array(
                             "amount" => ["currency" => $this->getCurrency(), "value" => (string)$this->numberFormat($total)],
-                            "times" => $duration - 1,
+                            "times" => $duration,
                             "interval" => $interval,
                             "mandateId" => $mandate->id,
                             "startDate" => date_format($subscription_start->modify('+' . $cycle . ' ' . $frequency), 'Y-m-d'),
                             "description" => sprintf($this->language->get('text_recurring_desc'), $order['order_id'], $order['store_name'], date('Y-m-d H:i:s'), $interval, $product['name']),
                             "webhookUrl" => $this->getWebhookUrl() 
                         );
+
+                        if ($duration <= 0) {
+                            unset($data['times']);
+                        }
 
                         try {
                             $subscription = $customer->createSubscription($data);

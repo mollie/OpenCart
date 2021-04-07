@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+    <name>Quality Works - Mollie Fixes</name>
+    <code>mollie fixes</code>
+    <version>1.0.0</version>
+    <author>Quality Works</author>
+
+    <!-- Payment Overview Page Not Found Fix -->
+    <file path="system/engine/action.php">
+        <operation error="skip">
+            <search><![CDATA[if (is_dir(DIR_APPLICATION . 'controller/' . $path)) {]]></search>
+            <add position="replace">
+                <![CDATA[   if (is_dir(DIR_APPLICATION . 'controller/' . $path) && !is_file(DIR_APPLICATION . 'controller/' . str_replace(array('../', '..\\', '..'), '', $path) . '.php')) {]]>
+            </add>
+        </operation>
+    </file>
+    <!-- ******* -->
+</modification>
