@@ -87,7 +87,11 @@ class ModelPaymentMollieBase extends Model
 		if(empty($allowed_methods)) {
 			$data["amount"]["currency"] = "EUR";
 			$allowed_methods = $this->getAllActive($data);
-		}		
+		}
+
+		$this->session->data['mollie_allowed_methods'] = $allowed_methods;
+		$this->session->data['mollie_currency'] = $this->session->data["currency"];
+
 		return $allowed_methods;			
 	}
 
@@ -116,15 +120,24 @@ class ModelPaymentMollieBase extends Model
 		$currency = $this->getCurrency();
 		$moduleCode = $this->mollieHelper->getModuleCode();
 
-		// Check total for minimum amount
+		// Check total for minimum and maximum amount
 		$standardTotal = $this->currency->convert($total, $this->config->get("config_currency"), 'EUR');
-		if($standardTotal <= 0.01) {
+		$minimumAmount = $this->currency->convert($this->config->get($moduleCode . "_" . static::MODULE_NAME . "_total_minimum"), $this->config->get("config_currency"), 'EUR');
+		$maximumAmount = $this->currency->convert($this->config->get($moduleCode . "_" . static::MODULE_NAME . "_total_maximum"), $this->config->get("config_currency"), 'EUR');
+		if(($standardTotal < $minimumAmount) || (!empty($maximumAmount) && ($standardTotal > $maximumAmount))) {
 			return NULL;
+		}
+
+		// Check for order expiry days
+		if ((static::MODULE_NAME == 'klarnapaylater') || (static::MODULE_NAME == 'klarnasliceit')) {
+			if ($this->config->get($moduleCode . "_order_expiry_days") && ($this->config->get($moduleCode . "_order_expiry_days") > 28)) {
+				return NULL;
+			}
 		}
 
 		// Return nothing if ApplePay is not available
 		if(static::MODULE_NAME == 'applepay') {
-			if(isset($_COOKIE['applePay']) && ($_COOKIE['applePay'] == 0)) {
+			if(isset($this->session->data['applePay']) && ($this->session->data['applePay'] == 0)) {
 				return NULL;
 			}
 		}
@@ -167,7 +180,11 @@ class ModelPaymentMollieBase extends Model
 			"sequenceType" => $sequence
         );
 
-        $allowed_methods = $this->getAllActive($data);        
+		if (isset($this->session->data['mollie_allowed_methods']) && ($this->session->data['mollie_currency'] == $this->session->data["currency"])) {
+			$allowed_methods = $this->session->data['mollie_allowed_methods'];
+		} else {
+			$allowed_methods = $this->getAllActive($data);
+		}     
 		
 		if(!in_array($payment_method->id, $allowed_methods)) {
 			return NULL;
@@ -187,7 +204,12 @@ class ModelPaymentMollieBase extends Model
 			$payment_method->description = $val;
 		}
 
-		$icon = "";
+		// Custom title
+		if(isset($this->config->get($moduleCode . "_" . static::MODULE_NAME . "_description")[$this->config->get('config_language_id')])) {
+			$title = $this->config->get($moduleCode . "_" . static::MODULE_NAME . "_description")[$this->config->get('config_language_id')]['title'];
+		} else {
+			$title = $payment_method->description;
+		}
 
 		if ($this->config->get($moduleCode . "_show_icons")) {
 			if(!empty($this->config->get($moduleCode . "_" . static::MODULE_NAME . "_image"))) {
@@ -200,19 +222,18 @@ class ModelPaymentMollieBase extends Model
 					$image =  $this->config->get('config_url') . 'image/mollie/' . $payment_method->id . '.png';
 				}
 			}			
-			$icon = '<img src="' . $image . '" height="20" style="margin:0 5px -5px 0" />';
-		}
+			$icon = '<img src="' . $image . '" height="20" style="margin:0 5px 0 5px" />';
 
-		// Custom title
-		if(!empty($this->config->get($moduleCode . "_" . static::MODULE_NAME . "_title"))) {
-			$title = $this->config->get($moduleCode . "_" . static::MODULE_NAME . "_title");
-		} else {
-			$title = $payment_method->description;
+			if ($this->config->get($moduleCode . "_align_icons") == 'left') {
+				$title = $icon . $title;
+			} else {
+				$title = $title . $icon;
+			}
 		}
 
 		return array(
 			"code" => "mollie_" . static::MODULE_NAME,
-			"title" => $icon . $title,
+			"title" => $title,
 			"sort_order" => $this->config->get($moduleCode . "_" . static::MODULE_NAME . "_sort_order"),
 			"terms" => NULL
 		);

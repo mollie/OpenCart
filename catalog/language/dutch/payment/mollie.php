@@ -43,13 +43,18 @@ $_['text_redirected']       = 'De klant is doorgestuurd naar het betaalscherm';
 $_['text_issuer_ideal']     = 'Kies uw bank';
 $_['text_issuer_giftcard']  = 'Kies uw giftcard';
 $_['text_issuer_kbc']       = 'Kies uw betaalknop';
-$_['button_retry']          = 'Opnieuw proberen af te rekenen';
 $_['text_card_details']     = 'Voer uw creditcardgegevens in.';
 $_['text_mollie_payments']  = 'Veilige betalingen geleverd door %s';
 $_['text_recurring_desc']   = 'Bestelling %s, %s - %s, elke %s voor %s';
 $_['text_recurring']		= '%s elke %s %s';
 $_['text_length']			= ' voor %s betalingen';
 $_['text_trial']			= '%s elke %s %s voor %s betalingen dan ';
+$_['text_error_report_success']	= 'De fout is met succes gerapporteerd!';
+
+// Button
+$_['button_retry']          = 'Opnieuw proberen af te rekenen';
+$_['button_report']         = 'Report Error';
+$_['button_submit']         = 'Verzenden';
 
 // Entry
 $_['entry_card_holder']     	= 'Kaarthouder naam';

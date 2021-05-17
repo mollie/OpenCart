@@ -48,6 +48,10 @@ $vqversion = '';
 if(version_compare(VERSION, '2.0', '<')) {
 	if (!class_exists('VQMod')) {
 	     die('<div class="alert alert-warning"><i class="fa fa-exclamation-circle"></i> This extension requires VQMod. Please download and install it on your shop. You can find the latest release <a href="https://github.com/vqmod/vqmod/releases" target="_blank">here</a>!    <button type="button" class="close" data-dismiss="alert">×</button></div>');
+	} else {
+		if (is_file(DIR_SYSTEM.'../vqmod/xml/mollie.xml_')) {
+			rename(DIR_SYSTEM.'../vqmod/xml/mollie.xml_', DIR_SYSTEM.'../vqmod/xml/mollie.xml');
+		}
 	}
 }
 
@@ -389,6 +393,23 @@ class ControllerPaymentMollieBase extends Controller {
 				DB_PREFIX
 			)
 		);
+
+		// Create mollie refund table
+		$this->db->query(
+			sprintf(
+				"CREATE TABLE IF NOT EXISTS `%smollie_refund` (
+					`id` INT(11) NOT NULL AUTO_INCREMENT,
+					`refund_id` VARCHAR(32),
+					`order_id` INT(11) NOT NULL,
+					`transaction_id` VARCHAR(32),
+					`amount` decimal(15,4),
+					`currency_code` VARCHAR(32),
+					`date_created` DATETIME NOT NULL,
+					PRIMARY KEY (`id`)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8",
+				DB_PREFIX
+			)
+		);
 	}
 
 	public function enableModFile($keep = '') {
@@ -406,16 +427,11 @@ class ControllerPaymentMollieBase extends Controller {
 
 		$code = $this->mollieHelper->getModuleCode();
 		
-		$file = $this->request->get['file_name'];
+		$file = isset($this->request->get['file_name']) ? $this->request->get['file_name'] : '';
 		if ($file != '') {
 			if ($file == 'vqmod') {
 				if (is_file(DIR_SYSTEM.'../vqmod/xml/mollie.xml_')) {
 					rename(DIR_SYSTEM.'../vqmod/xml/mollie.xml_', DIR_SYSTEM.'../vqmod/xml/mollie.xml');
-				}
-
-				// Delete old ocmod file
-				if (is_file(DIR_SYSTEM.'../system/mollie.ocmod.xml')) {
-					unlink(DIR_SYSTEM.'../system/mollie.ocmod.xml');
 				}
 
 				$this->db->query("INSERT INTO " . DB_PREFIX . "setting SET store_id = '0', `code` = '" . $this->db->escape($code) . "', `key` = '" . $this->db->escape($code . '_mod_file') . "', `value` = 'vqmod'");
@@ -424,17 +440,16 @@ class ControllerPaymentMollieBase extends Controller {
 					rename(DIR_SYSTEM.'../system/mollie.ocmod.xml_', DIR_SYSTEM.'../system/mollie.ocmod.xml');
 				}
 
-				// Delete old vqmod file
-				if (is_file(DIR_SYSTEM.'../vqmod/xml/mollie.xml')) {
-					unlink(DIR_SYSTEM.'../vqmod/xml/mollie.xml');
-				}
-
 				$this->db->query("INSERT INTO " . DB_PREFIX . "setting SET store_id = '0', `code` = '" . $this->db->escape($code) . "', `key` = '" . $this->db->escape($code . '_mod_file') . "', `value` = 'ocmod'");
 			}
 		}
 
 		// Delete the modification files to avoid errors
-		$this->delTree(DIR_MODIFICATION . 'admin');
+		if (version_compare(VERSION, '2.0', '>=')) {
+			if (is_dir(DIR_MODIFICATION . 'admin')) {
+				$this->delTree(DIR_MODIFICATION . 'admin');
+			}
+		}
 
 		// Delete mods.cache
 		if (is_file(DIR_SYSTEM.'../vqmod/mods.cache')) {
@@ -442,9 +457,9 @@ class ControllerPaymentMollieBase extends Controller {
 		}
 
 		if (version_compare(VERSION, '3', '>=')) {
-			$this->response->redirect($this->url->link('marketplace/modification', $this->token, 'SSL'));
+			$this->load->controller('marketplace/modification/refresh');
 		} elseif (version_compare(VERSION, '2', '>=')) {
-			$this->response->redirect($this->url->link('extension/modification', $this->token, 'SSL'));
+			$this->load->controller('extension/modification/refresh');
 		} else {
 			$this->redirect($this->url->link('payment/mollie_' . static::MODULE_NAME, $this->token, 'SSL'));
 		}
@@ -469,10 +484,10 @@ class ControllerPaymentMollieBase extends Controller {
 			if ($this->config->get($code . '_mod_file')) {
 				$this->enableModFile($this->config->get($code . '_mod_file'));
 			} else {
-				return '<div class="alert alert-warning"><i class="fa fa-exclamation-circle"></i> Warning : Both VQMOD and OCMOD version are disabled<br/>- To use OCMOD version <a href="' . $this->url->link('payment/mollie_' . static::MODULE_NAME . '/enableModFile', 'file_name=ocmod&' . $this->token, 'SSL') . '">click here</a><br/>- Or to use VQMOD version <a href="' . $this->url->link('payment/mollie_' . static::MODULE_NAME . '/enableModFile', 'file_name=vqmod&' . $this->token, 'SSL') . '">click here</a><br/>- OCMOD is recommended for opencart versions 2.x and later<br/>- You will be redirected to modification page to refresh modifications<br/>- In case of error please delete the files/folders inside "storage/modification" folder. And refresh again.';
+				return '<div class="alert alert-warning"><div style="text-align: center;padding: 20px;background-color: red;color: #fff;font-size: 28px;"><span><i class="fa fa-exclamation-circle"></i> Please choose VQMOD or OCMOD to finalise installation</span></div><div style="display: flex;margin-top: 20px;margin-bottom: 40px;"><div style="width: 50%;text-align: right;margin-right: 10px;"><a href="' . $this->url->link('payment/mollie_' . static::MODULE_NAME . '/enableModFile', 'file_name=ocmod&' . $this->token, 'SSL') . '" class="btn btn-primary" style="padding: 20px;font-size: 18px;">Click Here To Use OCMOD Version</a></div><div style="width: 50%;text-align: left;margin-left: 10px;"><a href="' . $this->url->link('payment/mollie_' . static::MODULE_NAME . '/enableModFile', 'file_name=vqmod&' . $this->token, 'SSL') . '" class="btn btn-primary"  style="padding: 20px;font-size: 18px;">Click Here To Use VQMOD Version</a></div></div>- OCMOD is recommended for opencart versions 2.x and later<br/>- You will be redirected to modification page to refresh modifications<br/>- In case of error please delete the files/folders inside "storage/modification" folder. And refresh again.</div>';
 			}
 		} elseif (is_file(DIR_SYSTEM.'../vqmod/xml/mollie.xml') && is_file(DIR_SYSTEM.'../system/mollie.ocmod.xml')) {
-			return '<div class="alert alert-warning"><i class="fa fa-exclamation-circle"></i> Warning : Both VQMOD and OCMOD version are inatalled<br/>- Delete vqmod file if you want to use OCMOD version<br/>- Or delete ocmod file if you want to use VQMOD version<br/>- OCMOD is recommended for opencart versions 2.x and later<br/>- In case of error please delete the files/folders inside "storage/modification" folder. And refresh again.';
+			return '<div class="alert alert-warning"><div style="text-align: center;padding: 20px;background-color: red;color: #fff;font-size: 28px;margin-bottom:20px;"><span><i class="fa fa-exclamation-circle"></i> Please choose VQMOD or OCMOD to finalise installation</span></div>- Delete vqmod file if you want to use OCMOD version<br/>- Or delete ocmod file if you want to use VQMOD version<br/>- OCMOD is recommended for opencart versions 2.x and later<br/>- In case of error please delete the files/folders inside "storage/modification" folder. And refresh again.</div>';
 		}
 
 		return 'true';
@@ -602,7 +617,7 @@ class ControllerPaymentMollieBase extends Controller {
 			unlink($catalogControllerDir . 'payment/mollie/helper.php');
 		}
 
-		// Remove mollie/php file from version 10.0.0
+		// Remove mollie.php file from version 10.0.0
 		if (file_exists($catalogControllerDir . 'extension/payment/mollie.php')) {
 			unlink($catalogControllerDir . 'extension/payment/mollie.php');
 		}
@@ -623,6 +638,25 @@ class ControllerPaymentMollieBase extends Controller {
 		}
 		if (file_exists(DIR_SYSTEM . 'library/mollieHttpClient.php')) {
 			unlink(DIR_SYSTEM . 'library/mollieHttpClient.php');
+		}
+		// Remove old xml files
+		if (is_file(DIR_SYSTEM.'../vqmod/xml/mollie.xml_') && is_file(DIR_SYSTEM.'../system/mollie.ocmod.xml_')) {
+			if (file_exists(DIR_SYSTEM.'../system/mollie.ocmod.xml')) {
+				unlink(DIR_SYSTEM.'../system/mollie.ocmod.xml');
+			}
+			if (file_exists(DIR_SYSTEM.'../vqmod/xml/mollie.xml')) {
+				unlink(DIR_SYSTEM.'../vqmod/xml/mollie.xml');
+			}
+			// Delete the modification files to avoid errors
+			if (version_compare(VERSION, '2.0', '>=')) {
+				if (is_dir(DIR_MODIFICATION . 'admin')) {
+					$this->delTree(DIR_MODIFICATION . 'admin');
+				}
+			}		
+			// Delete mods.cache
+			if (is_file(DIR_SYSTEM.'../vqmod/mods.cache')) {
+				unlink(DIR_SYSTEM.'../vqmod/mods.cache');
+			}
 		}
 	}
 
@@ -711,20 +745,72 @@ class ControllerPaymentMollieBase extends Controller {
 		$user_id = $this->getUserId();
 
 		foreach ($this->mollieHelper->MODULE_NAMES as $module_name) {
+			$extensions = $this->{$model}->getInstalled("payment");
+			if (in_array("mollie_" . $module_name, $extensions)) {
+				continue;
+			}
 			// Install extension.
 			$this->{$model}->install("payment", "mollie_" . $module_name);
 
 			// First remove permissions to avoid memory overflow
-			$this->model_user_user_group->removePermission($user_id, "access", "payment/mollie_" . $module_name);
-			$this->model_user_user_group->removePermission($user_id, "access", "extension/payment/mollie_" . $module_name);
-			$this->model_user_user_group->removePermission($user_id, "modify", "payment/mollie_" . $module_name);
-			$this->model_user_user_group->removePermission($user_id, "modify", "extension/payment/mollie_" . $module_name);
+			if (version_compare(VERSION, '2.0.0.0', '<')) {
+				$this->removePermission($user_id, "access", "payment/mollie_" . $module_name);
+				$this->removePermission($user_id, "access", "extension/payment/mollie_" . $module_name);
+				$this->removePermission($user_id, "modify", "payment/mollie_" . $module_name);
+				$this->removePermission($user_id, "modify", "extension/payment/mollie_" . $module_name);
+			} else {
+				$this->model_user_user_group->removePermission($user_id, "access", "payment/mollie_" . $module_name);
+				$this->model_user_user_group->removePermission($user_id, "access", "extension/payment/mollie_" . $module_name);
+				$this->model_user_user_group->removePermission($user_id, "modify", "payment/mollie_" . $module_name);
+				$this->model_user_user_group->removePermission($user_id, "modify", "extension/payment/mollie_" . $module_name);
+			}			
 			
 			// Set permissions.
 			$this->model_user_user_group->addPermission($user_id, "access", "payment/mollie_" . $module_name);
 			$this->model_user_user_group->addPermission($user_id, "access", "extension/payment/mollie_" . $module_name);
 			$this->model_user_user_group->addPermission($user_id, "modify", "payment/mollie_" . $module_name);
 			$this->model_user_user_group->addPermission($user_id, "modify", "extension/payment/mollie_" . $module_name);
+		}
+
+		// Install Mollie Payment Fee Total
+		$extensions = $this->{$model}->getInstalled("total");
+		if (!in_array("mollie_payment_fee", $extensions)) {
+			$this->{$model}->install("total", "mollie_payment_fee");
+
+			// First remove permissions to avoid memory overflow
+			if (version_compare(VERSION, '2.0.0.0', '<')) {
+				$this->removePermission($user_id, "access", "total/mollie_payment_fee");
+				$this->removePermission($user_id, "access", "extension/total/mollie_payment_fee");
+				$this->removePermission($user_id, "modify", "total/mollie_payment_fee");
+				$this->removePermission($user_id, "modify", "extension/total/mollie_payment_fee");
+			} else {
+				$this->model_user_user_group->removePermission($user_id, "access", "total/mollie_payment_fee");
+				$this->model_user_user_group->removePermission($user_id, "access", "extension/total/mollie_payment_fee");
+				$this->model_user_user_group->removePermission($user_id, "modify", "total/mollie_payment_fee");
+				$this->model_user_user_group->removePermission($user_id, "modify", "extension/total/mollie_payment_fee");
+			}			
+			
+			// Set permissions.
+			$this->model_user_user_group->addPermission($user_id, "access", "total/mollie_payment_fee");
+			$this->model_user_user_group->addPermission($user_id, "access", "extension/total/mollie_payment_fee");
+			$this->model_user_user_group->addPermission($user_id, "modify", "total/mollie_payment_fee");
+			$this->model_user_user_group->addPermission($user_id, "modify", "extension/total/mollie_payment_fee");
+		}
+	}
+
+	public function removePermission($user_id, $type, $page) {
+		$user_query = $this->db->query("SELECT DISTINCT user_group_id FROM " . DB_PREFIX . "user WHERE user_id = '" . (int)$user_id . "'");
+
+		if ($user_query->num_rows) {
+			$user_group_query = $this->db->query("SELECT DISTINCT * FROM " . DB_PREFIX . "user_group WHERE user_group_id = '" . (int)$user_query->row['user_group_id'] . "'");
+
+			if ($user_group_query->num_rows) {
+				$data = unserialize($user_group_query->row['permission']);
+
+				$data[$type] = array_diff($data[$type], array($page));
+
+				$this->db->query("UPDATE " . DB_PREFIX . "user_group SET permission = '" . serialize($data) . "' WHERE user_group_id = '" . (int)$user_query->row['user_group_id'] . "'");
+			}
 		}
 	}
 
@@ -807,6 +893,7 @@ class ControllerPaymentMollieBase extends Controller {
 		$this->load->model("localisation/language");
 		$this->load->model("localisation/currency");
 		$this->load->model('setting/setting');
+		$this->load->model('localisation/tax_class');
 		// Double-check if clean-up has been done - For upgrades
 		if (null === $this->config->get($this->mollieHelper->getModuleCode() . '_version')) {
 			if(version_compare(VERSION, '1.5.6.4', '<=')) {
@@ -846,15 +933,24 @@ class ControllerPaymentMollieBase extends Controller {
 		$code = $this->mollieHelper->getModuleCode();
 
 		if (($this->request->server['REQUEST_METHOD'] == 'POST')) {
-			$code = $this->mollieHelper->getModuleCode();
 			$redirect = true;
             $stores = $this->getStores();
             foreach ($stores as $store) {
+            	// Set payment method title to default if not provided
+            	foreach ($this->mollieHelper->MODULE_NAMES as $module_name) {
+            		$desc = $this->request->post[$store["store_id"] . '_' . $code . '_' . $module_name . '_description'];
+            		foreach ($this->model_localisation_language->getLanguages() as $language) {
+            			if (empty($desc[$language['language_id']]['title'])) {
+            				$this->request->post[$store["store_id"] . '_' . $code . '_' . $module_name . '_description'][$language['language_id']]['title'] = $this->request->post[$store["store_id"] . '_' . $code . '_' . $module_name . '_name'];
+            			}
+            		}
+            	}
+
             	if(count($stores) > 1) {
-	                $this->model_setting_setting->editSetting($this->mollieHelper->getModuleCode(), $this->removePrefix($this->request->post, $store["store_id"] . "_"), $store["store_id"]);
+	                $this->model_setting_setting->editSetting($code, $this->removePrefix($this->request->post, $store["store_id"] . "_"), $store["store_id"]);
             	} else {
             		if ($this->validate($store["store_id"])) {
-		                $this->model_setting_setting->editSetting($this->mollieHelper->getModuleCode(), $this->removePrefix($this->request->post, $store["store_id"] . "_"), $store["store_id"]);
+		                $this->model_setting_setting->editSetting($code, $this->removePrefix($this->request->post, $store["store_id"] . "_"), $store["store_id"]);
 	            	}
 	            	else {
 	            		$redirect = false;
@@ -893,23 +989,31 @@ class ControllerPaymentMollieBase extends Controller {
 
         $this->document->setTitle(strip_tags($this->language->get('heading_title')));
         //Set form variables
+        $paymentDesc = array();
+        $paymentImage = array();
         $paymentStatus = array();
         $paymentSortOrder = array();
         $paymentGeoZone = array();
+        $paymentFee = array();
+        $paymentTotalMin = array();
+        $paymentTotalMax = array();
 
         foreach ($this->mollieHelper->MODULE_NAMES as $module_name) {
-        	$paymentStatus[] 	= $code . '_' . $module_name . '_title';
-        	$paymentStatus[] 	= $code . '_' . $module_name . '_image';
+        	$paymentDesc[]  	= $code . '_' . $module_name . '_description';
+        	$paymentImage[] 	= $code . '_' . $module_name . '_image';
         	$paymentStatus[] 	= $code . '_' . $module_name . '_status';
         	$paymentSortOrder[] = $code . '_' . $module_name . '_sort_order';
         	$paymentGeoZone[] 	= $code . '_' . $module_name . '_geo_zone';
+        	$paymentFee[] 	    = $code . '_' . $module_name . '_payment_fee';
+        	$paymentTotalMin[]  = $code . '_' . $module_name . '_total_minimum';
+        	$paymentTotalMax[]  = $code . '_' . $module_name . '_total_maximum';
 		}
 
-        $fields = array("show_icons", "show_order_canceled_page", "ideal_description", "api_key", "client_id", "client_secret", "refresh_token", "ideal_processing_status_id", "ideal_expired_status_id", "ideal_canceled_status_id", "ideal_failed_status_id", "ideal_pending_status_id", "ideal_shipping_status_id", "create_shipment_status_id", "ideal_refund_status_id", "create_shipment", "payment_screen_language", "debug_mode", "mollie_component", "mollie_component_css_base", "mollie_component_css_valid", "mollie_component_css_invalid", "default_currency", "recurring_email");
+        $fields = array("show_icons", "show_order_canceled_page", "ideal_description", "api_key", "client_id", "client_secret", "refresh_token", "ideal_processing_status_id", "ideal_expired_status_id", "ideal_canceled_status_id", "ideal_failed_status_id", "ideal_pending_status_id", "ideal_shipping_status_id", "create_shipment_status_id", "ideal_refund_status_id", "create_shipment", "payment_screen_language", "debug_mode", "mollie_component", "mollie_component_css_base", "mollie_component_css_valid", "mollie_component_css_invalid", "default_currency", "recurring_email", "align_icons", "single_click_payment", "order_expiry_days", "partial_refund", "ideal_partial_refund_status_id", "payment_fee_tax_class_id");
 
         $settingFields = $this->addPrefix($code . '_', $fields);
 
-        $storeFormFields = array_merge($settingFields, $paymentStatus, $paymentSortOrder, $paymentGeoZone);
+        $storeFormFields = array_merge($settingFields, $paymentDesc, $paymentImage, $paymentStatus, $paymentSortOrder, $paymentGeoZone, $paymentFee, $paymentTotalMin, $paymentTotalMax);
 
         $data['stores'] = $this->getStores();
 
@@ -934,10 +1038,10 @@ class ControllerPaymentMollieBase extends Controller {
 	      	'separator' => false
    		);
 
-      if (version_compare(VERSION, '3', '>=')) {
-        $extension_link = $this->url->link('marketplace/extension', 'type=payment&' . $this->token, 'SSL');
-      } elseif (version_compare(VERSION, '2.3', '>=')) {
-        $extension_link = $this->url->link('extension/extension', 'type=payment&' . $this->token, 'SSL');
+		if (version_compare(VERSION, '3', '>=')) {
+			$extension_link = $this->url->link('marketplace/extension', 'type=payment&' . $this->token, 'SSL');
+		} elseif (version_compare(VERSION, '2.3', '>=')) {
+			$extension_link = $this->url->link('extension/extension', 'type=payment&' . $this->token, 'SSL');
 		} else {
 			$extension_link = $this->url->link('extension/payment', $this->token, 'SSL');
 		}
@@ -979,6 +1083,14 @@ class ControllerPaymentMollieBase extends Controller {
 		$data['text_log_list'] = $this->language->get('text_log_list');
 		$data['text_all_zones'] = $this->language->get('text_all_zones');
 		$data['text_missing_api_key'] = $this->language->get('text_missing_api_key');
+		$data['text_left'] = $this->language->get('text_left');
+		$data['text_right'] = $this->language->get('text_right');
+		$data['text_more'] = $this->language->get('text_more');
+		$data['text_none'] = $this->language->get('text_none');
+		$data['text_select'] = $this->language->get('text_select');
+		$data['text_no_maximum_limit'] = $this->language->get('text_no_maximum_limit');
+		$data['text_standard_total'] = $this->language->get('text_standard_total');
+		$data['text_advance_option'] = $this->language->get('text_advance_option');
 
 		$data['title_global_options'] = $this->language->get('title_global_options');
 		$data['title_payment_status'] = $this->language->get('title_payment_status');
@@ -1012,6 +1124,7 @@ class ControllerPaymentMollieBase extends Controller {
 		$data['entry_api_key'] = $this->language->get('entry_api_key');
 		$data['entry_description'] = $this->language->get('entry_description');
 		$data['entry_show_icons'] = $this->language->get('entry_show_icons');
+		$data['entry_align_icons'] = $this->language->get('entry_align_icons');
 		$data['entry_show_order_canceled_page'] = $this->language->get('entry_show_order_canceled_page');
 		$data['entry_geo_zone'] = $this->language->get('entry_geo_zone');
 		$data['entry_client_id'] = $this->language->get('entry_client_id');
@@ -1048,6 +1161,18 @@ class ControllerPaymentMollieBase extends Controller {
 		$data['entry_shipment'] = $this->language->get('entry_shipment');
 		$data['entry_create_shipment_status'] = $this->language->get('entry_create_shipment_status');
 		$data['entry_create_shipment_on_order_complete'] = $this->language->get('entry_create_shipment_on_order_complete');
+		$data['entry_single_click_payment'] = $this->language->get('entry_single_click_payment');
+		$data['entry_order_expiry_days'] = $this->language->get('entry_order_expiry_days');
+		$data['entry_partial_refund'] = $this->language->get('entry_partial_refund');
+		$data['entry_partial_refund_status'] = $this->language->get('entry_partial_refund_status');
+		$data['entry_amount'] = $this->language->get('entry_amount');
+		$data['entry_payment_fee'] = $this->language->get('entry_payment_fee');
+		$data['entry_payment_fee_tax_class'] = $this->language->get('entry_payment_fee_tax_class');
+		$data['entry_total'] = $this->language->get('entry_total');
+		$data['entry_minimum'] = $this->language->get('entry_minimum');
+		$data['entry_maximum'] = $this->language->get('entry_maximum');
+
+		$data['error_order_expiry_days'] = $this->language->get('error_order_expiry_days');
 		
 		$data['help_view_profile'] = $this->language->get('help_view_profile');
 		$data['help_status'] = $this->language->get('help_status');
@@ -1060,6 +1185,8 @@ class ControllerPaymentMollieBase extends Controller {
 		$data['help_apple_pay'] = $this->language->get('help_apple_pay');
 		$data['help_mollie_component'] = $this->language->get('help_mollie_component');
 		$data['help_shipment'] = $this->language->get('help_shipment');
+		$data['help_single_click_payment'] = $this->language->get('help_single_click_payment');
+		$data['help_total'] = $this->language->get('help_total');
 		
 		$data['button_save'] = $this->language->get('button_save');
 		$data['button_cancel'] = $this->language->get('button_cancel');
@@ -1068,6 +1195,7 @@ class ControllerPaymentMollieBase extends Controller {
 		$data['button_download'] = $this->language->get('button_download');
 		$data['button_clear'] = $this->language->get('button_clear');
 		$data['button_submit'] = $this->language->get('button_submit');
+		$data['button_advance_option'] = $this->language->get('button_advance_option');
       
    		$data['breadcrumbs'][] = array(
 	       	'text'      => $this->language->get('text_payment'),
@@ -1096,7 +1224,22 @@ class ControllerPaymentMollieBase extends Controller {
 		$data['geo_zones']			= $this->model_localisation_geo_zone->getGeoZones();
 		$data['order_statuses']		= $this->model_localisation_order_status->getOrderStatuses();
 		$data['languages']			= $this->model_localisation_language->getLanguages();
+		foreach ($data['languages'] as &$language) {
+	      if (version_compare(VERSION, '2.2', '>=')) {
+	        $language['image'] = 'language/'.$language['code'].'/'.$language['code'].'.png';
+	      } else {
+	        $language['image'] = 'view/image/flags/'. $language['image'];
+	      }
+	    }
+
 		$data['currencies']			= $this->model_localisation_currency->getCurrencies();
+		$data['tax_classes']        = $this->model_localisation_tax_class->getTaxClasses();
+
+		// Check if Mollie Payment Fee order total is enabled
+		$molliePaymentFee = $this->config->get('total_mollie_payment_fee_status') || $this->config->get('mollie_payment_fee_status');
+		if (!$molliePaymentFee) {
+			$this->session->data['warning'] = $this->language->get('error_mollie_payment_fee');
+		}
 
 		$this->load->model('tool/image');
 		if (is_file(DIR_IMAGE . 'mollie_connect.png')) {
@@ -1138,8 +1281,9 @@ class ControllerPaymentMollieBase extends Controller {
 			$code . "_api_key"                    				=> NULL,
 			$code . "_client_id"                    			=> NULL,
 			$code . "_client_secret"                    		=> NULL,
-			$code . "_ideal_description"          				=> "Order %",
+			$code . "_description"          					=> "Order %",
 			$code . "_show_icons"                 				=> FALSE,
+			$code . "_align_icons"                 				=> 'left',
 			$code . "_show_order_canceled_page"   				=> FALSE,
 			$code . "_ideal_pending_status_id"    				=> 1,
 			$code . "_ideal_processing_status_id" 				=> 2,
@@ -1149,6 +1293,7 @@ class ControllerPaymentMollieBase extends Controller {
 			$code . "_ideal_shipping_status_id"   				=> 3,
 			$code . "_create_shipment_status_id"  				=> 3,
 			$code . "_ideal_refund_status_id"  					=> 11,
+			$code . "_ideal_partial_refund_status_id"  			=> 11,
 			$code . "_create_shipment"  		  				=> 3,
 			$code . "_refresh_token"  		  					=> '',
 			$code . "_payment_screen_language"  		  		=> 'en-gb',
@@ -1156,6 +1301,10 @@ class ControllerPaymentMollieBase extends Controller {
 			$code . "_debug_mode"  		  						=> FALSE,
 			$code . "_recurring_email"  		  				=> array(),
 			$code . "_mollie_component"  		  				=> FALSE,
+			$code . "_single_click_payment"  		  			=> FALSE,
+			$code . "_partial_refund"  				  			=> FALSE,
+			$code . "_order_expiry_days"  		  			    => 25,
+			$code . "_payment_fee_tax_class_id"  				=> 0,
 			$code . "_mollie_component_css_base"  		  		=> array(
 																	"background_color" => "#fff",
 																	"color"			   => "#555",
@@ -1238,7 +1387,11 @@ class ControllerPaymentMollieBase extends Controller {
 			try {
 				$api_methods = $this->getAPIClient($store['store_id'])->methods->allActive(array('resource' => 'orders', 'includeWallets' => 'applepay'));
 				foreach ($api_methods as $api_method) {
-					$allowed_methods[] = $api_method->id;
+					$allowed_methods[$api_method->id] = array(
+						"method" => $api_method->id,
+						"minimumAmount" => $api_method->minimumAmount,
+						"maximumAmount" => $api_method->maximumAmount
+					);
 				}
 			} catch (Mollie\Api\Exceptions\ApiException $e) {
 				// If we have an unauthorized request, our API key is likely invalid.
@@ -1258,7 +1411,7 @@ class ControllerPaymentMollieBase extends Controller {
 				$payment_method['disable']    = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/disablePaymentMethod", $this->token . "&method=" . $module_name . "&store_id=" . $store['store_id']);
 				$payment_method['enable']     = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/enablePaymentMethod", $this->token . "&method=" . $module_name . "&store_id=" . $store['store_id']);
 				$payment_method['icon']    = "../image/mollie/" . $module_name . "2x.png";
-				$payment_method['allowed'] = in_array($module_name, $allowed_methods);
+				$payment_method['allowed'] = array_key_exists($module_name, $allowed_methods);
 
 				if(($module_name == 'creditcard') && $payment_method['allowed']) {
 					$data['store_data']['creditCardEnabled'] = true;
@@ -1271,10 +1424,10 @@ class ControllerPaymentMollieBase extends Controller {
 					$payment_method['status'] = (bool) isset($this->data[$code . "_" . $module_name . "_status"]) ? $this->data[$code . "_" . $module_name . "_status"] : null;
 				}
 
-				if (isset($this->data[$store['store_id'] . '_' . $code . '_' . $module_name . '_title'])) {
-					$payment_method['title'] = $this->data[$store['store_id'] . '_' . $code . '_' . $module_name . '_title'];
+				if (isset($this->data[$store['store_id'] . '_' . $code . '_' . $module_name . '_description'])) {
+					$payment_method['description'] = $this->data[$store['store_id'] . '_' . $code . '_' . $module_name . '_description'];
 				} else {
-					$payment_method['title'] = isset($this->data[$code . "_" . $module_name . "_title"]) ? $this->data[$code . "_" . $module_name . "_title"] : null;
+					$payment_method['description'] = isset($this->data[$code . "_" . $module_name . "_description"]) ? $this->data[$code . "_" . $module_name . "_description"] : null;
 				}
 
 				if (isset($this->data[$store['store_id'] . '_' . $code . '_' . $module_name . '_image'])) {
@@ -1301,6 +1454,42 @@ class ControllerPaymentMollieBase extends Controller {
 					$payment_method['geo_zone'] = isset($this->data[$code . "_" . $module_name . "_geo_zone"]) ? $this->data[$code . "_" . $module_name . "_geo_zone"] : null;
 				}
 
+				if (isset($this->data[$store['store_id'] . '_' . $code . '_' . $module_name . '_payment_fee'])) {
+					$payment_method['payment_fee'] = $this->data[$store['store_id'] . '_' . $code . '_' . $module_name . '_payment_fee'];
+				} else {
+					$payment_method['payment_fee'] = isset($this->data[$code . "_" . $module_name . "_payment_fee"]) ? $this->data[$code . "_" . $module_name . "_payment_fee"] : null;
+				}
+
+				if ($payment_method['allowed']) {
+					$minimumAmount = $allowed_methods[$module_name]['minimumAmount']->value;
+					$currency      = $allowed_methods[$module_name]['minimumAmount']->currency;
+					$payment_method['minimumAmount'] =  sprintf($this->language->get('text_standard_total'), $this->currency->format($this->currency->convert($minimumAmount, $currency, $this->config->get('config_currency')), $currency));
+
+					if (isset($this->data[$store['store_id'] . '_' . $code . '_' . $module_name . '_total_minimum'])) {
+						$payment_method['total_minimum'] = $this->data[$store['store_id'] . '_' . $code . '_' . $module_name . '_total_minimum'];
+					} elseif (isset($this->data[$code . "_" . $module_name . "_total_minimum"])) {
+						$payment_method['total_minimum'] =  $this->data[$code . "_" . $module_name . "_total_minimum"];
+					} else {
+						$payment_method['total_minimum'] =  $this->numberFormat($this->currency->convert($minimumAmount, $currency, $this->config->get('config_currency')), $this->config->get('config_currency'));
+					}
+
+					if ($allowed_methods[$module_name]['maximumAmount']) {
+						$maximumAmount = $allowed_methods[$module_name]['maximumAmount']->value;
+						$currency      = $allowed_methods[$module_name]['maximumAmount']->currency;
+						$payment_method['maximumAmount'] =  sprintf($this->language->get('text_standard_total'), $this->currency->format($this->currency->convert($maximumAmount, $currency, $this->config->get('config_currency')), $currency));
+					} else {
+						$payment_method['maximumAmount'] =  $this->language->get('text_no_maximum_limit');
+					}				
+
+					if (isset($this->data[$store['store_id'] . '_' . $code . '_' . $module_name . '_total_maximum'])) {
+						$payment_method['total_maximum'] = $this->data[$store['store_id'] . '_' . $code . '_' . $module_name . '_total_maximum'];
+					} elseif (isset($this->data[$code . "_" . $module_name . "_total_maximum"])) {
+						$payment_method['total_maximum'] =  $this->data[$code . "_" . $module_name . "_total_maximum"];
+					} else {
+						$payment_method['total_maximum'] =  ($allowed_methods[$module_name]['maximumAmount']) ? $this->numberFormat($this->currency->convert($maximumAmount, $currency, $this->config->get('config_currency')), $this->config->get('config_currency')) : '';
+					}
+				}		
+
 				$data['store_data'][$store['store_id'] . '_' . $code . '_payment_methods'][$module_name] = $payment_method;
 			}
 
@@ -1313,6 +1502,9 @@ class ControllerPaymentMollieBase extends Controller {
 			}
 			
 		}
+
+		$data['mollie_version'] = $this->config->get($code . '_version');
+		$data['mod_file'] = $this->config->get($code . '_mod_file');
 
 		$data['download'] = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/download", $this->token, 'SSL');
 		$data['clear'] = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/clear", $this->token, 'SSL');
@@ -1780,4 +1972,14 @@ class ControllerPaymentMollieBase extends Controller {
 		$this->response->addHeader('Content-Type: application/json');
 		$this->response->setOutput(json_encode($json));
 	}
+
+	public function numberFormat($amount, $currency) {
+        $intCurrencies = array("ISK", "JPY");
+        if(!in_array($currency, $intCurrencies)) {
+            $formattedAmount = number_format((float)$amount, 2, '.', '');
+        } else {
+            $formattedAmount = number_format($amount, 0);
+        }   
+        return $formattedAmount;    
+    }
 }

@@ -2,7 +2,7 @@
 <modification>
     <name>Quality Works - Mollie</name>
     <code>mollie</code>
-    <version>2.0.3</version>
+    <version>2.1.1</version>
     <author>Quality Works</author>
     
     <file path="catalog/controller/event/compatibility.php">
@@ -19,26 +19,10 @@
             }]]></add>
         </operation>
     </file>
-
-    <!-- Shipment creation for Klarna method for versions older than 2.2 -->
-    <file path="admin/model/sale/order.php">
-        <operation error="skip">
-            <search position="before"><![CDATA[public function getOrderHistories($order_id, $start = 0, $limit = 10) {]]></search>
-            <add position="before"><![CDATA[//Get order reference id for mollie payment
-    public function getOrderID($order_id)
-    {
-        if (!empty($order_id)) {
-            $results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `order_id` = '" . $order_id . "' ORDER BY payment_attempt DESC LIMIT 1");
-            if($results->num_rows == 0) return FALSE;
-            return $results->row['mollie_order_id'];
-        }
-        return FALSE;
-    }]]></add>
-        </operation>
-    </file>
     <file path="catalog/controller/api/order.php">
+        <!-- Shipment creation for Klarna method for versions older than 2.2 -->
         <operation error="skip">
-            <search position="after"><![CDATA[$this->model_checkout_order->addOrderHistory($order_id, $this->request->post['order_status_id'], $this->request->post['comment'], $this->request->post['notify'], $this->request->post['override']);]]></search>
+            <search position="after"><![CDATA[$this->model_checkout_order->addOrderHistory($order_id, $this->request->post['order_status_id']]]></search>
             <add position="after"><![CDATA[// Shipment creation for Klarna for versions older than 2.2
                 if(VERSION < "2.2") {
                     $orderdata = array("0" => $order_id, "1" => $this->request->post['order_status_id']);
@@ -50,23 +34,9 @@
         </operation>
     </file>
     <file path="admin/controller/sale/order.php">
+        <!-- Showing mollie payment status on order info page -->
         <operation error="skip">
-            <search position="before" index="4"><![CDATA[$this->data['success']]]></search>
-            <add position="before"><![CDATA[// Shipment creation for Klarna for versions older than 2.2
-                if(VERSION <= "1.5.6.4") {
-                    $orderdata = array("0" => $this->request->get['order_id'], "1" => $this->request->post['order_status_id']);
-                    $route = null;
-                    require(DIR_CATALOG . "controller/payment/mollie/base.php");
-                    $controller = new ControllerPaymentMollieBase($this->registry);
-                    $controller->createShipment($route, $orderdata, "", "");
-                } ]]></add>
-        </operation>
-    </file>
-
-    <!-- Showing mollie payment status on order info page -->
-    <file path="admin/controller/sale/order.php">
-        <operation error="skip">
-            <search position="before"><![CDATA[$this->response->setOutput($this->load->view('sale/order_info', $data));]]></search>
+            <search position="before"><![CDATA[$this->response->setOutput($this->load->view('sale/order_info]]></search>
             <add position="before"><![CDATA[$data['payment_status'] = '';
             $molliePaymentDetails = $this->model_sale_order->getMolliePayment($this->request->get['order_id']);
             if(isset($molliePaymentDetails['transaction_id']) && !empty($molliePaymentDetails['transaction_id'])) {
@@ -92,170 +62,17 @@
                 } catch (Mollie\Api\Exceptions\ApiException $e) {}
             } ]]></add>
         </operation>
+        <!-- Order refund button -->
         <operation error="skip">
-            <search position="before"><![CDATA[$this->template = 'sale/order_info.tpl';]]></search>
-            <add position="before"><![CDATA[$this->data['payment_status'] = '';
-            $molliePaymentDetails = $this->model_sale_order->getMolliePayment($this->request->get['order_id']);
-            if(isset($molliePaymentDetails['transaction_id']) && !empty($molliePaymentDetails['transaction_id'])) {
-                 try {
-                    $molliePayment = $this->getAPIClient($order_info['store_id'])->payments->get($molliePaymentDetails['transaction_id']);
-                     $this->data['payment_status'] = $molliePayment->status;
-
-                     // Check for refunds and settlements
-                    if($molliePayment->hasRefunds()) {
-                        $this->data['payment_status'] = 'refunded';
-                    }
-                    if(!empty($molliePayment->settlementId)) {
-                        $mollieHelper = new MollieHelper($this->registry);
-                        $accessToken = $mollieHelper->generateAccessToken($order_info['store_id']);
-                        if($accessToken && !empty($accessToken)) {
-                            $mollieSettlement = $mollieHelper->getAPIClientForAccessToken($accessToken)->settlements->get($molliePayment->settlementId);
-                            if($mollieSettlement->isPaidout()) {
-                                $this->data['payment_status'] = 'settled';
-                            }
-                        }
-                    }
-                } catch (Mollie\Api\Exceptions\ApiException $e) {}
-            }]]></add>
-        </operation>
-    </file>
-
-    <file path="admin/model/sale/order.php">
-        <operation error="skip">
-            <search position="before"><![CDATA[public function getOrder($order_id)]]></search>
-            <add position="before"><![CDATA[public function getMolliePayment($order_id) {
-        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE order_id = '" . (int)$order_id . "' ORDER BY payment_attempt DESC LIMIT 1");
-
-        if ($query->num_rows) {
-            return $query->row;
-        }
-
-        return null;
-    }
-]]></add>
-        </operation>
-    </file>
-
-    <file path="admin/view/template/sale/order_info.tpl">
-        <operation error="skip">
-            <search position="replace"><![CDATA[<td><?php echo $payment_method; ?></td>]]></search>
-            <add position="replace"><![CDATA[<td><?php echo $payment_method; ?>&nbsp;&nbsp;
-                  <?php if($payment_status == 'paid') { ?>
-                    <span id="payment-status" class="label label-success"><?php echo strtoupper($payment_status); ?></span>
-                  <?php } elseif($payment_status == 'failed') { ?>
-                    <span id="payment-status" class="label label-danger"><?php echo strtoupper($payment_status); ?></span>
-                  <?php } elseif($payment_status == 'expired') { ?>
-                    <span id="payment-status" class="label label-default"><?php echo strtoupper($payment_status); ?></span>
-                  <?php } elseif($payment_status == 'open') { ?>
-                    <span id="payment-status" class="label label-info"><?php echo strtoupper($payment_status); ?></span>
-                  <?php } elseif($payment_status == 'canceled') { ?>
-                    <span id="payment-status" class="label label-default"><?php echo strtoupper($payment_status); ?></span>
-                  <?php } elseif($payment_status == 'pending') { ?>
-                    <span id="payment-status" class="label label-warning"><?php echo strtoupper($payment_status); ?></span>
-                  <?php } elseif($payment_status == 'authorized') { ?>
-                    <span id="payment-status" class="label label-primary"><?php echo strtoupper($payment_status); ?></span>
-                  <?php } elseif($payment_status == 'refunded') { ?>
-                    <span id="payment-status" class="label label-primary"><?php echo strtoupper($payment_status); ?></span>
-                  <?php } elseif($payment_status == 'settled') { ?>
-                    <span id="payment-status" class="label label-success"><?php echo strtoupper($payment_status); ?></span>
-                  <?php } ?>
-                  <?php if(($payment_status) && !in_array($payment_status, ['expired', 'refunded', 'failed', 'canceled', 'open']) && $showRefundButton) { ?>
-                  <a href="javascript:void(0)" id="button-refund" class="label label-primary"><?php echo $button_refund; ?></a>
-                  <?php } ?>
-                </td>]]></add>
-        </operation>
-    </file>
-
-    <file path="admin/view/template/sale/order_info.twig">
-        <operation error="skip">
-            <search position="replace"><![CDATA[<td>{{ payment_method }}</td>]]></search>
-            <add position="replace"><![CDATA[<td>{{ payment_method }}&nbsp;&nbsp;
-                  {% if(payment_status == 'paid') %}
-                    <span id="payment-status" class="label label-success">{{ payment_status | upper }}</span>
-                  {% elseif(payment_status == 'failed') %}
-                    <span id="payment-status" class="label label-danger">{{ payment_status | upper }}</span>
-                  {% elseif(payment_status == 'expired') %}
-                    <span id="payment-status" class="label label-default">{{ payment_status | upper }}</span>
-                  {% elseif(payment_status == 'open') %}
-                    <span id="payment-status" class="label label-info">{{ payment_status | upper }}</span>
-                  {% elseif(payment_status == 'canceled') %}
-                    <span id="payment-status" class="label label-default">{{ payment_status | upper }}</span>
-                  {% elseif(payment_status == 'pending') %}
-                    <span id="payment-status" class="label label-warning">{{ payment_status | upper }}</span>
-                  {% elseif(payment_status == 'authorized') %}
-                    <span id="payment-status" class="label label-primary">{{ payment_status | upper }}</span>
-                  {% elseif(payment_status == 'refunded') %}
-                    <span id="payment-status" class="label label-primary">{{ payment_status | upper }}</span>
-                  {% elseif(payment_status == 'settled') %}
-                    <span id="payment-status" class="label label-success">{{ payment_status | upper }}</span>
-                  {% endif %}
-                  {% if((payment_status) and (payment_status not in ['expired', 'refunded', 'failed', 'canceled', 'open']) and showRefundButton) %}
-                  <a href="javascript:void(0)" id="button-refund" class="label label-primary">{{ button_refund }}</a>
-                  {% endif %}
-                </td>]]></add>
-        </operation>
-    </file>
-
-    <!-- Ignore token check -->
-    <file path="admin/controller/startup/login.php">
-        <operation error="skip">
-            <search position="after"><![CDATA['common/login',]]></search>
-            <add position="after"><![CDATA['extension/payment/mollie_bancontact/mollieConnectCallback',
-                'payment/mollie_bancontact/mollieConnectCallback',]]></add>
-        </operation>
-    </file>
-
-    <file path="admin/controller/common/login.php">
-        <operation error="skip">
-            <search position="after"><![CDATA[$ignore = array(]]></search>
-            <add position="after"><![CDATA['extension/payment/mollie_bancontact/mollieConnectCallback',
-                'payment/mollie_bancontact/mollieConnectCallback',]]></add>
-        </operation>
-    </file>
-
-    <file path="admin/controller/common/home.php">
-        <operation error="skip">
-            <search position="after" index="1" offset="2"><![CDATA[if (isset($part[1])) {]]></search>
-            <add position="after"><![CDATA[if (isset($part[2])) {
-                $route .= '/' . $part[2];
-            }]]></add>
-        </operation>
-        <operation error="skip">
-            <search position="after" index="2"><![CDATA['common/login',]]></search>
-            <add position="after"><![CDATA['extension/payment/mollie_bancontact/mollieConnectCallback',
-                'payment/mollie_bancontact/mollieConnectCallback',]]></add>
-        </operation>
-    </file>
-    <!-- Load JS file only on checkout -->
-    <!-- <file path="catalog/view/theme/*/template/common/header.tpl">
-        <operation error="skip">
-            <search position="before"><![CDATA[</head>]]></search>
-            <add position="before"><![CDATA[<script src="catalog/view/javascript/mollie.js" type="text/javascript"></script>]]></add>
-        </operation>
-    </file> -->
-
-    <!-- <file path="catalog/view/theme/*/template/common/header.twig">
-        <operation error="skip">
-            <search position="before"><![CDATA[</head>]]></search>
-            <add position="before"><![CDATA[<script src="catalog/view/javascript/mollie.js" type="text/javascript"></script>]]></add>
-        </operation>
-    </file> -->
-
-    <!-- Order refund button -->
-    <file path="admin/controller/sale/order.php">
-        <operation error="skip">
-            <search position="beforebefore"><![CDATA[class ControllerSaleOrder]]></search>
+            <search position="before"><![CDATA[class ControllerSaleOrder]]></search>
             <add position="before"><![CDATA[require_once(DIR_SYSTEM . "library/mollie/helper.php");]]></add>
         </operation>
         <operation error="skip">
             <search position="after"><![CDATA[$data['heading_title']]]></search>
             <add position="after"><![CDATA[$data['button_refund'] = $this->language->get('button_refund');
-                $data['text_confirm_refund'] = $this->language->get('text_confirm_refund');]]></add>
-        </operation>
-        <operation error="skip">
-            <search position="after"><![CDATA[$this->data['button_add_history']]]></search>
-            <add position="after"><![CDATA[$this->data['button_refund'] = $this->language->get('button_refund');
-                $this->data['text_confirm_refund'] = $this->language->get('text_confirm_refund');]]></add>
+                $data['text_confirm_refund'] = $this->language->get('text_confirm_refund');
+                $data['entry_amount'] = $this->language->get('entry_amount');
+                $data['button_partial_refund'] = $this->language->get('button_partial_refund');]]></add>
         </operation>
         <operation error="skip">
             <search position="after"><![CDATA[public function info() {]]></search>
@@ -266,35 +83,29 @@
                 }]]></add>
         </operation>
         <operation error="skip">
-            <search position="before" index="4"><![CDATA[$this->data['email']]]></search>
-            <add position="before"><![CDATA[
-            $mollieHelper = new MollieHelper($this->registry);
-            $moduleCode = $mollieHelper->getModuleCode();
-            $apiKey = $mollieHelper->getApiKey($order_info['store_id']);
-
-            $this->data['showRefundButton'] = true;
-            if(!$apiKey || ($apiKey == '')) {
-                $this->data['showRefundButton'] = false;
-            }
-            $this->data['store_id'] = $order_info['store_id'];
-            if (isset($this->request->server['HTTPS']) && (($this->request->server['HTTPS'] == 'on') || ($this->request->server['HTTPS'] == '1'))) {
-                $this->data['catalog'] = HTTPS_CATALOG;
-            } else {
-                $this->data['catalog'] = HTTP_CATALOG;
-            }
-            ]]></add>
-        </operation>
-        <operation error="skip">
-            <search position="before"><![CDATA[if ($order_info['store_id'] == 0) {]]></search>
+            <search position="before"><![CDATA[$data['store_name']]]></search>
             <add position="before"><![CDATA[
             $mollieHelper = new MollieHelper($this->registry);
             $moduleCode = $mollieHelper->getModuleCode();
             $apiKey = $mollieHelper->getApiKey($order_info['store_id']);
 
             $data['showRefundButton'] = true;
+            $data['showPartialRefundButton'] = true;
             if(!$apiKey || ($apiKey == '')) {
                 $data['showRefundButton'] = false;
+                $data['showPartialRefundButton'] = false;
             }
+
+            $refunds = $this->model_sale_order->getMollieRefunds($order_id);
+            if ($refunds) {
+                $data['showRefundButton'] = false;
+            }
+
+            if (!$this->config->get($moduleCode . '_partial_refund')) {
+                $data['showPartialRefundButton'] = false;
+            }
+
+            $data['currency'] = $order_info['currency_code'];
             $data['store_id'] = $order_info['store_id'];
             $data['catalog'] = $this->request->server['HTTPS'] ? HTTPS_CATALOG : HTTP_CATALOG;
             ]]></add>
@@ -310,6 +121,16 @@
         $data->set($mollieHelper->getModuleCode() . "_api_key", $mollieHelper->getApiKey($store));
 
         return $mollieHelper->getAPIClient($data);
+    }
+
+    public function numberFormat($amount, $currency) {
+        $intCurrencies = array("ISK", "JPY");
+        if(!in_array($currency, $intCurrencies)) {
+            $formattedAmount = number_format((float)$amount, 2, '.', '');
+        } else {
+            $formattedAmount = number_format($amount, 0);
+        }   
+        return $formattedAmount;    
     }
 
     public function refund() {
@@ -371,21 +192,259 @@
         $this->response->setOutput(json_encode($json));
 
     }
+
+    public function partialRefund() {
+        $this->load->language('sale/order');
+
+        $this->document->setTitle($this->language->get('heading_title'));
+
+        $this->load->model('sale/order');
+
+        $json = array();
+        $json['error'] = false;
+
+        $log = new Log('Mollie.log');
+        $mollieHelper = new MollieHelper($this->registry);
+        $moduleCode = $mollieHelper->getModuleCode();
+        
+        $order_id = $this->request->get['order_id'];
+        $order = $this->model_sale_order->getOrder($order_id);
+
+        $mollieOrderDetails = $this->model_sale_order->getMolliePayment($order_id);
+        if(!$mollieOrderDetails) {
+            $log->write("Mollie order(mollie_order_id) not found for order_id - $order_id");
+            $json['error'] = $this->language->get('text_order_not_found');
+        }
+
+        if($mollieOrderDetails['refund_id']) {
+            $log->write("Refund has been processed already for order_id - $order_id");
+            $json['error'] = $this->language->get('text_refunded_already');
+        }
+
+        if (empty($this->request->post['refund_amount']) || ($this->request->post['refund_amount'] <= 0)) {
+            $json['error'] = $this->language->get('error_refund_amount');
+        }
+
+        if(!$json['error']) {
+            $amount = $this->numberFormat($this->request->post['refund_amount'], $order['currency_code']);
+            $molliePayment = $this->getAPIClient($order['store_id'])->payments->get($mollieOrderDetails['transaction_id']);
+            $refundObject = $molliePayment->refund([
+                "amount" => ["currency" => $order['currency_code'], "value" => (string)$amount],
+                "metadata" => array("order_id" => $order_id, "transaction_id" => $mollieOrderDetails['transaction_id'])
+            ]);
+
+            if($refundObject->id) {
+                $log->write('Partial refund of amount ' . $amount . ' (' . $order['currency_code'] . ') has been processed for order_id - ' . $order_id . ' and transaction_id - ' . $mollieOrderDetails['transaction_id'] . '. Refund id is ' . $refundObject->id);
+                $json['success'] = $this->language->get('text_refund_success');
+                $json['order_status_id'] = $this->config->get($moduleCode . "_ideal_partial_refund_status_id");
+                $json['comment'] = sprintf($this->language->get('text_partial_refund_success'), $amount .  ' (' . $order['currency_code'] . ')');
+
+                $data = array(
+                    "refund_id" => $refundObject->id,
+                    "order_id" => $order_id,
+                    "transaction_id" => $mollieOrderDetails['transaction_id'],
+                    "amount" => $amount,
+                    "currency_code" => $order['currency_code']
+                );
+                $this->model_sale_order->addMollieRefund($data);
+
+            } else {
+                $log->write('Partial Refund can not be processed for order_id - ' . $order_id . ' and transaction_id - ' . $mollieOrderDetails['transaction_id']);
+                $json['error'] = $this->language->get('text_no_refund');
+            }
+        }
+
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+
+    }
                 ]]></add>
         </operation>
-    </file>
+        <!-- Shipment creation for Klarna method for versions older than 2.2 -->
+        <operation error="skip">
+            <search position="before" index="4"><![CDATA[$this->data['success']]]></search>
+            <add position="before"><![CDATA[// Shipment creation for Klarna for versions older than 2.2
+                if(VERSION <= "1.5.6.4") {
+                    $orderdata = array("0" => $this->request->get['order_id'], "1" => $this->request->post['order_status_id']);
+                    $route = null;
+                    require(DIR_CATALOG . "controller/payment/mollie/base.php");
+                    $controller = new ControllerPaymentMollieBase($this->registry);
+                    $controller->createShipment($route, $orderdata, "", "");
+                } ]]></add>
+        </operation>
+        <operation error="skip">
+            <search position="before"><![CDATA[$this->template = 'sale/order_info.tpl';]]></search>
+            <add position="before"><![CDATA[$this->data['payment_status'] = '';
+            $molliePaymentDetails = $this->model_sale_order->getMolliePayment($this->request->get['order_id']);
+            if(isset($molliePaymentDetails['transaction_id']) && !empty($molliePaymentDetails['transaction_id'])) {
+                 try {
+                    $molliePayment = $this->getAPIClient($order_info['store_id'])->payments->get($molliePaymentDetails['transaction_id']);
+                     $this->data['payment_status'] = $molliePayment->status;
 
+                     // Check for refunds and settlements
+                    if($molliePayment->hasRefunds()) {
+                        $this->data['payment_status'] = 'refunded';
+                    }
+                    if(!empty($molliePayment->settlementId)) {
+                        $mollieHelper = new MollieHelper($this->registry);
+                        $accessToken = $mollieHelper->generateAccessToken($order_info['store_id']);
+                        if($accessToken && !empty($accessToken)) {
+                            $mollieSettlement = $mollieHelper->getAPIClientForAccessToken($accessToken)->settlements->get($molliePayment->settlementId);
+                            if($mollieSettlement->isPaidout()) {
+                                $this->data['payment_status'] = 'settled';
+                            }
+                        }
+                    }
+                } catch (Mollie\Api\Exceptions\ApiException $e) {}
+            }]]></add>
+        </operation>
+        <operation error="skip">
+            <search position="after"><![CDATA[$this->data['button_add_history']]]></search>
+            <add position="after"><![CDATA[$this->data['button_refund'] = $this->language->get('button_refund');
+                $this->data['text_confirm_refund'] = $this->language->get('text_confirm_refund');
+                $this->data['entry_amount'] = $this->language->get('entry_amount');
+                $this->data['button_partial_refund'] = $this->language->get('button_partial_refund');]]></add>
+        </operation>
+        <operation error="skip">
+            <search position="before" index="4"><![CDATA[$this->data['email']]]></search>
+            <add position="before"><![CDATA[
+            $mollieHelper = new MollieHelper($this->registry);
+            $moduleCode = $mollieHelper->getModuleCode();
+            $apiKey = $mollieHelper->getApiKey($order_info['store_id']);
+
+            $this->data['showRefundButton'] = true;
+            $this->data['showPartialRefundButton'] = true;
+            if(!$apiKey || ($apiKey == '')) {
+                $this->data['showRefundButton'] = false;
+                $this->data['showPartialRefundButton'] = false;
+            }
+
+            $refunds = $this->model_sale_order->getMollieRefunds($order_id);
+            if ($refunds) {
+                $this->data['showRefundButton'] = false;
+            }
+
+            if (!$this->config->get($moduleCode . '_partial_refund')) {
+                $this->data['showPartialRefundButton'] = false;
+            }
+
+            $this->data['currency'] = $order_info['currency_code'];
+            $this->data['store_id'] = $order_info['store_id'];
+            if (isset($this->request->server['HTTPS']) && (($this->request->server['HTTPS'] == 'on') || ($this->request->server['HTTPS'] == '1'))) {
+                $this->data['catalog'] = HTTPS_CATALOG;
+            } else {
+                $this->data['catalog'] = HTTP_CATALOG;
+            }
+            ]]></add>
+        </operation>
+    </file>
     <file path="admin/model/sale/order.php">
         <operation error="skip">
             <search position="before"><![CDATA[public function getOrder($order_id)]]></search>
-            <add position="before"><![CDATA[
+            <add position="before"><![CDATA[public function getMolliePayment($order_id) {
+        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE order_id = '" . (int)$order_id . "' ORDER BY payment_attempt DESC LIMIT 1");
+
+        if ($query->num_rows) {
+            return $query->row;
+        }
+
+        return null;
+    }
+
     public function updateMolliePayment($mollie_order_id, $refund_id, $payment_status) {
         $this->db->query("UPDATE `" . DB_PREFIX . "mollie_payments` SET refund_id = '" . $refund_id . "', bank_status = '" . $payment_status . "' WHERE mollie_order_id = '" . (int)$mollie_order_id . "'");
     }
-    ]]></add>
+
+    public function getMollieRefunds($order_id) {
+        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "mollie_refund WHERE order_id = '" . (int)$order_id . "'");
+
+        return $query->rows;
+    }
+
+    public function addMollieRefund($data) {
+        $this->db->query("INSERT INTO " . DB_PREFIX . "mollie_refund SET refund_id = '" . $this->db->escape($data['refund_id']) . "', order_id = '" . (int)$data['order_id'] . "', transaction_id = '" . $this->db->escape($data['transaction_id']) . "', amount = '" . (float)$data['amount'] . "', currency_code = '" . $this->db->escape($data['currency_code']) . "', date_created = NOW()");
+    }
+]]></add>
+        </operation>
+        <operation error="skip">
+            <search position="before"><![CDATA[public function getOrderHistories($order_id, $start = 0, $limit = 10) {]]></search>
+            <add position="before"><![CDATA[//Get order reference id for mollie payment
+    public function getOrderID($order_id)
+    {
+        if (!empty($order_id)) {
+            $results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `order_id` = '" . $order_id . "' ORDER BY payment_attempt DESC LIMIT 1");
+            if($results->num_rows == 0) return FALSE;
+            return $results->row['mollie_order_id'];
+        }
+        return FALSE;
+    }]]></add>
         </operation>
     </file>
+    <!-- Ignore token check -->
+    <file path="admin/controller/startup/login.php">
+        <operation error="skip">
+            <search position="after"><![CDATA['common/login',]]></search>
+            <add position="after"><![CDATA['extension/payment/mollie_bancontact/mollieConnectCallback',
+                'payment/mollie_bancontact/mollieConnectCallback',]]></add>
+        </operation>
+    </file>
+    <file path="admin/controller/common/login.php">
+        <operation error="skip">
+            <search position="after"><![CDATA[$ignore = array(]]></search>
+            <add position="after"><![CDATA['extension/payment/mollie_bancontact/mollieConnectCallback',
+                'payment/mollie_bancontact/mollieConnectCallback',]]></add>
+        </operation>
+    </file>
+    <file path="admin/controller/common/home.php">
+        <operation error="skip">
+            <search position="after" index="1" offset="2"><![CDATA[if (isset($part[1])) {]]></search>
+            <add position="after"><![CDATA[if (isset($part[2])) {
+                $route .= '/' . $part[2];
+            }]]></add>
+        </operation>
+        <operation error="skip">
+            <search position="after" index="2"><![CDATA['common/login',]]></search>
+            <add position="after"><![CDATA['extension/payment/mollie_bancontact/mollieConnectCallback',
+                'payment/mollie_bancontact/mollieConnectCallback',]]></add>
+        </operation>
+        <operation error="skip">
+            <search position="before"><![CDATA[$this->language->load('common/home');]]></search>
+            <add position="before"><![CDATA[      $this->load->model('setting/extension');
 
+        $extensions = $this->model_setting_extension->getInstalled('payment');
+
+        $this->data['success'] = '';
+        foreach ($extensions as $key => $value) {
+            if ($value == 'mollie_ideal') {
+                require_once(DIR_SYSTEM . "library/mollie/helper.php");
+                require_once(DIR_SYSTEM . "/library/mollie/mollieHttpClient.php");
+                $client = new Mollie\mollieHttpClient();
+                $info = $client->get("https://api.github.com/repos/mollie/OpenCart/releases/latest");
+                $mollieHelper = new MollieHelper($this->registry);
+                if (isset($info["tag_name"]) && ($info["tag_name"] != $mollieHelper::PLUGIN_VERSION) && version_compare($mollieHelper::PLUGIN_VERSION, $info["tag_name"], "<")) {
+                    $this->language->load('payment/mollie_ideal');
+                    $this->data['success'] = sprintf($this->language->get('text_update_message'), $info["tag_name"], HTTPS_SERVER . 'index.php?route=payment/mollie_ideal/update&token=' . $this->session->data['token']);
+                }
+                break;
+            }            
+        }
+]]></add>
+        </operation>
+    </file>
+    <!-- Load JS file only on checkout -->
+    <!-- <file path="catalog/view/theme/*/template/common/header.tpl">
+        <operation error="skip">
+            <search position="before"><![CDATA[</head>]]></search>
+            <add position="before"><![CDATA[<script src="catalog/view/javascript/mollie.js" type="text/javascript"></script>]]></add>
+        </operation>
+    </file> -->
+
+    <!-- <file path="catalog/view/theme/*/template/common/header.twig">
+        <operation error="skip">
+            <search position="before"><![CDATA[</head>]]></search>
+            <add position="before"><![CDATA[<script src="catalog/view/javascript/mollie.js" type="text/javascript"></script>]]></add>
+        </operation>
+    </file> -->
     <file path="admin/language/en-gb/sale/order.php">
         <operation error="skip">
             <search position="after"><![CDATA[// Text]]></search>
@@ -395,10 +454,13 @@
                 $_['text_refunded_already'] = 'Refund has been processed already!';
                 $_['text_refund_success']     = 'Refund has been processed successfully!';
                 $_['text_confirm_refund']     = 'You are about to refund this payment, this cannot be undone. Are you sure you would like to continue?';
+                $_['entry_amount']     = 'Amount';
+                $_['button_partial_refund']     = 'Partial Refund';
+                $_['error_refund_amount']       = 'Warning: Please enter a correct amount to refund!';
+                $_['text_partial_refund_success']     = 'Partial refund of amount %s has been processed successfully!';
                 ]]></add>
         </operation>
     </file>
-
     <file path="admin/language/english/sale/order.php">
         <operation error="skip">
             <search position="after"><![CDATA[// Text]]></search>
@@ -408,10 +470,13 @@
                 $_['text_refunded_already'] = 'Refund has been processed already!';
                 $_['text_refund_success']     = 'Refund has been processed successfully!';
                 $_['text_confirm_refund']     = 'You are about to refund this payment, this cannot be undone. Are you sure you would like to continue?';
+                $_['entry_amount']     = 'Amount';
+                $_['button_partial_refund']     = 'Partial Refund';
+                $_['error_refund_amount']       = 'Warning: Please enter a correct amount to refund!';
+                $_['text_partial_refund_success']     = 'Partial refund of amount %s has been processed successfully!';
                 ]]></add>
         </operation>
     </file>
-
     <file path="admin/language/de-de/sale/order.php">
         <operation error="skip">
             <search position="after"><![CDATA[// Text]]></search>
@@ -421,10 +486,13 @@
                 $_['text_refunded_already'] = 'Rückerstattung wurde bereits bearbeitet!';
                 $_['text_refund_success']     = 'Rückerstattung wurde erfolgreich bearbeitet!';
                 $_['text_confirm_refund']     = 'Sie sind dabei, diese Zahlung zu erstatten. Dies kann nicht rückgängig gemacht werden. Sind Sie sicher, dass Sie fortfahren möchten?';
+                $_['entry_amount']     = 'Amount';
+                $_['button_partial_refund']     = 'Teilerstattung';
+                $_['error_refund_amount']       = 'Warnung: Bitte geben Sie einen korrekten Betrag für die Rückerstattung ein!';
+                $_['text_partial_refund_success']     = 'eilrückerstattung des Betrags %s wurde erfolgreich bearbeitet!';
                 ]]></add>
         </operation>
     </file>
-
     <file path="admin/language/german/sale/order.php">
         <operation error="skip">
             <search position="after"><![CDATA[// Text]]></search>
@@ -434,10 +502,13 @@
                 $_['text_refunded_already'] = 'Rückerstattung wurde bereits bearbeitet!';
                 $_['text_refund_success']     = 'Rückerstattung wurde erfolgreich bearbeitet!';
                 $_['text_confirm_refund']     = 'Sie sind dabei, diese Zahlung zu erstatten. Dies kann nicht rückgängig gemacht werden. Sind Sie sicher, dass Sie fortfahren möchten?';
+                $_['entry_amount']     = 'Amount';
+                $_['button_partial_refund']     = 'Teilerstattung';
+                $_['error_refund_amount']       = 'Warnung: Bitte geben Sie einen korrekten Betrag für die Rückerstattung ein!';
+                $_['text_partial_refund_success']     = 'eilrückerstattung des Betrags %s wurde erfolgreich bearbeitet!';
                 ]]></add>
         </operation>
     </file>
-
     <file path="admin/language/nl-nl/sale/order.php">
         <operation error="skip">
             <search position="after"><![CDATA[// Text]]></search>
@@ -447,10 +518,13 @@
                 $_['text_refunded_already'] = 'Restitutie is al verwerkt!';
                 $_['text_refund_success']     = 'Terugbetaling is succesvol verwerkt!';
                 $_['text_confirm_refund']     = 'U staat op het punt deze betaling terug te betalen. Dit kan niet ongedaan worden gemaakt. Weet u zeker dat u wilt doorgaan?';
+                $_['entry_amount']     = 'Amount';
+                $_['button_partial_refund']     = 'Gedeeltelijke terugbetaling';
+                $_['error_refund_amount']       = 'Waarschuwing: voer een correct bedrag in om terug te betalen!';
+                $_['text_partial_refund_success']     = 'Gedeeltelijke terugbetaling van bedrag %s is succesvol verwerkt!';
                 ]]></add>
         </operation>
     </file>
-
     <file path="admin/language/dutch/sale/order.php">
         <operation error="skip">
             <search position="after"><![CDATA[// Text]]></search>
@@ -460,10 +534,13 @@
                 $_['text_refunded_already'] = 'Restitutie is al verwerkt!';
                 $_['text_refund_success']     = 'Terugbetaling is succesvol verwerkt!';
                 $_['text_confirm_refund']     = 'U staat op het punt deze betaling terug te betalen. Dit kan niet ongedaan worden gemaakt. Weet u zeker dat u wilt doorgaan?';
+                $_['entry_amount']     = 'Amount';
+                $_['button_partial_refund']     = 'Gedeeltelijke terugbetaling';
+                $_['error_refund_amount']       = 'Waarschuwing: voer een correct bedrag in om terug te betalen!';
+                $_['text_partial_refund_success']     = 'Gedeeltelijke terugbetaling van bedrag %s is succesvol verwerkt!';
                 ]]></add>
         </operation>
     </file>
-
     <file path="admin/language/es-es/sale/order.php">
         <operation error="skip">
             <search position="after"><![CDATA[// Text]]></search>
@@ -473,10 +550,13 @@
                 $_['text_refunded_already'] = '¡El reembolso ya se ha procesado!';
                 $_['text_refund_success']     = '¡El reembolso ha sido procesado con éxito!';
                 $_['text_confirm_refund']     = 'Está a punto de reembolsar este pago, esto no se puede deshacer. ¿Estás seguro de que te gustaría continuar?';
+                $_['entry_amount']     = 'Amount';
+                $_['button_partial_refund']     = 'Reembolso parcial';
+                $_['error_refund_amount']       = 'Advertencia: ¡Ingrese una cantidad correcta para reembolsar!';
+                $_['text_partial_refund_success']     = '¡El reembolso parcial de la cantidad %s se ha procesado correctamente!';
                 ]]></add>
         </operation>
     </file>
-
     <file path="admin/language/spanish/sale/order.php">
         <operation error="skip">
             <search position="after"><![CDATA[// Text]]></search>
@@ -486,10 +566,13 @@
                 $_['text_refunded_already'] = '¡El reembolso ya se ha procesado!';
                 $_['text_refund_success']     = '¡El reembolso ha sido procesado con éxito!';
                 $_['text_confirm_refund']     = 'Está a punto de reembolsar este pago, esto no se puede deshacer. ¿Estás seguro de que te gustaría continuar?';
+                $_['entry_amount']     = 'Amount';
+                $_['button_partial_refund']     = 'Reembolso parcial';
+                $_['error_refund_amount']       = 'Advertencia: ¡Ingrese una cantidad correcta para reembolsar!';
+                $_['text_partial_refund_success']     = '¡El reembolso parcial de la cantidad %s se ha procesado correctamente!';
                 ]]></add>
         </operation>
     </file>
-
     <file path="admin/language/fr-fr/sale/order.php">
         <operation error="skip">
             <search position="after"><![CDATA[// Text]]></search>
@@ -499,10 +582,13 @@
                 $_['text_refunded_already'] = 'Le remboursement a déjà été traité!';
                 $_['text_refund_success']     = 'Le remboursement a été traité avec succès!';
                 $_['text_confirm_refund']     = 'Vous êtes sur le point de rembourser ce paiement, cela ne peut pas être annulé. Êtes-vous sûr de vouloir continuer?';
+                $_['entry_amount']     = 'Amount';
+                $_['button_partial_refund']     = 'Remboursement partiel';
+                $_['error_refund_amount']       = 'Attention: veuillez entrer un montant correct à rembourser!';
+                $_['text_partial_refund_success']     = 'Le remboursement partiel du montant %s a été traité avec succès!';
                 ]]></add>
         </operation>
     </file>
-
     <file path="admin/language/french/sale/order.php">
         <operation error="skip">
             <search position="after"><![CDATA[// Text]]></search>
@@ -512,14 +598,83 @@
                 $_['text_refunded_already'] = 'Le remboursement a déjà été traité!';
                 $_['text_refund_success']     = 'Le remboursement a été traité avec succès!';
                 $_['text_confirm_refund']     = 'Vous êtes sur le point de rembourser ce paiement, cela ne peut pas être annulé. Êtes-vous sûr de vouloir continuer?';
+                $_['entry_amount']     = 'Amount';
+                $_['button_partial_refund']     = 'Remboursement partiel';
+                $_['error_refund_amount']       = 'Attention: veuillez entrer un montant correct à rembourser!';
+                $_['text_partial_refund_success']     = 'Le remboursement partiel du montant %s a été traité avec succès!';
                 ]]></add>
         </operation>
     </file>
-
     <file path="admin/view/template/sale/order_info.tpl">
+        <operation error="skip">
+            <search position="replace"><![CDATA[<td><?php echo $payment_method; ?></td>]]></search>
+            <add position="replace"><![CDATA[<td><?php echo $payment_method; ?>&nbsp;&nbsp;
+                  <?php if($payment_status == 'paid') { ?>
+                    <span id="payment-status" class="label label-success"><?php echo strtoupper($payment_status); ?></span>
+                  <?php } elseif($payment_status == 'failed') { ?>
+                    <span id="payment-status" class="label label-danger"><?php echo strtoupper($payment_status); ?></span>
+                  <?php } elseif($payment_status == 'expired') { ?>
+                    <span id="payment-status" class="label label-default"><?php echo strtoupper($payment_status); ?></span>
+                  <?php } elseif($payment_status == 'open') { ?>
+                    <span id="payment-status" class="label label-info"><?php echo strtoupper($payment_status); ?></span>
+                  <?php } elseif($payment_status == 'canceled') { ?>
+                    <span id="payment-status" class="label label-default"><?php echo strtoupper($payment_status); ?></span>
+                  <?php } elseif($payment_status == 'pending') { ?>
+                    <span id="payment-status" class="label label-warning"><?php echo strtoupper($payment_status); ?></span>
+                  <?php } elseif($payment_status == 'authorized') { ?>
+                    <span id="payment-status" class="label label-primary"><?php echo strtoupper($payment_status); ?></span>
+                  <?php } elseif($payment_status == 'refunded') { ?>
+                    <span id="payment-status" class="label label-primary"><?php echo strtoupper($payment_status); ?></span>
+                  <?php } elseif($payment_status == 'settled') { ?>
+                    <span id="payment-status" class="label label-success"><?php echo strtoupper($payment_status); ?></span>
+                  <?php } ?>
+                  <?php if(($payment_status) && !in_array($payment_status, ['expired', 'refunded', 'failed', 'canceled', 'open']) && $showRefundButton) { ?>
+                  <a href="javascript:void(0)" id="button-refund" class="label label-primary"><?php echo $button_refund; ?></a>
+                  <?php } ?>
+                  <?php if(isset($isVersion15x)) { ?>
+                    <?php if(($payment_status) && !in_array($payment_status, ['expired', 'failed', 'canceled', 'open']) && $showPartialRefundButton) { ?>
+                        <?php echo $button_partial_refund; ?>
+                        <?php echo $entry_amount . " ($currency)"; ?>: <input type="text" name="refund_amount" value="" placeholder="<?php echo 'Amount'; ?>" id="refund-amount" class="form-control" />
+                        <button type="button" id="button-partial-refund" class="btn btn-primary"><?php echo $button_refund; ?></button>
+                    <?php } ?>
+                  <?php } else { ?>
+                      <?php if(($payment_status) && !in_array($payment_status, ['expired', 'failed', 'canceled', 'open']) && $showPartialRefundButton) { ?>
+                      <a href="javascript:void(0)" data-toggle="modal" data-target="#refundModal" class="label label-warning"><?php echo $button_partial_refund; ?></a>
+                      <?php } ?>
+                  <?php } ?>
+                </td>]]></add>
+        </operation>
         <operation error="skip">
             <search position="before"><![CDATA[<?php echo $footer; ?>]]></search>
             <add position="before"><![CDATA[
+<?php if(!isset($isVersion15x)) { ?>
+<!-- Refund Modal -->
+<div class="modal fade" id="refundModal" tabindex="-1" role="dialog" aria-labelledby="refundModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title"><?php echo $button_partial_refund; ?></h4>
+      </div>
+      <div class="modal-body">
+          <div class="row">
+            <div class="col-sm-12">
+                <label class="col-sm-2"><?php echo $entry_amount . " ($currency)"; ?></label>
+                <div class="col-sm-10">
+                    <input type="text" name="refund_amount" value="" placeholder="<?php echo 'Amount'; ?>" id="refund-amount" class="form-control" />
+                </div>
+            </div>
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal"><?php echo $button_cancel; ?></button>
+        <button type="button" id="button-partial-refund" class="btn btn-primary"><?php echo $button_refund; ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+<?php } ?>
+
 <script type="text/javascript"><!--
 <?php if(isset($isVersion15x)) { ?>
 $('#button-refund').live('click', function() {
@@ -557,6 +712,46 @@ $('.warning, .success').remove();
         });
           $('#payment-status').removeClass().addClass("label label-primary").html('REFUNDED');
           $('#button-refund').remove();
+            $('.box').before('<div class="success" style="display: none;">' + json['success'] + '</div>');
+            $('.success').fadeIn('slow');
+        }
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+    }
+  });
+});
+
+$('#button-partial-refund').live('click', function() {
+$('.warning, .success').remove();
+  $.ajax({
+    url: 'index.php?route=sale/order/partialRefund&token=<?php echo $token; ?>&order_id=<?php echo $order_id; ?>',
+    type: 'post',
+    data: $('#refund-amount'),
+    dataType: 'json',
+    beforeSend: function() {
+        $('#button-partial-refund').after('<img src="view/image/loading.gif" class="loading" style="padding-left: 5px;" />');          
+    },
+    complete: function() {
+        $('.loading').remove();
+    },
+    success: function(json) {
+        $('.success, .warning').remove();
+        if (json['error']) {
+            $('.box').before('<div class="warning" style="display: none;">' + json['error'] + '</div>');
+            $('.warning').fadeIn('slow');
+        }
+        
+        if (json['success']) {
+        $.ajax({
+            url: 'index.php?route=sale/order/history&token=<?php echo $token; ?>&order_id=<?php echo $order_id; ?>',
+            type: 'post',
+            dataType: 'html',
+            data: 'order_status_id=' + encodeURIComponent(json['order_status_id']) + '&notify=1&override=0&append=1&comment=' + encodeURIComponent(json['comment']),
+            success: function(html) {
+                $('#history').html(html);
+            }
+        });
             $('.box').before('<div class="success" style="display: none;">' + json['success'] + '</div>');
             $('.success').fadeIn('slow');
         }
@@ -619,16 +814,119 @@ $('.alert').remove();
     }
   });
 });
+
+$('#button-partial-refund').on('click', function() {
+$('.alert').remove();
+  $.ajax({
+    url: 'index.php?route=sale/order/partialRefund&token=<?php echo $token; ?>&order_id=<?php echo $order_id; ?>',
+    type: 'post',
+    data: $('#refundModal input[type=\'text\']'),
+    dataType: 'json',
+    beforeSend: function() {
+      $('#button-partial-refund').button('loading');
+    },
+    complete: function() {
+      $('#button-partial-refund').button('reset');
+    },
+    success: function(json) {
+      if (json['error']) {
+        $('#refundModal .modal-body > .row').prepend('<div class="alert alert-danger" style="margin-left: 15px;margin-right: 15px;"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + '</div>');
+      }
+
+      if(typeof token !== 'undefined') {
+        var order_history_url = '<?php echo isset($store_url) ? $store_url : $catalog; ?>index.php?route=api/order/history&token=' + token + '&store_id=<?php echo $store_id; ?>&order_id=<?php echo $order_id; ?>';
+      } else {
+        var order_history_url = 'index.php?route=sale/order/api&token=<?php echo $token; ?>&api=api/order/history&order_id=<?php echo $order_id; ?>';
+      }
+
+      if (json['success']) {
+      $.ajax({
+        url: order_history_url,
+        type: 'post',
+        dataType: 'json',
+        data: 'order_status_id=' + encodeURIComponent(json['order_status_id']) + '&notify=1&override=0&append=1&comment=' + encodeURIComponent(json['comment']),
+        success: function(json) {
+          if (json['success']) {
+            $('#history').load('index.php?route=sale/order/history&token=<?php echo $token; ?>&order_id=<?php echo $order_id; ?>');
+          }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+          alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+      });
+        $('#refundModal .modal-body > .row').prepend('<div class="alert alert-success" style="margin-left: 15px;margin-right: 15px;"><i class="fa fa-check-circle"></i> ' + json['success'] + '</div>');
+      }
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+    }
+  });
+});
 <?php } ?>
 //--></script>
 ]]></add>
         </operation>
     </file>
-
     <file path="admin/view/template/sale/order_info.twig">
+        <operation error="skip">
+            <search position="replace"><![CDATA[<td>{{ payment_method }}</td>]]></search>
+            <add position="replace"><![CDATA[<td>{{ payment_method }}&nbsp;&nbsp;
+                  {% if(payment_status == 'paid') %}
+                    <span id="payment-status" class="label label-success">{{ payment_status | upper }}</span>
+                  {% elseif(payment_status == 'failed') %}
+                    <span id="payment-status" class="label label-danger">{{ payment_status | upper }}</span>
+                  {% elseif(payment_status == 'expired') %}
+                    <span id="payment-status" class="label label-default">{{ payment_status | upper }}</span>
+                  {% elseif(payment_status == 'open') %}
+                    <span id="payment-status" class="label label-info">{{ payment_status | upper }}</span>
+                  {% elseif(payment_status == 'canceled') %}
+                    <span id="payment-status" class="label label-default">{{ payment_status | upper }}</span>
+                  {% elseif(payment_status == 'pending') %}
+                    <span id="payment-status" class="label label-warning">{{ payment_status | upper }}</span>
+                  {% elseif(payment_status == 'authorized') %}
+                    <span id="payment-status" class="label label-primary">{{ payment_status | upper }}</span>
+                  {% elseif(payment_status == 'refunded') %}
+                    <span id="payment-status" class="label label-primary">{{ payment_status | upper }}</span>
+                  {% elseif(payment_status == 'settled') %}
+                    <span id="payment-status" class="label label-success">{{ payment_status | upper }}</span>
+                  {% endif %}
+                  {% if((payment_status) and (payment_status not in ['expired', 'refunded', 'failed', 'canceled', 'open']) and showRefundButton) %}
+                  <a href="javascript:void(0)" id="button-refund" class="label label-primary">{{ button_refund }}</a>
+                  {% endif %}
+                  {% if((payment_status) and (payment_status not in ['expired', 'failed', 'canceled', 'open']) and showPartialRefundButton) %}
+                  <a href="javascript:void(0)" data-toggle="modal" data-target="#refundModal" class="label label-warning">{{ button_partial_refund }}</a>
+                  {% endif %}
+                </td>]]></add>
+        </operation>
         <operation error="skip">
             <search position="before"><![CDATA[{{ footer }}]]></search>
             <add position="before"><![CDATA[
+<!-- Refund Modal -->
+<div class="modal fade" id="refundModal" tabindex="-1" role="dialog" aria-labelledby="refundModalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">{{ button_partial_refund }}</h4>
+      </div>
+      <div class="modal-body">
+          <div class="row">
+            <div class="col-sm-12">
+                <label class="col-sm-2">{{ entry_amount ~ " (" ~ currency ~ ")" }}</label>
+                <div class="col-sm-10">
+                    <input type="text" name="refund_amount" value="" placeholder="{{ 'Amount' }}" id="refund-amount" class="form-control" />
+                </div>
+            </div>
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ button_cancel }}</button>
+        <button type="button" id="button-partial-refund" class="btn btn-primary">{{ button_refund }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script type="text/javascript"><!--
 $('#button-refund').on('click', function() {
 if (!confirm('{{ text_confirm_refund }}')) {
@@ -669,6 +967,48 @@ if (!confirm('{{ text_confirm_refund }}')) {
       $('#payment-status').removeClass().addClass("label label-primary").html('REFUNDED');
       $('#button-refund').remove();
       $('#content > .container-fluid').prepend('<div class="alert alert-success"><i class="fa fa-check-circle"></i> ' + json['success'] + '</div>');
+      }
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+    }
+  });
+});
+
+$('#button-partial-refund').on('click', function() {
+  $('.alert').remove();
+  $.ajax({
+    url: 'index.php?route=sale/order/partialRefund&user_token={{ user_token }}&order_id={{ order_id }}',
+    type: 'post',
+    data: $('#refundModal input[type=\'text\']'),
+    dataType: 'json',
+    beforeSend: function() {
+      $('#button-partial-refund').button('loading');
+    },
+    complete: function() {
+      $('#button-partial-refund').button('reset');
+    },
+    success: function(json) {
+      if (json['error']) {
+        $('#refundModal .modal-body > .row').prepend('<div class="alert alert-danger" style="margin-left: 15px;margin-right: 15px;"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + '</div>');
+      }
+
+    if (json['success']) {
+    $.ajax({
+        url: '{{ catalog }}index.php?route=api/order/history&api_token={{ api_token }}&store_id={{ store_id }}&order_id={{ order_id }}',
+        type: 'post',
+        dataType: 'json',
+        data: 'order_status_id=' + encodeURIComponent(json['order_status_id']) + '&notify=1&override=0&append=1&comment=' + encodeURIComponent(json['comment']),
+        success: function(json) {
+            if (json['success']) {
+                $('#history').load('index.php?route=sale/order/history&user_token={{ user_token }}&order_id={{ order_id }}');
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+            alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+    });
+      $('#refundModal .modal-body > .row').prepend('<div class="alert alert-success" style="margin-left: 15px;margin-right: 15px;"><i class="fa fa-check-circle"></i> ' + json['success'] + '</div>');
       }
     },
     error: function(xhr, ajaxOptions, thrownError) {
@@ -747,32 +1087,6 @@ if (!confirm('{{ text_confirm_refund }}')) {
 ]]></add>
         </operation>
     </file>
-    <file path="admin/controller/common/home.php">
-        <operation error="skip">
-            <search position="before"><![CDATA[$this->language->load('common/home');]]></search>
-            <add position="before"><![CDATA[      $this->load->model('setting/extension');
-
-        $extensions = $this->model_setting_extension->getInstalled('payment');
-
-        $this->data['success'] = '';
-        foreach ($extensions as $key => $value) {
-            if ($value == 'mollie_ideal') {
-                require_once(DIR_SYSTEM . "library/mollie/helper.php");
-                require_once(DIR_SYSTEM . "/library/mollie/mollieHttpClient.php");
-                $client = new Mollie\mollieHttpClient();
-                $info = $client->get("https://api.github.com/repos/mollie/OpenCart/releases/latest");
-                $mollieHelper = new MollieHelper($this->registry);
-                if (isset($info["tag_name"]) && ($info["tag_name"] != $mollieHelper::PLUGIN_VERSION) && version_compare($mollieHelper::PLUGIN_VERSION, $info["tag_name"], "<")) {
-                    $this->language->load('payment/mollie_ideal');
-                    $this->data['success'] = sprintf($this->language->get('text_update_message'), $info["tag_name"], HTTPS_SERVER . 'index.php?route=payment/mollie_ideal/update&token=' . $this->session->data['token']);
-                }
-                break;
-            }            
-        }
-]]></add>
-        </operation>
-    </file>
-
     <!-- Mollie components -->
     <file path="catalog/controller/*/checkout.php">
         <operation error="skip">
@@ -842,6 +1156,16 @@ if (!confirm('{{ text_confirm_refund }}')) {
                 if (version_compare(VERSION, '3.0.0.0', '<') && is_file(DIR_APPLICATION . 'controller/payment/' . $extension . '.php') && (strpos($file, 'extension/payment') === false)) {
                     continue;
                 }
+                ]]>
+            </add>
+        </operation>
+    </file>
+    <file path="catalog/controller/account/login.php">
+        <operation error="skip">
+            <search position="after"><![CDATA[if (!empty($this->request->get['token'])) {]]></search>
+            <add position="after">
+                <![CDATA[
+                $this->session->data['admin_login'] = true; 
                 ]]>
             </add>
         </operation>

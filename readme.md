@@ -39,7 +39,6 @@ them ready-made into your OpenCart webshop with this powerful plugin.
 - Paysafecard
 - KBC/CBC Payment Button
 - Belfius Payment Button
-- ING Homepay
 - CartaSi
 - Cartes Bancaires
 - Dutch giftcards

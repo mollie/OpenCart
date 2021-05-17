@@ -228,6 +228,9 @@ class ControllerPaymentMollieBase extends Controller
         $method = str_replace('mollie_', '', $this->session->data['payment_method']['code']);
         $payment_method = $this->getAPIClient()->methods->get($method, array('include' => 'issuers'));
 
+        $order_id = $this->getOrderID();
+        $order = $this->getOpenCartOrder($order_id);
+
         // Set template data.
         $data['action']                  = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/payment", '', 'SSL');
         $data['image']                   = $payment_method->image->size1x;
@@ -246,7 +249,7 @@ class ControllerPaymentMollieBase extends Controller
         // Mollie components
         $data['mollieComponents'] = false;
         if($method == 'creditcard') {
-            if($this->config->get($this->mollieHelper->getModuleCode() . "_mollie_component")) {
+            if($this->config->get($this->mollieHelper->getModuleCode() . "_mollie_component") && !$this->config->get($this->mollieHelper->getModuleCode() . "_single_click_payment")) {
                 // Get current profile
                 $data['currentProfile'] = $this->getAPIClient()->profiles->getCurrent()->id;
 
@@ -325,8 +328,8 @@ class ControllerPaymentMollieBase extends Controller
         try {
             $api = $this->getAPIClient();
         } catch (Mollie\Api\Exceptions\ApiException $e) {
-            $this->showErrorPage($e->getMessage());
-            $this->writeToMollieLog("Creating payment failed, API did not load; " . $e->getMessage());
+            $this->showErrorPage(htmlspecialchars($e->getMessage()));
+            $this->writeToMollieLog("Creating payment failed, API did not load; " . htmlspecialchars($e->getMessage()));
             return;
         }
 
@@ -336,16 +339,36 @@ class ControllerPaymentMollieBase extends Controller
 
         $currency = $this->getCurrency();
         $amount = $this->convertCurrency($order['total']);
-        //$description = str_replace("%", $order['order_id'], html_entity_decode($this->config->get($this->mollieHelper->getModuleCode() . "_ideal_description"), ENT_QUOTES, "UTF-8"));
+        //$description = str_replace("%", $order['order_id'], html_entity_decode($this->config->get($this->mollieHelper->getModuleCode() . "_description"), ENT_QUOTES, "UTF-8"));
         $return_url = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/callback", "order_id=" . $order['order_id']);
         $issuer = $this->getIssuer();
         $method = str_replace('mollie_', '', $this->session->data['payment_method']['code']);
 
         // Check for recurring profiles
-        $mollie_customer_id = '';
+        $recurring = false;
         if (version_compare(VERSION, '1.5.6.4', '>=')) {
             if ($this->cart->hasRecurringProducts()) {
-                $mollie_customer_id = $this->createCustomer($order);
+                $recurring = true;
+            }
+        }
+
+        $singleClickPayment = false;
+        if(($method == 'creditcard') && $this->config->get($this->mollieHelper->getModuleCode() . "_single_click_payment")) {
+            $mollie_customer_id = $this->createCustomer($order);
+            $singleClickPayment = true;
+        } elseif ($recurring) {
+            $mollie_customer_id = $this->createCustomer($order);
+        }
+
+        $mandate = false;
+        if (!empty($mollie_customer_id)) {
+            $customer = $api->customers->get($mollie_customer_id);
+            $mandates = $customer->mandates();
+            foreach($mandates as $_mandate) {
+                if(($_mandate->isValid()) || ($_mandate->isPending())) {
+                    $mandate = true;
+                    break;
+                }
             }
         }
 
@@ -357,20 +380,30 @@ class ControllerPaymentMollieBase extends Controller
                 "webhookUrl" => $this->getWebhookUrl(),
                 "metadata" => array("order_id" => $order['order_id']),
                 "method" => $method,
-            );            
+            );
+
+            if ($this->config->get($this->mollieHelper->getModuleCode() . "_order_expiry_days") && ($this->config->get($this->mollieHelper->getModuleCode() . "_order_expiry_days") > 0)) {
+                $days = $this->config->get($this->mollieHelper->getModuleCode() . "_order_expiry_days");
+                if ($days > 100) {
+                    $days = 100;
+                }
+                $date = new DateTime();
+                $date->modify("+$days days");
+                $data['expiresAt'] = (string)$date->format('Y-m-d');
+            }    
 
             $data['payment'] = array(
                 "issuer" => $this->formatText($issuer),
                 "webhookUrl" => $this->getWebhookUrl()
             );
 
+            if((($singleClickPayment && $mandate) || $recurring) && !empty($mollie_customer_id)) {
+                $data['payment']['customerId'] = (string)$mollie_customer_id;
+            }
+
             // Additional data for recurring profile
-            if(!empty($mollie_customer_id)) {
-                $rp = array(
-                    "customerId" => (string)$mollie_customer_id,
-                    "sequenceType" => "first",
-                );
-                $data['payment'] = array_merge($data['payment'], $rp);
+            if($recurring) {
+                $data['payment']['sequenceType'] = "first";
             }
 
             // Send cardToken in case of creditcard(if available)
@@ -772,8 +805,8 @@ class ControllerPaymentMollieBase extends Controller
             $orderObject = $api->orders->create($data);
 
         } catch (Mollie\Api\Exceptions\ApiException $e) {
-            $this->showErrorPage($e->getMessage());
-            $this->writeToMollieLog("Creating order failed for order_id - " . $order['order_id'] . ' ; ' . $e->getMessage());
+            $this->showErrorPage(htmlspecialchars($e->getMessage()));
+            $this->writeToMollieLog("Creating order failed for order_id - " . $order['order_id'] . ' ; ' . htmlspecialchars($e->getMessage()));
             return;
         }
 
@@ -1128,9 +1161,6 @@ class ControllerPaymentMollieBase extends Controller
             header("HTTP/1.0 404 Not Found");
             echo "Could not find order.";
             return;
-        } elseif(!in_array($order['payment_code'], ['mollie_klarnapaylater', 'mollie_klarnasliceit'])) {
-            // Do nothing if payment method is not klarna
-            return;
         }
 
         $mollie_order_id = $mollieModel->getOrderID($order_id);
@@ -1146,8 +1176,8 @@ class ControllerPaymentMollieBase extends Controller
         -> else, (Shipment needs to be created after one of the 'Order Complete Statuses' set in the store setting)
         */
 
-         $mollieOrder = $this->getAPIClient()->orders->get($mollie_order_id);
-         if($mollieOrder->isAuthorized() && ($this->config->get($moduleCode . "_create_shipment") != 1)) {
+        $mollieOrder = $this->getAPIClient()->orders->get($mollie_order_id);
+        if(($mollieOrder->isAuthorized() || $mollieOrder->isPaid()) && ($this->config->get($moduleCode . "_create_shipment") != 1)) {
             if($this->config->get($moduleCode . "_create_shipment") == 2) {
                 $shipment_status_id = $this->config->get($moduleCode . "_create_shipment_status_id");
             }
@@ -1173,7 +1203,7 @@ class ControllerPaymentMollieBase extends Controller
                 $mollieShipment = $mollieOrder->createShipment($shipmentData);
                 $this->writeToMollieLog("Shipment created for order - {$order_id}, {$mollie_order_id}");
             }
-         }
+        }
     }
 
     /**
@@ -1287,8 +1317,8 @@ class ControllerPaymentMollieBase extends Controller
                             // Add to recurring profile
                             $model->recurringPayment($product, $subscription->id, $mollie_order_id);
                         } catch (Mollie\Api\Exceptions\ApiException $e) {
-                            $this->showErrorPage($e->getMessage());
-                            $this->writeToMollieLog("Creating subscription failed for order_id - " . $order['order_id'] . ' ; ' . $e->getMessage());
+                            $this->showErrorPage(htmlspecialchars($e->getMessage()));
+                            $this->writeToMollieLog("Creating subscription failed for order_id - " . $order['order_id'] . ' ; ' . htmlspecialchars($e->getMessage()));
                         }                        
                     }
                 }                
@@ -1329,7 +1359,7 @@ class ControllerPaymentMollieBase extends Controller
         $this->config->get($moduleCode . "_create_shipment")) == 1,
         satisfies the 'Create shipment immediately after order creation' condition. */
         
-        if($orderDetails->isAuthorized() && ($this->config->get($moduleCode . "_create_shipment")) == 1) {
+        if(($orderDetails->isPaid() || $orderDetails->isAuthorized()) && ($this->config->get($moduleCode . "_create_shipment")) == 1) {
             //Shipment lines
             $shipmentLine = array();
             foreach($orderDetails->lines as $line) {
@@ -1428,10 +1458,18 @@ class ControllerPaymentMollieBase extends Controller
 
         $this->log->write("Error setting up transaction with Mollie: {$message}.");
 
+        $showReportButton = false;
+        if (isset($this->session->data['admin_login'])) {
+            $showReportButton = true;
+
+        }
+
         return $this->showReturnPage(
             $this->language->get("heading_error"),
             $this->language->get("text_error"),
-            $message
+            $message,
+            true,
+            $showReportButton
         );
     }
 
@@ -1445,7 +1483,7 @@ class ControllerPaymentMollieBase extends Controller
      *
      * @return string
      */
-    protected function showReturnPage($title, $body, $api_error = null, $show_retry_button = true)
+    protected function showReturnPage($title, $body, $api_error = null, $show_retry_button = true, $show_report_button = false)
     {
         $this->load->language("payment/mollie");
 
@@ -1460,6 +1498,10 @@ class ControllerPaymentMollieBase extends Controller
             $data['checkout_url'] = $this->url->link("checkout/checkout");
             $data['button_retry'] = $this->language->get("button_retry");
         }
+
+        $data['show_report_button'] = $show_report_button;
+        $data['button_report'] = $this->language->get("button_report");
+        $data['button_submit'] = $this->language->get("button_submit");
 
         $this->document->setTitle($this->language->get("ideal_title"));
 
@@ -1588,36 +1630,89 @@ class ControllerPaymentMollieBase extends Controller
         $this->response->redirect($url, $status);
     }
 
-    private function createCustomer($order) {
+    private function createCustomer($data) {
         $model = $this->getModuleModel();
 
         // Check if customer already exists
-        $mollie_customer_id = $model->getMollieCustomer($order['email']);
+        $mollie_customer_id = $model->getMollieCustomer($data['email']);
         if(!empty($mollie_customer_id)) {
             return $mollie_customer_id;
         }
 
-        $data = array(
-            "name" => $order['firstname'] . ' ' . $order['lastname'],
-            "email" => $order['email'],
-            "metadata" => array("customer_id" => $order['customer_id']),
+        $_data = array(
+            "name" => $data['firstname'] . ' ' . $data['lastname'],
+            "email" => $data['email'],
+            "metadata" => array("customer_id" => $data['customer_id']),
         );
 
         $api = $this->getAPIClient();
-        $customer = $api->customers->create($data);
+        $customer = $api->customers->create($_data);
         if(!empty($customer->id)) {
             $customerData = array(
                 "mollie_customer_id" => $customer->id,
-                "customer_id" => $order['customer_id'],
-                "email" => $order['email']
+                "customer_id" => $data['customer_id'],
+                "email" => $data['email']
             );
             $model->addCustomer($customerData);
             $mollie_customer_id = $customer->id;
         } else {
             $mollie_customer_id = '';
         }        
-        $this->writeToMollieLog("Customer created: mollie_customer_id - {$customer->id}, customer_id - {$order['customer_id']}");
+        $this->writeToMollieLog("Customer created: mollie_customer_id - {$customer->id}, customer_id - {$data['customer_id']}");
 
         return $mollie_customer_id;
+    }
+
+    public function setApplePaySession() {
+        $this->session->data['applePay'] = $this->request->post['apple_pay'];
+        sleep(1);
+
+        return true;
+    }
+
+    public function reportError() {
+        $json = array();
+        if (($this->request->server['REQUEST_METHOD'] == 'POST') && !empty($this->request->post['mollie_error'])) {
+            $this->load->language("payment/mollie");
+
+            $name = $this->config->get('config_name');
+            $email = $this->config->get('config_email');
+            $subject = 'Mollie Error: Front-end mollie error report';
+            $message = $this->request->post['mollie_error'];
+            $message .= "<br>Opencart version : " . VERSION;
+            $message .= "<br>Mollie version : " . MollieHelper::PLUGIN_VERSION;
+
+            $mail = new Mail();
+            $mail->protocol = $this->config->get('config_mail_protocol');
+            $mail->parameter = $this->config->get('config_mail_parameter');
+            $mail->smtp_hostname = $this->config->get('config_mail_smtp_hostname');
+            $mail->smtp_username = $this->config->get('config_mail_smtp_username');
+            $mail->smtp_password = html_entity_decode($this->config->get('config_mail_smtp_password'), ENT_QUOTES, 'UTF-8');
+            $mail->smtp_port = $this->config->get('config_mail_smtp_port');
+            $mail->smtp_timeout = $this->config->get('config_mail_smtp_timeout');
+
+            $mail->setTo('support.mollie@qualityworks.eu');
+            $mail->setFrom($email);
+            $mail->setSender(html_entity_decode($name, ENT_QUOTES, 'UTF-8'));
+            $mail->setSubject(html_entity_decode($subject, ENT_QUOTES, 'UTF-8'));
+            $mail->setHtml($message);
+
+            $file = DIR_LOGS . 'Mollie.log';
+            if (file_exists($file) && filesize($file) < 2147483648) {
+                $mail->addAttachment($file);
+            }
+
+            $file = DIR_LOGS . 'error.log';
+            if (file_exists($file) && filesize($file) < 2147483648) {
+                $mail->addAttachment($file);
+            }
+
+            $mail->send();
+
+            $json['success'] = $this->language->get('text_error_report_success');
+        }
+
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
     }
 }
