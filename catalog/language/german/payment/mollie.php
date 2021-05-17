@@ -43,13 +43,19 @@ $_['text_redirected']       = 'Der Kunde wurde auf den Zahlungs-Bildschirm umgel
 $_['text_issuer_ideal']     = 'Wählen Sie Ihre Bank';
 $_['text_issuer_giftcard']  = 'Wählen Sie Ihre Giftcard';
 $_['text_issuer_kbc']       = 'Wählen Sie Ihren Bezahl-Button';
-$_['button_retry']          = 'Erneut versuchen, abzurechnen';
 $_['text_card_details']     = 'Bitte geben Sie Ihre Kreditkartendaten ein.';
 $_['text_mollie_payments']  = 'Sichere Zahlungen von %s';
 $_['text_recurring_desc']   = 'Bestellung %s, %s - %s, Alle %s für %s';
 $_['text_recurring']		= '%s alle %s %s';
 $_['text_length']			= ' für %s Zahlungen';
 $_['text_trial']			= '%s alle %s %s für %s Zahlungen dann ';
+$_['text_error_report_success']	= 'Fehler wurde erfolgreich gemeldet!';
+
+// Button
+$_['button_retry']          = 'Erneut versuchen, abzurechnen';
+$_['button_report']         = 'Report Error';
+$_['button_submit']         = 'Einreichen
+';
 
 // Entry
 $_['entry_card_holder']     	= 'Card Holder Name';

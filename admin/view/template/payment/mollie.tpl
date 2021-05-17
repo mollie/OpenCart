@@ -88,29 +88,22 @@
 							</ul>
 
 							<div class="tab-content">
-								<div id="payment-methods-<?php echo $store['store_id']; ?>" class="tab-pane fade in">
+								<div id="payment-methods-<?php echo $store['store_id']; ?>" class="tab-pane fade in" style="margin-left:30px;margin-right: 30px;">
 									<div class="form-group">
-										<div class="col-sm-2"><strong><?php echo $entry_payment_method; ?></strong></div>
-										<div class="col-sm-2"><strong><?php echo $entry_title; ?></strong></div>
-										<div class="col-sm-2"><strong><?php echo $entry_image; ?></strong></div>
+										<div class="col-sm-3"><strong><?php echo $entry_payment_method; ?></strong></div>
 										<div class="col-sm-2"><strong><?php echo $entry_activate; ?></strong></div>
-										<div class="col-sm-2"><strong><?php echo $entry_geo_zone; ?></strong></div>
-										<div class="col-sm-2"><strong><?php echo $entry_sort_order; ?></strong></div>
+										<div class="col-sm-3"><strong><?php echo $entry_geo_zone; ?></strong></div>
+										<div class="col-sm-2 text-right"><strong><?php echo $entry_sort_order; ?></strong></div>
+										<div class="col-sm-2 text-right"><strong><?php echo $text_more; ?></strong></div>
 									</div>
 									<?php foreach ($store_data[$store['store_id'] . '_' . $code . '_payment_methods'] as $module_id => $payment_method) { ?>
 									<div class="form-group">
-										<div class="col-sm-2">
+										<div class="col-sm-3">
 											<img src="<?php echo $payment_method['icon']; ?>" width="25" style="float:left; margin-right:1em; margin-top:-3px"/>
 											<?php echo $payment_method['name']; ?>
 											<?php if(($payment_method['name'] == 'Apple Pay') && !$store_data['creditCardEnabled']) { ?>
 												<span data-toggle="tooltip" title="<?php echo $help_apple_pay; ?>" style="border: 1px solid; border-radius: 9px; background: #fff; color: #ffb100; text-transform: uppercase; margin-left: 5px; letter-spacing: .03em; line-height: 17px; padding: 0 6px; font-size: 10px;"><?php echo $text_creditcard_required; ?></span>
 											<?php } ?>
-										</div>
-										<div class="col-sm-2">
-											<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_title" value="<?php echo !empty($payment_method['title']) ? $payment_method['title'] : $payment_method['name']; ?>" class="form-control"/>
-										</div>
-										<div class="col-sm-2">
-											<a href="" id="thumb-image-<?php echo $store['store_id']; ?>-<?php echo $module_id; ?>" data-toggle="image" class="img-thumbnail"><img src="<?php echo $payment_method['thumb']; ?>" alt="" title="" data-placeholder="<?php echo $placeholder; ?>"/></a> <input type="hidden" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_image" value="<?php echo $payment_method['image']; ?>" id="input-image-<?php echo $store['store_id']; ?>-<?php echo $module_id; ?>"/>
 										</div>
 										<div class="col-sm-2">
 											<?php $show_checkbox = true ?>
@@ -133,7 +126,7 @@
 											<?php } ?>
 											<?php } ?> 
 										</div>
-										<div class="col-sm-2">
+										<div class="col-sm-3">
 											<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_geo_zone" class="form-control">
 												<option value="0"><?php echo $text_all_zones; ?></option>
 												<?php foreach ($geo_zones as $geo_zone) { ?>
@@ -146,8 +139,77 @@
 											</select>
 										</div>
 										<div class="col-sm-2">
-											<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_sort_order" value="<?php echo $payment_method['sort_order']; ?>" class="form-control" style="text-align:right; max-width:60px"/>
+											<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_sort_order" value="<?php echo $payment_method['sort_order']; ?>" class="form-control" style="text-align:right;"/>
 										</div>
+										<div class="col-sm-2 text-right">
+											<a href="javascript:void(0)" data-toggle="modal" data-target="#payment-option-<?php echo $store['store_id']; ?>-<?php echo $module_id; ?>" class="btn btn-primary"><i class="fa fa-cog"></i></a>
+										</div>
+									</div>
+
+									<!-- Advance Options -->
+									<div class="modal fade" id="payment-option-<?php echo $store['store_id']; ?>-<?php echo $module_id; ?>" tabindex="-1" role="dialog" aria-hidden="true">
+									  <div class="modal-dialog modal-lg" role="document">
+									    <div class="modal-content">
+									      <div class="modal-header">
+									        <button type="button" class="close" data-dismiss="modal">&times;</button>
+									        <h4 class="modal-title"><?php echo sprintf($text_advance_option, ucwords($payment_method['name'])); ?></h4>
+									      </div>
+									      <div class="modal-body">
+									      	<div class="form-group">
+												<label class="col-sm-2 control-label"><?php echo $entry_title; ?></label>
+												<div class="col-sm-10">
+													<?php foreach ($languages as $language) { ?>
+													<div class="input-group"><span class="input-group-addon"><img src="<?php echo $language['image']; ?>" title="<?php echo $language['name']; ?>" /></span>
+													<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_description[<?php echo $language['language_id']; ?>][title]" value="<?php echo isset($payment_method['description'][$language['language_id']]) ? $payment_method['description'][$language['language_id']]['title'] : $payment_method['name']; ?>" class="form-control"/>
+													</div>
+													<?php } ?>
+													<input type="hidden" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_name" value="<?php echo $payment_method['name']; ?>">													
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-sm-2 control-label"><?php echo $entry_image; ?></label>
+												<div class="col-sm-10">
+													<a href="" id="thumb-image-<?php echo $store['store_id']; ?>-<?php echo $module_id; ?>" data-toggle="image" class="img-thumbnail"><img src="<?php echo $payment_method['thumb']; ?>" alt="" title="" data-placeholder="<?php echo $placeholder; ?>"/></a> <input type="hidden" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_image" value="<?php echo $payment_method['image']; ?>" id="input-image-<?php echo $store['store_id']; ?>-<?php echo $module_id; ?>"/>
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-sm-2 control-label"><?php echo $entry_payment_fee; ?></label>
+												<div class="col-sm-10">
+													<label class="col-sm-2 control-label"><?php echo $entry_title; ?></label>
+													<div class="col-sm-4">														
+														<?php foreach ($languages as $language) { ?>
+														<div class="input-group"><span class="input-group-addon"><img src="<?php echo $language['image']; ?>" title="<?php echo $language['name']; ?>" /></span>
+														<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_payment_fee[description][<?php echo $language['language_id']; ?>][title]" value="<?php echo isset($payment_method['payment_fee']['description'][$language['language_id']]) ? $payment_method['payment_fee']['description'][$language['language_id']]['title'] : ''; ?>" placeholder="<?php echo $entry_title; ?>" class="form-control"/>
+														</div>
+														<?php } ?>
+													</div>
+													<label class="col-sm-2 control-label"><?php echo $entry_amount; ?></label>
+													<div class="col-sm-4">
+														<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_payment_fee[amount]" value="<?php echo $payment_method['payment_fee']['amount']; ?>" placeholder="<?php echo $entry_amount; ?>" class="form-control"/>
+													</div>
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-sm-2 control-label"><span data-toggle="tooltip" title="<?php echo $help_total; ?>"><?php echo $entry_total; ?></span></label>
+												<div class="col-sm-10">
+													<label class="col-sm-2 control-label"><?php echo $entry_minimum; ?></label>
+													<div class="col-sm-4">
+														<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_total_minimum" value="<?php echo isset($payment_method['total_minimum']) ? $payment_method['total_minimum'] : ''; ?>" placeholder="<?php echo $entry_minimum; ?>" class="form-control"/>
+														<sub><?php echo isset($payment_method['minimumAmount']) ? $payment_method['minimumAmount'] : ''; ?></sub>
+													</div>
+													<label class="col-sm-2 control-label"><?php echo $entry_maximum; ?></label>
+													<div class="col-sm-4">
+														<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_total_maximum" value="<?php echo isset($payment_method['total_maximum']) ? $payment_method['total_maximum'] : ''; ?>" placeholder="<?php echo $entry_maximum; ?>" class="form-control"/>
+														<sub><?php echo isset($payment_method['maximumAmount']) ? $payment_method['maximumAmount'] : ''; ?></sub>
+													</div>												
+												</div>
+											</div>
+									      </div>
+									      <div class="modal-footer">
+									        <button type="button" class="btn btn-secondary" data-dismiss="modal"><?php echo $button_save; ?></button>
+									      </div>
+									    </div>
+									  </div>
 									</div>
 									<?php } ?>
 								</div>
@@ -267,6 +329,21 @@
 											</select>
 										</div>
 									</div>
+
+									<div class="form-group">
+										<label class="col-sm-2 control-label" for="<?php echo $code; ?>_ideal_partial_refund_status_id"><?php echo $entry_partial_refund_status; ?></label>
+										<div class="col-sm-10">
+											<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_ideal_partial_refund_status_id" id="<?php echo $code; ?>_ideal_partial_refund_status_id" class="form-control">
+												<?php foreach ($order_statuses as $order_status) { ?>
+													<?php if ($order_status['order_status_id'] == $store[$code . '_ideal_partial_refund_status_id']) { ?>
+													<option value="<?php echo $order_status['order_status_id']; ?>" selected="selected"><?php echo $order_status['name']; ?></option>
+													<?php } else { ?>
+													<option value="<?php echo $order_status['order_status_id']; ?>"><?php echo $order_status['name']; ?></option>
+													<?php } ?>
+												<?php } ?>
+											</select>
+										</div>
+									</div>
 								</div>
 
 								<div id="mollie-options-<?php echo $store['store_id']; ?>" class="tab-pane fade in active">
@@ -325,9 +402,9 @@
 									<fieldset>
 										<legend><?php echo $text_general; ?></legend>		
 										<div class="form-group">
-											<label class="col-sm-2 control-label" for="input-status"><span data-toggle="tooltip" title="<?php echo $help_show_icons; ?>"><?php echo $entry_show_icons; ?></span></label>
+											<label class="col-sm-2 control-label" for="input-show-icons"><span data-toggle="tooltip" title="<?php echo $help_show_icons; ?>"><?php echo $entry_show_icons; ?></span></label>
 											<div class="col-sm-10">
-												<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_show_icons" id="input-status" class="form-control">
+												<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_show_icons" id="<?php echo $store['store_id']; ?>-show-icons" class="form-control">
 													<?php if ($store[$code . '_show_icons']) { ?>
 													<option value="1" selected="selected"><?php echo $text_yes; ?></option>
 													<option value="0"><?php echo $text_no; ?></option>
@@ -336,6 +413,29 @@
 													<option value="0" selected="selected"><?php echo $text_no; ?></option>
 													<?php } ?>
 												</select>
+											</div>
+										</div>
+										<div class="form-group" id="<?php echo $store['store_id']; ?>-align-icons">
+											<label class="col-sm-2 control-label" for="input-align-icons"><?php echo $entry_align_icons; ?></label>
+											<div class="col-sm-10">
+												<label class="radio-inline">
+													<?php if ($store[$code . '_align_icons'] == 'left') { ?>
+													<input type="radio" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_align_icons" value="left" checked="checked" />
+													<?php echo $text_left; ?>
+													<?php } else { ?>
+													<input type="radio" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_align_icons" value="left" />
+													<?php echo $text_left; ?>
+													<?php } ?>
+												</label>
+												<label class="radio-inline">
+													<?php if ($store[$code . '_align_icons'] != 'left') { ?>
+													<input type="radio" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_align_icons" value="right" checked="checked" />
+													<?php echo $text_right; ?>
+													<?php } else { ?>
+													<input type="radio" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_align_icons" value="right" />
+													<?php echo $text_right; ?>
+													<?php } ?>
+												</label>
 											</div>
 										</div>
 										<div class="form-group">
@@ -367,7 +467,7 @@
 											</div>
 										</div>
 										<div class="form-group">
-											<label class="col-sm-2 control-label" for="input-status"><span data-toggle="tooltip" title="<?php echo $help_shipment; ?>"><?php echo $entry_shipment; ?></span></label>
+											<label class="col-sm-2 control-label" for="input-shipment"><span data-toggle="tooltip" title="<?php echo $help_shipment; ?>"><?php echo $entry_shipment; ?></span></label>
 											<div class="col-sm-10">
 												<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_create_shipment" id="<?php echo $store['store_id']; ?>-create-shipment" class="form-control">
 													<?php if ($store[$code . '_create_shipment'] == 1) { ?>
@@ -405,10 +505,45 @@
 											</div>
 										</div>
 										<div class="form-group">
-											<label class="col-sm-2 control-label" for="input-mollie-component"><span data-toggle="tooltip" title="<?php echo $help_mollie_component; ?>"><?php echo $entry_mollie_component; ?></span></label>
+											<label class="col-sm-2 control-label" for="<?php echo $code; ?>_order_expiry_days"><?php echo $entry_order_expiry_days; ?></label>
+											<div class="col-sm-10">				
+												<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_order_expiry_days" value="<?php echo $store[$code . '_order_expiry_days']; ?>" placeholder="<?php echo $entry_order_expiry_days; ?> [1-100]" id="<?php echo $code; ?>_order_expiry_days" class="form-control" store="<?php echo $store['store_id']; ?>" <?php echo $store['store_id']; ?>-data-payment-mollie-order-expiry-days/>
+											</div>
+										</div>
+										<div class="form-group">
+											<label class="col-sm-2 control-label" for="input-payment-fee-tax-class"><?php echo $entry_payment_fee_tax_class; ?></label>
 											<div class="col-sm-10">
-												<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component" id="input-mollie-component" class="form-control">
-													<?php if ($store[$code . '_mollie_component']) { ?>
+												<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_payment_fee_tax_class_id" id="input-payment-fee-tax-class" class="form-control">
+													<option value="0"><?php echo $text_select; ?></option>
+													<?php foreach ($tax_classes as $tax_class) { ?>		
+														<?php if ($tax_class['tax_class_id'] == $store[$code . '_payment_fee_tax_class_id']) { ?>
+														<option value="<?php echo $tax_class['tax_class_id']; ?>" selected="selected"><?php echo $tax_class['title']; ?></option>
+														<?php } else { ?>
+														<option value="<?php echo $tax_class['tax_class_id']; ?>"><?php echo $tax_class['title']; ?></option>
+														<?php } ?>
+													<?php } ?>
+												</select>
+											</div>
+										</div>
+										<div class="form-group">
+											<label class="col-sm-2 control-label" for="input-single-click-payment"><span data-toggle="tooltip" title="<?php echo $help_single_click_payment; ?>"><?php echo $entry_single_click_payment; ?></span></label>
+											<div class="col-sm-10">
+												<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_single_click_payment" id="input-single-click-payment" class="form-control">
+													<?php if ($store[$code . '_single_click_payment']) { ?>
+													<option value="1" selected="selected"><?php echo $text_enabled; ?></option>
+													<option value="0"><?php echo $text_disabled; ?></option>
+													<?php } else { ?>
+													<option value="1"><?php echo $text_enabled; ?></option>
+													<option value="0" selected="selected"><?php echo $text_disabled; ?></option>
+													<?php } ?>
+												</select>
+											</div>
+										</div>
+										<div class="form-group">
+											<label class="col-sm-2 control-label" for="input-partial-refund"><?php echo $entry_partial_refund; ?></label>
+											<div class="col-sm-10">
+												<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_partial_refund" id="input-partial-refund" class="form-control">
+													<?php if ($store[$code . '_partial_refund']) { ?>
 													<option value="1" selected="selected"><?php echo $text_enabled; ?></option>
 													<option value="0"><?php echo $text_disabled; ?></option>
 													<?php } else { ?>
@@ -430,6 +565,20 @@
 								                    <option value="<?php echo $currency['code']; ?>"><?php echo $currency['title']; ?></option>
 								                    <?php } ?>
 								                    <?php } ?>
+												</select>
+											</div>
+										</div>
+										<div class="form-group">
+											<label class="col-sm-2 control-label" for="input-mollie-component"><span data-toggle="tooltip" title="<?php echo $help_mollie_component; ?>"><?php echo $entry_mollie_component; ?></span></label>
+											<div class="col-sm-10">
+												<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component" id="input-mollie-component" class="form-control">
+													<?php if ($store[$code . '_mollie_component']) { ?>
+													<option value="1" selected="selected"><?php echo $text_enabled; ?></option>
+													<option value="0"><?php echo $text_disabled; ?></option>
+													<?php } else { ?>
+													<option value="1"><?php echo $text_enabled; ?></option>
+													<option value="0" selected="selected"><?php echo $text_disabled; ?></option>
+													<?php } ?>
 												</select>
 											</div>
 										</div>
@@ -639,6 +788,8 @@
 					</div>
 				</div>
 			</div>
+			<input type="hidden" name="0_<?php echo $code; ?>_version" value="<?php echo $mollie_version; ?>">
+			<input type="hidden" name="0_<?php echo $code; ?>_mod_file" value="<?php echo $mod_file; ?>">
 		</form>
 	</div>
 </div>
@@ -800,6 +951,25 @@
 					hiddenDiv.style.display = "none";
 				}
 			};
+
+			// Hide/Show Align Icons Option
+			var elem2 = document.getElementById('<?php echo $store["store_id"] ?>-show-icons');
+			var hiddenDiv2 = document.getElementById('<?php echo $store["store_id"] ?>-align-icons');
+			if(elem2.value == 1) {
+				hiddenDiv2.style.display = "block";
+			} else {
+				hiddenDiv2.style.display = "none";
+			}
+			
+			elem2.onchange = function(){
+				var hiddenDiv2 = document.getElementById('<?php echo $store["store_id"] ?>-align-icons');
+
+			    if(this.value == 1) {
+					hiddenDiv2.style.display = "block";
+				} else {
+					hiddenDiv2.style.display = "none";
+				}
+			};
 			
 			$('.settings').click(function(){
 		      $('#tabs<?php echo $store["store_id"] ?> a[href=#mollie-options-<?php echo $store["store_id"] ?>]').tab('show');
@@ -822,6 +992,15 @@
 			    	saveAppData(client_id, client_secret, '<?php echo $store["store_id"] ?>');
 			    }
 		    });
+
+		    $('[<?php echo $store["store_id"] ?>-data-payment-mollie-order-expiry-days]').on('keyup', function() {
+		    	$('.error-expiry-days').remove();
+		    	var expiry_days = $('[<?php echo $store["store_id"] ?>-data-payment-mollie-order-expiry-days]').val();
+		    	if ((expiry_days != '') && (expiry_days > 28)) {
+		    		$('[<?php echo $store["store_id"] ?>-data-payment-mollie-order-expiry-days]').after('<div class="error-expiry-days" style="color: #e3503e;"><?php echo $error_order_expiry_days; ?></div>');
+		    	}
+		    });
+		    $('[<?php echo $store["store_id"] ?>-data-payment-mollie-order-expiry-days]').trigger('keyup');
 
 		    $('#language<?php echo $store["store_id"] ?> a:first').tab('show');
 

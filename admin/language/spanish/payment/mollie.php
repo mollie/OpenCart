@@ -118,6 +118,12 @@ $_['text_allowed_variables']       = "Variables permitidas: {firstname}, {lastna
 $_['text_browse']                  = 'Browse';
 $_['text_clear']                   = 'Clear';
 $_['text_image_manager']           = 'Image Manager';
+$_['text_left']                    = 'Izquierda';
+$_['text_right']                   = 'Derecha';
+$_['text_more']                    = 'Más';
+$_['text_no_maximum_limit']        = 'Sin límite de cantidad máxima';
+$_['text_standard_total']          = 'Total estándar: %s';
+$_['text_advance_option']          = 'Opciones avanzadas para %s';
 
 // Entry
 $_['entry_payment_method']           = "Método de pago";
@@ -138,6 +144,7 @@ $_['entry_email'] 			 		 = "E-mail";
 $_['entry_subject'] 			     = "Tema";
 $_['entry_enquiry'] 			 	 = "Investigación";
 $_['entry_debug_mode'] 			 	 = "Debug mode";
+$_['entry_mollie_component'] 		 = "Mollie components";
 $_['entry_mollie_component_base'] 	 = "Custom CSS for Base input field";
 $_['entry_mollie_component_valid'] 	 = "Custom CSS for Valid input field";
 $_['entry_mollie_component_invalid'] = "Custom CSS for Invalid input field";
@@ -147,6 +154,16 @@ $_['entry_email_body'] 			 	 = "Cuerpo (para pago recurrente)";
 $_['entry_title']	 			 	 = "Título";
 $_['entry_image']	 			 	 = "Imagen";
 $_['entry_status']	 			 	 = "Status";
+$_['entry_align_icons']              = "Alinear iconos";
+$_['entry_single_click_payment']     = "Pago con un solo clic";
+$_['entry_order_expiry_days']        = "Días de caducidad del pedido";
+$_['entry_partial_refund']           = "Reembolso parcial";
+$_['entry_amount']                   = "Amount (ejemplo: 5, 5%)";
+$_['entry_payment_fee']              = "Payment Fee";
+$_['entry_payment_fee_tax_class']    = "Payment Fee Tax Class";
+$_['entry_total']				     = "Total";
+$_['entry_minimum']				     = "Mínima";
+$_['entry_maximum']				     = "Máxima";
 
 // Help
 $_['help_view_profile']             = 'Puede encontrar su clave API en  <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank" class="alert-link">sus 
@@ -159,6 +176,9 @@ $_['help_show_order_canceled_page'] = "Mostrar una notificación al cliente si u
 $_['help_redirect_uri']				= 'La redirección de URI en su panel de control de mollie debe coincidir con esta URI.';
 $_['help_mollie_app']				= 'Al registrar su módulo como una aplicación en el panel de Mollie, desbloqueará funcionalidades adicionales. Esto no es necesario para utilizar los pagos de Mollie.';
 $_['help_apple_pay']				= 'Apple Pay requiere que la tarjeta de crédito esté habilitada en el perfil de su sitio web. Por favor, active primero el método de tarjeta de crédito.';
+$_['help_mollie_component']			= 'Los componentes de Mollie le permiten mostrar los campos necesarios para los datos del titular de la tarjeta de crédito en su propio pago.';
+$_['help_single_click_payment']		= 'Permitiendo a sus clientes cargar una tarjeta de crédito utilizada anteriormente con un solo clic.';
+$_['help_total']					= 'La cantidad mínima y máxima de pago antes de que este método de pago se active.';
 
 // Info
 $_['entry_module']          = "Module";
@@ -182,6 +202,8 @@ $_['error_no_api_client']     = 'API client not found.';
 $_['error_api_help']          = 'You can ask your hosting provider to help with this.';
 $_['error_comm_failed']       = '<strong>Communicating with Mollie failed:</strong><br/>%s<br/><br/>Please check the following conditions. You can ask your hosting provider to help with this.<ul><li>Make sure outside connections to %s are not blocked.</li><li>Make sure SSL v3 is disabled on your server. Mollie does not support SSL v3.</li><li>Make sure your server is up-to-date and the latest security patches have been installed.</li></ul><br/>Contact <a href="mailto:info@mollie.nl">info@mollie.nl</a> if this still does not fix your problem.';
 $_['error_no_api_key']        = 'No API key provided. Please insert your API key.';
+$_['error_order_expiry_days'] = 'Advertencia: No es posible utilizar Klarna Slice it o Klarna Pay más tarde como método cuando la fecha de caducidad es de más de 28 días en el futuro.';
+$_['error_mollie_payment_fee'] = 'Advertencia: ¡El total del pedido de la tarifa de pago de Mollie está deshabilitado!';
 
 // Status
 $_['entry_pending_status']   = "¡Clave de API Mollie inválida!";
@@ -190,11 +212,12 @@ $_['entry_canceled_status']  = "Estado del pago fallido";
 $_['entry_expired_status']   = "Estado del pago cancelado";
 $_['entry_processing_status']= "Estado del pago vencido";
 $_['entry_refund_status']	  = "Estado del pago reembolso";
+$_['entry_partial_refund_status']	  = "Estado de reembolso parcial";
 
 $_['entry_shipping_status']   = "Estado del pedido enviado";
 $_['entry_shipment']       			 = "Crear envío";
 $_['entry_create_shipment_status']   = "Crear envío después del estado del pedido";
-$_['help_shipment'] 				 = "El envío (solo para los métodos de klarna) se creará justo después de crear el pedido. Seleccione 'No' para crear el envío cuando el pedido llegue a un estado específico y seleccione el estado del pedido a continuación.";
+$_['help_shipment'] 				 = "El envío se creará justo después de crear el pedido. Seleccione 'No' para crear el envío cuando el pedido llegue a un estado específico y seleccione el estado del pedido a continuación.";
 
 $_['text_create_shipment_automatically']            = "Crear envío automáticamente al crear el pedido";
 $_['text_create_shipment_on_status']                = "Crear envío al establecer orden a este estado";
@@ -204,6 +227,7 @@ $_['entry_create_shipment_on_order_complete'] 		= "Crear envío al completar el 
 //Button
 $_['button_update'] = "Actualizar";
 $_['button_mollie_connect'] = "Connect via Mollie";
+$_['button_advance_option'] = "Advance Option";
 
 //Error log
 $_['text_log_success']	   = 'Éxito: ¡Ha borrado con éxito su registro de errores!';

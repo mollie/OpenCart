@@ -77,70 +77,143 @@
 
 						<div id="payment-methods-<?php echo $store['store_id']; ?>" class="vtabs-content">
 							<div class="form-group">
-								<div class="col-sm-2"><strong><?php echo $entry_payment_method; ?></strong></div>
-								<div class="col-sm-2"><strong><?php echo $entry_title; ?></strong></div>
-								<div class="col-sm-2"><strong><?php echo $entry_image; ?></strong></div>
+								<div class="col-sm-3"><strong><?php echo $entry_payment_method; ?></strong></div>
 								<div class="col-sm-2"><strong><?php echo $entry_activate; ?></strong></div>
-								<div class="col-sm-2"><strong><?php echo $entry_geo_zone; ?></strong></div>
-								<div class="col-sm-2"><strong><?php echo $entry_sort_order; ?></strong></div>
+								<div class="col-sm-3"><strong><?php echo $entry_geo_zone; ?></strong></div>
+								<div class="col-sm-2 text-right"><strong><?php echo $entry_sort_order; ?></strong></div>
+								<div class="col-sm-2 text-right"><strong><?php echo $text_more; ?></strong></div>
 							</div>
 							<?php foreach ($store_data[$store['store_id'] . '_' . $code . '_payment_methods'] as $module_id => $payment_method) { ?>
-								<div class="form-group">
-									<div class="col-sm-2">
-										<img src="<?php echo $payment_method['icon']; ?>" width="20" style="float:left; margin-right:1em; margin-top:-3px"/>
-										<?php echo $payment_method['name']; ?>
-										<?php if(($payment_method['name'] == 'Apple Pay') && !$store_data['creditCardEnabled']) { ?>
-											<span data-toggle="tooltip" title="<?php echo $help_apple_pay; ?>" style="border: 1px solid; border-radius: 9px; background: #fff; color: #ffb100; text-transform: uppercase; margin-left: 20px; letter-spacing: .03em; line-height: 17px; padding: 0 6px;"><?php echo $text_creditcard_required; ?></span>
-										<?php } ?>
-									</div>
-									<div class="col-sm-2">
-										<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_title" value="<?php echo !empty($payment_method['title']) ? $payment_method['title'] : $payment_method['name'];; ?>" class="form-control"/>
-									</div>
-									<div class="col-sm-2">
-										<div class="image">
-											<img src="<?php echo $payment_method['thumb']; ?>" alt="" id="thumb-<?php echo $store['store_id']; ?>-<?php echo $module_id; ?>" />
-							                <input type="hidden" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_image" value="<?php echo $payment_method['image']; ?>" id="image-<?php echo $store['store_id']; ?>-<?php echo $module_id; ?>" />
-							                <br />
-							                <a onclick="image_upload('image-<?php echo $store['store_id']; ?>-<?php echo $module_id; ?>', 'thumb-<?php echo $store['store_id']; ?>-<?php echo $module_id; ?>');"><?php echo $text_browse; ?></a>&nbsp;&nbsp;|&nbsp;&nbsp;<a onclick="$('#thumb-<?php echo $store['store_id']; ?>-<?php echo $module_id; ?>').attr('src', '<?php echo $placeholder; ?>'); $('#image-<?php echo $store['store_id']; ?>-<?php echo $module_id; ?>').attr('value', '');"><?php echo $text_clear; ?></a>
-							            </div>
-									</div>
-									<div class="col-sm-2">
-										<?php $show_checkbox = true ?>
-										<?php if (empty($store[$code . '_api_key']) || !empty($store['error_api_key'])) { ?>
-										<?php $show_checkbox = false ?>
-										<?php echo $text_missing_api_key; ?>
-										<?php } elseif (!$payment_method['allowed']) { ?>
-										<?php $show_checkbox = false ?>
-										<?php echo (!$store['mollie_connection']) ? $text_activate_payment_method : ''; ?>
-										<?php } ?>
-										<input type="checkbox" value="1" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_status" <?php echo $payment_method['status'] ? 'checked' : ''; ?> style="cursor:pointer;<?php echo !$show_checkbox ? 'display: none;' : ''; ?>" />
-										<?php if($store['mollie_connection'] && !empty($store[$code . '_api_key']) && empty($store['error_api_key'])) { ?>
-										<?php if(!$show_checkbox) { ?>
-											<?php $apiExcludedMethods = array("creditcard", "paysafecard", "giftcard", "p24", "paypal"); ?>
-											<?php if(in_array(strtolower($payment_method['name']), $apiExcludedMethods)) { ?>
-											<?php echo $text_enable_payment_method; ?>
-											<?php } else { ?>
-											<a href="<?php echo $payment_method['enable']; ?>" style="<?php echo ((strtolower($payment_method['name']) == 'apple pay') && !$store_data['creditCardEnabled']) ? 'pointer-events: none; cursor: default; opacity: 0.8;' : ''; ?>"><span class="label label-success"><?php echo $text_enable; ?></span></a>
-										<?php } ?>
-										<?php } ?> 
-										<?php } ?>
-									</div>
-									<div class="col-sm-2">
-										<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_geo_zone" class="form-control">
-											<option value="0"><?php echo $text_all_zones; ?></option>
-											<?php foreach ($geo_zones as $geo_zone) { ?>
-												<?php if ($geo_zone['geo_zone_id'] === $payment_method['geo_zone']) { ?>
-													<option value="<?php echo $geo_zone['geo_zone_id']; ?>" selected="selected"><?php echo $geo_zone['name']; ?></option>
-													<?php } else { ?>
-													<option value="<?php echo $geo_zone['geo_zone_id']; ?>"><?php echo $geo_zone['name']; ?></option>
-													<?php } ?>
-											<?php } ?>
-										</select>
-									</div>
-									<div class="col-sm-2">
-										<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_sort_order" value="<?php echo $payment_method['sort_order']; ?>" class="form-control" style="text-align:right; max-width:60px"/>
-									</div>
+							<div class="form-group">
+								<div class="col-sm-3">
+									<img src="<?php echo $payment_method['icon']; ?>" width="25" style="float:left; margin-right:1em; margin-top:-3px"/>
+									<?php echo $payment_method['name']; ?>
+									<?php if(($payment_method['name'] == 'Apple Pay') && !$store_data['creditCardEnabled']) { ?>
+										<span data-toggle="tooltip" title="<?php echo $help_apple_pay; ?>" style="border: 1px solid; border-radius: 9px; background: #fff; color: #ffb100; text-transform: uppercase; margin-left: 5px; letter-spacing: .03em; line-height: 17px; padding: 0 6px; font-size: 10px;"><?php echo $text_creditcard_required; ?></span>
+									<?php } ?>
 								</div>
+								<div class="col-sm-2">
+									<?php $show_checkbox = true ?>
+									<?php if (empty($store[$code . '_api_key']) || !empty($store['error_api_key'])) { ?>
+									<?php $show_checkbox = false ?>
+									<?php echo $text_missing_api_key; ?>
+									<?php } elseif (!$payment_method['allowed']) { ?>
+									<?php $show_checkbox = false ?>
+									<?php echo (!$store['mollie_connection']) ? $text_activate_payment_method : ''; ?>
+									<?php } ?>
+									<input type="checkbox" value="1" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_status" <?php echo $payment_method['status'] ? 'checked' : ''; ?> style="cursor:pointer;<?php echo !$show_checkbox ? 'display: none;' : ''; ?>" />
+									<?php if($store['mollie_connection'] && !empty($store[$code . '_api_key']) && empty($store['error_api_key'])) { ?>
+									<?php if(!$show_checkbox) { ?>
+										<?php $apiExcludedMethods = array("creditcard", "paysafecard", "giftcard", "p24", "paypal"); ?>
+										<?php if(in_array(strtolower($payment_method['name']), $apiExcludedMethods)) { ?>
+											<?php echo $text_enable_payment_method; ?>
+										<?php } else { ?>
+										<a href="<?php echo $payment_method['enable']; ?>" style="position: relative; bottom: 4px; <?php echo ((strtolower($payment_method['name']) == 'apple pay') && !$store_data['creditCardEnabled']) ? 'pointer-events: none; cursor: default; opacity: 0.8;' : ''; ?>"><span class="label label-success"><?php echo $text_enable; ?></span></a>
+										<?php } ?>
+									<?php } ?>
+									<?php } ?> 
+								</div>
+								<div class="col-sm-3">
+									<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_geo_zone" class="form-control">
+										<option value="0"><?php echo $text_all_zones; ?></option>
+										<?php foreach ($geo_zones as $geo_zone) { ?>
+											<?php if ($geo_zone['geo_zone_id'] === $payment_method['geo_zone']) { ?>
+											<option value="<?php echo $geo_zone['geo_zone_id']; ?>" selected="selected"><?php echo $geo_zone['name']; ?></option>
+											<?php } else { ?>
+											<option value="<?php echo $geo_zone['geo_zone_id']; ?>"><?php echo $geo_zone['name']; ?></option>
+											<?php } ?>
+										<?php } ?>
+									</select>
+								</div>
+								<div class="col-sm-2">
+									<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_sort_order" value="<?php echo $payment_method['sort_order']; ?>" class="form-control" style="text-align:right;"/>
+								</div>
+								<div class="col-sm-2 text-right">
+									<a href="javascript:void(0)" id="button-payment-option-<?php echo $store['store_id']; ?>-<?php echo $module_id; ?>" class="button"><?php echo $button_advance_option; ?></a>
+								</div>
+							</div>
+							<!-- Advance Options -->
+							<div class="modal" id="payment-option-<?php echo $store['store_id']; ?>-<?php echo $module_id; ?>">
+							    <div class="modal-content">
+							      <div class="modal-header">
+							        <span class="close">&times;</span>
+							        <h4 class="modal-title"><?php echo sprintf($text_advance_option, ucwords($payment_method['name'])); ?></h4>
+							      </div>
+							      <div class="modal-body">
+							      	<div class="form-group">
+										<label class="col-sm-2 control-label"><?php echo $entry_title; ?></label>
+										<div class="col-sm-10">
+											<?php foreach ($languages as $language) { ?>											
+											<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_description[<?php echo $language['language_id']; ?>][title]" value="<?php echo isset($payment_method['description'][$language['language_id']]) ? $payment_method['description'][$language['language_id']]['title'] : $payment_method['name']; ?>" class="form-control"/>
+											<img src="<?php echo $language['image']; ?>" title="<?php echo $language['name']; ?>" />
+											<?php } ?>
+											<input type="hidden" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_name" value="<?php echo $payment_method['name']; ?>">
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="col-sm-2 control-label"><?php echo $entry_image; ?></label>
+										<div class="col-sm-10">
+											<div class="image">
+												<img src="<?php echo $payment_method['thumb']; ?>" alt="" id="thumb-<?php echo $store['store_id']; ?>-<?php echo $module_id; ?>" />
+								                <input type="hidden" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_image" value="<?php echo $payment_method['image']; ?>" id="image-<?php echo $store['store_id']; ?>-<?php echo $module_id; ?>" />
+								                <br />
+								                <a onclick="image_upload('image-<?php echo $store['store_id']; ?>-<?php echo $module_id; ?>', 'thumb-<?php echo $store['store_id']; ?>-<?php echo $module_id; ?>');"><?php echo $text_browse; ?></a>&nbsp;&nbsp;|&nbsp;&nbsp;<a onclick="$('#thumb-<?php echo $store['store_id']; ?>-<?php echo $module_id; ?>').attr('src', '<?php echo $placeholder; ?>'); $('#image-<?php echo $store['store_id']; ?>-<?php echo $module_id; ?>').attr('value', '');"><?php echo $text_clear; ?></a>
+								            </div>
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="col-sm-2 control-label"><?php echo $entry_payment_fee; ?></label>
+										<div class="col-sm-10">
+											<label class="col-sm-2 control-label"><?php echo $entry_title; ?></label>
+											<div class="col-sm-4">
+												<?php foreach ($languages as $language) { ?>											
+												<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_payment_fee[description][<?php echo $language['language_id']; ?>][title]" value="<?php echo isset($payment_method['payment_fee']['description'][$language['language_id']]) ? $payment_method['payment_fee']['description'][$language['language_id']]['title'] : ''; ?>" placeholder="<?php echo $entry_title; ?>" class="form-control"/>
+												<img src="<?php echo $language['image']; ?>" title="<?php echo $language['name']; ?>" />
+												<?php } ?>
+											</div>
+											<label class="col-sm-2 control-label"><?php echo $entry_amount; ?></label>
+											<div class="col-sm-4">
+												<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_payment_fee[amount]" value="<?php echo $payment_method['payment_fee']['amount']; ?>" placeholder="<?php echo $entry_amount; ?>" class="form-control"/>
+											</div>
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="col-sm-2 control-label"><?php echo $entry_total; ?><br /><span class="help"><?php echo $help_total; ?></span></label>
+										<div class="col-sm-10">
+											<label class="col-sm-2 control-label"><?php echo $entry_minimum; ?></label>
+											<div class="col-sm-4">
+												<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_total_minimum" value="<?php echo isset($payment_method['total_minimum']) ? $payment_method['total_minimum'] : ''; ?>" placeholder="<?php echo $entry_minimum; ?>" class="form-control"/><br />
+												<sub><?php echo isset($payment_method['minimumAmount']) ? $payment_method['minimumAmount'] : ''; ?></sub>
+											</div>
+											<label class="col-sm-2 control-label"><?php echo $entry_maximum; ?></label>
+											<div class="col-sm-4">
+												<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_total_maximum" value="<?php echo isset($payment_method['total_maximum']) ? $payment_method['total_maximum'] : ''; ?>" placeholder="<?php echo $entry_maximum; ?>" class="form-control"/><br />
+												<sub><?php echo isset($payment_method['maximumAmount']) ? $payment_method['maximumAmount'] : ''; ?></sub>
+											</div>												
+										</div>
+									</div>
+							      </div>
+							      <div class="modal-footer">
+							        <button type="button" class="button close-payment-option"><?php echo $button_save; ?></button>
+							      </div>
+							    </div>
+							</div>
+							<script type="text/javascript">
+							$('#button-payment-option-<?php echo $store['store_id']; ?>-<?php echo $module_id; ?>').live('click', function() {
+								$('#payment-option-<?php echo $store['store_id']; ?>-<?php echo $module_id; ?>').css('display', 'block');
+							});
+							$('.close, .close-payment-option').live('click', function() {
+								$('.modal').css('display', 'none');
+							});
+							
+							window.onclick = function(event) {
+								if (event.target.classList.contains("modal")) {
+									if (event.target.style.display == 'block') {
+									    event.target.style.display = "none";
+									}	
+								}					  
+							}
+							</script>
 							<?php } ?>
 						</div>
 
@@ -259,6 +332,21 @@
 									</select>
 								</div>
 							</div>
+
+							<div class="form-group">
+								<label class="col-sm-2 control-label" for="<?php echo $code; ?>_ideal_partial_refund_status_id"><?php echo $entry_partial_refund_status; ?></label>
+								<div class="col-sm-10">
+									<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_ideal_partial_refund_status_id" id="<?php echo $code; ?>_ideal_partial_refund_status_id" class="form-control">
+										<?php foreach ($order_statuses as $order_status) { ?>
+											<?php if ($order_status['order_status_id'] == $store[$code . '_ideal_partial_refund_status_id']) { ?>
+											<option value="<?php echo $order_status['order_status_id']; ?>" selected="selected"><?php echo $order_status['name']; ?></option>
+											<?php } else { ?>
+											<option value="<?php echo $order_status['order_status_id']; ?>"><?php echo $order_status['name']; ?></option>
+											<?php } ?>
+										<?php } ?>
+									</select>
+								</div>
+							</div>
 						</div>
 
 						<div id="mollie-options-<?php echo $store['store_id']; ?>" class="active vtabs-content">
@@ -322,9 +410,9 @@
 							<fieldset>
 								<legend><?php echo $text_general; ?></legend>
 								<div class="form-group">
-									<label class="col-sm-2 control-label" for="input-status"><span data-toggle="tooltip" title="<?php echo $help_show_icons; ?>"><?php echo $entry_show_icons; ?></span></label>
+									<label class="col-sm-2 control-label" for="input--show-icons"><?php echo $entry_show_icons; ?><br /><span class="help"><?php echo $help_show_icons; ?></span></label>
 									<div class="col-sm-10">
-										<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_show_icons" id="input-status" class="form-control">
+										<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_show_icons" id="<?php echo $store['store_id']; ?>-show-icons" class="form-control">
 											<?php if ($store[$code . '_show_icons']) { ?>
 											<option value="1" selected="selected"><?php echo $text_yes; ?></option>
 											<option value="0"><?php echo $text_no; ?></option>
@@ -335,8 +423,31 @@
 										</select>
 									</div>
 								</div>
+								<div class="form-group" id="<?php echo $store['store_id']; ?>-align-icons">
+									<label class="col-sm-2 control-label" for="input-align-icons"><?php echo $entry_align_icons; ?></label>
+									<div class="col-sm-10">
+										<label class="radio-inline">
+											<?php if ($store[$code . '_align_icons'] == 'left') { ?>
+											<input type="radio" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_align_icons" value="left" checked="checked" />
+											<?php echo $text_left; ?>
+											<?php } else { ?>
+											<input type="radio" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_align_icons" value="left" />
+											<?php echo $text_left; ?>
+											<?php } ?>
+										</label>
+										<label class="radio-inline">
+											<?php if ($store[$code . '_align_icons'] != 'left') { ?>
+											<input type="radio" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_align_icons" value="right" checked="checked" />
+											<?php echo $text_right; ?>
+											<?php } else { ?>
+											<input type="radio" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_align_icons" value="right" />
+											<?php echo $text_right; ?>
+											<?php } ?>
+										</label>
+									</div>
+								</div>
 								<div class="form-group">
-									<label class="col-sm-2 control-label" for="input-status"><span data-toggle="tooltip" title="<?php echo $help_show_order_canceled_page; ?>"><?php echo $entry_show_order_canceled_page; ?></span></label>
+									<label class="col-sm-2 control-label" for="input-status"><?php echo $entry_show_order_canceled_page; ?><br /><span class="help"><?php echo $help_show_order_canceled_page; ?></span></label>
 									<div class="col-sm-10">
 										<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_show_order_canceled_page" id="input-status" class="form-control">
 											<?php if ($store[$code . '_show_order_canceled_page']) { ?>
@@ -364,7 +475,7 @@
 									</div>
 								</div>
 								<div class="form-group">
-											<label class="col-sm-2 control-label" for="input-status"><span data-toggle="tooltip" title="<?php echo $help_shipment; ?>"><?php echo $entry_shipment; ?></span></label>
+											<label class="col-sm-2 control-label" for="input-shipment"><?php echo $entry_shipment; ?><br /><span class="help"><?php echo $help_shipment; ?></span></label>
 											<div class="col-sm-10">
 												<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_create_shipment" id="<?php echo $store['store_id']; ?>-create-shipment" class="form-control">
 													<?php if ($store[$code . '_create_shipment'] == 1) { ?>
@@ -402,10 +513,45 @@
 											</div>
 										</div>
 										<div class="form-group">
-											<label class="col-sm-2 control-label" for="input-mollie-component"><span data-toggle="tooltip" title="<?php echo $help_mollie_component; ?>"><?php echo $entry_mollie_component; ?></span></label>
+											<label class="col-sm-2 control-label" for="<?php echo $code; ?>_order_expiry_days"><?php echo $entry_order_expiry_days; ?></label>
+											<div class="col-sm-10">				
+												<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_order_expiry_days" value="<?php echo $store[$code . '_order_expiry_days']; ?>" placeholder="<?php echo $entry_order_expiry_days; ?> [1-100]" id="<?php echo $code; ?>_order_expiry_days" class="form-control" store="<?php echo $store['store_id']; ?>" <?php echo $store['store_id']; ?>-data-payment-mollie-order-expiry-days/>
+											</div>
+										</div>
+										<div class="form-group">
+											<label class="col-sm-2 control-label" for="input-payment-fee-tax-class"><?php echo $entry_payment_fee_tax_class; ?></label>
 											<div class="col-sm-10">
-												<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component" id="input-mollie-component" class="form-control">
-													<?php if ($store[$code . '_mollie_component']) { ?>
+												<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_payment_fee_tax_class_id" id="input-payment-fee-tax-class" class="form-control">
+													<option value="0"><?php echo $text_none; ?></option>
+													<?php foreach ($tax_classes as $tax_class) { ?>		
+														<?php if ($tax_class['tax_class_id'] == $store[$code . '_payment_fee_tax_class_id']) { ?>
+														<option value="<?php echo $tax_class['tax_class_id']; ?>" selected="selected"><?php echo $tax_class['title']; ?></option>
+														<?php } else { ?>
+														<option value="<?php echo $tax_class['tax_class_id']; ?>"><?php echo $tax_class['title']; ?></option>
+														<?php } ?>
+													<?php } ?>
+												</select>
+											</div>
+										</div>
+										<div class="form-group">
+											<label class="col-sm-2 control-label" for="input-single-click-payment"><?php echo $entry_single_click_payment; ?><br /><span class="help"><?php echo $help_single_click_payment; ?></span></label>
+											<div class="col-sm-10">
+												<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_single_click_payment" id="input-single-click-payment" class="form-control">
+													<?php if ($store[$code . '_single_click_payment']) { ?>
+													<option value="1" selected="selected"><?php echo $text_enabled; ?></option>
+													<option value="0"><?php echo $text_disabled; ?></option>
+													<?php } else { ?>
+													<option value="1"><?php echo $text_enabled; ?></option>
+													<option value="0" selected="selected"><?php echo $text_disabled; ?></option>
+													<?php } ?>
+												</select>
+											</div>
+										</div>
+										<div class="form-group">
+											<label class="col-sm-2 control-label" for="input-partial-refund"><?php echo $entry_partial_refund; ?></label>
+											<div class="col-sm-10">
+												<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_partial_refund" id="input-partial-refund" class="form-control">
+													<?php if ($store[$code . '_partial_refund']) { ?>
 													<option value="1" selected="selected"><?php echo $text_enabled; ?></option>
 													<option value="0"><?php echo $text_disabled; ?></option>
 													<?php } else { ?>
@@ -427,6 +573,20 @@
 								                    <option value="<?php echo $currency['code']; ?>"><?php echo $currency['title']; ?></option>
 								                    <?php } ?>
 								                    <?php } ?>
+												</select>
+											</div>
+										</div>
+										<div class="form-group">
+											<label class="col-sm-2 control-label" for="input-mollie-component"><?php echo $entry_mollie_component; ?><br /><span class="help"><?php echo $help_mollie_component; ?></span></label>
+											<div class="col-sm-10">
+												<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component" id="input-mollie-component" class="form-control">
+													<?php if ($store[$code . '_mollie_component']) { ?>
+													<option value="1" selected="selected"><?php echo $text_enabled; ?></option>
+													<option value="0"><?php echo $text_disabled; ?></option>
+													<?php } else { ?>
+													<option value="1"><?php echo $text_enabled; ?></option>
+													<option value="0" selected="selected"><?php echo $text_disabled; ?></option>
+													<?php } ?>
 												</select>
 											</div>
 										</div>
@@ -619,6 +779,8 @@
 						</div>
 					</div>
 				<?php } ?>
+				<input type="hidden" name="0_<?php echo $code; ?>_version" value="<?php echo $mollie_version; ?>">
+				<input type="hidden" name="0_<?php echo $code; ?>_mod_file" value="<?php echo $mod_file; ?>">
 			</form>
 		</div>
 	</div>
@@ -732,33 +894,52 @@
 
 		<?php foreach($stores as $store) { ?>
 
-		$('[<?php echo $store["store_id"] ?>-data-payment-mollie-api-key]').on('keyup', function () {
-			validateAPIKey(this.value, $(this).siblings('.input-group-addon'), $(this).attr('store'));
-		});
+			$('[<?php echo $store["store_id"] ?>-data-payment-mollie-api-key]').on('keyup', function () {
+				validateAPIKey(this.value, $(this).siblings('.input-group-addon'), $(this).attr('store'));
+			});
 
-		var elem = document.getElementById('<?php echo $store["store_id"] ?>-create-shipment');
-		var hiddenDiv = document.getElementById('<?php echo $store["store_id"] ?>-create-shipment-status');
-		if(elem.value == 2) {
-			hiddenDiv.style.display = "block";
-		} else {
-			hiddenDiv.style.display = "none";
-		}
-		
-		elem.onchange = function(){
+			var elem = document.getElementById('<?php echo $store["store_id"] ?>-create-shipment');
 			var hiddenDiv = document.getElementById('<?php echo $store["store_id"] ?>-create-shipment-status');
-
-			if(this.value == 2) {
+			if(elem.value == 2) {
 				hiddenDiv.style.display = "block";
 			} else {
 				hiddenDiv.style.display = "none";
 			}
-		};
-		
-		$('.settings').click(function(){
-		  $('#tabs<?php echo $store["store_id"] ?> a[href=#mollie-options-<?php echo $store["store_id"] ?>]').tab('show');
-		});
+			
+			elem.onchange = function(){
+				var hiddenDiv = document.getElementById('<?php echo $store["store_id"] ?>-create-shipment-status');
 
-		$('[<?php echo $store["store_id"] ?>-data-payment-mollie-client-id], [<?php echo $store["store_id"] ?>-data-payment-mollie-client-secret]').on('keyup', function() {
+				if(this.value == 2) {
+					hiddenDiv.style.display = "block";
+				} else {
+					hiddenDiv.style.display = "none";
+				}
+			};
+
+			// Hide/Show Align Icons Option
+			var elem2 = document.getElementById('<?php echo $store["store_id"] ?>-show-icons');
+			var hiddenDiv2 = document.getElementById('<?php echo $store["store_id"] ?>-align-icons');
+			if(elem2.value == 1) {
+				hiddenDiv2.style.display = "block";
+			} else {
+				hiddenDiv2.style.display = "none";
+			}
+			
+			elem2.onchange = function(){
+				var hiddenDiv2 = document.getElementById('<?php echo $store["store_id"] ?>-align-icons');
+
+			    if(this.value == 1) {
+					hiddenDiv2.style.display = "block";
+				} else {
+					hiddenDiv2.style.display = "none";
+				}
+			};
+			
+			$('.settings').click(function(){
+			  $('#tabs<?php echo $store["store_id"] ?> a[href=#mollie-options-<?php echo $store["store_id"] ?>]').tab('show');
+			});
+
+			$('[<?php echo $store["store_id"] ?>-data-payment-mollie-client-id], [<?php echo $store["store_id"] ?>-data-payment-mollie-client-secret]').on('keyup', function() {
 
 		    	var client_id = $('[<?php echo $store["store_id"] ?>-data-payment-mollie-client-id]').val();
 			    var client_secret = $('[<?php echo $store["store_id"] ?>-data-payment-mollie-client-secret]').val();
@@ -775,6 +956,15 @@
 			    	saveAppData(client_id, client_secret, '<?php echo $store["store_id"] ?>');
 			    }
 		    });
+
+			$('[<?php echo $store["store_id"] ?>-data-payment-mollie-order-expiry-days]').on('keyup', function() {
+		    	$('.error-expiry-days').remove();
+		    	var expiry_days = $('[<?php echo $store["store_id"] ?>-data-payment-mollie-order-expiry-days]').val();
+		    	if ((expiry_days != '') && (expiry_days > 28)) {
+		    		$('[<?php echo $store["store_id"] ?>-data-payment-mollie-order-expiry-days]').after('<div class="error-expiry-days" style="color: #e3503e;"><?php echo $error_order_expiry_days; ?></div>');
+		    	}
+		    });
+		    $('[<?php echo $store["store_id"] ?>-data-payment-mollie-order-expiry-days]').trigger('keyup');
 
 			$('#language<?php echo $store["store_id"] ?> a').tabs();
 
@@ -887,4 +1077,66 @@ function image_upload(field, thumb) {
 	}
 	.form-group{display:block;overflow:auto;padding:10px;border-bottom: 1px dotted #CCCCCC;}.form-group * {vertical-align: top;}.form-group .form-control-static{margin: 0;}.form-group::after{content:'';display:block;clear:both;}
 	.row{margin-left:-15px;margin-right:-15px}.col-xs-1, .col-sm-1, .col-md-1, .col-lg-1, .col-xs-2, .col-sm-2, .col-md-2, .col-lg-2, .col-xs-3, .col-sm-3, .col-md-3, .col-lg-3, .col-xs-4, .col-sm-4, .col-md-4, .col-lg-4, .col-xs-5, .col-sm-5, .col-md-5, .col-lg-5, .col-xs-6, .col-sm-6, .col-md-6, .col-lg-6, .col-xs-7, .col-sm-7, .col-md-7, .col-lg-7, .col-xs-8, .col-sm-8, .col-md-8, .col-lg-8, .col-xs-9, .col-sm-9, .col-md-9, .col-lg-9, .col-xs-10, .col-sm-10, .col-md-10, .col-lg-10, .col-xs-11, .col-sm-11, .col-md-11, .col-lg-11, .col-xs-12, .col-sm-12, .col-md-12, .col-lg-12{position:relative;min-height:1px;padding-left:15px;padding-right:15px;box-sizing:border-box;}.col-xs-1, .col-xs-2, .col-xs-3, .col-xs-4, .col-xs-5, .col-xs-6, .col-xs-7, .col-xs-8, .col-xs-9, .col-xs-10, .col-xs-11, .col-xs-12{float:left}.col-xs-12{width:100%}.col-xs-11{width:91.66666667%}.col-xs-10{width:83.33333333%}.col-xs-9{width:75%}.col-xs-8{width:66.66666667%}.col-xs-7{width:58.33333333%}.col-xs-6{width:50%}.col-xs-5{width:41.66666667%}.col-xs-4{width:33.33333333%}.col-xs-3{width:25%}.col-xs-2{width:16.66666667%}.col-xs-1{width:8.33333333%}.col-xs-pull-12{right:100%}.col-xs-pull-11{right:91.66666667%}.col-xs-pull-10{right:83.33333333%}.col-xs-pull-9{right:75%}.col-xs-pull-8{right:66.66666667%}.col-xs-pull-7{right:58.33333333%}.col-xs-pull-6{right:50%}.col-xs-pull-5{right:41.66666667%}.col-xs-pull-4{right:33.33333333%}.col-xs-pull-3{right:25%}.col-xs-pull-2{right:16.66666667%}.col-xs-pull-1{right:8.33333333%}.col-xs-pull-0{right:auto}.col-xs-push-12{left:100%}.col-xs-push-11{left:91.66666667%}.col-xs-push-10{left:83.33333333%}.col-xs-push-9{left:75%}.col-xs-push-8{left:66.66666667%}.col-xs-push-7{left:58.33333333%}.col-xs-push-6{left:50%}.col-xs-push-5{left:41.66666667%}.col-xs-push-4{left:33.33333333%}.col-xs-push-3{left:25%}.col-xs-push-2{left:16.66666667%}.col-xs-push-1{left:8.33333333%}.col-xs-push-0{left:auto}.col-xs-offset-12{margin-left:100%}.col-xs-offset-11{margin-left:91.66666667%}.col-xs-offset-10{margin-left:83.33333333%}.col-xs-offset-9{margin-left:75%}.col-xs-offset-8{margin-left:66.66666667%}.col-xs-offset-7{margin-left:58.33333333%}.col-xs-offset-6{margin-left:50%}.col-xs-offset-5{margin-left:41.66666667%}.col-xs-offset-4{margin-left:33.33333333%}.col-xs-offset-3{margin-left:25%}.col-xs-offset-2{margin-left:16.66666667%}.col-xs-offset-1{margin-left:8.33333333%}.col-xs-offset-0{margin-left:0}@media (min-width:768px){.col-sm-1, .col-sm-2, .col-sm-3, .col-sm-4, .col-sm-5, .col-sm-6, .col-sm-7, .col-sm-8, .col-sm-9, .col-sm-10, .col-sm-11, .col-sm-12{float:left}.col-sm-12{width:100%}.col-sm-11{width:91.66666667%}.col-sm-10{width:83.33333333%}.col-sm-9{width:75%}.col-sm-8{width:66.66666667%}.col-sm-7{width:58.33333333%}.col-sm-6{width:50%}.col-sm-5{width:41.66666667%}.col-sm-4{width:33.33333333%}.col-sm-3{width:25%}.col-sm-2{width:16.66666667%}.col-sm-1{width:8.33333333%}.col-sm-pull-12{right:100%}.col-sm-pull-11{right:91.66666667%}.col-sm-pull-10{right:83.33333333%}.col-sm-pull-9{right:75%}.col-sm-pull-8{right:66.66666667%}.col-sm-pull-7{right:58.33333333%}.col-sm-pull-6{right:50%}.col-sm-pull-5{right:41.66666667%}.col-sm-pull-4{right:33.33333333%}.col-sm-pull-3{right:25%}.col-sm-pull-2{right:16.66666667%}.col-sm-pull-1{right:8.33333333%}.col-sm-pull-0{right:auto}.col-sm-push-12{left:100%}.col-sm-push-11{left:91.66666667%}.col-sm-push-10{left:83.33333333%}.col-sm-push-9{left:75%}.col-sm-push-8{left:66.66666667%}.col-sm-push-7{left:58.33333333%}.col-sm-push-6{left:50%}.col-sm-push-5{left:41.66666667%}.col-sm-push-4{left:33.33333333%}.col-sm-push-3{left:25%}.col-sm-push-2{left:16.66666667%}.col-sm-push-1{left:8.33333333%}.col-sm-push-0{left:auto}.col-sm-offset-12{margin-left:100%}.col-sm-offset-11{margin-left:91.66666667%}.col-sm-offset-10{margin-left:83.33333333%}.col-sm-offset-9{margin-left:75%}.col-sm-offset-8{margin-left:66.66666667%}.col-sm-offset-7{margin-left:58.33333333%}.col-sm-offset-6{margin-left:50%}.col-sm-offset-5{margin-left:41.66666667%}.col-sm-offset-4{margin-left:33.33333333%}.col-sm-offset-3{margin-left:25%}.col-sm-offset-2{margin-left:16.66666667%}.col-sm-offset-1{margin-left:8.33333333%}.col-sm-offset-0{margin-left:0}}@media (min-width:992px){.col-md-1, .col-md-2, .col-md-3, .col-md-4, .col-md-5, .col-md-6, .col-md-7, .col-md-8, .col-md-9, .col-md-10, .col-md-11, .col-md-12{float:left}.col-md-12{width:100%}.col-md-11{width:91.66666667%}.col-md-10{width:83.33333333%}.col-md-9{width:75%}.col-md-8{width:66.66666667%}.col-md-7{width:58.33333333%}.col-md-6{width:50%}.col-md-5{width:41.66666667%}.col-md-4{width:33.33333333%}.col-md-3{width:25%}.col-md-2{width:16.66666667%}.col-md-1{width:8.33333333%}.col-md-pull-12{right:100%}.col-md-pull-11{right:91.66666667%}.col-md-pull-10{right:83.33333333%}.col-md-pull-9{right:75%}.col-md-pull-8{right:66.66666667%}.col-md-pull-7{right:58.33333333%}.col-md-pull-6{right:50%}.col-md-pull-5{right:41.66666667%}.col-md-pull-4{right:33.33333333%}.col-md-pull-3{right:25%}.col-md-pull-2{right:16.66666667%}.col-md-pull-1{right:8.33333333%}.col-md-pull-0{right:auto}.col-md-push-12{left:100%}.col-md-push-11{left:91.66666667%}.col-md-push-10{left:83.33333333%}.col-md-push-9{left:75%}.col-md-push-8{left:66.66666667%}.col-md-push-7{left:58.33333333%}.col-md-push-6{left:50%}.col-md-push-5{left:41.66666667%}.col-md-push-4{left:33.33333333%}.col-md-push-3{left:25%}.col-md-push-2{left:16.66666667%}.col-md-push-1{left:8.33333333%}.col-md-push-0{left:auto}.col-md-offset-12{margin-left:100%}.col-md-offset-11{margin-left:91.66666667%}.col-md-offset-10{margin-left:83.33333333%}.col-md-offset-9{margin-left:75%}.col-md-offset-8{margin-left:66.66666667%}.col-md-offset-7{margin-left:58.33333333%}.col-md-offset-6{margin-left:50%}.col-md-offset-5{margin-left:41.66666667%}.col-md-offset-4{margin-left:33.33333333%}.col-md-offset-3{margin-left:25%}.col-md-offset-2{margin-left:16.66666667%}.col-md-offset-1{margin-left:8.33333333%}.col-md-offset-0{margin-left:0}}@media (min-width:1200px){.col-lg-1, .col-lg-2, .col-lg-3, .col-lg-4, .col-lg-5, .col-lg-6, .col-lg-7, .col-lg-8, .col-lg-9, .col-lg-10, .col-lg-11, .col-lg-12{float:left}.col-lg-12{width:100%}.col-lg-11{width:91.66666667%}.col-lg-10{width:83.33333333%}.col-lg-9{width:75%}.col-lg-8{width:66.66666667%}.col-lg-7{width:58.33333333%}.col-lg-6{width:50%}.col-lg-5{width:41.66666667%}.col-lg-4{width:33.33333333%}.col-lg-3{width:25%}.col-lg-2{width:16.66666667%}.col-lg-1{width:8.33333333%}.col-lg-pull-12{right:100%}.col-lg-pull-11{right:91.66666667%}.col-lg-pull-10{right:83.33333333%}.col-lg-pull-9{right:75%}.col-lg-pull-8{right:66.66666667%}.col-lg-pull-7{right:58.33333333%}.col-lg-pull-6{right:50%}.col-lg-pull-5{right:41.66666667%}.col-lg-pull-4{right:33.33333333%}.col-lg-pull-3{right:25%}.col-lg-pull-2{right:16.66666667%}.col-lg-pull-1{right:8.33333333%}.col-lg-pull-0{right:auto}.col-lg-push-12{left:100%}.col-lg-push-11{left:91.66666667%}.col-lg-push-10{left:83.33333333%}.col-lg-push-9{left:75%}.col-lg-push-8{left:66.66666667%}.col-lg-push-7{left:58.33333333%}.col-lg-push-6{left:50%}.col-lg-push-5{left:41.66666667%}.col-lg-push-4{left:33.33333333%}.col-lg-push-3{left:25%}.col-lg-push-2{left:16.66666667%}.col-lg-push-1{left:8.33333333%}.col-lg-push-0{left:auto}.col-lg-offset-12{margin-left:100%}.col-lg-offset-11{margin-left:91.66666667%}.col-lg-offset-10{margin-left:83.33333333%}.col-lg-offset-9{margin-left:75%}.col-lg-offset-8{margin-left:66.66666667%}.col-lg-offset-7{margin-left:58.33333333%}.col-lg-offset-6{margin-left:50%}.col-lg-offset-5{margin-left:41.66666667%}.col-lg-offset-4{margin-left:33.33333333%}.col-lg-offset-3{margin-left:25%}.col-lg-offset-2{margin-left:16.66666667%}.col-lg-offset-1{margin-left:8.33333333%}.col-lg-offset-0{margin-left:0}}.clearfix:before,.clearfix:after,.container:before,.container:after,.container-fluid:before,.container-fluid:after,.row:before,.row:after{content:" ";display:table}.clearfix:after,.container:after,.container-fluid:after,.row:after{clear:both}.center-block{display:block;margin-left:auto;margin-right:auto}.pull-right{float:right !important}.pull-left{float:left !important}.hide{display:none !important}.show{display:block !important}.invisible{visibility:hidden}.text-hide{font:0/0 a;color:transparent;text-shadow:none;background-color:transparent;border:0}.hidden{display:none !important}.affix{position:fixed}@-ms-viewport{width:device-width}.visible-xs,.visible-sm,.visible-md,.visible-lg{display:none !important}.visible-xs-block,.visible-xs-inline,.visible-xs-inline-block,.visible-sm-block,.visible-sm-inline,.visible-sm-inline-block,.visible-md-block,.visible-md-inline,.visible-md-inline-block,.visible-lg-block,.visible-lg-inline,.visible-lg-inline-block{display:none !important}@media (max-width:767px){.visible-xs{display:block !important}table.visible-xs{display:table !important}tr.visible-xs{display:table-row !important}th.visible-xs,td.visible-xs{display:table-cell !important}}@media (max-width:767px){.visible-xs-block{display:block !important}}@media (max-width:767px){.visible-xs-inline{display:inline !important}}@media (max-width:767px){.visible-xs-inline-block{display:inline-block !important}}@media (min-width:768px) and (max-width:991px){.visible-sm{display:block !important}table.visible-sm{display:table !important}tr.visible-sm{display:table-row !important}th.visible-sm,td.visible-sm{display:table-cell !important}}@media (min-width:768px) and (max-width:991px){.visible-sm-block{display:block !important}}@media (min-width:768px) and (max-width:991px){.visible-sm-inline{display:inline !important}}@media (min-width:768px) and (max-width:991px){.visible-sm-inline-block{display:inline-block !important}}@media (min-width:992px) and (max-width:1199px){.visible-md{display:block !important}table.visible-md{display:table !important}tr.visible-md{display:table-row !important}th.visible-md,td.visible-md{display:table-cell !important}}@media (min-width:992px) and (max-width:1199px){.visible-md-block{display:block !important}}@media (min-width:992px) and (max-width:1199px){.visible-md-inline{display:inline !important}}@media (min-width:992px) and (max-width:1199px){.visible-md-inline-block{display:inline-block !important}}@media (min-width:1200px){.visible-lg{display:block !important}table.visible-lg{display:table !important}tr.visible-lg{display:table-row !important}th.visible-lg,td.visible-lg{display:table-cell !important}}@media (min-width:1200px){.visible-lg-block{display:block !important}}@media (min-width:1200px){.visible-lg-inline{display:inline !important}}@media (min-width:1200px){.visible-lg-inline-block{display:inline-block !important}}@media (max-width:767px){.hidden-xs{display:none !important}}@media (min-width:768px) and (max-width:991px){.hidden-sm{display:none !important}}@media (min-width:992px) and (max-width:1199px){.hidden-md{display:none !important}}@media (min-width:1200px){.hidden-lg{display:none !important}}.visible-print{display:none !important}@media print{.visible-print{display:block !important}table.visible-print{display:table !important}tr.visible-print{display:table-row !important}th.visible-print,td.visible-print{display:table-cell !important}}.visible-print-block{display:none !important}@media print{.visible-print-block{display:block !important}}.visible-print-inline{display:none !important}@media print{.visible-print-inline{display:inline !important}}.visible-print-inline-block{display:none !important}@media print{.visible-print-inline-block{display:inline-block !important}}@media print{.hidden-print{display:none !important}}
+</style>
+<style type="text/css">
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  padding-top: 100px;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0,0,0);
+  background-color: rgba(0,0,0,0.4);
+}
+.modal-content {
+  position: relative;
+  background-color: #fefefe;
+  margin: auto;
+  padding: 0;
+  width: 50%;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+  -webkit-animation-name: animatetop;
+  -webkit-animation-duration: 0.4s;
+  animation-name: animatetop;
+  animation-duration: 0.4s
+}
+@-webkit-keyframes animatetop {
+  from {top:-300px; opacity:0} 
+  to {top:0; opacity:1}
+}
+@keyframes animatetop {
+  from {top:-300px; opacity:0}
+  to {top:0; opacity:1}
+}
+.close {
+  color: white;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+.modal-header {
+  padding: 2px 16px;
+  background-color: #2f2f2f;
+  color: white;
+}
+.modal-body {padding: 2px 16px;}
+.modal-footer {
+  padding: 2px 16px;
+  background-color: #fff;
+  color: white;
+  text-align: right;
+}
+.close-payment-option {
+	margin: 10px;
+}
 </style>

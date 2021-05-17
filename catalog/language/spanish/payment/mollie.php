@@ -43,13 +43,18 @@ $_['text_redirected']       = 'El cliente ha sido redirigido a la pantalla de pa
 $_['text_issuer_ideal']     = 'Seleccione su banco';
 $_['text_issuer_giftcard']  = 'Seleccione su tarjeta regalo';
 $_['text_issuer_kbc']       = 'Seleccione su botón de pago';
-$_['button_retry']          = 'Intente pagar de nuevo';
 $_['text_card_details']     = 'Por favor ingrese los detalles de su tarjeta de crédito.';
 $_['text_mollie_payments']  = 'Pagos seguros proporcionados por %s';
 $_['text_recurring_desc']   = 'Pedido %s, %s - %s, cada %s durante %s';
 $_['text_recurring']		= '%s cada %s %s';
 $_['text_length']			= ' para pagos de %s';
 $_['text_trial']			= '%s cada %s %s para %s pagos luego ';
+$_['text_error_report_success']	= 'El error se ha informado correctamente!';
+
+// Button
+$_['button_retry']          = 'Intente pagar de nuevo';
+$_['button_report']         = 'Report Error';
+$_['button_submit']         = 'Enviar';
 
 // Entry
 $_['entry_card_holder']     	= 'Card Holder Name';

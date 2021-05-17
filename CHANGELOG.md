@@ -2,6 +2,20 @@
 
 # Changelog #
 
+#### Changes in release 10.3.0
+  + Added option to align payment method icons left or right to the method title
+  + Added single click payment
+  + Create shipment for all methods now
+  + Added option to set order expiry days
+  + Added option for partial refunds
+  + Made titles multilingual
+  + Fixed speed issue in loading payment methods on frontend in OC 1.5.x
+  + Added minimum and maximum amount for payment methods
+  + Added payment fee total
+  + Added check for Apple Pay in session instead of cookie
+  + Added option to report mollie errors in frontend
+  + Bugfixes
+
 #### Changes in release 10.2.0
   + Added removePermission function in OC1.5
   + Fixed typo in xml file

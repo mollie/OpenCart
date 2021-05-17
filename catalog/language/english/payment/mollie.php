@@ -43,13 +43,18 @@ $_['text_redirected']       = 'The client has been referred to the payment scree
 $_['text_issuer_ideal']     = 'Select your bank';
 $_['text_issuer_giftcard']  = 'Select your giftcard';
 $_['text_issuer_kbc']       = 'Select your payment button.';
-$_['button_retry']          = 'Return to checkout page';
 $_['text_card_details']     = 'Please enter your credit card details.';
 $_['text_mollie_payments']  = 'Secure payments provided by %s';
 $_['text_recurring_desc']   = 'Order %s, %s - %s, Every %s for %s';
 $_['text_recurring']		= '%s every %s %s';
 $_['text_length']			= ' for %s payments';
 $_['text_trial']			= '%s every %s %s for %s payments then ';
+$_['text_error_report_success']	= 'Error has been reported successfully!';
+
+// Button
+$_['button_retry']          = 'Return to checkout page';
+$_['button_report']         = 'Report Error';
+$_['button_submit']         = 'Submit';
 
 // Entry
 $_['entry_card_holder']     	= 'Card Holder Name';

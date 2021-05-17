@@ -17,17 +17,64 @@
       <h2>{{ message_title }}</h2>
       <br/>
       <p>{{ message_text }}</p>
-      {% if mollie_error is defined %}
-      <p><code>{{ mollie_error }}</code></p>
-      {% endif %}
 
       {% if button_retry is defined %}
       <p><a href="{{ checkout_url }}" class="button btn btn-primary">{{ button_retry }}</a></p>
       {% endif %}
+
+      {% if show_report_button %}
+        <p><button id="button-report-error" class="button btn btn-danger">{{ button_report }}</button></p>
+        <form id="error-form" class="form-horizontal" style="display: none;">
+          <hr>
+          <div class="form-group">
+            <div class="col-sm-12">
+              <textarea name="enquiry" id="mollie-error" class="form-control" rows="10">{{ (mollie_error is defined) ? mollie_error : '' }}</textarea>
+            </div>
+          </div>
+          <button type="button" id="report-error" class="btn btn-primary pull-right">{{ button_submit }}</button>
+        </form>
+      {% endif %}       
+
       {{ content_bottom }}
     </div>
     {{ column_right }}
   </div>
 </div>
+{% if show_report_button %}
+<script> 
+$(document).ready(function(){
+  $("#button-report-error").click(function(){
+    $("#error-form").slideDown("slow");
+  });
+
+  $("#report-error").click(function(){
+    var error = $('#mollie-error').val();
+    if (error == '') {
+      return;
+    }
+
+    $.ajax({
+      type: "POST",
+      url: 'index.php?route=payment/mollie/base/reportError',
+      data: "mollie_error=" + error,
+      beforeSend: function() {
+        $('#report-error').button('loading');
+      },
+      complete: function() {
+        $('#report-error').button('reset');
+      },
+      success: function(json) {   
+        if (json['success']) {
+          $('.alert-success').remove();
+          $('#content').prepend('<div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="close" data-dismiss="alert">&times;</button></div>');
+          $('#mollie-error').val('');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }  
+      }
+    });
+  });
+});
+</script>
+{% endif %}
 
 {{ footer }}

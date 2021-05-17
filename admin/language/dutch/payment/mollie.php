@@ -118,6 +118,12 @@ $_['text_allowed_variables']       = "Toegestane variabelen: {firstname}, {lastn
 $_['text_browse']                  = 'Browse';
 $_['text_clear']                   = 'Clear';
 $_['text_image_manager']           = 'Image Manager';
+$_['text_left']                    = 'Links';
+$_['text_right']                   = 'Rechts';
+$_['text_more']                    = 'Meer';
+$_['text_no_maximum_limit']        = 'Geen maximum bedrag limiet';
+$_['text_standard_total']          = 'Standaard totaal: %s';
+$_['text_advance_option']          = 'Geavanceerde opties voor %s';
 
 // Entry
 $_['entry_payment_method']           = "Betaalmethode";
@@ -138,6 +144,7 @@ $_['entry_email'] 			 		 = "E-mail";
 $_['entry_subject'] 			     = "Onderwerpen";
 $_['entry_enquiry'] 			 	 = "Onderzoek";
 $_['entry_debug_mode'] 			 	 = "Debug mode";
+$_['entry_mollie_component'] 		 = "Mollie components";
 $_['entry_mollie_component_base'] 	 = "Custom CSS for Base input field";
 $_['entry_mollie_component_valid'] 	 = "Custom CSS for Valid input field";
 $_['entry_mollie_component_invalid'] = "Custom CSS for Invalid input field";
@@ -147,6 +154,16 @@ $_['entry_email_body'] 			 	 = "Body (voor terugkerende betaling)";
 $_['entry_title']	 			 	 = "Titel";
 $_['entry_image']	 			 	 = "Afbeelding";
 $_['entry_status']	 			 	 = "Status";
+$_['entry_align_icons']              = "Uitlijnen icoontjes";
+$_['entry_single_click_payment']     = "Betaling met één klik";
+$_['entry_order_expiry_days']        = "Vervaldagen van bestelling";
+$_['entry_partial_refund']           = "Gedeeltelijke terugbetaling";
+$_['entry_amount']                   = "Amount (voorbeeld: 5, 5%)";
+$_['entry_payment_fee']              = "Payment Fee";
+$_['entry_payment_fee_tax_class']    = "Payment Fee Tax Class";
+$_['entry_total']				     = "Totaal";
+$_['entry_minimum']				     = "Minimum";
+$_['entry_maximum']				     = "Maximaal";
 
 // Help
 $_['help_view_profile']             = 'U kunt uw API-sleutel vinden bij <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank" class="alert-link">uw Mollie-websiteprofielen</a>.';
@@ -158,6 +175,9 @@ $_['help_show_order_canceled_page'] = "Toon een melding aan de klant als een bet
 $_['help_redirect_uri']				= 'URI omleiden in uw mollie-dashboard moet overeenkomen met deze URI.';
 $_['help_mollie_app']				= 'Door uw module te registreren als een app op het Mollie-dashboard, ontgrendeld u extra functionaliteiten. Dit is niet vereist om Mollie-betalingen te gebruiken.';
 $_['help_apple_pay']				= 'Voor Apple Pay dient credit card betaling geactiveerd te zijn op uw Mollie profiel. Activeer Credit Cards eerst.';
+$_['help_mollie_component']			= 'Met Mollie-componenten kunt u velden weergeven die nodig zijn voor gegevens van creditcardhouders aan uw eigen kassa.';
+$_['help_single_click_payment']		= 'Hiermee kunnen uw klanten met één klik een eerder gebruikte creditcard belasten.';
+$_['help_total']					= 'Het minimum- en maximumbedrag voor het afrekenen voordat deze betaalmethode actief wordt.';
 
 // Info
 $_['entry_module']          = "Module";
@@ -181,6 +201,8 @@ $_['error_no_api_client']     = 'API client not found.';
 $_['error_api_help']          = 'You can ask your hosting provider to help with this.';
 $_['error_comm_failed']       = '<strong>Communicating with Mollie failed:</strong><br/>%s<br/><br/>Please check the following conditions. You can ask your hosting provider to help with this.<ul><li>Make sure outside connections to %s are not blocked.</li><li>Make sure SSL v3 is disabled on your server. Mollie does not support SSL v3.</li><li>Make sure your server is up-to-date and the latest security patches have been installed.</li></ul><br/>Contact <a href="mailto:info@mollie.nl">info@mollie.nl</a> if this still does not fix your problem.';
 $_['error_no_api_key']        = 'No API key provided. Please insert your API key.';
+$_['error_order_expiry_days'] = 'Waarschuwing: het is niet mogelijk om Klarna Slice it of Klarna Pay later als methode te gebruiken wanneer de vervaldatum meer dan 28 dagen in de toekomst ligt.';
+$_['error_mollie_payment_fee'] = 'Waarschuwing: Mollie Payment Fee ordertotaal is uitgeschakeld!';
 
 // Status
 $_['entry_pending_status']   = "Status betaling aangemaakt";
@@ -189,11 +211,12 @@ $_['entry_canceled_status']  = "Status betaling geannuleerd";
 $_['entry_expired_status']   = "Status betaling verlopen";
 $_['entry_processing_status']= "Status betaling succesvol";
 $_['entry_refund_status']	  = "Status betaling terugbetaling";
+$_['entry_partial_refund_status']	  = "Gedeeltelijke terugbetalingsstatus";
 
 $_['entry_shipping_status']   = "Status bestelling verzonden";
 $_['entry_shipment']       			 = "Maak verzending";
 $_['entry_create_shipment_status']   = "Maak verzending aan na order status";
-$_['help_shipment'] 				 = "Verzending (alleen voor Klarna-methoden) wordt direct na het maken van de bestelling gemaakt. Selecteer 'Nee' om een ​​zending te creëren wanneer de order een specifieke status bereikt en selecteer de bestelstatus van onder.";
+$_['help_shipment'] 				 = "Verzending wordt direct na het maken van de bestelling gemaakt. Selecteer 'Nee' om een ​​zending te creëren wanneer de order een specifieke status bereikt en selecteer de bestelstatus van onder.";
 
 $_['text_create_shipment_automatically']            = "Maak automatisch een zending bij het maken van de bestelling";
 $_['text_create_shipment_on_status']                = "Maak verzending bij het plaatsen van de bestelling naar deze status";
@@ -203,6 +226,7 @@ $_['entry_create_shipment_on_order_complete'] 		= "Maak verzending bij bestellin
 //Button
 $_['button_update'] = "Bijwerken";
 $_['button_mollie_connect'] = "Connect via Mollie";
+$_['button_advance_option'] = "Advance Option";
 
 //Error log
 $_['text_log_success']	   = 'Succes: u hebt met succes uw foutenlogboek gewist!';

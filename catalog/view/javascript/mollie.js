@@ -1,8 +1,12 @@
 $(document).ready(function() {
-  if (!window.ApplePaySession || !ApplePaySession.canMakePayments()) {
-    // Apple Pay is not available
-    if(document.cookie.indexOf('applePay=') == -1) {
-    	document.cookie="applePay=0";
-    }
-  }
+	if (!window.ApplePaySession || !ApplePaySession.canMakePayments()) {
+		// Apple Pay is not available
+		$.ajax({
+			type: "POST",
+			url: 'index.php?route=payment/mollie/base/setApplePaySession',
+			data: "apple_pay=0",
+			success: function() {			
+			}
+		});
+	}
 });
