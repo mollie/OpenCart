@@ -45,8 +45,6 @@ class ControllerTotalMolliePaymentFee extends Controller {
 	    } else {
 	      $this->load->language('total/mollie_payment_fee');
 	    }
-		
-		$this->load->library("mollie/mollieHttpClient");
 
 		if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
 			$this->model_setting_setting->editSetting($this->moduleCode, $this->request->post);

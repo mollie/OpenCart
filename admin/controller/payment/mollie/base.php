@@ -327,7 +327,7 @@ class ControllerPaymentMollieBase extends Controller {
 					`payment_attempt` INT(11) NOT NULL,
 					PRIMARY KEY (`mollie_order_id`),
 					UNIQUE KEY `mollie_order_id` (`mollie_order_id`)
-				) ENGINE=InnoDB DEFAULT CHARSET=utf8",
+				) DEFAULT CHARSET=utf8",
 				DB_PREFIX
 			)
 		);
@@ -371,7 +371,7 @@ class ControllerPaymentMollieBase extends Controller {
 					`email` VARCHAR(96) NOT NULL,
 					`date_created` DATETIME NOT NULL,
 					PRIMARY KEY (`id`)
-				) ENGINE=InnoDB DEFAULT CHARSET=utf8",
+				) DEFAULT CHARSET=utf8",
 				DB_PREFIX
 			)
 		);
@@ -389,7 +389,7 @@ class ControllerPaymentMollieBase extends Controller {
 					`status` VARCHAR(32) NOT NULL,
 					`date_created` DATETIME NOT NULL,
 					PRIMARY KEY (`id`)
-				) ENGINE=InnoDB DEFAULT CHARSET=utf8",
+				) DEFAULT CHARSET=utf8",
 				DB_PREFIX
 			)
 		);
@@ -406,7 +406,7 @@ class ControllerPaymentMollieBase extends Controller {
 					`currency_code` VARCHAR(32),
 					`date_created` DATETIME NOT NULL,
 					PRIMARY KEY (`id`)
-				) ENGINE=InnoDB DEFAULT CHARSET=utf8",
+				) DEFAULT CHARSET=utf8",
 				DB_PREFIX
 			)
 		);

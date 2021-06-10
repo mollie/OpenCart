@@ -2,6 +2,11 @@
 
 # Changelog #
 
+#### Changes in release 10.3.1
+  + Fixed shipment creation exception
+  + Fixed bug in currency
+  + Removed DB storage engine while creating table
+
 #### Changes in release 10.3.0
   + Added option to align payment method icons left or right to the method title
   + Added single click payment
