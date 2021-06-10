@@ -1190,18 +1190,22 @@ class ControllerPaymentMollieBase extends Controller
             }
 
             if(((isset($shipment_status_id) && $order_status_id == $shipment_status_id)) || ((isset($order_complete_statuses) && in_array($order_status_id, $order_complete_statuses)))) {
-                //Shipment lines
-                $shipmentLine = array();
-                foreach($mollieOrder->lines as $line) {
-                    $shipmentLine[] = array(
-                        'id'        =>  $line->id,
-                        'quantity'  =>  $line->quantity
-                    );
-                }
+                try {
+                    //Shipment lines
+                    $shipmentLine = array();
+                    foreach($mollieOrder->lines as $line) {
+                        $shipmentLine[] = array(
+                            'id'        =>  $line->id,
+                            'quantity'  =>  $line->quantity
+                        );
+                    }
 
-                $shipmentData['lines'] = $shipmentLine;
-                $mollieShipment = $mollieOrder->createShipment($shipmentData);
-                $this->writeToMollieLog("Shipment created for order - {$order_id}, {$mollie_order_id}");
+                    $shipmentData['lines'] = $shipmentLine;
+                    $mollieShipment = $mollieOrder->createShipment($shipmentData);
+                    $this->writeToMollieLog("Shipment created for order - {$order_id}, {$mollie_order_id}");
+                } catch (Mollie\Api\Exceptions\ApiException $e) {
+                    $this->writeToMollieLog("Shipment could not be created for order - {$order_id}, {$mollie_order_id}; " . htmlspecialchars($e->getMessage()));
+                }
             }
         }
     }
@@ -1360,21 +1364,25 @@ class ControllerPaymentMollieBase extends Controller
         satisfies the 'Create shipment immediately after order creation' condition. */
         
         if(($orderDetails->isPaid() || $orderDetails->isAuthorized()) && ($this->config->get($moduleCode . "_create_shipment")) == 1) {
-            //Shipment lines
-            $shipmentLine = array();
-            foreach($orderDetails->lines as $line) {
-                $shipmentLine[] = array(
-                    'id'        =>  $line->id,
-                    'quantity'  =>  $line->quantity
-                );
-            }
+            try {
+                //Shipment lines
+                $shipmentLine = array();
+                foreach($orderDetails->lines as $line) {
+                    $shipmentLine[] = array(
+                        'id'        =>  $line->id,
+                        'quantity'  =>  $line->quantity
+                    );
+                }
 
-            $shipmentData['lines'] = $shipmentLine;
-            $mollieShipment = $orderDetails->createShipment($shipmentData);
-            $shipped_status_id = intval($this->config->get($moduleCode . "_ideal_shipping_status_id"));
-            $this->addOrderHistory($order, $shipped_status_id, $this->language->get("shipment_success"), true);
-            $this->writeToMollieLog("Shipment created for order - {$order_id}, {$mollie_order_id}");
-            $order['order_status_id'] = $shipped_status_id;
+                $shipmentData['lines'] = $shipmentLine;
+                $mollieShipment = $orderDetails->createShipment($shipmentData);
+                $shipped_status_id = intval($this->config->get($moduleCode . "_ideal_shipping_status_id"));
+                $this->addOrderHistory($order, $shipped_status_id, $this->language->get("shipment_success"), true);
+                $this->writeToMollieLog("Shipment created for order - {$order_id}, {$mollie_order_id}");
+                $order['order_status_id'] = $shipped_status_id;
+            } catch (Mollie\Api\Exceptions\ApiException $e) {
+                $this->writeToMollieLog("Shipment could not be created for order - {$order_id}, {$mollie_order_id}; " . htmlspecialchars($e->getMessage()));
+            }                
         }
         // Show a 'transaction failed' page if we couldn't find the order or if the payment failed.
         $failed_status_id = $this->config->get($moduleCode . "_ideal_failed_status_id");

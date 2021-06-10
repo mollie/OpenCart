@@ -122,11 +122,22 @@ class ModelPaymentMollieBase extends Model
 
 		// Check total for minimum and maximum amount
 		$standardTotal = $this->currency->convert($total, $this->config->get("config_currency"), 'EUR');
-		$minimumAmount = $this->currency->convert($this->config->get($moduleCode . "_" . static::MODULE_NAME . "_total_minimum"), $this->config->get("config_currency"), 'EUR');
-		$maximumAmount = $this->currency->convert($this->config->get($moduleCode . "_" . static::MODULE_NAME . "_total_maximum"), $this->config->get("config_currency"), 'EUR');
-		if(($standardTotal < $minimumAmount) || (!empty($maximumAmount) && ($standardTotal > $maximumAmount))) {
-			return NULL;
+		$minimumAmount = $this->config->get($moduleCode . "_" . static::MODULE_NAME . "_total_minimum");
+		$maximumAmount = $this->config->get($moduleCode . "_" . static::MODULE_NAME . "_total_maximum");
+
+		if ($minimumAmount && $maximumAmount) {
+			$minimumAmount = $this->currency->convert($minimumAmount, $this->config->get("config_currency"), 'EUR');
+			$maximumAmount = $this->currency->convert($maximumAmount, $this->config->get("config_currency"), 'EUR');
+			if(($standardTotal < $minimumAmount) || ($standardTotal > $maximumAmount)) {
+				return NULL;
+			}
+		} elseif (!$maximumAmount) {
+			$minimumAmount = $this->currency->convert($minimumAmount, $this->config->get("config_currency"), 'EUR');
+			if($standardTotal < $minimumAmount) {
+				return NULL;
+			}
 		}
+		
 
 		// Check for order expiry days
 		if ((static::MODULE_NAME == 'klarnapaylater') || (static::MODULE_NAME == 'klarnasliceit')) {
