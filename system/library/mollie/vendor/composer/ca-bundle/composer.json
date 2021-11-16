@@ -1,5 +1,5 @@
 {
-    "name": "composer/ca-bundle",
+    "name": "composer\/ca-bundle",
     "description": "Lets you find a path to the system CA bundle, and includes a fallback to the Mozilla CA bundle.",
     "type": "library",
     "license": "MIT",
@@ -14,12 +14,12 @@
         {
             "name": "Jordi Boggiano",
             "email": "j.boggiano@seld.be",
-            "homepage": "http://seld.be"
+            "homepage": "http:\/\/seld.be"
         }
     ],
     "support": {
-        "irc": "irc://irc.freenode.org/composer",
-        "issues": "https://github.com/composer/ca-bundle/issues"
+        "irc": "irc:\/\/irc.freenode.org\/composer",
+        "issues": "https:\/\/github.com\/composer\/ca-bundle\/issues"
     },
     "require": {
         "ext-openssl": "*",
@@ -27,19 +27,19 @@
         "php": "^5.3.2 || ^7.0 || ^8.0"
     },
     "require-dev": {
-        "symfony/phpunit-bridge": "^4.2 || ^5",
-        "phpstan/phpstan": "^0.12.55",
-        "psr/log": "^1.0",
-        "symfony/process": "^2.5 || ^3.0 || ^4.0 || ^5.0"
+        "symfony\/phpunit-bridge": "^4.2 || ^5",
+        "phpstan\/phpstan": "^0.12.55",
+        "psr\/log": "^1.0",
+        "symfony\/process": "^2.5 || ^3.0 || ^4.0 || ^5.0 || ^6.0"
     },
     "autoload": {
         "psr-4": {
-            "Composer\\CaBundle\\": "src"
+            "_PhpScoperf6dbed3faadf\\Composer\\CaBundle\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Composer\\CaBundle\\": "tests"
+            "_PhpScoperf6dbed3faadf\\Composer\\CaBundle\\": "tests"
         }
     },
     "extra": {
@@ -48,7 +48,7 @@
         }
     },
     "scripts": {
-        "test": "SYMFONY_PHPUNIT_REMOVE_RETURN_TYPEHINT=1 vendor/bin/simple-phpunit",
-        "phpstan": "vendor/bin/phpstan analyse"
+        "test": "SYMFONY_PHPUNIT_REMOVE_RETURN_TYPEHINT=1 vendor\/bin\/simple-phpunit",
+        "phpstan": "vendor\/bin\/phpstan analyse"
     }
 }

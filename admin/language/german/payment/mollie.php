@@ -46,9 +46,12 @@ $_['text_mollie_giftcard']      = $method_list_logo;
 $_['text_mollie_eps']           = $method_list_logo;
 $_['text_mollie_giropay']       = $method_list_logo;
 $_['text_mollie_klarnapaylater'] = $method_list_logo;
+$_['text_mollie_klarnapaynow']   = $method_list_logo;
 $_['text_mollie_klarnasliceit']  = $method_list_logo;
 $_['text_mollie_przelewy24']  	 = $method_list_logo;
 $_['text_mollie_applepay']  	 = $method_list_logo;
+$_['text_mollie_voucher']    	 = $method_list_logo;
+
 //These methods have been removed, it's here only to supress error of undefined variables. We'll remove it later
 $_['text_mollie_inghomepay']  	 = $method_list_logo;
 $_['text_mollie_directdebit']  	 = $method_list_logo;
@@ -75,9 +78,11 @@ $_['name_mollie_giftcard']      = 'Giftcard';
 $_['name_mollie_eps']           = 'EPS';
 $_['name_mollie_giropay']       = 'Giropay';
 $_['name_mollie_klarnapaylater'] = 'Klarna Pay Later';
+$_['name_mollie_klarnapaynow']   = 'Klarna Pay Now';
 $_['name_mollie_klarnasliceit']  = 'Klarna Slice It';
 $_['name_mollie_przelewy24']  	 = 'P24';
 $_['name_mollie_applepay']  	 = 'Apple Pay';
+$_['name_mollie_voucher']        = "Voucher";
 //These methods have been removed, it's here only to supress error of undefined variables. We'll remove it later
 $_['name_mollie_inghomepay']  	 = 'INGHOMEPAY';
 $_['name_mollie_directdebit']  	 = 'Direct Debit';
@@ -124,6 +129,9 @@ $_['text_more']                    = 'Mehr';
 $_['text_no_maximum_limit']        = 'Keine Höchstmenge';
 $_['text_standard_total']          = 'Standard Summe: %s';
 $_['text_advance_option']          = 'Erweiterte Optionen für %s';
+$_['text_payment_api']             = 'Zahlungs API';
+$_['text_order_api']               = 'Bestell API';
+$_['text_info_orders_api']         = 'Warum Auftrags API verwenden?';
 
 // Entry
 $_['entry_payment_method']           = "Zahlungsart";
@@ -164,6 +172,7 @@ $_['entry_payment_fee_tax_class']    = "Payment Fee Tax Class";
 $_['entry_total']				     = "Gesamt";
 $_['entry_minimum']				     = "Minimum";
 $_['entry_maximum']				     = "Maximal";
+$_['entry_api_to_use']  		     = "API zu verwenden";
 
 // Help
 $_['help_view_profile']             = 'Sie können Ihren API Key auf <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank" class="alert-link">Ihren Mollie-Webseiten-Profilen finden</a>.';
@@ -227,6 +236,7 @@ $_['entry_create_shipment_on_order_complete'] 		= "Erstellen Sie den Versand nac
 $_['button_update'] = "Aktualisieren";
 $_['button_mollie_connect'] = "Connect via Mollie";
 $_['button_advance_option'] = "Advance Option";
+$_['button_close'] = "Schließen";
 
 //Error log
 $_['text_log_success']	   = 'Erfolg: Sie haben Ihr Fehlerprotokoll erfolgreich gelöscht!';

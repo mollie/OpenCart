@@ -232,7 +232,12 @@ class ControllerPaymentMollieBase extends Controller
         $order = $this->getOpenCartOrder($order_id);
 
         // Set template data.
-        $data['action']                  = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/payment", '', 'SSL');
+        if (in_array($method, ['klarnapaylater', 'klarnasliceit', 'klarnapaynow', 'voucher']) || ($this->config->get($this->mollieHelper->getModuleCode() . "_" . $method . "_api_to_use") == 'orders_api')) {
+            $data['action'] = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/order", '', 'SSL');
+        } else {
+            $data['action'] = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/payment", '', 'SSL');
+        }
+        
         $data['image']                   = $payment_method->image->size1x;
         $data['message']                 = $this->language;
         $data['issuers']                 = isset($payment_method->issuers) ? $payment_method->issuers : array();
@@ -314,7 +319,7 @@ class ControllerPaymentMollieBase extends Controller
      *
      * It is called when the customer submits the button generated in the mollie_checkout_form template.
      */
-    public function payment()
+    public function order()
     {
         // Load essentials
         $this->load->language("payment/mollie");
@@ -425,12 +430,13 @@ class ControllerPaymentMollieBase extends Controller
                 $total = $this->numberFormat($this->convertCurrency(($orderProduct['price'] + $orderProduct['tax']) * $orderProduct['quantity']));
 
                 // Fix for qty < 1
-                if(!is_int($orderProduct['quantity'])) {
+                $qty = (int)$orderProduct['quantity'];
+                if($qty < 1) {
                     $qty = 1;
                     $price = $orderProduct['price'] * $orderProduct['quantity'];
                     $tax = $orderProduct['tax'] * $orderProduct['quantity'];
                 } else {
-                    $qty = $orderProduct['quantity'];
+                    $qty = (int)$orderProduct['quantity'];
                     $price = $orderProduct['price'];
                     $tax = $orderProduct['tax'];
                 }
@@ -443,7 +449,8 @@ class ControllerPaymentMollieBase extends Controller
                     'unitPrice'     =>  ["currency" => $currency, "value" => (string)$this->numberFormat($this->convertCurrency($price + $tax))],
                     'totalAmount'   =>  ["currency" => $currency, "value" => (string)$this->numberFormat($total)],
                     'vatRate'       =>  (string)$this->numberFormat($vatRate),
-                    'vatAmount'     =>  ["currency" => $currency, "value" => (string)$this->numberFormat($vatAmount)]
+                    'vatAmount'     =>  ["currency" => $currency, "value" => (string)$this->numberFormat($vatAmount)],
+                    'metadata'      =>  array("order_product_id" => $orderProduct['order_product_id'])
                 );
             }
 
@@ -816,13 +823,182 @@ class ControllerPaymentMollieBase extends Controller
         }
 
         if($model->setPayment($order['order_id'], $orderObject->id, $orderObject->method)) {
-            $this->writeToMollieLog("Order created : order_id - " . $order['order_id'] . ', ' . "mollie_order_id - " . $orderObject->id);
+            $this->writeToMollieLog("Orders API: Order created : order_id - " . $order['order_id'] . ', ' . "mollie_order_id - " . $orderObject->id);
         } else {
-            $this->writeToMollieLog("Order created for order_id - " . $order['order_id'] . " but mollie_order_id - " . $orderObject->id . " not saved in the database. Should be updated when webhook called.");
+            $this->writeToMollieLog("Orders API: Order created for order_id - " . $order['order_id'] . " but mollie_order_id - " . $orderObject->id . " not saved in the database. Should be updated when webhook called.");
         }
 
         // Redirect to payment gateway.
         $this->redirect($orderObject->_links->checkout->href, 303);
+    }
+
+    public function payment()
+    {
+        // Load essentials
+        $this->load->language("payment/mollie");
+
+        if ($this->request->server['REQUEST_METHOD'] != 'POST') {
+            $this->showErrorPage($this->language->get('warning_secure_connection'));
+            $this->writeToMollieLog("Creating payment failed, connection is not secure.");
+            return;
+        }
+        
+        try {
+            $api = $this->getAPIClient();
+        } catch (Mollie\Api\Exceptions\ApiException $e) {
+            $this->showErrorPage(htmlspecialchars($e->getMessage()));
+            $this->writeToMollieLog("Creating payment failed, API did not load; " . htmlspecialchars($e->getMessage()));
+            return;
+        }
+
+        $model = $this->getModuleModel();
+        $order_id = $this->getOrderID();
+        $order = $this->getOpenCartOrder($order_id);
+
+        $currency = $this->getCurrency();
+        $amount = $this->convertCurrency($order['total']);
+
+        if(isset($this->config->get($this->mollieHelper->getModuleCode() . "_description")[$this->config->get('config_language_id')])) {
+			$description = $this->config->get($this->mollieHelper->getModuleCode() . "_description")[$this->config->get('config_language_id')]['title'];
+		} else {
+			$description = 'Order %';
+		}
+        $description = str_replace("%", $order['order_id'], html_entity_decode($description, ENT_QUOTES, "UTF-8"));
+
+        $return_url = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/callback", "order_id=" . $order['order_id']);
+        $issuer = $this->getIssuer();
+        $method = str_replace('mollie_', '', $this->session->data['payment_method']['code']);
+
+        // Check for recurring profiles
+        $recurring = false;
+        if (version_compare(VERSION, '1.5.6.4', '>=')) {
+            if ($this->cart->hasRecurringProducts()) {
+                $recurring = true;
+            }
+        }
+
+        $singleClickPayment = false;
+        if(($method == 'creditcard') && $this->config->get($this->mollieHelper->getModuleCode() . "_single_click_payment")) {
+            $mollie_customer_id = $this->createCustomer($order);
+            $singleClickPayment = true;
+        } elseif ($recurring) {
+            $mollie_customer_id = $this->createCustomer($order);
+        }
+
+        $mandate = false;
+        if (!empty($mollie_customer_id)) {
+            $customer = $api->customers->get($mollie_customer_id);
+            $mandates = $customer->mandates();
+            foreach($mandates as $_mandate) {
+                if(($_mandate->isValid()) || ($_mandate->isPending())) {
+                    $mandate = true;
+                    break;
+                }
+            }
+        }
+
+        try {
+            $data = array(
+                "amount" => ["currency" => $currency, "value" => (string)$this->numberFormat($amount)],
+                "description" => $description,
+                "redirectUrl" => $this->formatText($return_url),
+                "webhookUrl" => $this->getWebhookUrl(),
+                "metadata" => array("order_id" => $order['order_id']),
+                "method" => $method,
+                "issuer" => $this->formatText($issuer)
+            );
+
+            
+
+            if((($singleClickPayment && $mandate) || $recurring) && !empty($mollie_customer_id)) {
+                $data['customerId'] = (string)$mollie_customer_id;
+            }
+
+            // Additional data for recurring profile
+            if($recurring) {
+                $data['sequenceType'] = "first";
+            }
+
+            // Send cardToken in case of creditcard(if available)
+            if (isset($this->request->post['cardToken'])) {
+                $data['cardToken'] = $this->request->post['cardToken'];
+            }
+
+            /*
+            * This data is sent along for credit card payments / fraud checks. You can remove this but you will
+            * have a higher conversion if you leave it here.
+            */
+           $data["billingAddress"] = [
+                "streetAndNumber" => $this->formatText($order['payment_address_1'] . ' ' . $order['payment_address_2']),
+                "city" => $this->formatText($order['payment_city']),
+                "region" => $this->formatText($order['payment_zone']),
+                "postalCode" => $this->formatText($order['payment_postcode']),
+                "country" => $this->formatText($order['payment_iso_code_2'])
+            ];
+
+            if (!empty($order['shipping_firstname']) || !empty($order['shipping_lastname'])) {
+                $data["shippingAddress"] = [
+                    "streetAndNumber" => $this->formatText($order['shipping_address_1'] . ' ' . $order['shipping_address_2']),
+                    "city" => $this->formatText($order['shipping_city']),
+                    "region" => $this->formatText($order['shipping_zone']),
+                    "postalCode" => $this->formatText($order['shipping_postcode']),
+                    "country" => $this->formatText($order['shipping_iso_code_2'])
+                ];
+            } else {
+                $data["shippingAddress"] = $data["billingAddress"];
+            }
+
+            if (strstr(isset($this->session->data['language']) ? $this->session->data['language'] : $this->config->get('config_language'), '-')) {
+                list ($language, $country) = explode('-', isset($this->session->data['language']) ? $this->session->data['language'] : $this->config->get('config_language'));
+                $locale = strtolower($language) . '_' . strtoupper($country);
+            } else {
+                $locale = strtolower(isset($this->session->data['language']) ? $this->session->data['language'] : $this->config->get('config_language')) . '_' . strtoupper(isset($this->session->data['language']) ? $this->session->data['language'] : $this->config->get('config_language'));
+            }
+
+            if (!in_array($locale, $this->locales)) {
+                $locale = $this->config->get($this->mollieHelper->getModuleCode() . "_payment_screen_language");
+                if (strstr($locale, '-')) {
+                    list ($language, $country) = explode('-', $locale);
+                    $locale = strtolower($language) . '_' . strtoupper($country);
+                } else {
+                    $locale = strtolower($locale) . '_' . strtoupper($locale);
+                }
+            }
+
+            if((strtolower($locale) == 'en_gb') || (strtolower($locale) == 'en_en')) {
+                $locale = 'en_US';
+            }
+
+            $data["locale"]=$locale;
+
+            // Debug mode
+            if($this->config->get($this->mollieHelper->getModuleCode() . "_debug_mode")) {
+                $this->writeToMollieDebugLog("Mollie payment creation data :");
+                $this->writeToMollieDebugLog($data);
+            }
+
+            //Create Payment
+            $paymentObject = $api->payments->create($data);
+
+        } catch (Mollie\Api\Exceptions\ApiException $e) {
+            $this->showErrorPage(htmlspecialchars($e->getMessage()));
+            $this->writeToMollieLog("Creating payment failed for order_id - " . $order['order_id'] . ' ; ' . htmlspecialchars($e->getMessage()));
+            return;
+        }
+
+        // Some payment methods can't be cancelled. They need an initial order status.
+        if ($this->startAsPending()) {
+            $this->addOrderHistory($order, $this->config->get($this->mollieHelper->getModuleCode() . "_ideal_pending_status_id"), $this->language->get("text_redirected"), false);
+        }
+
+        if($model->setPaymentForPaymentAPI($order['order_id'], $paymentObject->id, $paymentObject->method)) {
+            $this->writeToMollieLog("Payments API: Payment created : order_id - " . $order['order_id'] . ', ' . "mollie_payment_id - " . $paymentObject->id);
+        } else {
+            $this->writeToMollieLog("Payments API: Payment created for order_id - " . $order['order_id'] . " but mollie_payment_id - " . $paymentObject->id . " not saved in the database. Should be updated when webhook called.");
+        }
+
+        // Redirect to payment gateway.
+        $this->redirect($paymentObject->_links->checkout->href, 303);
     }
 
     /**
@@ -891,13 +1067,21 @@ class ControllerPaymentMollieBase extends Controller
            
             return;            
         }
-
-        $mollieOrderId = $molliePayment->orderId;
-
-        $mollieOrder = $this->getAPIClient()->orders->get($mollieOrderId);
+        
+        if ($molliePayment->orderId) {
+            $mollieOrderId = $molliePayment->orderId;
+            $mollieOrder = $this->getAPIClient()->orders->get($mollieOrderId);
+        } else {
+            $mollieOrderId = '';
+            $mollieOrder = '';
+        }
 
         //Get order_id of this transaction from db
-        $order = $this->model_checkout_order->getOrder($mollieOrder->metadata->order_id);
+        if ($mollieOrder != '') {
+            $order = $this->model_checkout_order->getOrder($mollieOrder->metadata->order_id);
+        } else {
+            $order = $this->model_checkout_order->getOrder($molliePayment->metadata->order_id);
+        }
 
         if (empty($order)) {
             header("HTTP/1.0 404 Not Found");
@@ -916,8 +1100,13 @@ class ControllerPaymentMollieBase extends Controller
         }
 
         if(!empty($data)) {
-            $model->updatePayment($mollieOrder->metadata->order_id, $mollieOrderId, $data);
-            $this->writeToMollieLog("Webhook for payment : transaction_id - {$payment_id}, status - {$data['status']}, order_id - {$mollieOrder->metadata->order_id}, mollie_order_id - $mollieOrderId");
+            if ($mollieOrderId != '') {
+                $model->updatePayment($order['order_id'], $mollieOrderId, $data);
+                $this->writeToMollieLog("Webhook for payment : transaction_id - {$payment_id}, status - {$data['status']}, order_id - {$order['order_id']}, mollie_order_id - $mollieOrderId");
+            } else {
+                $model->updatePaymentForPaymentAPI($order['order_id'], $payment_id, $data);
+                $this->writeToMollieLog("Webhook for payment : transaction_id - {$payment_id}, status - {$data['status']}, order_id - {$order['order_id']}");
+            }
         }
 
         if($order['order_status_id'] != 0) {
@@ -929,18 +1118,23 @@ class ControllerPaymentMollieBase extends Controller
                 );
 
                 if(!empty($data)) {
-                    $model->updatePayment($mollieOrder->metadata->order_id, $mollieOrderId, $data);
-                    $this->writeToMollieLog("Webhook for payment : Updated mollie payment. transaction_id - {$payment_id}, status - {$data['status']}, order_id - {$mollieOrder->metadata->order_id}, mollie_order_id - $mollieOrderId");
+                    if ($mollieOrderId != '') {
+                        $model->updatePayment($order['order_id'], $mollieOrderId, $data);
+                        $this->writeToMollieLog("Webhook for payment : Updated mollie payment. transaction_id - {$payment_id}, status - {$data['status']}, order_id - {$order['order_id']}, mollie_order_id - $mollieOrderId");
+                    } else {
+                        $model->updatePaymentForPaymentAPI($order['order_id'], $payment_id, $data);
+                        $this->writeToMollieLog("Webhook for payment : Updated mollie payment. transaction_id - {$payment_id}, status - {$data['status']}, order_id - {$order['order_id']}");
+                    }
                 }
 
                 $this->writeToMollieLog("Webhook for payment : Order status has been updated to 'Refunded' for order - {$order['order_id']}, {$mollieOrderId}");
             } else {
                 if (!empty($order['order_status_id']) && $order['order_status_id'] == $this->config->get($moduleCode . "_ideal_refund_status_id")) {
                     $data['refund_id'] = '';
-                    $model->cancelReturn($mollieOrder->metadata->order_id, $mollieOrderId, $data);
+                    $model->cancelReturn($order['order_id'], $mollieOrderId, $data);
                     $this->addOrderHistory($order, $this->config->get($moduleCode . "_ideal_processing_status_id"), $this->language->get("refund_cancelled"), true);
-                    $this->writeToMollieLog("Webhook for payment : Refund has been cancelled for order - {$order['order_id']}, {$mollieOrderId}");
-                    $this->writeToMollieLog("Webhook for payment : Order status has been updated to 'Processing' for order - {$order['order_id']}, {$mollieOrderId}");
+                    $this->writeToMollieLog("Webhook for payment : Refund has been cancelled for order - {$order['order_id']}, {$mollieOrderId}, {$payment_id}");
+                    $this->writeToMollieLog("Webhook for payment : Order status has been updated to 'Processing' for order - {$order['order_id']}, {$mollieOrderId}, {$payment_id}");
                 }
             }
 
@@ -949,7 +1143,7 @@ class ControllerPaymentMollieBase extends Controller
 
         // Only process the status if the order is stateless or in 'pending' status.
         if (!empty($order['order_status_id']) && $order['order_status_id'] != $this->config->get($moduleCode . "_ideal_pending_status_id")) {
-            $this->writeToMollieLog("Webhook for payment : The order {$order['order_id']}, {$mollieOrderId} was already processed before (order status ID: " . intval($order['order_status_id']) . ")");
+            $this->writeToMollieLog("Webhook for payment : The order {$order['order_id']}, {$mollieOrderId}, {$payment_id} was already processed before (order status ID: " . intval($order['order_status_id']) . ")");
             return;
         }
 
@@ -958,11 +1152,11 @@ class ControllerPaymentMollieBase extends Controller
             $new_status_id = intval($this->config->get($moduleCode . "_ideal_canceled_status_id"));
 
             if (!$new_status_id) {
-                $this->writeToMollieLog("Webhook for payment : The payment was cancelled. No 'cancelled' status ID is configured, so the order status for order {$order['order_id']}, {$mollieOrderId} could not be updated.", true);
+                $this->writeToMollieLog("Webhook for payment : The payment was cancelled. No 'cancelled' status ID is configured, so the order status for order {$order['order_id']}, {$mollieOrderId}, {$payment_id} could not be updated.", true);
                 return;
             }
             $this->addOrderHistory($order, $new_status_id, $this->language->get("response_cancelled"), false);
-            $this->writeToMollieLog("Webhook for payment : The payment was cancelled and the order {$order['order_id']}, {$mollieOrderId} was moved to the 'cancelled' status (new status ID: {$new_status_id}).", true);
+            $this->writeToMollieLog("Webhook for payment : The payment was cancelled and the order {$order['order_id']}, {$mollieOrderId}, {$payment_id} was moved to the 'cancelled' status (new status ID: {$new_status_id}).", true);
             return;
         }
 
@@ -971,11 +1165,11 @@ class ControllerPaymentMollieBase extends Controller
             $new_status_id = intval($this->config->get($moduleCode . "_ideal_expired_status_id"));
 
             if (!$new_status_id) {
-                $this->writeToMollieLog("Webhook for payment : The payment expired. No 'expired' status ID is configured, so the order status for order {$order['order_id']}, {$mollieOrderId} could not be updated.", true);
+                $this->writeToMollieLog("Webhook for payment : The payment expired. No 'expired' status ID is configured, so the order status for order {$order['order_id']}, {$mollieOrderId}, {$payment_id} could not be updated.", true);
                 return;
             }
             $this->addOrderHistory($order, $new_status_id, $this->language->get("response_expired"), false);
-            $this->writeToMollieLog("Webhook for payment : The payment expired and the order {$order['order_id']}, {$mollieOrderId} was moved to the 'expired' status (new status ID: {$new_status_id}).", true);
+            $this->writeToMollieLog("Webhook for payment : The payment expired and the order {$order['order_id']}, {$mollieOrderId}, {$payment_id} was moved to the 'expired' status (new status ID: {$new_status_id}).", true);
             return;
         }
 
@@ -983,11 +1177,11 @@ class ControllerPaymentMollieBase extends Controller
         $new_status_id = intval($this->config->get($moduleCode . "_ideal_failed_status_id"));
 
         if (!$new_status_id) {
-            $this->writeToMollieLog("Webhook for payment : The payment failed. No 'failed' status ID is configured, so the order status for order {$order['order_id']}, {$mollieOrderId} could not be updated.", true);
+            $this->writeToMollieLog("Webhook for payment : The payment failed. No 'failed' status ID is configured, so the order status for order {$order['order_id']}, {$mollieOrderId}, {$payment_id} could not be updated.", true);
             return;
         }
         $this->addOrderHistory($order, $new_status_id, $this->language->get("response_unknown"), false);
-        $this->writeToMollieLog("Webhook for payment : The payment failed for an unknown reason and the order {$order['order_id']}, {$mollieOrderId} was moved to the 'failed' status (new status ID: {$new_status_id}).", true);
+        $this->writeToMollieLog("Webhook for payment : The payment failed for an unknown reason and the order {$order['order_id']}, {$mollieOrderId}, {$payment_id} was moved to the 'failed' status (new status ID: {$new_status_id}).", true);
         return;
 
     }
@@ -1165,7 +1359,7 @@ class ControllerPaymentMollieBase extends Controller
 
         $mollie_order_id = $mollieModel->getOrderID($order_id);
         if (empty($mollie_order_id)) {
-            $this->writeToMollieLog("Could not find mollie reference order id for shipment creation for order {$order['order_id']}, {$mollie_order_id} (It could be a non-mollie order).");
+            $this->writeToMollieLog("Could not find mollie reference order id for shipment creation for order {$order['order_id']} (It could be a non-mollie order or the payments api has been used to create the order).");
             return;
         }
         
@@ -1251,9 +1445,10 @@ class ControllerPaymentMollieBase extends Controller
         $paid_status_id = intval($this->config->get($moduleCode . "_ideal_processing_status_id"));
         $pending_status_id = intval($this->config->get($moduleCode . "_ideal_pending_status_id"));
         $mollie_order_id = $model->getOrderID($order['order_id']);
+        $mollie_payment_id = $model->getPaymentID($order['order_id']);
 
-        if ($mollie_order_id === false) {
-            $this->writeToMollieLog("Error getting mollie_order_id for order " . $order['order_id']);
+        if (!($mollie_order_id) && !($mollie_payment_id)) {
+            $this->writeToMollieLog("Error getting mollie_order_id / mollie_payment_id for order " . $order['order_id']);
 
             return $this->showReturnPage(
                 $this->language->get("heading_failed"),
@@ -1261,7 +1456,11 @@ class ControllerPaymentMollieBase extends Controller
             );
         }
 
-        $orderDetails = $this->getAPIClient()->orders->get($mollie_order_id, ["embed" => "payments"]);
+        if (!empty($mollie_order_id)) {
+            $orderDetails = $this->getAPIClient()->orders->get($mollie_order_id, ["embed" => "payments"]);
+        } else {
+            $orderDetails = $this->getAPIClient()->payments->get($mollie_payment_id);
+        }
 
         // Create subscriptions if any
         $mollie_customer_id = $model->getMollieCustomer($order['email']);        
@@ -1319,7 +1518,7 @@ class ControllerPaymentMollieBase extends Controller
                             $this->writeToMollieLog("Subscription created: subscription_id - {$subscription->id}, order_id - {$order['order_id']}");
 
                             // Add to recurring profile
-                            $model->recurringPayment($product, $subscription->id, $mollie_order_id);
+                            $model->recurringPayment($product, $subscription->id, $mollie_order_id, $mollie_payment_id);
                         } catch (Mollie\Api\Exceptions\ApiException $e) {
                             $this->showErrorPage(htmlspecialchars($e->getMessage()));
                             $this->writeToMollieLog("Creating subscription failed for order_id - " . $order['order_id'] . ' ; ' . htmlspecialchars($e->getMessage()));
@@ -1330,59 +1529,84 @@ class ControllerPaymentMollieBase extends Controller
         }
 
         // Update payment status
-        if(!empty($orderDetails->_embedded->payments)) {
-            $payment = $orderDetails->_embedded->payments[0];
+        if (!empty($mollie_order_id)) {
+            if(!empty($orderDetails->_embedded->payments)) {
+                $payment = $orderDetails->_embedded->payments[0];
+                $paymentData = array(
+                    'payment_id' => $payment->id,
+                    'status'     => $payment->status
+                );
+                $model->updatePayment($orderDetails->metadata->order_id, $mollie_order_id, $paymentData);
+                $this->writeToMollieLog("Updated mollie payment. transaction_id - {$payment->id}, status - {$paymentData['status']}, order_id - {$orderDetails->metadata->order_id}, mollie_order_id - $mollie_order_id");
+                            
+            }
+        } elseif (!empty($mollie_payment_id)) {
+            $payment = $orderDetails;
             $paymentData = array(
                 'payment_id' => $payment->id,
                 'status'     => $payment->status
             );
-            $model->updatePayment($orderDetails->metadata->order_id, $mollie_order_id, $paymentData);
-            $this->writeToMollieLog("Updated mollie payment. transaction_id - {$payment->id}, status - {$paymentData['status']}, order_id - {$orderDetails->metadata->order_id}, mollie_order_id - $mollie_order_id");
-                        
+            $model->updatePaymentForPaymentAPI($payment->metadata->order_id, $mollie_payment_id, $paymentData);
+            $this->writeToMollieLog("Updated mollie payment. transaction_id - {$payment->id}, status - {$paymentData['status']}, order_id - {$payment->metadata->order_id}, mollie_payment_id - $mollie_payment_id");
         }
 
         $orderStatuses = $model->getOrderStatuses($order['order_id']);
 
-        if (($orderDetails->isPaid() || $orderDetails->isAuthorized()) && !in_array($paid_status_id, $orderStatuses)) {
-            $this->addOrderHistory($order, $paid_status_id, $this->language->get("response_success"), true);
-            $order['order_status_id'] = $paid_status_id;
-        } else if(!empty($orderDetails->_embedded->payments)) {
-
-            $payment = $orderDetails->_embedded->payments[0];
-            if (($payment->status == 'paid') && !in_array($paid_status_id, $orderStatuses)) {
+        if (!empty($mollie_order_id)) {
+            if (($orderDetails->isPaid() || $orderDetails->isAuthorized()) && !in_array($paid_status_id, $orderStatuses)) {
                 $this->addOrderHistory($order, $paid_status_id, $this->language->get("response_success"), true);
                 $order['order_status_id'] = $paid_status_id;
-            } elseif(($payment->status == 'open') && !in_array($pending_status_id, $orderStatuses)) {
-                $this->addOrderHistory($order, $pending_status_id, $this->language->get("response_none"), true);
-                $order['order_status_id'] = $pending_status_id;
+            } else if(!empty($orderDetails->_embedded->payments)) {    
+                $payment = $orderDetails->_embedded->payments[0];
+                if (($payment->status == 'paid') && !in_array($paid_status_id, $orderStatuses)) {
+                    $this->addOrderHistory($order, $paid_status_id, $this->language->get("response_success"), true);
+                    $order['order_status_id'] = $paid_status_id;
+                } elseif(($payment->status == 'open') && !in_array($pending_status_id, $orderStatuses)) {
+                    $this->addOrderHistory($order, $pending_status_id, $this->language->get("response_none"), true);
+                    $order['order_status_id'] = $pending_status_id;
+                }                
             }
-            
+        } else {
+            if ($orderDetails->isPaid() && !in_array($paid_status_id, $orderStatuses)) {
+                $this->addOrderHistory($order, $paid_status_id, $this->language->get("response_success"), true);
+                $order['order_status_id'] = $paid_status_id;
+            } else {    
+                $payment = $orderDetails;
+                if (($payment->status == 'paid') && !in_array($paid_status_id, $orderStatuses)) {
+                    $this->addOrderHistory($order, $paid_status_id, $this->language->get("response_success"), true);
+                    $order['order_status_id'] = $paid_status_id;
+                } elseif(($payment->status == 'open') && !in_array($pending_status_id, $orderStatuses)) {
+                    $this->addOrderHistory($order, $pending_status_id, $this->language->get("response_none"), true);
+                    $order['order_status_id'] = $pending_status_id;
+                }                
+            }
         }
 
         /* Check module module setting for shipment creation,
         $this->config->get($moduleCode . "_create_shipment")) == 1,
         satisfies the 'Create shipment immediately after order creation' condition. */
-        
-        if(($orderDetails->isPaid() || $orderDetails->isAuthorized()) && ($this->config->get($moduleCode . "_create_shipment")) == 1) {
-            try {
-                //Shipment lines
-                $shipmentLine = array();
-                foreach($orderDetails->lines as $line) {
-                    $shipmentLine[] = array(
-                        'id'        =>  $line->id,
-                        'quantity'  =>  $line->quantity
-                    );
-                }
+        if (!empty($mollie_order_id)) {
+            if(($orderDetails->isPaid() || $orderDetails->isAuthorized()) && ($this->config->get($moduleCode . "_create_shipment")) == 1) {
+                try {
+                    //Shipment lines
+                    $shipmentLine = array();
+                    foreach($orderDetails->lines as $line) {
+                        $shipmentLine[] = array(
+                            'id'        =>  $line->id,
+                            'quantity'  =>  $line->quantity
+                        );
+                    }
 
-                $shipmentData['lines'] = $shipmentLine;
-                $mollieShipment = $orderDetails->createShipment($shipmentData);
-                $shipped_status_id = intval($this->config->get($moduleCode . "_ideal_shipping_status_id"));
-                $this->addOrderHistory($order, $shipped_status_id, $this->language->get("shipment_success"), true);
-                $this->writeToMollieLog("Shipment created for order - {$order_id}, {$mollie_order_id}");
-                $order['order_status_id'] = $shipped_status_id;
-            } catch (Mollie\Api\Exceptions\ApiException $e) {
-                $this->writeToMollieLog("Shipment could not be created for order - {$order_id}, {$mollie_order_id}; " . htmlspecialchars($e->getMessage()));
-            }                
+                    $shipmentData['lines'] = $shipmentLine;
+                    $mollieShipment = $orderDetails->createShipment($shipmentData);
+                    $shipped_status_id = intval($this->config->get($moduleCode . "_ideal_shipping_status_id"));
+                    $this->addOrderHistory($order, $shipped_status_id, $this->language->get("shipment_success"), true);
+                    $this->writeToMollieLog("Shipment created for order - {$order_id}, {$mollie_order_id}");
+                    $order['order_status_id'] = $shipped_status_id;
+                } catch (Mollie\Api\Exceptions\ApiException $e) {
+                    $this->writeToMollieLog("Shipment could not be created for order - {$order_id}, {$mollie_order_id}; " . htmlspecialchars($e->getMessage()));
+                }                
+            }
         }
         // Show a 'transaction failed' page if we couldn't find the order or if the payment failed.
         $failed_status_id = $this->config->get($moduleCode . "_ideal_failed_status_id");
@@ -1413,7 +1637,7 @@ class ControllerPaymentMollieBase extends Controller
 
         // If the status is 'pending' (i.e. a bank transfer), the report is not delivered yet.
         if ($order['order_status_id'] == $this->config->get($moduleCode . "_ideal_pending_status_id")) {
-            $this->writeToMollieLog("Unknown payment status for order - {$order['order_id']}, {$mollie_order_id}");
+            $this->writeToMollieLog("Unknown payment status for order - {$order['order_id']}, {$mollie_order_id}, {$mollie_payment_id}");
 
             if ($this->cart) {
                 $this->cart->clear();
@@ -1433,7 +1657,7 @@ class ControllerPaymentMollieBase extends Controller
         }
 
         // Show a 'transaction failed' page if all else fails.
-        $this->writeToMollieLog("Everything else failed for order - {$order['order_id']}, {$mollie_order_id}");
+        $this->writeToMollieLog("Everything else failed for order - {$order['order_id']}, {$mollie_order_id}, {$mollie_payment_id}");
 
         return $this->showReturnPage(
             $this->language->get("heading_failed"),
