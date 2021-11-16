@@ -185,7 +185,7 @@
 													</div>
 													<label class="col-sm-2 control-label"><?php echo $entry_amount; ?></label>
 													<div class="col-sm-4">
-														<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_payment_fee[amount]" value="<?php echo $payment_method['payment_fee']['amount']; ?>" placeholder="<?php echo $entry_amount; ?>" class="form-control"/>
+														<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_payment_fee[amount]" value="<?php echo isset($payment_method['payment_fee']) ? $payment_method['payment_fee']['amount'] : ''; ?>" placeholder="<?php echo $entry_amount; ?>" class="form-control"/>
 													</div>
 												</div>
 											</div>
@@ -204,9 +204,19 @@
 													</div>												
 												</div>
 											</div>
+											<div class="form-group">
+												<label class="col-sm-2 control-label"><?php echo $entry_api_to_use; ?></label>
+												<div class="col-sm-10">
+													<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_api_to_use" class="form-control" <?php if (in_array($module_id, ['klarnapaylater', 'klarnasliceit', 'klarnapaynow', 'voucher'])) { ?>disabled="disabled"<?php } ?>>
+														<option value="orders_api"><?php echo $text_order_api; ?></option>
+														<option value="payments_api" <?php if ($payment_method['api_to_use'] == 'payments_api') { ?>selected="selected"<?php } ?>><?php echo $text_payment_api; ?></option>
+													</select>		
+													<a href="https://docs.mollie.com/orders/why-use-orders" target="_blank"><i class="fa fa-info-circle"></i> <?php echo $text_info_orders_api; ?></a>
+												</div>
+											</div>
 									      </div>
 									      <div class="modal-footer">
-									        <button type="button" class="btn btn-secondary" data-dismiss="modal"><?php echo $button_save; ?></button>
+									        <button type="button" class="btn btn-secondary" data-dismiss="modal"><?php echo $button_close; ?></button>
 									      </div>
 									    </div>
 									  </div>
@@ -467,7 +477,17 @@
 											</div>
 										</div>
 										<div class="form-group">
-											<label class="col-sm-2 control-label" for="input-shipment"><span data-toggle="tooltip" title="<?php echo $help_shipment; ?>"><?php echo $entry_shipment; ?></span></label>
+											<label class="col-sm-2 control-label"><span data-toggle="tooltip" title="<?php echo $help_description; ?>"><?php echo $entry_description; ?></span></label>
+											<div class="col-sm-10">
+												<?php foreach ($languages as $language) { ?>
+												<div class="input-group"><span class="input-group-addon"><img src="<?php echo $language['image']; ?>" title="<?php echo $language['name']; ?>" /></span>
+												<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_description[<?php echo $language['language_id']; ?>][title]" value="<?php echo isset($store[$code . '_description'][$language['language_id']]) ? $store[$code . '_description'][$language['language_id']]['title'] : ''; ?>" class="form-control" placeholder="<?php echo $entry_description; ?>"/>
+												</div>
+												<?php } ?>													
+											</div>
+										</div>
+										<div class="form-group">
+											<label class="col-sm-2 control-label" for="input-shipment"><?php echo $entry_shipment; ?></label>
 											<div class="col-sm-10">
 												<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_create_shipment" id="<?php echo $store['store_id']; ?>-create-shipment" class="form-control">
 													<?php if ($store[$code . '_create_shipment'] == 1) { ?>
@@ -674,7 +694,7 @@
 								<div id="mollie-mail-<?php echo $store['store_id']; ?>" class="tab-pane fade in">
 								   <ul class="nav nav-tabs" id="language<?php echo $store['store_id']; ?>">
 					                <?php foreach ($languages as $language) { ?>
-					                <li><a href="#language<?php echo $store['store_id']; ?><?php echo $language['language_id']; ?>" data-toggle="tab"><img src="language/<?php echo $language['code']; ?>/<?php echo $language['code']; ?>.png" title="<?php echo $language['name']; ?>" /> <?php echo $language['name']; ?></a></li>
+					                <li><a href="#language<?php echo $store['store_id']; ?><?php echo $language['language_id']; ?>" data-toggle="tab"><img src="<?php echo $language['image']; ?>" title="<?php echo $language['name']; ?>" /> <?php echo $language['name']; ?></a></li>
 					                <?php } ?>
 					              </ul>
 					              <div class="tab-content">

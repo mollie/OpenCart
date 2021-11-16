@@ -2,6 +2,16 @@
 
 # Changelog #
 
+#### Changes in release 11.0.0
+  + Added Klarna Pay Now payment method
+  + Added Voucher payment method
+  + Added Option to use Payment API (or Order API)
+  + Extended refund option to refund orderlines as well
+  + Bug Fixes
+
+#### Changes in release 10.3.2
+  + Fixed bug in currency due to other payment methods
+
 #### Changes in release 10.3.1
   + Fixed shipment creation exception
   + Fixed bug in currency

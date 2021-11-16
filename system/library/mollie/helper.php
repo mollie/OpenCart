@@ -4,7 +4,7 @@ use Mollie\Api\MollieApiClient;
 
 class MollieHelper {
 
-	const PLUGIN_VERSION = "10.3.1";
+	const PLUGIN_VERSION = "11.0.0";
 
 	const OUTH_URL = 'https://api.mollie.com/oauth2';
 
@@ -22,9 +22,11 @@ class MollieHelper {
 	const MODULE_NAME_EPS           = "eps";
 	const MODULE_NAME_GIROPAY       = "giropay";
 	const MODULE_NAME_KLARNAPAYLATER = "klarnapaylater";
+	const MODULE_NAME_KLARNAPAYNOW   = "klarnapaynow";
 	const MODULE_NAME_KLARNASLICEIT  = "klarnasliceit";
 	const MODULE_NAME_PRZELEWY24  	 = "przelewy24";
 	const MODULE_NAME_APPLEPAY  	 = "applepay";
+	const MODULE_NAME_VOUCHER    	 = "voucher";
 
 
 	// List of all available module names.
@@ -42,9 +44,11 @@ class MollieHelper {
 		self::MODULE_NAME_EPS,
 		self::MODULE_NAME_GIROPAY,
 		self::MODULE_NAME_KLARNAPAYLATER,
+		self::MODULE_NAME_KLARNAPAYNOW,
 		self::MODULE_NAME_KLARNASLICEIT,
 		self::MODULE_NAME_PRZELEWY24,
-		self::MODULE_NAME_APPLEPAY
+		self::MODULE_NAME_APPLEPAY,
+		self::MODULE_NAME_VOUCHER
 	);
 
 	protected $api_client;

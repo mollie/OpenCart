@@ -1,7 +1,7 @@
 <modification>
     <id>Quality Works - Mollie</id>
-    <version>2.1.1</version>
-    <vqmver>2.3.0</vqmver>
+    <version>2.1.2</version>
+    <vqmver>3.0.0</vqmver>
     <author>Quality Works</author>
 
     <file path="catalog/controller/event/compatibility.php">
@@ -37,11 +37,13 @@
         <operation error="log">
             <search position="before"><![CDATA[$this->response->setOutput($this->load->view('sale/order_info]]></search>
             <add position="before"><![CDATA[$data['payment_status'] = '';
+            $data['paymentMethod'] = '';
             $molliePaymentDetails = $this->model_sale_order->getMolliePayment($this->request->get['order_id']);
             if(isset($molliePaymentDetails['transaction_id']) && !empty($molliePaymentDetails['transaction_id'])) {
                 try {
                     $molliePayment = $this->getAPIClient($order_info['store_id'])->payments->get($molliePaymentDetails['transaction_id']);
                      $data['payment_status'] = $molliePayment->status;
+                     $data['paymentMethod'] = $molliePayment->method;
 
                      // Check for refunds and settlements
                     if($molliePayment->hasRefunds()) {
@@ -58,8 +60,49 @@
                             }
                         }
                     }
-                } catch (Mollie\Api\Exceptions\ApiException $e) {}
-            } ]]></add>
+                } catch (Mollie\Api\Exceptions\ApiException $e) {
+                    $log = new Log('Mollie.log');
+                    $log->write(htmlspecialchars($e->getMessage()));
+                }
+            }
+            
+            $data['productlines'] = array();
+            if ($molliePaymentDetails && !empty($molliePaymentDetails['mollie_order_id'])) {
+                try {
+                    $mollieOrder = $this->getAPIClient($order_info['store_id'])->orders->get($molliePaymentDetails['mollie_order_id'], ["embed" => "refunds"]);
+
+                    $refundedLines = array();
+                    if(!empty($mollieOrder->_embedded->refunds)) {
+                        foreach ($mollieOrder->_embedded->refunds as $refund) {
+                            foreach ($refund->lines as $refundedLine) {
+                                $refundedLines[] = $refundedLine->id;
+                            }                        
+                        }
+                    }
+
+                    if ($mollieOrder->lines) {
+                        foreach ($mollieOrder->lines as $orderline) {
+                            if ($orderline->type == 'physical') {
+                                foreach ($data['products'] as $_product) {
+                                    if (($orderline->metadata) && ($orderline->metadata->order_product_id == $_product['order_product_id']) && !in_array($orderline->id, $refundedLines)) {
+                                        $data['productlines'][] = array(
+                                            "id" => $orderline->id,
+                                            "name" => $_product['name'],
+                                            "option" => $_product['option'],
+                                            "quantity" => $orderline->quantity,
+                                            "order_product_id" => $orderline->metadata->order_product_id
+                                        );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (Mollie\Api\Exceptions\ApiException $e) {
+                    $log = new Log('Mollie.log');
+                    $log->write(htmlspecialchars($e->getMessage()));
+                }
+            }
+            ]]></add>
         </operation>
         <!-- Order refund button -->
         <operation error="log">
@@ -71,7 +114,14 @@
             <add position="after"><![CDATA[$data['button_refund'] = $this->language->get('button_refund');
                 $data['text_confirm_refund'] = $this->language->get('text_confirm_refund');
                 $data['entry_amount'] = $this->language->get('entry_amount');
-                $data['button_partial_refund'] = $this->language->get('button_partial_refund');]]></add>
+                $data['button_partial_refund'] = $this->language->get('button_partial_refund');
+                $data['entry_partial_refund_type'] = $this->language->get('entry_partial_refund_type');
+                $data['text_custom_amount'] = $this->language->get('text_custom_amount');
+                $data['text_productline'] = $this->language->get('text_productline');
+                $data['entry_productline'] = $this->language->get('entry_productline');
+                $data['entry_quantity'] = $this->language->get('entry_quantity');
+                $data['help_quantity'] = $this->language->get('help_quantity');
+                ]]></add>
         </operation>
         <operation error="log">
             <search position="after"><![CDATA[public function info() {]]></search>
@@ -132,6 +182,14 @@
         return $formattedAmount;    
     }
 
+    protected function convertCurrency($amount, $currency) {
+        $this->load->model("localisation/currency");
+        $currencies = $this->model_localisation_currency->getCurrencies();
+        $convertedAmount = $amount * $currencies[$currency]['value'];
+
+        return $convertedAmount;
+    }
+
     public function refund() {
         $this->load->language('sale/order');
 
@@ -161,29 +219,56 @@
         }
 
         if(!$json['error']) {
-            $mollieOrder = $this->getAPIClient($order['store_id'])->orders->get($mollieOrderDetails['mollie_order_id']);
-            if($mollieOrder->isPaid() || $mollieOrder->isShipping() || $mollieOrder->isCompleted()) {
+            if (!empty($mollieOrderDetails['mollie_order_id'])) {
+                $mollieOrder = $this->getAPIClient($order['store_id'])->orders->get($mollieOrderDetails['mollie_order_id']);
+                if($mollieOrder->isPaid() || $mollieOrder->isShipping() || $mollieOrder->isCompleted()) {
 
-                $refundObject = $mollieOrder->refundAll([
-                      "metadata" => array("order_id" => $order_id)
-                ]);
+                    $refundObject = $mollieOrder->refundAll([
+                        "metadata" => array("order_id" => $order_id)
+                    ]);
 
-                if($refundObject->id) {
-                    $log->write("Refund has been processed for order_id - $order_id. Refund id is $refundObject->id.");
-                    $json['success'] = $this->language->get('text_refund_success');
-                    $json['order_status_id'] = $this->config->get($moduleCode . "_ideal_refund_status_id");
-                    $json['comment'] = $this->language->get('text_refund_success');
+                    if($refundObject->id) {
+                        $log->write("Refund has been processed for order_id - $order_id, mollie_order_id - " . $mollieOrderDetails['mollie_order_id'] . ". Refund id is $refundObject->id.");
+                        $json['success'] = $this->language->get('text_refund_success');
+                        $json['order_status_id'] = $this->config->get($moduleCode . "_ideal_refund_status_id");
+                        $json['comment'] = $this->language->get('text_refund_success');
 
-                    $this->model_sale_order->updateMolliePayment($mollieOrderDetails['mollie_order_id'], $refundObject->id, 'refunded');
+                        $this->model_sale_order->updateMolliePayment($mollieOrderDetails['mollie_order_id'], $refundObject->id, 'refunded');
+
+                    } else {
+                        $log->write("Refund process can not be processed for order_id - $order_id.");
+                        $json['error'] = $this->language->get('text_no_refund');
+                    }
 
                 } else {
-                    $log->write("Refund process can not be processed for order_id - $order_id.");
+                    $log->write("Refund can not be processed for order_id - $order_id. Order lines that are Paid, Shipping or Completed can be refunded.");
                     $json['error'] = $this->language->get('text_no_refund');
                 }
-
             } else {
-                $log->write("Refund can not be processed for order_id - $order_id. Order lines that are Paid, Shipping or Completed can be refunded.");
-                $json['error'] = $this->language->get('text_no_refund');
+                $molliePayment = $this->getAPIClient($order['store_id'])->payments->get($mollieOrderDetails['transaction_id']);
+                if($molliePayment->isPaid()) {
+                    $amount = $this->numberFormat($this->convertCurrency($order['total'], $order['currency_code']), $order['currency_code']);
+                    $refundObject = $molliePayment->refund([
+                        "amount" => ["currency" => $order['currency_code'], "value" => (string)$amount],
+                        "metadata" => array("order_id" => $order_id, "transaction_id" => $mollieOrderDetails['transaction_id'])
+                    ]);
+
+                    if($refundObject->id) {
+                        $log->write("Refund has been processed for order_id - $order_id, transaction_id - " . $mollieOrderDetails['transaction_id'] . ". Refund id is $refundObject->id.");
+                        $json['success'] = $this->language->get('text_refund_success');
+                        $json['order_status_id'] = $this->config->get($moduleCode . "_ideal_refund_status_id");
+                        $json['comment'] = $this->language->get('text_refund_success');
+
+                        $this->model_sale_order->updateMolliePaymentForPaymentAPI($mollieOrderDetails['transaction_id'], $refundObject->id, 'refunded');
+
+                    } else {
+                        $log->write("Refund process can not be processed for order_id - $order_id.");
+                        $json['error'] = $this->language->get('text_no_refund');
+                    }
+                } else {
+                    $log->write("Refund can not be processed for order_id - $order_id.");
+                    $json['error'] = $this->language->get('text_no_refund');
+                }
             }
         }
 
@@ -220,30 +305,71 @@
             $json['error'] = $this->language->get('text_refunded_already');
         }
 
-        if (empty($this->request->post['refund_amount']) || ($this->request->post['refund_amount'] <= 0)) {
+        if ((empty($this->request->post['refund_amount']) || ($this->request->post['refund_amount'] <= 0)) && ($this->request->post['partial_refund_type'] == 'custom_amount')) {
             $json['error'] = $this->language->get('error_refund_amount');
         }
 
+        if (!isset($this->request->post['productline']) && ($this->request->post['partial_refund_type'] == 'productline')) {
+            $json['error'] = $this->language->get('error_productline');
+        }
+
+        $productline_error = true;
+        if (isset($this->request->post['productline'])) {
+            foreach ($this->request->post['productline'] as $order_product_id => $line) {
+                if (isset($line['selected'])) {
+                    $productline_error = false;
+                    break;
+                }
+            }
+        }
+
+        if ($productline_error && ($this->request->post['partial_refund_type'] == 'productline')) {
+            $json['error'] = $this->language->get('error_productline');
+        }
+
         if(!$json['error']) {
-            $amount = $this->numberFormat($this->request->post['refund_amount'], $order['currency_code']);
-            $molliePayment = $this->getAPIClient($order['store_id'])->payments->get($mollieOrderDetails['transaction_id']);
-            $refundObject = $molliePayment->refund([
-                "amount" => ["currency" => $order['currency_code'], "value" => (string)$amount],
-                "metadata" => array("order_id" => $order_id, "transaction_id" => $mollieOrderDetails['transaction_id'])
-            ]);
+            if ($this->request->post['partial_refund_type'] == 'productline') {
+                $lines = array();
+                $orderProductIDs = array();
+                foreach ($this->request->post['productline'] as $order_product_id => $line) {
+                    if (isset($line['selected'])) {
+                        $lines[] = array(
+                            "id" => (string)$line['orderline_id'],
+                            "quantity" => (int)$line['quantity']
+                        );
+
+                        $orderProductIDs[] = $order_product_id;
+                    }
+                }
+                if (!empty($lines)) {
+                    $mollieOrder = $this->getAPIClient($order['store_id'])->orders->get($mollieOrderDetails['mollie_order_id']);
+                    $refundObject = $mollieOrder->refund([
+                        "lines" => $lines,
+                        "metadata" => array("order_id" => $order_id, "transaction_id" => $mollieOrderDetails['transaction_id'], "mollie_order_id" => $mollieOrderDetails['mollie_order_id'], "order_product_id" => implode(",", $orderProductIDs))
+                    ]);
+                }
+            } elseif($this->request->post['partial_refund_type'] == 'custom_amount') {
+                $amount = $this->numberFormat($this->request->post['refund_amount'], $order['currency_code']);
+                $molliePayment = $this->getAPIClient($order['store_id'])->payments->get($mollieOrderDetails['transaction_id']);
+                $refundObject = $molliePayment->refund([
+                    "amount" => ["currency" => $order['currency_code'], "value" => (string)$amount],
+                    "metadata" => array("order_id" => $order_id, "transaction_id" => $mollieOrderDetails['transaction_id'])
+                ]);
+            }
 
             if($refundObject->id) {
-                $log->write('Partial refund of amount ' . $amount . ' (' . $order['currency_code'] . ') has been processed for order_id - ' . $order_id . ' and transaction_id - ' . $mollieOrderDetails['transaction_id'] . '. Refund id is ' . $refundObject->id);
+                $amount = $refundObject->amount->value .' '. $refundObject->amount->currency;
+                $log->write('Partial refund of amount ' . $amount . ' has been processed for order_id - ' . $order_id . ' and transaction_id - ' . $mollieOrderDetails['transaction_id'] . '. Refund id is ' . $refundObject->id);
                 $json['success'] = $this->language->get('text_refund_success');
                 $json['order_status_id'] = $this->config->get($moduleCode . "_ideal_partial_refund_status_id");
-                $json['comment'] = sprintf($this->language->get('text_partial_refund_success'), $amount .  ' (' . $order['currency_code'] . ')');
+                $json['comment'] = sprintf($this->language->get('text_partial_refund_success'), $amount);
 
                 $data = array(
                     "refund_id" => $refundObject->id,
                     "order_id" => $order_id,
                     "transaction_id" => $mollieOrderDetails['transaction_id'],
-                    "amount" => $amount,
-                    "currency_code" => $order['currency_code']
+                    "amount" => $refundObject->amount->value,
+                    "currency_code" => $refundObject->amount->currency
                 );
                 $this->model_sale_order->addMollieRefund($data);
 
@@ -274,11 +400,13 @@
         <operation error="log">
             <search position="before"><![CDATA[$this->template = 'sale/order_info.tpl';]]></search>
             <add position="before"><![CDATA[$this->data['payment_status'] = '';
+            $this->data['paymentMethod'] = '';
             $molliePaymentDetails = $this->model_sale_order->getMolliePayment($this->request->get['order_id']);
             if(isset($molliePaymentDetails['transaction_id']) && !empty($molliePaymentDetails['transaction_id'])) {
                  try {
                     $molliePayment = $this->getAPIClient($order_info['store_id'])->payments->get($molliePaymentDetails['transaction_id']);
                      $this->data['payment_status'] = $molliePayment->status;
+                     $this->data['paymentMethod'] = $molliePayment->method;
 
                      // Check for refunds and settlements
                     if($molliePayment->hasRefunds()) {
@@ -294,15 +422,63 @@
                             }
                         }
                     }
-                } catch (Mollie\Api\Exceptions\ApiException $e) {}
-            }]]></add>
+                } catch (Mollie\Api\Exceptions\ApiException $e) {
+                    $log = new Log('Mollie.log');
+                    $log->write(htmlspecialchars($e->getMessage()));
+                }
+            }
+            
+            $this->data['productlines'] = array();
+            if ($molliePaymentDetails && !empty($molliePaymentDetails['mollie_order_id'])) {
+                try {
+                    $mollieOrder = $this->getAPIClient($order_info['store_id'])->orders->get($molliePaymentDetails['mollie_order_id'], ["embed" => "refunds"]);
+
+                    $refundedLines = array();
+                    if(!empty($mollieOrder->_embedded->refunds)) {
+                        foreach ($mollieOrder->_embedded->refunds as $refund) {
+                            foreach ($refund->lines as $refundedLine) {
+                                $refundedLines[] = $refundedLine->id;
+                            }                        
+                        }
+                    }
+
+                    if ($mollieOrder->lines) {
+                        foreach ($mollieOrder->lines as $orderline) {
+                            if ($orderline->type == 'physical') {
+                                foreach ($this->data['products'] as $_product) {
+                                    if (($orderline->metadata) && ($orderline->metadata->order_product_id == $_product['order_product_id']) && !in_array($orderline->id, $refundedLines)) {
+                                        $this->data['productlines'][] = array(
+                                            "id" => $orderline->id,
+                                            "name" => $_product['name'],
+                                            "option" => $_product['option'],
+                                            "quantity" => $orderline->quantity,
+                                            "order_product_id" => $orderline->metadata->order_product_id
+                                        );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (Mollie\Api\Exceptions\ApiException $e) {
+                    $log = new Log('Mollie.log');
+                    $log->write(htmlspecialchars($e->getMessage()));
+                }
+            }
+            ]]></add>
         </operation>
         <operation error="log">
             <search position="after"><![CDATA[$this->data['button_add_history']]]></search>
             <add position="after"><![CDATA[$this->data['button_refund'] = $this->language->get('button_refund');
                 $this->data['text_confirm_refund'] = $this->language->get('text_confirm_refund');
                 $this->data['entry_amount'] = $this->language->get('entry_amount');
-                $this->data['button_partial_refund'] = $this->language->get('button_partial_refund');]]></add>
+                $this->data['button_partial_refund'] = $this->language->get('button_partial_refund');
+                $this->data['entry_partial_refund_type'] = $this->language->get('entry_partial_refund_type');
+                $this->data['text_custom_amount'] = $this->language->get('text_custom_amount');
+                $this->data['text_productline'] = $this->language->get('text_productline');
+                $this->data['entry_productline'] = $this->language->get('entry_productline');
+                $this->data['entry_quantity'] = $this->language->get('entry_quantity');
+                $this->data['help_quantity'] = $this->language->get('help_quantity');
+                ]]></add>
         </operation>
         <operation error="log">
             <search position="before" index="4"><![CDATA[$this->data['email']]]></search>
@@ -341,10 +517,10 @@
         <operation error="log">
             <search position="before"><![CDATA[public function getOrder($order_id)]]></search>
             <add position="before"><![CDATA[public function getMolliePayment($order_id) {
-        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE order_id = '" . (int)$order_id . "' ORDER BY payment_attempt DESC LIMIT 1");
+        $_query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE order_id = '" . (int)$order_id . "' ORDER BY payment_attempt DESC LIMIT 1");
 
-        if ($query->num_rows) {
-            return $query->row;
+        if ($_query->num_rows) {
+            return $_query->row;
         }
 
         return null;
@@ -354,10 +530,14 @@
         $this->db->query("UPDATE `" . DB_PREFIX . "mollie_payments` SET refund_id = '" . $refund_id . "', bank_status = '" . $payment_status . "' WHERE mollie_order_id = '" . (int)$mollie_order_id . "'");
     }
 
-    public function getMollieRefunds($order_id) {
-        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "mollie_refund WHERE order_id = '" . (int)$order_id . "'");
+    public function updateMolliePaymentForPaymentAPI($mollie_payment_id, $refund_id, $payment_status) {
+        $this->db->query("UPDATE `" . DB_PREFIX . "mollie_payments` SET refund_id = '" . $refund_id . "', bank_status = '" . $payment_status . "' WHERE transaction_id = '" . (int)$mollie_payment_id . "'");
+    }
 
-        return $query->rows;
+    public function getMollieRefunds($order_id) {
+        $_query = $this->db->query("SELECT * FROM " . DB_PREFIX . "mollie_refund WHERE order_id = '" . (int)$order_id . "'");
+
+        return $_query->rows;
     }
 
     public function addMollieRefund($data) {
@@ -457,6 +637,13 @@
                 $_['button_partial_refund']     = 'Partial Refund';
                 $_['error_refund_amount']       = 'Warning: Please enter a correct amount to refund!';
                 $_['text_partial_refund_success']     = 'Partial refund of amount %s has been processed successfully!';
+                $_['entry_partial_refund_type']     = 'Refund Type';
+                $_['text_custom_amount']     = 'Custom Amount Refund';
+                $_['text_productline']       = 'Productline Refund';
+                $_['entry_productline']      = 'Productlines';
+                $_['entry_quantity']         = 'Quantity';
+                $_['help_quantity']          = 'Quantity to refund. Should not exceed the ordered quantity.';
+                $_['error_productline']      = 'Warning: Please select a productline to refund!';
                 ]]></add>
         </operation>
     </file>
@@ -473,6 +660,13 @@
                 $_['button_partial_refund']     = 'Partial Refund';
                 $_['error_refund_amount']       = 'Warning: Please enter a correct amount to refund!';
                 $_['text_partial_refund_success']     = 'Partial refund of amount %s has been processed successfully!';
+                $_['entry_partial_refund_type']     = 'Refund Type';
+                $_['text_custom_amount']     = 'Custom Amount Refund';
+                $_['text_productline']       = 'Productline Refund';
+                $_['entry_productline']      = 'Productlines';
+                $_['entry_quantity']         = 'Quantity';
+                $_['help_quantity']          = 'Quantity to refund. Should not exceed the ordered quantity.';
+                $_['error_productline']      = 'Warning: Please select a productline to refund!';
                 ]]></add>
         </operation>
     </file>
@@ -489,6 +683,13 @@
                 $_['button_partial_refund']     = 'Teilerstattung';
                 $_['error_refund_amount']       = 'Warnung: Bitte geben Sie einen korrekten Betrag für die Rückerstattung ein!';
                 $_['text_partial_refund_success']     = 'eilrückerstattung des Betrags %s wurde erfolgreich bearbeitet!';
+                $_['entry_partial_refund_type']     = 'Rückerstattungsart';
+                $_['text_custom_amount']     = 'Rückerstattung des benutzerdefinierten Betrags';
+                $_['text_productline']       = 'Produktlinien-Erstattung';
+                $_['entry_productline']      = 'Produktlinien';
+                $_['entry_quantity']         = 'Menge';
+                $_['help_quantity']          = 'Zu erstattende Menge. Sollte die bestellte Menge nicht überschreiten.';
+                $_['error_productline']      = 'Achtung: Bitte wählen Sie eine Produktlinie für die Rückerstattung aus!';
                 ]]></add>
         </operation>
     </file>
@@ -505,6 +706,13 @@
                 $_['button_partial_refund']     = 'Teilerstattung';
                 $_['error_refund_amount']       = 'Warnung: Bitte geben Sie einen korrekten Betrag für die Rückerstattung ein!';
                 $_['text_partial_refund_success']     = 'eilrückerstattung des Betrags %s wurde erfolgreich bearbeitet!';
+                $_['entry_partial_refund_type']     = 'Rückerstattungsart';
+                $_['text_custom_amount']     = 'Rückerstattung des benutzerdefinierten Betrags';
+                $_['text_productline']       = 'Produktlinien-Erstattung';
+                $_['entry_productline']      = 'Produktlinien';
+                $_['entry_quantity']         = 'Menge';
+                $_['help_quantity']          = 'Zu erstattende Menge. Sollte die bestellte Menge nicht überschreiten.';
+                $_['error_productline']      = 'Achtung: Bitte wählen Sie eine Produktlinie für die Rückerstattung aus!';
                 ]]></add>
         </operation>
     </file>
@@ -521,6 +729,13 @@
                 $_['button_partial_refund']     = 'Gedeeltelijke terugbetaling';
                 $_['error_refund_amount']       = 'Waarschuwing: voer een correct bedrag in om terug te betalen!';
                 $_['text_partial_refund_success']     = 'Gedeeltelijke terugbetaling van bedrag %s is succesvol verwerkt!';
+                $_['entry_partial_refund_type']     = 'Terugbetalingstype';
+                $_['text_custom_amount']     = 'Terugbetaling aangepast bedrag';
+                $_['text_productline']       = 'Productlijn Terugbetaling';
+                $_['entry_productline']      = 'Productlijnen';
+                $_['entry_quantity']         = 'Aantel';
+                $_['help_quantity']          = 'Te restitueren aantal. Mag het bestelde aantal niet overschrijden.';
+                $_['error_productline']      = 'Waarschuwing: Selecteer een productlijn om terug te betalen!';
                 ]]></add>
         </operation>
     </file>
@@ -537,6 +752,13 @@
                 $_['button_partial_refund']     = 'Gedeeltelijke terugbetaling';
                 $_['error_refund_amount']       = 'Waarschuwing: voer een correct bedrag in om terug te betalen!';
                 $_['text_partial_refund_success']     = 'Gedeeltelijke terugbetaling van bedrag %s is succesvol verwerkt!';
+                $_['entry_partial_refund_type']     = 'Terugbetalingstype';
+                $_['text_custom_amount']     = 'Terugbetaling aangepast bedrag';
+                $_['text_productline']       = 'Productlijn Terugbetaling';
+                $_['entry_productline']      = 'Productlijnen';
+                $_['entry_quantity']         = 'Aantel';
+                $_['help_quantity']          = 'Te restitueren aantal. Mag het bestelde aantal niet overschrijden.';
+                $_['error_productline']      = 'Waarschuwing: Selecteer een productlijn om terug te betalen!';
                 ]]></add>
         </operation>
     </file>
@@ -553,6 +775,13 @@
                 $_['button_partial_refund']     = 'Reembolso parcial';
                 $_['error_refund_amount']       = 'Advertencia: ¡Ingrese una cantidad correcta para reembolsar!';
                 $_['text_partial_refund_success']     = '¡El reembolso parcial de la cantidad %s se ha procesado correctamente!';
+                $_['entry_partial_refund_type']     = 'Tipo de reembolso';
+                $_['text_custom_amount']     = 'Reembolso de cantidad personalizada';
+                $_['text_productline']       = 'Reembolso de la línea de productos';
+                $_['entry_productline']      = 'Líneas de productos';
+                $_['entry_quantity']         = 'Cantidad';
+                $_['help_quantity']          = 'Cantidad a reembolsar. No debe exceder la cantidad pedida.';
+                $_['error_productline']      = 'Advertencia: ¡Seleccione una línea de productos para reembolsar!';
                 ]]></add>
         </operation>
     </file>
@@ -569,6 +798,13 @@
                 $_['button_partial_refund']     = 'Reembolso parcial';
                 $_['error_refund_amount']       = 'Advertencia: ¡Ingrese una cantidad correcta para reembolsar!';
                 $_['text_partial_refund_success']     = '¡El reembolso parcial de la cantidad %s se ha procesado correctamente!';
+                $_['entry_partial_refund_type']     = 'Tipo de reembolso';
+                $_['text_custom_amount']     = 'Reembolso de cantidad personalizada';
+                $_['text_productline']       = 'Reembolso de la línea de productos';
+                $_['entry_productline']      = 'Líneas de productos';
+                $_['entry_quantity']         = 'Cantidad';
+                $_['help_quantity']          = 'Cantidad a reembolsar. No debe exceder la cantidad pedida.';
+                $_['error_productline']      = 'Advertencia: ¡Seleccione una línea de productos para reembolsar!';
                 ]]></add>
         </operation>
     </file>
@@ -585,6 +821,13 @@
                 $_['button_partial_refund']     = 'Remboursement partiel';
                 $_['error_refund_amount']       = 'Attention: veuillez entrer un montant correct à rembourser!';
                 $_['text_partial_refund_success']     = 'Le remboursement partiel du montant %s a été traité avec succès!';
+                $_['entry_partial_refund_type']     = 'Type de remboursement';
+                $_['text_custom_amount']     = 'Remboursement du montant personnalisé';
+                $_['text_productline']       = 'Remboursement de la gamme de produits';
+                $_['entry_productline']      = 'Chaînes de production';
+                $_['entry_quantity']         = 'Quantité';
+                $_['help_quantity']          = 'Quantité à rembourser. Ne doit pas dépasser la quantité commandée.';
+                $_['error_productline']      = 'Attention : Veuillez sélectionner une gamme de produits à rembourser!';
                 ]]></add>
         </operation>
     </file>
@@ -601,6 +844,13 @@
                 $_['button_partial_refund']     = 'Remboursement partiel';
                 $_['error_refund_amount']       = 'Attention: veuillez entrer un montant correct à rembourser!';
                 $_['text_partial_refund_success']     = 'Le remboursement partiel du montant %s a été traité avec succès!';
+                $_['entry_partial_refund_type']     = 'Type de remboursement';
+                $_['text_custom_amount']     = 'Remboursement du montant personnalisé';
+                $_['text_productline']       = 'Remboursement de la gamme de produits';
+                $_['entry_productline']      = 'Chaînes de production';
+                $_['entry_quantity']         = 'Quantité';
+                $_['help_quantity']          = 'Quantité à rembourser. Ne doit pas dépasser la quantité commandée.';
+                $_['error_productline']      = 'Attention : Veuillez sélectionner une gamme de produits à rembourser!';
                 ]]></add>
         </operation>
     </file>
@@ -627,18 +877,16 @@
                   <?php } elseif($payment_status == 'settled') { ?>
                     <span id="payment-status" class="label label-success"><?php echo strtoupper($payment_status); ?></span>
                   <?php } ?>
-                  <?php if(($payment_status) && !in_array($payment_status, ['expired', 'refunded', 'failed', 'canceled', 'open']) && $showRefundButton) { ?>
-                  <a href="javascript:void(0)" id="button-refund" class="label label-primary"><?php echo $button_refund; ?></a>
+                  <?php if(($payment_status) && !in_array($payment_status, ['expired', 'refunded', 'failed', 'canceled', 'open']) && !in_array($paymentMethod, ['paysafecard', 'giftcard']) && $showRefundButton) { ?>
+                  <a href="#" onclick="event.preventDefault()" id="button-refund" class="label label-primary"><?php echo $button_refund; ?></a>
                   <?php } ?>
                   <?php if(isset($isVersion15x)) { ?>
-                    <?php if(($payment_status) && !in_array($payment_status, ['expired', 'failed', 'canceled', 'open']) && $showPartialRefundButton) { ?>
-                        <?php echo $button_partial_refund; ?>
-                        <?php echo $entry_amount . " ($currency)"; ?>: <input type="text" name="refund_amount" value="" placeholder="<?php echo 'Amount'; ?>" id="refund-amount" class="form-control" />
-                        <button type="button" id="button-partial-refund" class="btn btn-primary"><?php echo $button_refund; ?></button>
+                    <?php if(($payment_status) && !in_array($payment_status, ['expired', 'failed', 'canceled', 'open']) && !in_array($paymentMethod, ['paysafecard', 'giftcard']) && $showPartialRefundButton) { ?>
+                        <a href="#" onclick="event.preventDefault()" id="button-partial-refund-model" class="label label-primary"><?php echo $button_partial_refund; ?></a>
                     <?php } ?>
                   <?php } else { ?>
-                      <?php if(($payment_status) && !in_array($payment_status, ['expired', 'failed', 'canceled', 'open']) && $showPartialRefundButton) { ?>
-                      <a href="javascript:void(0)" data-toggle="modal" data-target="#refundModal" class="label label-warning"><?php echo $button_partial_refund; ?></a>
+                      <?php if(($payment_status) && !in_array($payment_status, ['expired', 'failed', 'canceled', 'open']) && !in_array($paymentMethod, ['paysafecard', 'giftcard']) && $showPartialRefundButton) { ?>
+                      <a href="#" onclick="event.preventDefault()" data-toggle="modal" data-target="#refundModal" class="label label-warning"><?php echo $button_partial_refund; ?></a>
                       <?php } ?>
                   <?php } ?>
                 </td>]]></add>
@@ -655,13 +903,53 @@
         <button type="button" class="close" data-dismiss="modal">&times;</button>
         <h4 class="modal-title"><?php echo $button_partial_refund; ?></h4>
       </div>
-      <div class="modal-body">
-          <div class="row">
-            <div class="col-sm-12">
-                <label class="col-sm-2"><?php echo $entry_amount . " ($currency)"; ?></label>
-                <div class="col-sm-10">
-                    <input type="text" name="refund_amount" value="" placeholder="<?php echo 'Amount'; ?>" id="refund-amount" class="form-control" />
+      <div class="modal-body form-horizontal">
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><?php echo $entry_partial_refund_type; ?></label>
+                <div class="col-sm-9">
+                    <select name="partial_refund_type" class="form-control" <?php if (empty($productlines)) { ?>disabled="disabled"<?php } ?>>
+                        <option value="custom_amount"><?php echo $text_custom_amount; ?></option>
+                        <option value="productline"><?php echo $text_productline; ?></option>
+                    </select>
                 </div>
+            </div>
+          <div class="form-group" id="amount-box">
+            <label class="col-sm-3 control-label"><?php echo $entry_amount . " ($currency)"; ?></label>
+            <div class="col-sm-9">
+                <input type="text" name="refund_amount" value="" placeholder="<?php echo $entry_amount; ?>" id="refund-amount" class="form-control" />
+            </div>
+          </div>
+          <div class="form-group" id="productline-box">
+            <label class="col-sm-3 control-label"><?php echo $entry_productline; ?></label>
+            <div class="col-sm-9">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <td></td>
+                            <td><?php echo $column_product; ?></td>
+                            <td><span data-toggle="tooltip" title="<?php echo $help_quantity; ?>"><?php echo $column_quantity; ?></span></td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php foreach ($productlines as $productline) { ?>
+                    <tr>
+                        <td class="text-center"><input type="checkbox" name="productline[<?php echo $productline['order_product_id']; ?>][selected]" value="1" /><input type="hidden" name="productline[<?php echo $productline['order_product_id']; ?>][orderline_id]" value="<?php echo $productline['id']; ?>" /></td>
+                        <td class="text-left"><?php echo $productline['name']; ?>
+                        <?php foreach ($productline['option'] as $option) { ?>
+                            <br/>
+                            <?php if ($option['type'] != 'file') { ?>
+                            &nbsp;
+                            <small> - <?php echo $option['name']; ?>: <?php echo $option['value']; ?></small> <?php } else { ?>
+                            &nbsp;
+                            <small> - <?php echo $option['name']; ?>: <a href="<?php echo $option['href']; ?>"><?php echo $option['value']; ?></a></small> <?php } ?>
+                        <?php } ?></td>
+                        <td class="text-left">
+                            <input type="text" name="productline[<?php echo $productline['order_product_id']; ?>][quantity]" value="<?php echo $productline['quantity']; ?>" id="refund-quantity" class="form-control" />
+                        </td>
+                    </tr>
+                    <?php } ?>
+                    <tbody>
+                </table>
             </div>
           </div>
       </div>
@@ -672,6 +960,145 @@
     </div>
   </div>
 </div>
+<?php } else { ?>
+<!-- Refund Modal -->
+<div class="modal" id="refundModal">
+    <div class="modal-content">
+        <div class="modal-header">
+        <span class="close">&times;</span>
+        <h4 class="modal-title"><?php echo $button_partial_refund; ?></h4>
+        </div>
+        <div class="modal-body">
+            <table class="form">
+                <tr>
+                    <td><?php echo $entry_partial_refund_type; ?></td>
+                    <td><select name="partial_refund_type" class="form-control" <?php if (empty($productlines)) { ?>disabled="disabled"<?php } ?>>
+                        <option value="custom_amount"><?php echo $text_custom_amount; ?></option>
+                        <option value="productline"><?php echo $text_productline; ?></option>
+                    </select></td>
+                </tr>
+                <tr id="amount-box">
+                    <td><?php echo $entry_amount . " ($currency)"; ?></td>
+                    <td><input type="text" name="refund_amount" value="" placeholder="<?php echo $entry_amount; ?>" id="refund-amount" class="form-control" /></td>
+                </tr>
+                <tr id="productline-box">
+                    <td><?php echo $entry_productline; ?></td>
+                    <td>
+                        <table class="list">
+                            <thead>
+                                <tr>
+                                    <td></td>
+                                    <td><?php echo $column_product; ?></td>
+                                    <td><span data-toggle="tooltip" title="<?php echo $help_quantity; ?>"><?php echo $column_quantity; ?></span></td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            <?php foreach ($productlines as $productline) { ?>
+                            <tr>
+                                <td class="text-center"><input type="checkbox" name="productline[<?php echo $productline['order_product_id']; ?>][selected]" value="1" /><input type="hidden" name="productline[<?php echo $productline['order_product_id']; ?>][orderline_id]" value="<?php echo $productline['id']; ?>" /></td>
+                                <td class="text-left"><?php echo $productline['name']; ?>
+                                <?php foreach ($productline['option'] as $option) { ?>
+                                    <br/>
+                                    <?php if ($option['type'] != 'file') { ?>
+                                    &nbsp;
+                                    <small> - <?php echo $option['name']; ?>: <?php echo $option['value']; ?></small> <?php } else { ?>
+                                    &nbsp;
+                                    <small> - <?php echo $option['name']; ?>: <a href="<?php echo $option['href']; ?>"><?php echo $option['value']; ?></a></small> <?php } ?>
+                                <?php } ?></td>
+                                <td class="text-left">
+                                    <input type="text" name="productline[<?php echo $productline['order_product_id']; ?>][quantity]" value="<?php echo $productline['quantity']; ?>" id="refund-quantity" class="form-control" />
+                                </td>
+                            </tr>
+                            <?php } ?>
+                            <tbody>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="button close-model"><?php echo $button_cancel; ?></button>
+            <button type="button" id="button-partial-refund" class="button"><?php echo $button_refund; ?></button>
+        </div>
+    </div>
+</div>
+
+<style type="text/css">
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  padding-top: 100px;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0,0,0);
+  background-color: rgba(0,0,0,0.4);
+}
+.modal-content {
+  position: relative;
+  background-color: #fefefe;
+  margin: auto;
+  padding: 0;
+  width: 50%;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+  -webkit-animation-name: animatetop;
+  -webkit-animation-duration: 0.4s;
+  animation-name: animatetop;
+  animation-duration: 0.4s
+}
+@-webkit-keyframes animatetop {
+  from {top:-300px; opacity:0} 
+  to {top:0; opacity:1}
+}
+@keyframes animatetop {
+  from {top:-300px; opacity:0}
+  to {top:0; opacity:1}
+}
+.close {
+  color: white;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+.modal-header {
+  padding: 2px 16px;
+  background-color: #2f2f2f;
+  color: white;
+}
+.modal-body {padding: 2px 16px;}
+.modal-footer {
+  padding: 0 10px 10px 0;
+  background-color: #fff;
+  color: white;
+  text-align: right;
+}
+</style>
+
+<script type="text/javascript">
+$('#button-partial-refund-model').live('click', function() {
+    $('#refundModal').css('display', 'block');
+});
+$('.close, .close-model').live('click', function() {
+    $('.modal').css('display', 'none');
+});
+
+window.onclick = function(event) {
+    if (event.target.classList.contains("modal")) {
+        if (event.target.style.display == 'block') {
+            event.target.style.display = "none";
+        }	
+    }					  
+}
+</script>
 <?php } ?>
 
 <script type="text/javascript"><!--
@@ -721,12 +1148,25 @@ $('.warning, .success').remove();
   });
 });
 
+$('#refundModal select[name=\'partial_refund_type\']').bind('change', function() {
+    if ($(this).val() == 'custom_amount') {
+        $('#amount-box').show();
+        $('#productline-box').hide();
+    }
+
+    if ($(this).val() == 'productline') {
+        $('#amount-box').hide();
+        $('#productline-box').show();
+    }
+});
+$('#refundModal select[name=\'partial_refund_type\']').trigger('change');
+
 $('#button-partial-refund').live('click', function() {
 $('.warning, .success').remove();
   $.ajax({
     url: 'index.php?route=sale/order/partialRefund&token=<?php echo $token; ?>&order_id=<?php echo $order_id; ?>',
     type: 'post',
-    data: $('#refund-amount'),
+    data: $('#refundModal input[type=\'text\'], #refundModal input[type=\'hidden\'], #refundModal select, #refundModal input[type=\'checkbox\']:checked'),
     dataType: 'json',
     beforeSend: function() {
         $('#button-partial-refund').after('<img src="view/image/loading.gif" class="loading" style="padding-left: 5px;" />');          
@@ -737,7 +1177,7 @@ $('.warning, .success').remove();
     success: function(json) {
         $('.success, .warning').remove();
         if (json['error']) {
-            $('.box').before('<div class="warning" style="display: none;">' + json['error'] + '</div>');
+            $('#refundModal table.form').before('<div class="warning" style="display: none;">' + json['error'] + '</div>');
             $('.warning').fadeIn('slow');
         }
         
@@ -751,7 +1191,7 @@ $('.warning, .success').remove();
                 $('#history').html(html);
             }
         });
-            $('.box').before('<div class="success" style="display: none;">' + json['success'] + '</div>');
+            $('#refundModal table.form').before('<div class="success" style="display: none;">' + json['success'] + '</div>');
             $('.success').fadeIn('slow');
         }
     },
@@ -814,12 +1254,25 @@ $('.alert').remove();
   });
 });
 
+$('#refundModal select[name=\'partial_refund_type\']').on('change', function() {
+    if ($(this).val() == 'custom_amount') {
+        $('#amount-box').show();
+        $('#productline-box').hide();
+    }
+
+    if ($(this).val() == 'productline') {
+        $('#amount-box').hide();
+        $('#productline-box').show();
+    }
+});
+$('#refundModal select[name=\'partial_refund_type\']').trigger('change');
+
 $('#button-partial-refund').on('click', function() {
 $('.alert').remove();
   $.ajax({
     url: 'index.php?route=sale/order/partialRefund&token=<?php echo $token; ?>&order_id=<?php echo $order_id; ?>',
     type: 'post',
-    data: $('#refundModal input[type=\'text\']'),
+    data: $('#refundModal input[type=\'text\'], #refundModal input[type=\'hidden\'], #refundModal select, #refundModal input[type=\'checkbox\']:checked'),
     dataType: 'json',
     beforeSend: function() {
       $('#button-partial-refund').button('loading');
@@ -829,7 +1282,7 @@ $('.alert').remove();
     },
     success: function(json) {
       if (json['error']) {
-        $('#refundModal .modal-body > .row').prepend('<div class="alert alert-danger" style="margin-left: 15px;margin-right: 15px;"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + '</div>');
+        $('#refundModal .modal-body > .form-group:first-child').prepend('<div class="alert alert-danger" style="margin-left: 15px;margin-right: 15px;"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + '</div>');
       }
 
       if(typeof token !== 'undefined') {
@@ -853,7 +1306,7 @@ $('.alert').remove();
           alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
         }
       });
-        $('#refundModal .modal-body > .row').prepend('<div class="alert alert-success" style="margin-left: 15px;margin-right: 15px;"><i class="fa fa-check-circle"></i> ' + json['success'] + '</div>');
+        $('#refundModal .modal-body > .form-group:first-child').prepend('<div class="alert alert-success" style="margin-left: 15px;margin-right: 15px;"><i class="fa fa-check-circle"></i> ' + json['success'] + '</div>');
       }
     },
     error: function(xhr, ajaxOptions, thrownError) {
@@ -889,11 +1342,11 @@ $('.alert').remove();
                   {% elseif(payment_status == 'settled') %}
                     <span id="payment-status" class="label label-success">{{ payment_status | upper }}</span>
                   {% endif %}
-                  {% if((payment_status) and (payment_status not in ['expired', 'refunded', 'failed', 'canceled', 'open']) and showRefundButton) %}
-                  <a href="javascript:void(0)" id="button-refund" class="label label-primary">{{ button_refund }}</a>
+                  {% if((payment_status) and (payment_status not in ['expired', 'refunded', 'failed', 'canceled', 'open']) and (paymentMethod not in ['paysafecard', 'giftcard']) and showRefundButton) %}
+                  <a href="#" onclick="event.preventDefault()" id="button-refund" class="label label-primary">{{ button_refund }}</a>
                   {% endif %}
-                  {% if((payment_status) and (payment_status not in ['expired', 'failed', 'canceled', 'open']) and showPartialRefundButton) %}
-                  <a href="javascript:void(0)" data-toggle="modal" data-target="#refundModal" class="label label-warning">{{ button_partial_refund }}</a>
+                  {% if((payment_status) and (payment_status not in ['expired', 'failed', 'canceled', 'open']) and (paymentMethod not in ['paysafecard', 'giftcard']) and showPartialRefundButton) %}
+                  <a href="#" onclick="event.preventDefault()" data-toggle="modal" data-target="#refundModal" class="label label-warning">{{ button_partial_refund }}</a>
                   {% endif %}
                 </td>]]></add>
         </operation>
@@ -908,13 +1361,52 @@ $('.alert').remove();
         <button type="button" class="close" data-dismiss="modal">&times;</button>
         <h4 class="modal-title">{{ button_partial_refund }}</h4>
       </div>
-      <div class="modal-body">
-          <div class="row">
-            <div class="col-sm-12">
-                <label class="col-sm-2">{{ entry_amount ~ " (" ~ currency ~ ")" }}</label>
-                <div class="col-sm-10">
-                    <input type="text" name="refund_amount" value="" placeholder="{{ 'Amount' }}" id="refund-amount" class="form-control" />
+      <div class="modal-body form-horizontal">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">{{ entry_partial_refund_type }}</label>
+                <div class="col-sm-9">
+                    <select name="partial_refund_type" class="form-control" {% if productlines is empty %}disabled="disabled"{% endif %}>
+                        <option value="custom_amount">{{ text_custom_amount }}</option>
+                        <option value="productline">{{ text_productline }}</option>
+                    </select>
                 </div>
+            </div>
+          <div class="form-group" id="amount-box">
+            <label class="col-sm-3 control-label">{{ entry_amount ~ " (" ~ currency ~ ")" }}</label>
+            <div class="col-sm-9">
+                <input type="text" name="refund_amount" value="" placeholder="{{ entry_amount }}" id="refund-amount" class="form-control" />
+            </div>
+          </div>
+          <div class="form-group" id="productline-box">
+            <label class="col-sm-3 control-label">{{ entry_productline }}</label>
+            <div class="col-sm-9">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <td></td>
+                            <td>{{ column_product }}</td>
+                            <td><span data-toggle="tooltip" title="{{ help_quantity }}">{{ column_quantity }}</span></td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for productline in productlines %}
+                    <tr>
+                        <td class="text-center"><input type="checkbox" name="productline[{{ productline['order_product_id'] }}][selected]" value="1" /><input type="hidden" name="productline[{{ productline['order_product_id'] }}][orderline_id]" value="{{ productline['id'] }}" /></td>
+                        <td class="text-left">{{ productline['name'] }}{% for option in productline.option %}
+                            <br/>
+                            {% if option.type != 'file' %}
+                            &nbsp;
+                            <small> - {{ option.name }}: {{ option.value }}</small> {% else %}
+                            &nbsp;
+                            <small> - {{ option.name }}: <a href="{{ option.href }}">{{ option.value }}</a></small> {% endif %}
+                        {% endfor %}</td>
+                        <td class="text-left">
+                            <input type="text" name="productline[{{ productline['order_product_id'] }}][quantity]" value="{{ productline['quantity'] }}" id="refund-quantity" class="form-control" />
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
             </div>
           </div>
       </div>
@@ -974,12 +1466,25 @@ if (!confirm('{{ text_confirm_refund }}')) {
   });
 });
 
+$('#refundModal select[name=\'partial_refund_type\']').on('change', function() {
+    if ($(this).val() == 'custom_amount') {
+        $('#amount-box').show();
+        $('#productline-box').hide();
+    }
+
+    if ($(this).val() == 'productline') {
+        $('#amount-box').hide();
+        $('#productline-box').show();
+    }
+});
+$('#refundModal select[name=\'partial_refund_type\']').trigger('change');
+
 $('#button-partial-refund').on('click', function() {
   $('.alert').remove();
   $.ajax({
     url: 'index.php?route=sale/order/partialRefund&user_token={{ user_token }}&order_id={{ order_id }}',
     type: 'post',
-    data: $('#refundModal input[type=\'text\']'),
+    data: $('#refundModal input[type=\'text\'], #refundModal input[type=\'hidden\'], #refundModal select, #refundModal input[type=\'checkbox\']:checked'),
     dataType: 'json',
     beforeSend: function() {
       $('#button-partial-refund').button('loading');
@@ -989,7 +1494,7 @@ $('#button-partial-refund').on('click', function() {
     },
     success: function(json) {
       if (json['error']) {
-        $('#refundModal .modal-body > .row').prepend('<div class="alert alert-danger" style="margin-left: 15px;margin-right: 15px;"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + '</div>');
+        $('#refundModal .modal-body > .form-group:first-child').prepend('<div class="alert alert-danger" style="margin-left: 15px;margin-right: 15px;"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + '</div>');
       }
 
     if (json['success']) {
@@ -1007,7 +1512,7 @@ $('#button-partial-refund').on('click', function() {
             alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
         }
     });
-      $('#refundModal .modal-body > .row').prepend('<div class="alert alert-success" style="margin-left: 15px;margin-right: 15px;"><i class="fa fa-check-circle"></i> ' + json['success'] + '</div>');
+      $('#refundModal .modal-body > .form-group:first-child').prepend('<div class="alert alert-success" style="margin-left: 15px;margin-right: 15px;"><i class="fa fa-check-circle"></i> ' + json['success'] + '</div>');
       }
     },
     error: function(xhr, ajaxOptions, thrownError) {

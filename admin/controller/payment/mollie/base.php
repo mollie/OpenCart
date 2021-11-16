@@ -355,10 +355,24 @@ class ControllerPaymentMollieBase extends Controller {
 			$this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_payments` ADD `payment_attempt` INT(11) NOT NULL");
 
 		// Update primary key
+		// $query = $this->db->query("SHOW INDEX FROM `" .DB_PREFIX. "mollie_payments` where Key_name = 'PRIMARY'");
+		// if($query->num_rows > 0 && $query->row['Column_name'] != 'mollie_order_id') {
+		// 	$this->db->query("DELETE FROM `" .DB_PREFIX. "mollie_payments` where mollie_order_id IS NULL OR mollie_order_id = ''");
+		// 	$this->db->query("ALTER TABLE `" .DB_PREFIX. "mollie_payments` DROP PRIMARY KEY, ADD PRIMARY KEY (mollie_order_id)");
+		// }
+
+		// Drop Primary Key
 		$query = $this->db->query("SHOW INDEX FROM `" .DB_PREFIX. "mollie_payments` where Key_name = 'PRIMARY'");
-		if($query->num_rows > 0 && $query->row['Column_name'] != 'mollie_order_id') {
-			$this->db->query("DELETE FROM `" .DB_PREFIX. "mollie_payments` where mollie_order_id IS NULL OR mollie_order_id = ''");
-			$this->db->query("ALTER TABLE `" .DB_PREFIX. "mollie_payments` DROP PRIMARY KEY, ADD PRIMARY KEY (mollie_order_id)");
+		if($query->num_rows > 0) {
+			$this->db->query("ALTER TABLE `" .DB_PREFIX. "mollie_payments` DROP PRIMARY KEY");
+		}
+
+		// Drop Unique Key
+		$query = $this->db->query("SHOW INDEX FROM `" .DB_PREFIX. "mollie_payments`");
+		if($query->num_rows > 0) {
+			foreach ($query->rows as $row) {
+				$this->db->query("ALTER TABLE `" .DB_PREFIX. "mollie_payments` DROP INDEX " . $row['Key_name'] . "");
+			}
 		}
 
 		// Create mollie customers table
@@ -997,6 +1011,7 @@ class ControllerPaymentMollieBase extends Controller {
         $paymentFee = array();
         $paymentTotalMin = array();
         $paymentTotalMax = array();
+        $paymentAPIToUse = array();
 
         foreach ($this->mollieHelper->MODULE_NAMES as $module_name) {
         	$paymentDesc[]  	= $code . '_' . $module_name . '_description';
@@ -1007,9 +1022,10 @@ class ControllerPaymentMollieBase extends Controller {
         	$paymentFee[] 	    = $code . '_' . $module_name . '_payment_fee';
         	$paymentTotalMin[]  = $code . '_' . $module_name . '_total_minimum';
         	$paymentTotalMax[]  = $code . '_' . $module_name . '_total_maximum';
+        	$paymentAPIToUse[]  = $code . '_' . $module_name . '_api_to_use';
 		}
 
-        $fields = array("show_icons", "show_order_canceled_page", "ideal_description", "api_key", "client_id", "client_secret", "refresh_token", "ideal_processing_status_id", "ideal_expired_status_id", "ideal_canceled_status_id", "ideal_failed_status_id", "ideal_pending_status_id", "ideal_shipping_status_id", "create_shipment_status_id", "ideal_refund_status_id", "create_shipment", "payment_screen_language", "debug_mode", "mollie_component", "mollie_component_css_base", "mollie_component_css_valid", "mollie_component_css_invalid", "default_currency", "recurring_email", "align_icons", "single_click_payment", "order_expiry_days", "partial_refund", "ideal_partial_refund_status_id", "payment_fee_tax_class_id");
+        $fields = array("show_icons", "show_order_canceled_page", "description", "api_key", "client_id", "client_secret", "refresh_token", "ideal_processing_status_id", "ideal_expired_status_id", "ideal_canceled_status_id", "ideal_failed_status_id", "ideal_pending_status_id", "ideal_shipping_status_id", "create_shipment_status_id", "ideal_refund_status_id", "create_shipment", "payment_screen_language", "debug_mode", "mollie_component", "mollie_component_css_base", "mollie_component_css_valid", "mollie_component_css_invalid", "default_currency", "recurring_email", "align_icons", "single_click_payment", "order_expiry_days", "partial_refund", "ideal_partial_refund_status_id", "payment_fee_tax_class_id");
 
         $settingFields = $this->addPrefix($code . '_', $fields);
 
@@ -1091,6 +1107,9 @@ class ControllerPaymentMollieBase extends Controller {
 		$data['text_no_maximum_limit'] = $this->language->get('text_no_maximum_limit');
 		$data['text_standard_total'] = $this->language->get('text_standard_total');
 		$data['text_advance_option'] = $this->language->get('text_advance_option');
+		$data['text_payment_api'] = $this->language->get('text_payment_api');
+		$data['text_order_api'] = $this->language->get('text_order_api');
+		$data['text_info_orders_api'] = $this->language->get('text_info_orders_api');
 
 		$data['title_global_options'] = $this->language->get('title_global_options');
 		$data['title_payment_status'] = $this->language->get('title_payment_status');
@@ -1111,6 +1130,7 @@ class ControllerPaymentMollieBase extends Controller {
 		$data['name_mollie_eps'] = $this->language->get('name_mollie_eps');
 		$data['name_mollie_giropay'] = $this->language->get('name_mollie_giropay');
 		$data['name_mollie_klarnapaylater'] = $this->language->get('name_mollie_klarnapaylater');
+		$data['name_mollie_klarnapaynow'] = $this->language->get('name_mollie_klarnapaynow');
 		$data['name_mollie_klarnasliceit'] = $this->language->get('name_mollie_klarnasliceit');
 		$data['name_mollie_przelewy24'] = $this->language->get('name_mollie_przelewy24');
 		$data['name_mollie_applepay'] = $this->language->get('name_mollie_applepay');
@@ -1171,6 +1191,7 @@ class ControllerPaymentMollieBase extends Controller {
 		$data['entry_total'] = $this->language->get('entry_total');
 		$data['entry_minimum'] = $this->language->get('entry_minimum');
 		$data['entry_maximum'] = $this->language->get('entry_maximum');
+		$data['entry_api_to_use'] = $this->language->get('entry_api_to_use');
 
 		$data['error_order_expiry_days'] = $this->language->get('error_order_expiry_days');
 		
@@ -1196,6 +1217,7 @@ class ControllerPaymentMollieBase extends Controller {
 		$data['button_clear'] = $this->language->get('button_clear');
 		$data['button_submit'] = $this->language->get('button_submit');
 		$data['button_advance_option'] = $this->language->get('button_advance_option');
+		$data['button_close'] = $this->language->get('button_close');
       
    		$data['breadcrumbs'][] = array(
 	       	'text'      => $this->language->get('text_payment'),
@@ -1276,12 +1298,17 @@ class ControllerPaymentMollieBase extends Controller {
 			$data['error_warning'] = '';
 		}
 
+		$description = array();
+		foreach ($data['languages'] as $_language) {
+			$description[$_language['language_id']]['title'] = "Order %";
+		}
+
 		// Load global settings. Some are prefixed with mollie_ideal_ for legacy reasons.
 		$settings = array(
 			$code . "_api_key"                    				=> NULL,
 			$code . "_client_id"                    			=> NULL,
 			$code . "_client_secret"                    		=> NULL,
-			$code . "_description"          					=> "Order %",
+			$code . "_description"          					=> $description,
 			$code . "_show_icons"                 				=> FALSE,
 			$code . "_align_icons"                 				=> 'left',
 			$code . "_show_order_canceled_page"   				=> FALSE,
@@ -1488,7 +1515,13 @@ class ControllerPaymentMollieBase extends Controller {
 					} else {
 						$payment_method['total_maximum'] =  ($allowed_methods[$module_name]['maximumAmount']) ? $this->numberFormat($this->currency->convert($maximumAmount, $currency, $this->config->get('config_currency')), $this->config->get('config_currency')) : '';
 					}
-				}		
+				}	
+				
+				if (isset($this->data[$store['store_id'] . '_' . $code . '_' . $module_name . '_api_to_use'])) {
+					$payment_method['api_to_use'] = $this->data[$store['store_id'] . '_' . $code . '_' . $module_name . '_api_to_use'];
+				} else {
+					$payment_method['api_to_use'] = isset($this->data[$code . "_" . $module_name . "_api_to_use"]) ? $this->data[$code . "_" . $module_name . "_api_to_use"] : null;
+				}
 
 				$data['store_data'][$store['store_id'] . '_' . $code . '_payment_methods'][$module_name] = $payment_method;
 			}
