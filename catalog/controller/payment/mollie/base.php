@@ -1147,6 +1147,19 @@ class ControllerPaymentMollieBase extends Controller
             return;
         }
 
+        // Order paid ('processed').
+        if ($molliePayment->isPaid()) {
+            $new_status_id = intval($this->config->get($moduleCode . "_ideal_processing_status_id"));
+
+            if (!$new_status_id) {
+                $this->writeToMollieLog("Webhook for payment : The payment has been received. No 'processing' status ID is configured, so the order status for order {$order['order_id']}, {$order['order_id']} could not be updated.", true);
+                return;
+            }
+            $this->addOrderHistory($order, $new_status_id, $this->language->get("response_success"), true);
+            $this->writeToMollieLog("Webhook for payment : The payment was received and the order {$order['order_id']}, {$order['order_id']} was moved to the 'processing' status (new status ID: {$new_status_id}).", true);
+            return;
+        }
+
         // Payment cancelled.
         if ($molliePayment->status == PaymentStatus::STATUS_CANCELED) {
             $new_status_id = intval($this->config->get($moduleCode . "_ideal_canceled_status_id"));
@@ -1896,7 +1909,7 @@ class ControllerPaymentMollieBase extends Controller
     }
 
     public function setApplePaySession() {
-        $this->session->data['applePay'] = $this->request->post['apple_pay'];
+        $this->session->data['applePay'] = isset($this->request->post['apple_pay']) ? $this->request->post['apple_pay'] : 0;
         sleep(1);
 
         return true;
