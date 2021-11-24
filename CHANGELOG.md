@@ -2,6 +2,11 @@
 
 # Changelog #
 
+#### Changes in release 11.0.1
+  + Fixed payment failed status
+  + Fixed permission error in admin after fresh install of the module
+  + Bug Fixes
+
 #### Changes in release 11.0.0
   + Added Klarna Pay Now payment method
   + Added Voucher payment method

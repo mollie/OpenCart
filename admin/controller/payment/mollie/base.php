@@ -760,9 +760,7 @@ class ControllerPaymentMollieBase extends Controller {
 
 		foreach ($this->mollieHelper->MODULE_NAMES as $module_name) {
 			$extensions = $this->{$model}->getInstalled("payment");
-			if (in_array("mollie_" . $module_name, $extensions)) {
-				continue;
-			}
+			
 			// Install extension.
 			$this->{$model}->install("payment", "mollie_" . $module_name);
 
@@ -988,6 +986,9 @@ class ControllerPaymentMollieBase extends Controller {
             }
 
             if ($redirect) {
+				// Unset payment methods session in frontend
+				unset($this->session->data['mollie_allowed_methods']);
+
             	$this->session->data['success'] = $this->language->get('text_success');
             	if (version_compare(VERSION, '3', '>=')) {
 					$this->response->redirect($this->url->link('marketplace/extension', 'type=payment&' . $this->token, 'SSL'));
