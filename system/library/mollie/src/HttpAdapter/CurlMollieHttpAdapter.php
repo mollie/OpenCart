@@ -2,8 +2,9 @@
 
 namespace Mollie\Api\HttpAdapter;
 
-use _PhpScoperf6dbed3faadf\Composer\CaBundle\CaBundle;
+use _PhpScoper740c5da73ef7\Composer\CaBundle\CaBundle;
 use Mollie\Api\Exceptions\ApiException;
+use Mollie\Api\Exceptions\CurlConnectTimeoutException;
 use Mollie\Api\MollieApiClient;
 final class CurlMollieHttpAdapter implements \Mollie\Api\HttpAdapter\MollieHttpAdapterInterface
 {
@@ -20,6 +21,35 @@ final class CurlMollieHttpAdapter implements \Mollie\Api\HttpAdapter\MollieHttpA
      */
     const HTTP_NO_CONTENT = 204;
     /**
+     * The maximum number of retries
+     */
+    const MAX_RETRIES = 5;
+    /**
+     * The amount of milliseconds the delay is being increased with on each retry.
+     */
+    const DELAY_INCREASE_MS = 1000;
+    /**
+     * @param string $httpMethod
+     * @param string $url
+     * @param array $headers
+     * @param $httpBody
+     * @return \stdClass|void|null
+     * @throws \Mollie\Api\Exceptions\ApiException
+     * @throws \Mollie\Api\Exceptions\CurlConnectTimeoutException
+     */
+    public function send($httpMethod, $url, $headers, $httpBody)
+    {
+        for ($i = 0; $i <= self::MAX_RETRIES; $i++) {
+            \usleep($i * self::DELAY_INCREASE_MS);
+            try {
+                return $this->attemptRequest($httpMethod, $url, $headers, $httpBody);
+            } catch (\Mollie\Api\Exceptions\CurlConnectTimeoutException $e) {
+                // Nothing
+            }
+        }
+        throw new \Mollie\Api\Exceptions\CurlConnectTimeoutException("Unable to connect to Mollie. Maximum number of retries (" . self::MAX_RETRIES . ") reached.");
+    }
+    /**
      * @param string $httpMethod
      * @param string $url
      * @param array $headers
@@ -27,7 +57,7 @@ final class CurlMollieHttpAdapter implements \Mollie\Api\HttpAdapter\MollieHttpA
      * @return \stdClass|void|null
      * @throws \Mollie\Api\Exceptions\ApiException
      */
-    public function send($httpMethod, $url, $headers, $httpBody)
+    protected function attemptRequest($httpMethod, $url, $headers, $httpBody)
     {
         $curl = \curl_init($url);
         $headers["Content-Type"] = "application/json";
@@ -36,7 +66,7 @@ final class CurlMollieHttpAdapter implements \Mollie\Api\HttpAdapter\MollieHttpA
         \curl_setopt($curl, \CURLOPT_CONNECTTIMEOUT, self::DEFAULT_CONNECT_TIMEOUT);
         \curl_setopt($curl, \CURLOPT_TIMEOUT, self::DEFAULT_TIMEOUT);
         \curl_setopt($curl, \CURLOPT_SSL_VERIFYPEER, \true);
-        \curl_setopt($curl, \CURLOPT_CAINFO, \_PhpScoperf6dbed3faadf\Composer\CaBundle\CaBundle::getBundledCaBundlePath());
+        \curl_setopt($curl, \CURLOPT_CAINFO, \_PhpScoper740c5da73ef7\Composer\CaBundle\CaBundle::getBundledCaBundlePath());
         switch ($httpMethod) {
             case \Mollie\Api\MollieApiClient::HTTP_POST:
                 \curl_setopt($curl, \CURLOPT_POST, \true);
@@ -55,9 +85,17 @@ final class CurlMollieHttpAdapter implements \Mollie\Api\HttpAdapter\MollieHttpA
             default:
                 throw new \InvalidArgumentException("Invalid http method: " . $httpMethod);
         }
+        $startTime = \microtime(\true);
         $response = \curl_exec($curl);
+        $endTime = \microtime(\true);
         if ($response === \false) {
-            throw new \Mollie\Api\Exceptions\ApiException("Curl error: " . \curl_error($curl));
+            $executionTime = $endTime - $startTime;
+            $curlErrorNumber = \curl_errno($curl);
+            $curlErrorMessage = "Curl error: " . \curl_error($curl);
+            if ($this->isConnectTimeoutError($curlErrorNumber, $executionTime)) {
+                throw new \Mollie\Api\Exceptions\CurlConnectTimeoutException("Unable to connect to Mollie. " . $curlErrorMessage);
+            }
+            throw new \Mollie\Api\Exceptions\ApiException($curlErrorMessage);
         }
         $statusCode = \curl_getinfo($curl, \CURLINFO_RESPONSE_CODE);
         \curl_close($curl);
@@ -72,6 +110,35 @@ final class CurlMollieHttpAdapter implements \Mollie\Api\HttpAdapter\MollieHttpA
     public function versionString()
     {
         return 'Curl/*';
+    }
+    /**
+     * Whether this http adapter provides a debugging mode. If debugging mode is enabled, the
+     * request will be included in the ApiException.
+     *
+     * @return false
+     */
+    public function supportsDebugging()
+    {
+        return \false;
+    }
+    /**
+     * @param $curlErrorNumber
+     * @param $executionTime
+     * @return bool
+     */
+    protected function isConnectTimeoutError($curlErrorNumber, $executionTime)
+    {
+        $connectErrors = [\CURLE_COULDNT_RESOLVE_HOST => \true, \CURLE_COULDNT_CONNECT => \true, \CURLE_SSL_CONNECT_ERROR => \true, \CURLE_GOT_NOTHING => \true];
+        if (isset($connectErrors[$curlErrorNumber])) {
+            return \true;
+        }
+        if ($curlErrorNumber === \CURLE_OPERATION_TIMEOUTED) {
+            if ($executionTime > self::DEFAULT_TIMEOUT) {
+                return \false;
+            }
+            return \true;
+        }
+        return \false;
     }
     /**
      * @param string $response

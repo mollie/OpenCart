@@ -64,6 +64,7 @@ $_['entry_verification_code']	= 'CVV';
 
 // Error
 $_['error_card']				= 'Veuillez vérifier les détails de votre carte.';
+$_['error_missing_field']	    = 'Informations obligatoires manquantes. Veuillez vérifier si les coordonnées de base sont fournies.';
 
 // Status page: payment failed (e.g. cancelled).
 $_['heading_failed']     = 'Votre paiement n\'a pas été achevée';
@@ -89,21 +90,24 @@ $_['refund_cancelled']   = 'Le remboursement a été annulé.';
 $_['refund_success'] 	 = 'Le remboursement a été traité avec succès!';
 
 // Methods
-$_['method_ideal']                      = 'iDEAL';
-$_['method_creditcard']                 = 'Creditcard';
-$_['method_bancontact']                 = 'Bancontact';
-$_['method_banktransfer']               = 'Bank transfer';
-$_['method_belfius']                    = 'Belfius Direct Net';
-$_['method_kbc']                        = "Bouton de paiement KBC/CBC";
-$_['method_sofort']                     = 'SOFORT Banking';
-$_['method_paypal']                     = 'PayPal';
-$_['method_paysafecard']                = 'paysafecard';
-$_['method_giftcard']                   = 'Giftcard';
-$_['method_eps']                        = 'EPS';
-$_['method_giropay']                    = 'Giropay';
-$_['method_klarnapaylater'] 			= 'Klarna Pay Later';
-$_['method_klarnasliceit']  			= 'Klarna Slice It';
-$_['method_przelewy24']  				= 'P24';
+$_['method_ideal']          = 'iDEAL';
+$_['method_creditcard']     = 'Creditcard';
+$_['method_bancontact']     = 'Bancontact';
+$_['method_banktransfer']   = 'Bank transfer';
+$_['method_belfius']        = 'Belfius Direct Net';
+$_['method_kbc']            = "Bouton de paiement KBC/CBC";
+$_['method_sofort']         = 'SOFORT Banking';
+$_['method_paypal']         = 'PayPal';
+$_['method_paysafecard']    = 'paysafecard';
+$_['method_giftcard']       = 'Giftcard';
+$_['method_eps']            = 'EPS';
+$_['method_giropay']        = 'Giropay';
+$_['method_klarnapaylater'] = 'Klarna Pay Later';
+$_['method_klarnapaynow']   = 'Klarna Pay Now';
+$_['method_klarnasliceit']  = 'Klarna Slice It';
+$_['method_przelewy24']     = 'P24';
+$_['method_applepay']    	= 'Apple Pay';
+$_['method_voucher']    	= 'Voucher';
 
 //Round Off Description
 $_['roundoff_description']  = 'Dû à la conversion de devise, il se peut qu’il y ait un écart d’arrondi';

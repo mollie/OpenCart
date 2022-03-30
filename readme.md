@@ -45,9 +45,11 @@ them ready-made into your OpenCart webshop with this powerful plugin.
 - EPS
 - Giropay
 - Klarna Pay Later
+- Klarna Pay Now
 - Klarna Slice It
 - Przelewy24
 - Apple Pay
+- Vouchers
 
 Please go to the signup page to create a new Mollie account and start receiving payments in
 a couple of minutes. Contact info@mollie.com if you have any questions or comments about
@@ -82,6 +84,8 @@ Contact Mollie: [www.mollie.com/nl/about](https://www.mollie.com/nl/about) — i
 + [More info on EPS via Mollie](https://www.mollie.com/payments/eps/)
 + [More info on Giropay via Mollie](https://www.mollie.com/payments/giropay/)
 + [More info on Klarna Pay Later via Mollie](https://www.mollie.com/payments/klarna-pay-later/)
++ [More info on Klarna Pay Now via Mollie](https://www.mollie.com/payments/klarna-pay-now/)
 + [More info on Klarna Slite It via Mollie](https://www.mollie.com/payments/klarna-slice-it/)
 + [More info on Przelewy24 It via Mollie](https://www.mollie.com/payments/p24/)
 + [More info on Apple Pay via Mollie](https://www.mollie.com/payments/apple-pay/)
++ [More info on Vouchers via Mollie](https://www.mollie.com/payments/meal-eco-gift-vouchers/)

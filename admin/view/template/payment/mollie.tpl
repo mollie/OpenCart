@@ -3,7 +3,7 @@
 	<div class="page-header">
 		<div class="container-fluid">
 			<div class="pull-right">
-				<?php if ($update_url){ ?>
+				<?php if ($update_url && $module_update){ ?>
 				<a href="<?php echo $update_url; ?>" class="btn btn-success" data-toggle="tooltip" title="<?php echo $button_update; ?>"><i class="fa fa-arrow-circle-up"></i></a>
 				<?php } ?>
 				<button type="submit" form="form-mollie" data-toggle="tooltip" title="<?php echo $button_save; ?>" class="btn btn-primary"><i class="fa fa-save"></i></button>
@@ -21,16 +21,16 @@
 			<?php echo $modFilesError; ?>
 		<?php } ?>
 		<form action="<?php echo $action; ?>" method="post" enctype="multipart/form-data" id="form-mollie" class="form-horizontal" <?php echo ($modFilesError) ? 'style="display: none;"' : ''?>>
+			<?php if ($error_warning) { ?>
+			<div class="alert alert-danger alert-dismissable">
+				<i class="fa fa-exclamation-circle"></i>
+				 <?php echo $error_warning; ?>
+				<button type="button" class="close" data-dismiss="alert">&times;
+				</button>
+			</div>
+			<?php } ?>
 			<?php $api_key = false; ?>
 			<?php foreach ($stores as $store) { ?>
-				<?php if ($error_warning) { ?>
-				<div class="alert alert-danger alert-dismissable">
-					<i class="fa fa-exclamation-circle"></i>
-					<?php echo $store['name']; ?>: <?php echo $error_warning; ?>
-					<button type="button" class="close" data-dismiss="alert">&times;
-					</button>
-				</div>
-				<?php } ?>
 				<?php if (!empty($store[$code . '_api_key'])) { ?>
 					<?php $api_key = true; ?>
 				<?php } ?>
@@ -41,7 +41,7 @@
 				<button type="button" class="close" data-dismiss="alert">&times;</button>
 			</div>
 			<?php } ?>
-			<?php if ($update_url) { ?>
+			<?php if ($update_url && $text_update) { ?>
 			<div class="alert alert-success"><i class="fa fa-check-circle"></i> <?php echo $text_update; ?>
 				<button type="button" class="close" data-dismiss="alert">&times;</button>
 			</div>
@@ -53,6 +53,11 @@
 			<?php } ?>
 			<?php if ($warning) { ?>
 			<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> <?php echo $warning; ?>
+				<button type="button" class="close" data-dismiss="alert">&times;</button>
+			</div>
+			<?php } ?>
+			<?php if ($warning_payment_fee) { ?>
+			<div class="alert alert-warning"><i class="fa fa-exclamation-circle"></i> <?php echo $warning_payment_fee; ?>
 				<button type="button" class="close" data-dismiss="alert">&times;</button>
 			</div>
 			<?php } ?>
@@ -91,7 +96,7 @@
 								<div id="payment-methods-<?php echo $store['store_id']; ?>" class="tab-pane fade in" style="margin-left:30px;margin-right: 30px;">
 									<div class="form-group">
 										<div class="col-sm-3"><strong><?php echo $entry_payment_method; ?></strong></div>
-										<div class="col-sm-2"><strong><?php echo $entry_activate; ?></strong></div>
+										<div class="col-sm-2"><strong><?php echo $entry_status; ?></strong></div>
 										<div class="col-sm-3"><strong><?php echo $entry_geo_zone; ?></strong></div>
 										<div class="col-sm-2 text-right"><strong><?php echo $entry_sort_order; ?></strong></div>
 										<div class="col-sm-2 text-right"><strong><?php echo $text_more; ?></strong></div>
@@ -106,25 +111,23 @@
 											<?php } ?>
 										</div>
 										<div class="col-sm-2">
-											<?php $show_checkbox = true ?>
+											<?php $show_status_field = true ?>
 											<?php if (empty($store[$code . '_api_key']) || !empty($store['error_api_key'])) { ?>
-											<?php $show_checkbox = false ?>
+											<?php $show_status_field = false ?>
 											<?php echo $text_missing_api_key; ?>
 											<?php } elseif (!$payment_method['allowed']) { ?>
-											<?php $show_checkbox = false ?>
-											<?php echo (!$store['mollie_connection']) ? $text_activate_payment_method : ''; ?>
+											<?php $show_status_field = false ?>
+											<?php echo $text_activate_payment_method; ?>
 											<?php } ?>
-											<input type="checkbox" value="1" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_status" <?php echo $payment_method['status'] ? 'checked' : ''; ?> style="cursor:pointer;<?php echo !$show_checkbox ? 'display: none;' : ''; ?>" />
-											<?php if($store['mollie_connection'] && !empty($store[$code . '_api_key']) && empty($store['error_api_key'])) { ?>
-											<?php if(!$show_checkbox) { ?>
-												<?php $apiExcludedMethods = array("creditcard", "paysafecard", "giftcard", "p24", "paypal"); ?>
-												<?php if(in_array(strtolower($payment_method['name']), $apiExcludedMethods)) { ?>
-													<?php echo $text_enable_payment_method; ?>
+											<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_status" class="form-control" style="<?php echo !$show_status_field ? 'display: none;' : ''; ?>">
+												<?php if ($payment_method['status']) { ?>
+												<option value="1" selected="selected"><?php echo $text_enabled; ?></option>
+												<option value="0"><?php echo $text_disabled; ?></option>
 												<?php } else { ?>
-												<a href="<?php echo $payment_method['enable']; ?>" style="position: relative; bottom: 4px; <?php echo ((strtolower($payment_method['name']) == 'apple pay') && !$store_data['creditCardEnabled']) ? 'pointer-events: none; cursor: default; opacity: 0.8;' : ''; ?>"><span class="label label-success"><?php echo $text_enable; ?></span></a>
+												<option value="1"><?php echo $text_enabled; ?></option>
+												<option value="0" selected="selected"><?php echo $text_disabled; ?></option>
 												<?php } ?>
-											<?php } ?>
-											<?php } ?> 
+											</select>
 										</div>
 										<div class="col-sm-3">
 											<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_geo_zone" class="form-control">
@@ -142,20 +145,12 @@
 											<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_sort_order" value="<?php echo $payment_method['sort_order']; ?>" class="form-control" style="text-align:right;"/>
 										</div>
 										<div class="col-sm-2 text-right">
-											<a href="javascript:void(0)" data-toggle="modal" data-target="#payment-option-<?php echo $store['store_id']; ?>-<?php echo $module_id; ?>" class="btn btn-primary"><i class="fa fa-cog"></i></a>
+											<a href="#collapse-<?php echo strtolower(str_replace(" ", "-", $payment_method['name'])); ?>-<?php echo $store['store_id']; ?>" data-toggle="collapse" class="btn btn-primary"><i class="fa fa-caret-down"></i></a>
 										</div>
 									</div>
-
-									<!-- Advance Options -->
-									<div class="modal fade" id="payment-option-<?php echo $store['store_id']; ?>-<?php echo $module_id; ?>" tabindex="-1" role="dialog" aria-hidden="true">
-									  <div class="modal-dialog modal-lg" role="document">
-									    <div class="modal-content">
-									      <div class="modal-header">
-									        <button type="button" class="close" data-dismiss="modal">&times;</button>
-									        <h4 class="modal-title"><?php echo sprintf($text_advance_option, ucwords($payment_method['name'])); ?></h4>
-									      </div>
-									      <div class="modal-body">
-									      	<div class="form-group">
+									<div class="collapse payment-method-collapse" id="collapse-<?php echo strtolower(str_replace(" ", "-", $payment_method['name'])); ?>-<?php echo $store['store_id']; ?>">
+										<div class="panel-body" style=" border:1px solid #ddd;">
+											<div class="form-group">
 												<label class="col-sm-2 control-label"><?php echo $entry_title; ?></label>
 												<div class="col-sm-10">
 													<?php foreach ($languages as $language) { ?>
@@ -163,30 +158,13 @@
 													<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_description[<?php echo $language['language_id']; ?>][title]" value="<?php echo isset($payment_method['description'][$language['language_id']]) ? $payment_method['description'][$language['language_id']]['title'] : $payment_method['name']; ?>" class="form-control"/>
 													</div>
 													<?php } ?>
-													<input type="hidden" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_name" value="<?php echo $payment_method['name']; ?>">													
+													<input type="hidden" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_name" value="<?php echo $payment_method['name']; ?>">				
 												</div>
 											</div>
 											<div class="form-group">
 												<label class="col-sm-2 control-label"><?php echo $entry_image; ?></label>
 												<div class="col-sm-10">
 													<a href="" id="thumb-image-<?php echo $store['store_id']; ?>-<?php echo $module_id; ?>" data-toggle="image" class="img-thumbnail"><img src="<?php echo $payment_method['thumb']; ?>" alt="" title="" data-placeholder="<?php echo $placeholder; ?>"/></a> <input type="hidden" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_image" value="<?php echo $payment_method['image']; ?>" id="input-image-<?php echo $store['store_id']; ?>-<?php echo $module_id; ?>"/>
-												</div>
-											</div>
-											<div class="form-group">
-												<label class="col-sm-2 control-label"><?php echo $entry_payment_fee; ?></label>
-												<div class="col-sm-10">
-													<label class="col-sm-2 control-label"><?php echo $entry_title; ?></label>
-													<div class="col-sm-4">														
-														<?php foreach ($languages as $language) { ?>
-														<div class="input-group"><span class="input-group-addon"><img src="<?php echo $language['image']; ?>" title="<?php echo $language['name']; ?>" /></span>
-														<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_payment_fee[description][<?php echo $language['language_id']; ?>][title]" value="<?php echo isset($payment_method['payment_fee']['description'][$language['language_id']]) ? $payment_method['payment_fee']['description'][$language['language_id']]['title'] : ''; ?>" placeholder="<?php echo $entry_title; ?>" class="form-control"/>
-														</div>
-														<?php } ?>
-													</div>
-													<label class="col-sm-2 control-label"><?php echo $entry_amount; ?></label>
-													<div class="col-sm-4">
-														<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_payment_fee[amount]" value="<?php echo isset($payment_method['payment_fee']) ? $payment_method['payment_fee']['amount'] : ''; ?>" placeholder="<?php echo $entry_amount; ?>" class="form-control"/>
-													</div>
 												</div>
 											</div>
 											<div class="form-group">
@@ -206,20 +184,20 @@
 											</div>
 											<div class="form-group">
 												<label class="col-sm-2 control-label"><?php echo $entry_api_to_use; ?></label>
-												<div class="col-sm-10">
+												<div class="col-sm-8">
 													<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_api_to_use" class="form-control" <?php if (in_array($module_id, ['klarnapaylater', 'klarnasliceit', 'klarnapaynow', 'voucher'])) { ?>disabled="disabled"<?php } ?>>
 														<option value="orders_api"><?php echo $text_order_api; ?></option>
 														<option value="payments_api" <?php if ($payment_method['api_to_use'] == 'payments_api') { ?>selected="selected"<?php } ?>><?php echo $text_payment_api; ?></option>
 													</select>		
-													<a href="https://docs.mollie.com/orders/why-use-orders" target="_blank"><i class="fa fa-info-circle"></i> <?php echo $text_info_orders_api; ?></a>
 												</div>
+												<div class="col-sm-2"><a href="https://docs.mollie.com/orders/why-use-orders" target="_blank"><i class="fa fa-info-circle "></i> <?php echo $text_info_orders_api; ?></a></div>
 											</div>
-									      </div>
-									      <div class="modal-footer">
-									        <button type="button" class="btn btn-secondary" data-dismiss="modal"><?php echo $button_close; ?></button>
-									      </div>
-									    </div>
-									  </div>
+											<div class="form-group">
+												<div class="col-sm-12">
+													<button type="button" onclick="save('<?php echo $store['store_id']; ?>', '<?php echo strtolower(str_replace(' ', '-', $payment_method['name'])); ?>');" id="save-setting-<?php echo strtolower(str_replace(' ', '-', $payment_method['name'])); ?>-<?php echo $store['store_id']; ?>" class="btn btn-secondary pull-right"><?php echo $button_save_close; ?></button>
+												</div>												
+											</div>											
+										</div>
 									</div>
 									<?php } ?>
 								</div>
@@ -363,51 +341,28 @@
 											<label class="col-sm-2 control-label" for="<?php echo $code; ?>_api_key"><span data-toggle="tooltip" title="<?php echo $help_api_key; ?>"><?php echo $entry_api_key; ?></span></label>
 											<div class="col-sm-10">
 												<div class="input-group">
-													<span class="input-group-addon"><?php echo ($store[$code . '_api_key']) ? '<i class="fa fa-check text-success"></i>' : '<i class="fa fa-minus"></i>' ;?></span>
+													<?php
+														if ($store[$code . '_api_key']) {
+															if (substr($store[$code . '_api_key'], 0, 4) == 'live') {
+																$text = '<i class="fa fa-check text-success"></i> <span class="text-success">Live</span>';
+															} else {
+																$text = '<i class="fa fa-check text-success"></i> <span class="text-success">Test</span>';
+															}
+														} else {
+															$text = '<i class="fa fa-minus"></i>';
+														}
+													?>
+													<span class="input-group-addon"><?php echo $text; ?></span>
 													<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_api_key" value="<?php echo $store[$code . '_api_key']; ?>" placeholder="live_..." id="<?php echo $code; ?>_api_key" class="form-control" store="<?php echo $store['store_id']; ?>" <?php echo $store['store_id']; ?>-data-payment-mollie-api-key/>
-													<input type="text" value="" class="form-control" <?php echo $store['store_id']; ?>-data-payment-mollie-api-key-hide>
-													<span class="input-group-addon toggleAPIKey<?php echo $store['store_id']; ?>"><i class="fa fa-eye"></i></span>
+													<?php if ($store[$code . '_api_key']) { ?>
+													<span onclick="transform(<?php echo $store['store_id']; ?>);" class="input-group-addon toggleAPIKey<?php echo $store['store_id']; ?>"><i class="fa fa-eye fa-eye-slash"></i></span>
+													<?php } ?>
 												</div>
 												<?php if ($store['error_api_key']) { ?>
 												<div class="text-danger"><?php echo $store['error_api_key']; ?></div>
 												<?php } ?>
 											</div>
 										</div>
-									</fieldset>
-									<fieldset>
-										<legend><?php echo $text_mollie_app; ?></legend>
-										<div class="form-group">
-											<label class="col-sm-2 control-label" for="<?php echo $code; ?>_client_id"><span data-toggle="tooltip" title="<?php echo $help_mollie_app; ?>"><?php echo $entry_client_id; ?></span></label>
-											<div class="col-sm-10">					
-												<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_client_id" value="<?php echo $store[$code . '_client_id']; ?>" placeholder="<?php echo $entry_client_id; ?>" id="<?php echo $code; ?>_client_id" class="form-control" store="<?php echo $store['store_id']; ?>" <?php echo $store['store_id']; ?>-data-payment-mollie-client-id/>
-											</div>
-										</div>
-
-										<div class="form-group">
-											<label class="col-sm-2 control-label" for="<?php echo $code; ?>_client_secret"><span data-toggle="tooltip" title="<?php echo $help_mollie_app; ?>"><?php echo $entry_client_secret; ?></span></label>
-											<div class="col-sm-10">				
-												<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_client_secret" value="<?php echo $store[$code . '_client_secret']; ?>" placeholder="<?php echo $entry_client_secret; ?>" id="<?php echo $code; ?>_client_secret" class="form-control" store="<?php echo $store['store_id']; ?>" <?php echo $store['store_id']; ?>-data-payment-mollie-client-secret/>
-											</div>
-										</div>
-
-										<div class="form-group">
-											<label class="col-sm-2 control-label" for="<?php echo $code; ?>_client_secret"><span data-toggle="tooltip" title="<?php echo $help_redirect_uri; ?>"><?php echo $entry_redirect_uri; ?></span></label>
-											<div class="col-sm-10">				
-												<input type="text" name="" value="<?php echo $store['redirect_uri']; ?>" class="form-control" readonly />
-											</div>
-										</div>
-
-										<div class="form-group">
-											<label class="col-sm-2 control-label" for="mollie-connect"><?php echo $entry_mollie_connect; ?></label>
-											<div class="col-sm-10">
-												<div class="input-group">
-													<span class="input-group-addon"><?php echo ($store['mollie_connection']) ? '<i class="fa fa-check text-success"></i>' : '<i class="fa fa-minus"></i>' ;?></span>
-													<a href="<?php echo $store['mollie_connect']; ?>" id="<?php echo $store['store_id']; ?>_button_mollie_connect" mollie-connection="<?php echo ($store['mollie_connection']) ? '1' : '0' ;?>" style="<?php echo (($store[$code . '_client_id'] == '') || ($store[$code . '_client_secret'] == '') || ($store['mollie_connection'])) ? 'opacity: 0.6; pointer-events: none;' : ''; ?>"><img src="../image/mollie/mollie_connect.png" alt="<?php echo $button_mollie_connect; ?>" style="width: 152px;height: auto;" /></a>
-												</div>
-											</div>
-										</div>
-
-										<input type="hidden" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_refresh_token" value="<?php echo $store[$code . '_refresh_token']; ?>">
 									</fieldset>
 									<fieldset>
 										<legend><?php echo $text_general; ?></legend>		
@@ -531,21 +486,6 @@
 											</div>
 										</div>
 										<div class="form-group">
-											<label class="col-sm-2 control-label" for="input-payment-fee-tax-class"><?php echo $entry_payment_fee_tax_class; ?></label>
-											<div class="col-sm-10">
-												<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_payment_fee_tax_class_id" id="input-payment-fee-tax-class" class="form-control">
-													<option value="0"><?php echo $text_select; ?></option>
-													<?php foreach ($tax_classes as $tax_class) { ?>		
-														<?php if ($tax_class['tax_class_id'] == $store[$code . '_payment_fee_tax_class_id']) { ?>
-														<option value="<?php echo $tax_class['tax_class_id']; ?>" selected="selected"><?php echo $tax_class['title']; ?></option>
-														<?php } else { ?>
-														<option value="<?php echo $tax_class['tax_class_id']; ?>"><?php echo $tax_class['title']; ?></option>
-														<?php } ?>
-													<?php } ?>
-												</select>
-											</div>
-										</div>
-										<div class="form-group">
 											<label class="col-sm-2 control-label" for="input-single-click-payment"><span data-toggle="tooltip" title="<?php echo $help_single_click_payment; ?>"><?php echo $entry_single_click_payment; ?></span></label>
 											<div class="col-sm-10">
 												<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_single_click_payment" id="input-single-click-payment" class="form-control">
@@ -627,9 +567,9 @@
 													</div>
 												</div>
 												<div class="form-group">
-													<label class="col-sm-6 control-label" for="input-other-css"><?php echo $text_other_css; ?></label>
+													<label class="col-sm-6 control-label" for="input-other-css-base"><?php echo $text_other_css; ?></label>
 													<div class="col-sm-6">
-														<textarea name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component_css_base[other_css]" id="input-other-css" class="form-control"><?php echo $store[$code . '_mollie_component_css_base']['other_css']; ?></textarea>
+														<textarea name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component_css_base[other_css]" id="input-other-css-base" class="form-control"><?php echo $store[$code . '_mollie_component_css_base']['other_css']; ?></textarea>
 													</div>
 												</div>												
 											</div>
@@ -654,9 +594,9 @@
 													</div>
 												</div>
 												<div class="form-group">
-													<label class="col-sm-6 control-label" for="input-other-css"><?php echo $text_other_css; ?></label>
+													<label class="col-sm-6 control-label" for="input-other-css-valid"><?php echo $text_other_css; ?></label>
 													<div class="col-sm-6">
-														<textarea name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component_css_valid[other_css]" id="input-other-css" class="form-control"><?php echo $store[$code . '_mollie_component_css_valid']['other_css']; ?></textarea>
+														<textarea name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component_css_valid[other_css]" id="input-other-css-valid" class="form-control"><?php echo $store[$code . '_mollie_component_css_valid']['other_css']; ?></textarea>
 													</div>
 												</div>
 											</div>
@@ -681,9 +621,9 @@
 													</div>
 												</div>
 												<div class="form-group">
-													<label class="col-sm-6 control-label" for="input-other-css"><?php echo $text_other_css; ?></label>
+													<label class="col-sm-6 control-label" for="input-other-css-invalid"><?php echo $text_other_css; ?></label>
 													<div class="col-sm-6">
-														<textarea name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component_css_invalid[other_css]" id="input-other-css" class="form-control"><?php echo $store[$code . '_mollie_component_css_invalid']['other_css']; ?></textarea>
+														<textarea name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_mollie_component_css_invalid[other_css]" id="input-other-css-invalid" class="form-control"><?php echo $store[$code . '_mollie_component_css_invalid']['other_css']; ?></textarea>
 													</div>
 												</div>
 											</div>
@@ -709,7 +649,7 @@
 					                  <div class="form-group">
 					                    <label class="col-sm-2 control-label" for="input-body<?php echo $store['store_id']; ?><?php echo $language['language_id']; ?>"><?php echo $entry_email_body; ?></label>
 					                    <div class="col-sm-10">
-					                      <textarea name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_recurring_email[<?php echo $language['language_id']; ?>][body]" placeholder="<?php echo $entry_email_body; ?>" id="input-body<?php echo $store['store_id']; ?><?php echo $language['language_id']; ?>" data-toggle="summernote" class="form-control summernote"><?php echo isset($store[$code . '_recurring_email'][$language['language_id']]) ? $store[$code . '_recurring_email'][$language['language_id']]['body'] : ''; ?></textarea>
+					                      <textarea name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_recurring_email[<?php echo $language['language_id']; ?>][body]" placeholder="<?php echo $entry_email_body; ?>" id="input-body<?php echo $store['store_id']; ?><?php echo $language['language_id']; ?>" data-toggle="summernote" data-lang="<?php echo $language['locale']; ?>" class="form-control summernote"><?php echo isset($store[$code . '_recurring_email'][$language['language_id']]) ? $store[$code . '_recurring_email'][$language['language_id']]['body'] : ''; ?></textarea>
 					                      <small><?php echo $text_allowed_variables; ?></small>
 					                    </div>
 					                  </div>	
@@ -821,6 +761,36 @@
 <script type="text/javascript" src="view/javascript/summernote/opencart.js"></script>
 
 <script type="text/javascript">
+	function save(store_id, payment_method) {
+		$.ajax({
+		  type: "POST",
+		  url: 'index.php?route=payment/mollie_<?php echo $module_name; ?>/save&<?php echo $token; ?>',
+		  dataType: 'json',
+		  data: $('#form-mollie input[type=\'text\'], #form-mollie input[type=\'date\'], #form-mollie input[type=\'datetime-local\'], #form-mollie input[type=\'time\'], #form-mollie input[type=\'checkbox\']:checked, #form-mollie input[type=\'password\'], #form-mollie input[type=\'radio\']:checked, #form-mollie input[type=\'hidden\'], #form-mollie textarea, #form-mollie select'),
+		  beforeSend: function() {
+				$('#save-setting-' + payment_method + '-' + store_id).button('loading');
+			},
+			complete: function() {
+				$('#save-setting-' + payment_method + '-' + store_id).button('reset');
+			},
+		  success: function(json) {
+			if (json['success']) {
+				$('a[href="#collapse-' + payment_method + '-' + store_id + '"]').trigger('click');
+
+				setTimeout(function() {
+					$('a[href="#collapse-' + payment_method + '-' + store_id + '"]').parent().parent().css('border-bottom', '2px solid #398c39');
+				}, 300);
+				setTimeout(function() {
+					$('a[href="#collapse-' + payment_method + '-' + store_id + '"]').parent().parent().css('border-bottom', '');
+				}, 1000);
+			}
+		  },
+		  error: function(xhr, ajaxOptions, thrownError) {
+			alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+		  }
+		});
+	}
+
 	function sendMessage(store_id = 0) {
 		var data = {
             'name':  $("#support-" + store_id + " input[name=\"name\"]").val(),
@@ -951,7 +921,7 @@
 		<?php foreach ($stores as $store) { ?>
 
 			$('[<?php echo $store["store_id"] ?>-data-payment-mollie-api-key]').on('keyup', function () {
-				validateAPIKey(this.value, $(this).siblings('.input-group-addon'), $(this).attr('store'));
+				validateAPIKey(this.value, $(this).siblings('.input-group-addon:first'), $(this).attr('store'));
 			});
 
 			var elem = document.getElementById('<?php echo $store["store_id"] ?>-create-shipment');
@@ -995,24 +965,6 @@
 		      $('#tabs<?php echo $store["store_id"] ?> a[href=#mollie-options-<?php echo $store["store_id"] ?>]').tab('show');
 		    });
 
-		    $('[<?php echo $store["store_id"] ?>-data-payment-mollie-client-id], [<?php echo $store["store_id"] ?>-data-payment-mollie-client-secret]').on('keyup', function() {
-
-		    	var client_id = $('[<?php echo $store["store_id"] ?>-data-payment-mollie-client-id]').val();
-			    var client_secret = $('[<?php echo $store["store_id"] ?>-data-payment-mollie-client-secret]').val();
-
-			    if((client_id == '') || (client_secret == '')) {
-			    	$("#<?php echo $store["store_id"] ?>_button_mollie_connect").css({ "opacity" : "0.6", "pointer-events" : "none" });
-			    } else {
-			    	if($("#<?php echo $store["store_id"] ?>_button_mollie_connect").attr('mollie-connection') == '1') {
-			    		$("#<?php echo $store["store_id"] ?>_button_mollie_connect").css({ "opacity" : "0.6", "pointer-events" : "none" });
-			    	} else {
-			    		$("#<?php echo $store["store_id"] ?>_button_mollie_connect").css({ "opacity" : "1", "pointer-events" : "unset" });
-			    	}			    	
-
-			    	saveAppData(client_id, client_secret, '<?php echo $store["store_id"] ?>');
-			    }
-		    });
-
 		    $('[<?php echo $store["store_id"] ?>-data-payment-mollie-order-expiry-days]').on('keyup', function() {
 		    	$('.error-expiry-days').remove();
 		    	var expiry_days = $('[<?php echo $store["store_id"] ?>-data-payment-mollie-order-expiry-days]').val();
@@ -1025,50 +977,25 @@
 		    $('#language<?php echo $store["store_id"] ?> a:first').tab('show');
 
 		<?php } ?>
-
-		function saveAppData(client_id, client_secret, store_id) {
-			var data = {
-                'client_id': client_id,
-                'client_secret': client_secret,
-                'store_id': store_id
-            };
-			$.ajax({
-			  type: "POST",
-			  url: 'index.php?route=payment/mollie_<?php echo $module_name; ?>/saveAppData&<?php echo $token; ?>',
-			  data: data,
-			  dataType: 'json',
-			  success: function(json) {
-			  	if(json != '') {
-			  		$("#" + store_id + "_button_mollie_connect").attr('href', json['connect_url']);
-			  	}			  	
-			  }
-			});
-		}
-
 	})();
 
 // Hide API Key
 $(document).ready(function () {
-<?php foreach ($stores as $store) { ?>
-	var apiKey = $('[<?php echo $store["store_id"] ?>-data-payment-mollie-api-key]').val();
-	if(apiKey != '') {
-		var prefix = apiKey.substr(0, 5);
-		$('[<?php echo $store["store_id"] ?>-data-payment-mollie-api-key]').hide();
-		$('[<?php echo $store["store_id"] ?>-data-payment-mollie-api-key-hide]').val(prefix + '******************************');
-
-		const toggleAPIKey = document.querySelector('.toggleAPIKey<?php echo $store['store_id']; ?>');
-
-		toggleAPIKey.addEventListener('click', function (e) {
-			var elem1 = $('[<?php echo $store["store_id"] ?>-data-payment-mollie-api-key-hide]');
-			var elem2 = $('[<?php echo $store["store_id"] ?>-data-payment-mollie-api-key]');
-			elem1.is(":visible") ? elem1.hide() : elem1.show();
-			elem2.is(":hidden") ? elem2.show() : elem2.hide();
-
-			$(this).children('i').toggleClass('fa-eye-slash');	
-		});
-	} else {
-		$('[<?php echo $store["store_id"] ?>-data-payment-mollie-api-key-hide]').hide();
-	}
-<?php } ?>
+	<?php foreach ($stores as $store) { ?>
+	transform('<?php echo $store['store_id']; ?>');
+	<?php } ?>
 });
+
+function transform(store_id = 0) {	
+	var apiKey = $('[' + store_id + '-data-payment-mollie-api-key]').val();
+	if(apiKey != '') {
+		var input = $('[' + store_id + '-data-payment-mollie-api-key]');
+		if (input.attr("type") === "password") {
+			input.attr("type", "text");
+		} else {
+			input.attr("type", "password");				
+		}
+		$('.toggleAPIKey' + store_id).children('i').toggleClass('fa-eye-slash');
+	}
+}
 </script>

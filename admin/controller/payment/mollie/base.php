@@ -66,6 +66,7 @@ use Mollie\Api\MollieApiClient;
 use Mollie\mollieHttpClient;
 
 require_once(DIR_SYSTEM . "library/mollie/helper.php");
+require_once(DIR_SYSTEM . "/library/mollie/mollieHttpClient.php");
 
 define("MOLLIE_VERSION", MollieHelper::PLUGIN_VERSION);
 define("MOLLIE_RELEASE", "v" . MOLLIE_VERSION);
@@ -104,184 +105,6 @@ class ControllerPaymentMollieBase extends Controller {
 		$data[$this->mollieHelper->getModuleCode() . "_api_key"] = $this->mollieHelper->getApiKey($store);
 		
 		return $this->mollieHelper->getAPIClientAdmin($data);
-	}
-
-	public function mollieConnect() {
-
-		$this->session->data['mollie_connect_store_id'] = $this->request->get['store_id'];
-		if(version_compare(VERSION, '2.3', '>=')) {
-			$redirect_uri = HTTPS_SERVER . 'index.php?route=extension/payment/mollie_bancontact/mollieConnectCallback';
-		} else {
-			$redirect_uri = HTTPS_SERVER . 'index.php?route=payment/mollie_bancontact/mollieConnectCallback';
-		}
-
-		$data = array(
-			'client_id' => $this->request->get['client_id'],
-			'state'		=> isset($this->session->data['user_token']) ? $this->session->data['user_token'] : $this->session->data['token'],
-			'redirect_uri'		=> $redirect_uri,
-			'scope'		=> 'payments.read payments.write customers.read customers.write profiles.read profiles.write orders.read orders.write organizations.read organizations.write settlements.read',
-			'response_type'		=> 'code',
-			'approval_prompt'		=> 'auto'
-		);
-
-		$queryString = http_build_query($data) . "\n";
-
-        $this->response->redirect("https://www.mollie.com/oauth2/authorize?".$queryString);
-	}
-
-	public function mollieConnectCallback() {
-		if (version_compare(VERSION, '2.3', '>=')) {
-	      $this->load->language('extension/payment/mollie');
-	    } else {
-	      $this->load->language('payment/mollie');
-	    }
-		
-		$this->load->model('setting/setting');
-		$code = $this->mollieHelper->getModuleCode();
-
-		if(isset($this->request->get['error'])) {
-			$this->session->data['warning'] = $this->request->get['error_description'];
-			if (version_compare(VERSION, '2.3', '>=')) {
-				$this->response->redirect($this->url->link('extension/payment/mollie_' . static::MODULE_NAME, $this->token, true));
-			} elseif (version_compare(VERSION, '2', '>=')) {
-				$this->response->redirect($this->url->link('payment/mollie_' . static::MODULE_NAME, $this->token, 'SSL'));
-			} else {
-				$this->redirect($this->url->link('payment/mollie_' . static::MODULE_NAME, $this->token, 'SSL'));
-			}
-		}
-
-		$token = isset($this->session->data['user_token']) ? $this->session->data['user_token'] : $this->session->data['token'];
-
-		if(!isset($this->request->get['state']) || ($this->request->get['state'] != $token)) {
-			return new Action('common/login');
-		}
-
-		if(version_compare(VERSION, '2.3', '>=')) {
-			$redirect_uri = HTTPS_SERVER . 'index.php?route=extension/payment/mollie_bancontact/mollieConnectCallback';
-		} else {
-			$redirect_uri = HTTPS_SERVER . 'index.php?route=payment/mollie_bancontact/mollieConnectCallback';
-		}
-
-		$settingData = $this->model_setting_setting->getSetting($code, $this->session->data['mollie_connect_store_id']);
-
-		$data = array(
-			'client_id' => $settingData[$code . '_client_id'],
-            'client_secret' => $settingData[$code . '_client_secret'],
-			'grant_type' => 'authorization_code',
-			'code' => $this->request->get['code'],
-			'redirect_uri'		=> $redirect_uri
-		);
-
-		$result = $this->mollieHelper->curlRequest('tokens', $data);
-
-		// Save refresh token
-		$this->db->query("DELETE FROM `" . DB_PREFIX . "setting` WHERE `key` = '" . $code . "_refresh_token' AND `store_id` = '" . $this->session->data['mollie_connect_store_id'] . "'");
-
-		if(version_compare(VERSION, '2.0', '<')) {
-			$this->db->query("INSERT INTO " . DB_PREFIX . "setting SET store_id = '" . $this->session->data['mollie_connect_store_id'] . "', `group` = '" . $code . "', `key` = '" . $code . "_refresh_token', `value` = '" . $result->refresh_token . "'");
-		} else {
-			$this->db->query("INSERT INTO " . DB_PREFIX . "setting SET store_id = '" . $this->session->data['mollie_connect_store_id'] . "', `code` = '" . $code . "', `key` = '" . $code . "_refresh_token', `value` = '" . $result->refresh_token . "'");
-		}
-
-		$this->session->data['mollie_access_token'][$this->session->data['mollie_connect_store_id']] = $result->access_token;
-		unset($this->session->data['mollie_connect_store_id']);
-
-		$this->session->data['success'] = $this->language->get('text_connection_success');
-		
-		if (version_compare(VERSION, '2.3', '>=')) {
-			$this->response->redirect($this->url->link('extension/payment/mollie_' . static::MODULE_NAME, $this->token, true));
-		} elseif (version_compare(VERSION, '2', '>=')) {
-			$this->response->redirect($this->url->link('payment/mollie_' . static::MODULE_NAME, $this->token, 'SSL'));
-		} else {
-			$this->redirect($this->url->link('payment/mollie_' . static::MODULE_NAME, $this->token, 'SSL'));
-		}
-
-	}
-
-	public function enablePaymentMethod() {
-		if (version_compare(VERSION, '2.3', '>=')) {
-	      $this->load->language('extension/payment/mollie');
-	    } else {
-	      $this->load->language('payment/mollie');
-	    }
-		$code = $this->mollieHelper->getModuleCode();
-
-		$method  = $this->request->get['method'];
-		$api_key = $this->mollieHelper->getSettingValue($code . '_api_key', $this->request->get['store_id']);
-		try
-			{
-				$api = $this->mollieHelper->getAPIClientForKey($api_key);
-
-				$profile = $api->profiles->getCurrent();
-
-				$mollie = $this->mollieHelper->getAPIClientForAccessToken($this->session->data['mollie_access_token'][$this->request->get['store_id']]);
-				$profile = $mollie->profiles->get($profile->id);
-				$profile->enableMethod($method);
-
-				$this->session->data['success'] = $this->language->get('text_success');
-				if (version_compare(VERSION, '2.3', '>=')) {
-					$this->response->redirect($this->url->link('extension/payment/mollie_' . static::MODULE_NAME, $this->token, true));
-				} elseif (version_compare(VERSION, '2', '>=')) {
-					$this->response->redirect($this->url->link('payment/mollie_' . static::MODULE_NAME, $this->token, 'SSL'));
-				} else {
-					$this->redirect($this->url->link('payment/mollie_' . static::MODULE_NAME, $this->token, 'SSL'));
-				}
-
-			}
-			catch (Mollie\Api\Exceptions\ApiException $e)
-			{
-				$this->session->data['warning'] = $this->language->get('text_error');
-				if (version_compare(VERSION, '2.3', '>=')) {
-					$this->response->redirect($this->url->link('extension/payment/mollie_' . static::MODULE_NAME, $this->token, true));
-				} elseif (version_compare(VERSION, '2', '>=')) {
-					$this->response->redirect($this->url->link('payment/mollie_' . static::MODULE_NAME, $this->token, 'SSL'));
-				} else {
-					$this->redirect($this->url->link('payment/mollie_' . static::MODULE_NAME, $this->token, 'SSL'));
-				}
-			}
-	}
-
-	public function disablePaymentMethod() {
-		if (version_compare(VERSION, '2.3', '>=')) {
-	      $this->load->language('extension/payment/mollie');
-	    } else {
-	      $this->load->language('payment/mollie');
-	    }
-		$code = $this->mollieHelper->getModuleCode();
-
-		$method  = $this->request->get['method'];
-		$api_key = $this->mollieHelper->getSettingValue($code . '_api_key', $this->request->get['store_id']);
-		try
-			{
-				$api = $this->mollieHelper->getAPIClientForKey($api_key);
-
-				$profile = $api->profiles->getCurrent();
-
-				$mollie = $this->mollieHelper->getAPIClientForAccessToken($this->session->data['mollie_access_token'][$this->request->get['store_id']]);
-				$profile = $mollie->profiles->get($profile->id);
-				$profile->disableMethod($method);
-
-				$this->session->data['success'] = $this->language->get('text_success');
-				if (version_compare(VERSION, '2.3', '>=')) {
-					$this->response->redirect($this->url->link('extension/payment/mollie_' . static::MODULE_NAME, $this->token, true));
-				} elseif (version_compare(VERSION, '2', '>=')) {
-					$this->response->redirect($this->url->link('payment/mollie_' . static::MODULE_NAME, $this->token, 'SSL'));
-				} else {
-					$this->redirect($this->url->link('payment/mollie_' . static::MODULE_NAME, $this->token, 'SSL'));
-				}
-
-			}
-			catch (Mollie\Api\Exceptions\ApiException $e)
-			{
-				$this->session->data['warning'] = $this->language->get('text_error');
-				if (version_compare(VERSION, '2.3', '>=')) {
-					$this->response->redirect($this->url->link('extension/payment/mollie_' . static::MODULE_NAME, $this->token, true));
-				} elseif (version_compare(VERSION, '2', '>=')) {
-					$this->response->redirect($this->url->link('payment/mollie_' . static::MODULE_NAME, $this->token, 'SSL'));
-				} else {
-					$this->redirect($this->url->link('payment/mollie_' . static::MODULE_NAME, $this->token, 'SSL'));
-				}
-			}
 	}
 
 	/**
@@ -332,49 +155,6 @@ class ControllerPaymentMollieBase extends Controller {
 			)
 		);
 
-		$this->db->query("ALTER TABLE `" . DB_PREFIX . "order` MODIFY `payment_method` VARCHAR(255) NOT NULL;");
-
-		//Check if subscription fields exist
-		if(!$this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "mollie_payments` LIKE 'subscription_id'")->row)
-			$this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_payments` ADD `subscription_id` VARCHAR(32), ADD `order_recurring_id` INT(11), ADD `next_payment` DATETIME, ADD `subscription_end` DATETIME");
-
-		//Check if mollie_order_id field exists
-		if(!$this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "mollie_payments` LIKE 'mollie_order_id'")->row)
-			$this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_payments` ADD `mollie_order_id` VARCHAR(32) UNIQUE");
-
-		//Check if refund_id field exists
-		if(!$this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "mollie_payments` LIKE 'refund_id'")->row)
-			$this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_payments` ADD `refund_id` VARCHAR(32)");
-
-		//Check if date_modified field exists
-		if(!$this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "mollie_payments` LIKE 'date_modified'")->row)
-			$this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_payments` ADD `date_modified` DATETIME NOT NULL");
-
-		//Check if payment_attempt field exists
-		if(!$this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "mollie_payments` LIKE 'payment_attempt'")->row)
-			$this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_payments` ADD `payment_attempt` INT(11) NOT NULL");
-
-		// Update primary key
-		// $query = $this->db->query("SHOW INDEX FROM `" .DB_PREFIX. "mollie_payments` where Key_name = 'PRIMARY'");
-		// if($query->num_rows > 0 && $query->row['Column_name'] != 'mollie_order_id') {
-		// 	$this->db->query("DELETE FROM `" .DB_PREFIX. "mollie_payments` where mollie_order_id IS NULL OR mollie_order_id = ''");
-		// 	$this->db->query("ALTER TABLE `" .DB_PREFIX. "mollie_payments` DROP PRIMARY KEY, ADD PRIMARY KEY (mollie_order_id)");
-		// }
-
-		// Drop Primary Key
-		$query = $this->db->query("SHOW INDEX FROM `" .DB_PREFIX. "mollie_payments` where Key_name = 'PRIMARY'");
-		if($query->num_rows > 0) {
-			$this->db->query("ALTER TABLE `" .DB_PREFIX. "mollie_payments` DROP PRIMARY KEY");
-		}
-
-		// Drop Unique Key
-		$query = $this->db->query("SHOW INDEX FROM `" .DB_PREFIX. "mollie_payments`");
-		if($query->num_rows > 0) {
-			foreach ($query->rows as $row) {
-				$this->db->query("ALTER TABLE `" .DB_PREFIX. "mollie_payments` DROP INDEX " . $row['Key_name'] . "");
-			}
-		}
-
 		// Create mollie customers table
 		$this->db->query(
 			sprintf(
@@ -424,6 +204,61 @@ class ControllerPaymentMollieBase extends Controller {
 				DB_PREFIX
 			)
 		);
+
+		$this->db->query("ALTER TABLE `" . DB_PREFIX . "order` MODIFY `payment_method` VARCHAR(255) NOT NULL;");
+
+		//Check if subscription fields exist
+		if(!$this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "mollie_payments` LIKE 'subscription_id'")->row)
+			$this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_payments` ADD `subscription_id` VARCHAR(32), ADD `order_recurring_id` INT(11), ADD `next_payment` DATETIME, ADD `subscription_end` DATETIME");
+
+		//Check if mollie_order_id field exists
+		if(!$this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "mollie_payments` LIKE 'mollie_order_id'")->row)
+			$this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_payments` ADD `mollie_order_id` VARCHAR(32) UNIQUE");
+
+		//Check if refund_id field exists
+		if(!$this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "mollie_payments` LIKE 'refund_id'")->row)
+			$this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_payments` ADD `refund_id` VARCHAR(32)");
+
+		//Check if date_modified field exists
+		if(!$this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "mollie_payments` LIKE 'date_modified'")->row)
+			$this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_payments` ADD `date_modified` DATETIME NOT NULL");
+
+		//Check if payment_attempt field exists
+		if(!$this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "mollie_payments` LIKE 'payment_attempt'")->row)
+			$this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_payments` ADD `payment_attempt` INT(11) NOT NULL");
+		
+		//Check if amount fields exist
+		if(!$this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "mollie_payments` LIKE 'amount'")->row)
+			$this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_payments` ADD `amount` decimal(15,4)");
+
+		//Check if status fields exist
+		if(!$this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "mollie_refund` LIKE 'status'")->row)
+			$this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_refund` ADD `status` VARCHAR(20)");
+
+		// Update primary key
+		// $query = $this->db->query("SHOW INDEX FROM `" .DB_PREFIX. "mollie_payments` where Key_name = 'PRIMARY'");
+		// if($query->num_rows > 0 && $query->row['Column_name'] != 'mollie_order_id') {
+		// 	$this->db->query("DELETE FROM `" .DB_PREFIX. "mollie_payments` where mollie_order_id IS NULL OR mollie_order_id = ''");
+		// 	$this->db->query("ALTER TABLE `" .DB_PREFIX. "mollie_payments` DROP PRIMARY KEY, ADD PRIMARY KEY (mollie_order_id)");
+		// }
+
+		// Update Primary Key
+		$query = $this->db->query("SHOW INDEX FROM `" .DB_PREFIX. "mollie_payments` where Key_name = 'PRIMARY'");
+		if($query->num_rows > 0) {
+			$this->db->query("ALTER TABLE `" .DB_PREFIX. "mollie_payments` DROP PRIMARY KEY, ADD PRIMARY KEY (mollie_order_id, transaction_id)");
+		} else {
+			$this->db->query("ALTER TABLE `" .DB_PREFIX. "mollie_payments` ADD PRIMARY KEY (mollie_order_id, transaction_id)");
+		}
+
+		// Drop Unique Key
+		$query = $this->db->query("SHOW INDEX FROM `" .DB_PREFIX. "mollie_payments`");
+		if($query->num_rows > 0) {
+			foreach ($query->rows as $row) {
+				if ($row['Key_name'] != 'PRIMARY') {
+					$this->db->query("ALTER TABLE `" .DB_PREFIX. "mollie_payments` DROP INDEX " . $row['Key_name'] . "");
+				}
+			}
+		}
 	}
 
 	public function enableModFile($keep = '') {
@@ -736,7 +571,12 @@ class ControllerPaymentMollieBase extends Controller {
 			        if (!is_array($value)) {
 			            $this->db->query("INSERT INTO " . DB_PREFIX . "setting SET store_id = '" . (int)$store['store_id'] . "', `" . $_code . "` = '" . $this->db->escape($code) . "', `key` = '" . $this->db->escape($code . '_' . $key) . "', `value` = '" . $this->db->escape($value) . "'");
 			        } else {
-			            $this->db->query("INSERT INTO " . DB_PREFIX . "setting SET store_id = '" . (int)$store['store_id'] . "', `" . $_code . "` = '" . $this->db->escape($code) . "', `key` = '" . $this->db->escape($code . '_' . $key) . "', `value` = '" . $this->db->escape(json_encode($value, true)) . "', serialized = '1'");
+						if (version_compare(VERSION, '2', '>=')) {
+							$value = json_encode($value, true);
+						} else {
+							$value = serialize($value);
+						}
+			            $this->db->query("INSERT INTO " . DB_PREFIX . "setting SET store_id = '" . (int)$store['store_id'] . "', `" . $_code . "` = '" . $this->db->escape($code) . "', `key` = '" . $this->db->escape($code . '_' . $key) . "', `value` = '" . $this->db->escape($value) . "', serialized = '1'");
 			        }
 				}
         	}
@@ -921,6 +761,9 @@ class ControllerPaymentMollieBase extends Controller {
 		//Also delete data related to deprecated modules from settings
 		$this->clearData();
 
+		// Preserve Payment Fee Setting
+		$this->savePaymentFeeSettings();
+
 		// Update settings with newly added variables
 		$this->updateSettings();
 
@@ -941,7 +784,6 @@ class ControllerPaymentMollieBase extends Controller {
 	      $this->load->language('payment/mollie');
 	    }
 		$this->data = $data;		
-		$this->load->library("mollie/mollieHttpClient");
 		$code = $this->mollieHelper->getModuleCode();
 
 		if (($this->request->server['REQUEST_METHOD'] == 'POST')) {
@@ -967,21 +809,6 @@ class ControllerPaymentMollieBase extends Controller {
 	            	else {
 	            		$redirect = false;
 	            	}
-            	}
-
-            	// Remove refresh token if app credentials are changed
-            	$removeToken = false;
-            	$settingData = $this->removePrefix($this->request->post, $store["store_id"] . "_");
-            	if(!empty($this->session->data['app_data'])) {
-            		if(isset($this->session->data['app_data'][$store["store_id"]]['client_id']) && ($this->session->data['app_data'][$store["store_id"]]['client_id'] != $settingData[$code . '_client_id'])) {
-            			$removeToken = true;
-            		} else if (isset($this->session->data['app_data'][$store["store_id"]]['client_secret']) && ($this->session->data['app_data'][$store["store_id"]]['client_secret'] != $settingData[$code . '_client_secret'])) {
-            			$removeToken = true;
-            		}
-            	}
-
-            	if($removeToken) {
-            		$this->db->query("DELETE FROM `" . DB_PREFIX . "setting` WHERE `key` = '" . $code . "_refresh_token' AND `store_id` = '" . $store["store_id"] . "'");
             	}
             }
 
@@ -1009,7 +836,6 @@ class ControllerPaymentMollieBase extends Controller {
         $paymentStatus = array();
         $paymentSortOrder = array();
         $paymentGeoZone = array();
-        $paymentFee = array();
         $paymentTotalMin = array();
         $paymentTotalMax = array();
         $paymentAPIToUse = array();
@@ -1020,25 +846,18 @@ class ControllerPaymentMollieBase extends Controller {
         	$paymentStatus[] 	= $code . '_' . $module_name . '_status';
         	$paymentSortOrder[] = $code . '_' . $module_name . '_sort_order';
         	$paymentGeoZone[] 	= $code . '_' . $module_name . '_geo_zone';
-        	$paymentFee[] 	    = $code . '_' . $module_name . '_payment_fee';
         	$paymentTotalMin[]  = $code . '_' . $module_name . '_total_minimum';
         	$paymentTotalMax[]  = $code . '_' . $module_name . '_total_maximum';
         	$paymentAPIToUse[]  = $code . '_' . $module_name . '_api_to_use';
 		}
 
-        $fields = array("show_icons", "show_order_canceled_page", "description", "api_key", "client_id", "client_secret", "refresh_token", "ideal_processing_status_id", "ideal_expired_status_id", "ideal_canceled_status_id", "ideal_failed_status_id", "ideal_pending_status_id", "ideal_shipping_status_id", "create_shipment_status_id", "ideal_refund_status_id", "create_shipment", "payment_screen_language", "debug_mode", "mollie_component", "mollie_component_css_base", "mollie_component_css_valid", "mollie_component_css_invalid", "default_currency", "recurring_email", "align_icons", "single_click_payment", "order_expiry_days", "partial_refund", "ideal_partial_refund_status_id", "payment_fee_tax_class_id");
+        $fields = array("show_icons", "show_order_canceled_page", "description", "api_key", "ideal_processing_status_id", "ideal_expired_status_id", "ideal_canceled_status_id", "ideal_failed_status_id", "ideal_pending_status_id", "ideal_shipping_status_id", "create_shipment_status_id", "ideal_refund_status_id", "create_shipment", "payment_screen_language", "debug_mode", "mollie_component", "mollie_component_css_base", "mollie_component_css_valid", "mollie_component_css_invalid", "default_currency", "recurring_email", "align_icons", "single_click_payment", "order_expiry_days", "partial_refund", "ideal_partial_refund_status_id", "payment_fee_tax_class_id");
 
         $settingFields = $this->addPrefix($code . '_', $fields);
 
-        $storeFormFields = array_merge($settingFields, $paymentDesc, $paymentImage, $paymentStatus, $paymentSortOrder, $paymentGeoZone, $paymentFee, $paymentTotalMin, $paymentTotalMax);
+        $storeFormFields = array_merge($settingFields, $paymentDesc, $paymentImage, $paymentStatus, $paymentSortOrder, $paymentGeoZone, $paymentTotalMin, $paymentTotalMax);
 
         $data['stores'] = $this->getStores();
-
-        // Generate access token
-        foreach ($data['stores'] as &$store) {
-            $accessToken = $this->mollieHelper->generateAccessToken($store["store_id"]);
-            $this->session->data['mollie_access_token'][$store["store_id"]] = $accessToken;
-        }
 
         //API key not required for multistores
         $data['api_required'] = true;
@@ -1070,7 +889,6 @@ class ControllerPaymentMollieBase extends Controller {
 		$data['text_disabled'] = $this->language->get('text_disabled');
 		$data['text_edit'] = $this->language->get('text_edit');
 		$data['text_payment'] = $this->language->get('text_payment');
-		$data['text_enable_payment_method'] = $this->language->get('text_enable_payment_method');
 		$data['text_activate_payment_method'] = $this->language->get('text_activate_payment_method');
 		$data['text_no_status_id'] = $this->language->get('text_no_status_id');
 		$data['text_creditcard_required'] = $this->language->get('text_creditcard_required');
@@ -1148,11 +966,7 @@ class ControllerPaymentMollieBase extends Controller {
 		$data['entry_align_icons'] = $this->language->get('entry_align_icons');
 		$data['entry_show_order_canceled_page'] = $this->language->get('entry_show_order_canceled_page');
 		$data['entry_geo_zone'] = $this->language->get('entry_geo_zone');
-		$data['entry_client_id'] = $this->language->get('entry_client_id');
-		$data['entry_client_secret'] = $this->language->get('entry_client_secret');
-		$data['entry_redirect_uri'] = $this->language->get('entry_redirect_uri');
 		$data['entry_payment_screen_language'] = $this->language->get('entry_payment_screen_language');
-		$data['entry_mollie_connect'] = $this->language->get('entry_mollie_connect');
 		$data['entry_name'] = $this->language->get('entry_name');
 		$data['entry_email'] = $this->language->get('entry_email');
 		$data['entry_subject'] = $this->language->get('entry_subject');
@@ -1193,6 +1007,7 @@ class ControllerPaymentMollieBase extends Controller {
 		$data['entry_minimum'] = $this->language->get('entry_minimum');
 		$data['entry_maximum'] = $this->language->get('entry_maximum');
 		$data['entry_api_to_use'] = $this->language->get('entry_api_to_use');
+		$data['entry_status'] = $this->language->get('entry_status');
 
 		$data['error_order_expiry_days'] = $this->language->get('error_order_expiry_days');
 		
@@ -1202,8 +1017,6 @@ class ControllerPaymentMollieBase extends Controller {
 		$data['help_description'] = $this->language->get('help_description');
 		$data['help_show_icons'] = $this->language->get('help_show_icons');
 		$data['help_show_order_canceled_page'] = $this->language->get('help_show_order_canceled_page');
-		$data['help_redirect_uri'] = $this->language->get('help_redirect_uri');
-		$data['help_mollie_app'] = $this->language->get('help_mollie_app');
 		$data['help_apple_pay'] = $this->language->get('help_apple_pay');
 		$data['help_mollie_component'] = $this->language->get('help_mollie_component');
 		$data['help_shipment'] = $this->language->get('help_shipment');
@@ -1213,12 +1026,11 @@ class ControllerPaymentMollieBase extends Controller {
 		$data['button_save'] = $this->language->get('button_save');
 		$data['button_cancel'] = $this->language->get('button_cancel');
 		$data['button_update'] = $this->language->get('button_update');
-		$data['button_mollie_connect'] = $this->language->get('button_mollie_connect');
 		$data['button_download'] = $this->language->get('button_download');
 		$data['button_clear'] = $this->language->get('button_clear');
 		$data['button_submit'] = $this->language->get('button_submit');
 		$data['button_advance_option'] = $this->language->get('button_advance_option');
-		$data['button_close'] = $this->language->get('button_close');
+		$data['button_save_close'] = $this->language->get('button_save_close');
       
    		$data['breadcrumbs'][] = array(
 	       	'text'      => $this->language->get('text_payment'),
@@ -1242,8 +1054,20 @@ class ControllerPaymentMollieBase extends Controller {
         $data['entry_version']      = $this->language->get("entry_version") . " " . MOLLIE_VERSION;
         $data['code']               = $code;
 		$data['token']          	= $this->token;
+
 		$data['update_url']         = ($this->getUpdateUrl()) ? $this->getUpdateUrl()['updateUrl'] : '';
-        $data['text_update']        = ($this->getUpdateUrl()) ? sprintf($this->language->get('text_update_message'), $this->getUpdateUrl()['updateVersion'], $data['update_url']) : '';
+		if (version_compare(phpversion(), MollieHelper::MIN_PHP_VERSION, "<")) {
+        	$data['text_update']        = ($this->getUpdateUrl()) ? sprintf($this->language->get('text_update_message_warning'), $this->getUpdateUrl()['updateVersion'], $this->getUpdateUrl()['updateVersion']) : '';
+			$data['module_update'] = false;
+		} else {
+        	$data['text_update']        = ($this->getUpdateUrl()) ? sprintf($this->language->get('text_update_message'), $this->getUpdateUrl()['updateVersion'], $data['update_url'], $this->getUpdateUrl()['updateVersion']) : '';
+			$data['module_update'] = true;
+		}
+
+		if (isset($_COOKIE["hide_mollie_update_message_version"]) && ($_COOKIE["hide_mollie_update_message_version"] == $this->getUpdateUrl()['updateVersion'])) {
+			$data['text_update'] = '';
+		}
+		
 		$data['geo_zones']			= $this->model_localisation_geo_zone->getGeoZones();
 		$data['order_statuses']		= $this->model_localisation_order_status->getOrderStatuses();
 		$data['languages']			= $this->model_localisation_language->getLanguages();
@@ -1261,15 +1085,10 @@ class ControllerPaymentMollieBase extends Controller {
 		// Check if Mollie Payment Fee order total is enabled
 		$molliePaymentFee = $this->config->get('total_mollie_payment_fee_status') || $this->config->get('mollie_payment_fee_status');
 		if (!$molliePaymentFee) {
-			$this->session->data['warning'] = $this->language->get('error_mollie_payment_fee');
+			$this->session->data['warning_payment_fee'] = $this->language->get('error_mollie_payment_fee');
 		}
 
 		$this->load->model('tool/image');
-		if (is_file(DIR_IMAGE . 'mollie_connect.png')) {
-			$data['image'] = $this->model_tool_image->resize('mollie_connect.png', 400, 90);
-		} else {
-			$data['image'] = '';
-		}
 
 		if(version_compare(VERSION, '2.0.2.0', '>=')) {
 			$no_image = 'no_image.png';
@@ -1293,6 +1112,13 @@ class ControllerPaymentMollieBase extends Controller {
 			$data['warning'] = '';
 		}
 
+		if(isset($this->session->data['warning_payment_fee'])) {
+			$data['warning_payment_fee'] = $this->session->data['warning_payment_fee'];
+			$this->session->data['warning_payment_fee'] = '';
+		} else {
+			$data['warning_payment_fee'] = '';
+		}
+
 		if(isset($this->error['warning'])) {
 			$data['error_warning'] = $this->error['warning'];
 		} else {
@@ -1307,8 +1133,6 @@ class ControllerPaymentMollieBase extends Controller {
 		// Load global settings. Some are prefixed with mollie_ideal_ for legacy reasons.
 		$settings = array(
 			$code . "_api_key"                    				=> NULL,
-			$code . "_client_id"                    			=> NULL,
-			$code . "_client_secret"                    		=> NULL,
 			$code . "_description"          					=> $description,
 			$code . "_show_icons"                 				=> FALSE,
 			$code . "_align_icons"                 				=> 'left',
@@ -1323,7 +1147,6 @@ class ControllerPaymentMollieBase extends Controller {
 			$code . "_ideal_refund_status_id"  					=> 11,
 			$code . "_ideal_partial_refund_status_id"  			=> 11,
 			$code . "_create_shipment"  		  				=> 3,
-			$code . "_refresh_token"  		  					=> '',
 			$code . "_payment_screen_language"  		  		=> 'en-gb',
 			$code . "_default_currency"  		  				=> 'DEF',
 			$code . "_debug_mode"  		  						=> FALSE,
@@ -1332,7 +1155,6 @@ class ControllerPaymentMollieBase extends Controller {
 			$code . "_single_click_payment"  		  			=> FALSE,
 			$code . "_partial_refund"  				  			=> FALSE,
 			$code . "_order_expiry_days"  		  			    => 25,
-			$code . "_payment_fee_tax_class_id"  				=> 0,
 			$code . "_mollie_component_css_base"  		  		=> array(
 																	"background_color" => "#fff",
 																	"color"			   => "#555",
@@ -1382,34 +1204,6 @@ class ControllerPaymentMollieBase extends Controller {
 				}
 			}
 
-			// Check mollie connection
-			$data['stores'][$store['store_id']]['mollie_connection'] = false;
-			$data['stores'][$store['store_id']]['show_mollie_connect_button'] = true;
-			if(isset($this->data[$this->mollieHelper->getModuleCode() . '_refresh_token']) && !empty($this->data[$this->mollieHelper->getModuleCode() . '_refresh_token'])) {
-				$data['stores'][$store['store_id']]['mollie_connection'] = true;
-			}
-
-			if(isset($this->session->data['mollie_access_token'][$store['store_id']]) && !empty($this->session->data['mollie_access_token'][$store['store_id']])) {
-				$data['stores'][$store['store_id']]['show_mollie_connect_button'] = false;
-			}
-
-			if(isset($this->data[$this->mollieHelper->getModuleCode() . '_client_id']) && !empty($this->data[$this->mollieHelper->getModuleCode() . '_client_id'])) {
-				if(version_compare(VERSION, '2.3', '>=')) {
-					$route = 'extension/payment/mollie_' . static::MODULE_NAME . '/mollieConnect';
-				} else {
-					$route = 'payment/mollie_' . static::MODULE_NAME . '/mollieConnect';
-				}
-				$data['stores'][$store['store_id']]['mollie_connect'] = $this->url->link($route, $this->token . "&client_id=" . $this->data[$this->mollieHelper->getModuleCode() . '_client_id'] . "&store_id=" . $store['store_id']);
-			} else {
-				$data['stores'][$store['store_id']]['mollie_connect'] = '';
-			}
-
-			if(version_compare(VERSION, '2.3', '>=')) {
-				$data['stores'][$store['store_id']]['redirect_uri'] = HTTPS_SERVER . 'index.php?route=extension/payment/mollie_bancontact/mollieConnectCallback';
-			} else {
-				$data['stores'][$store['store_id']]['redirect_uri'] = HTTPS_SERVER . 'index.php?route=payment/mollie_bancontact/mollieConnectCallback';
-			}
-
 			// Check which payment methods we can use with the current API key.
 			$allowed_methods = array();
 			try {
@@ -1436,13 +1230,16 @@ class ControllerPaymentMollieBase extends Controller {
 				$payment_method = array();
 
 				$payment_method['name']    = $this->language->get("name_mollie_" . $module_name);
-				$payment_method['disable']    = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/disablePaymentMethod", $this->token . "&method=" . $module_name . "&store_id=" . $store['store_id']);
-				$payment_method['enable']     = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/enablePaymentMethod", $this->token . "&method=" . $module_name . "&store_id=" . $store['store_id']);
 				$payment_method['icon']    = "../image/mollie/" . $module_name . "2x.png";
 				$payment_method['allowed'] = array_key_exists($module_name, $allowed_methods);
 
 				if(($module_name == 'creditcard') && $payment_method['allowed']) {
 					$data['store_data']['creditCardEnabled'] = true;
+				}
+
+				// Make inactive if not allowed
+				if (!$payment_method['allowed']) {
+					$this->model_setting_setting->editSettingValue($code, $code . '_' . $module_name . '_status', 0, $store['store_id']);
 				}
 
 				// Load module specific settings.
@@ -1480,12 +1277,6 @@ class ControllerPaymentMollieBase extends Controller {
 					$payment_method['geo_zone'] = $this->data[$store['store_id'] . '_' . $code . '_' . $module_name . '_geo_zone'];
 				} else {
 					$payment_method['geo_zone'] = isset($this->data[$code . "_" . $module_name . "_geo_zone"]) ? $this->data[$code . "_" . $module_name . "_geo_zone"] : null;
-				}
-
-				if (isset($this->data[$store['store_id'] . '_' . $code . '_' . $module_name . '_payment_fee'])) {
-					$payment_method['payment_fee'] = $this->data[$store['store_id'] . '_' . $code . '_' . $module_name . '_payment_fee'];
-				} else {
-					$payment_method['payment_fee'] = isset($this->data[$code . "_" . $module_name . "_payment_fee"]) ? $this->data[$code . "_" . $module_name . "_payment_fee"] : null;
 				}
 
 				if ($payment_method['allowed']) {
@@ -1576,17 +1367,6 @@ class ControllerPaymentMollieBase extends Controller {
 			}
 		}
 
-		// Save client_id and client_secret in the session and remove refresh_token from the setting if these cerdentials are changed after save
-		$appData = array();
-
-		foreach($data['stores'] as $store_id=>$setting_data) {
-			$appData[$store_id] = array(
-				'client_id' => $setting_data[$code . '_client_id'],
-				'client_secret' => $setting_data[$code . '_client_secret']
-			);
-		}
-		
-		$this->session->data['app_data'] = $appData;
 		$data['store_email'] = $this->config->get('config_email');
 
 		if (version_compare(VERSION, '2', '>=')) {
@@ -1741,24 +1521,6 @@ class ControllerPaymentMollieBase extends Controller {
 		return true;
 	}
 
-	public function saveAppData() {
-		$json = array();
-		$this->load->model('setting/setting');
-		$store_id = $_POST['store_id'];
-		$code = $this->mollieHelper->getModuleCode();
-
-		$data = $this->model_setting_setting->getSetting($code, $store_id);
-		$data[$code.'_client_id'] = $_POST['client_id'];
-		$data[$code.'_client_secret'] = $_POST['client_secret'];
-		
-		$this->model_setting_setting->editSetting($code, $data, $store_id);
-
-		$json['connect_url'] = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/mollieConnect", $this->token . "&client_id=" . $_POST['client_id'] . "&store_id=" . $store_id);
-
-		$this->response->addHeader('Content-Type: application/json');
-		$this->response->setOutput(json_encode($json));
-	}
-
 	private function getUpdateUrl() {
         $client = new mollieHttpClient();
         $info = $client->get(MOLLIE_VERSION_URL);
@@ -1774,7 +1536,17 @@ class ControllerPaymentMollieBase extends Controller {
     }
 
     function update() {
-        $this->load->library("mollie/mollieHttpClient");
+
+		// CHeck for PHP version
+		if (version_compare(phpversion(), MollieHelper::MIN_PHP_VERSION, "<")) {
+			if (version_compare(VERSION, '2.3', '>=')) {
+				$this->response->redirect($this->url->link('extension/payment/mollie_' . static::MODULE_NAME, $this->token, true));
+			} elseif (version_compare(VERSION, '2', '>=')) {
+				$this->response->redirect($this->url->link('payment/mollie_' . static::MODULE_NAME, $this->token, 'SSL'));
+			} else {
+				$this->redirect($this->url->link('payment/mollie_' . static::MODULE_NAME, $this->token, 'SSL'));
+			}
+		}
 
         //get info
         $client = new mollieHttpClient();
@@ -2016,4 +1788,96 @@ class ControllerPaymentMollieBase extends Controller {
         }   
         return $formattedAmount;    
     }
+
+	public function save() {
+		if (version_compare(VERSION, '2.3', '>=')) {
+			$this->load->language('extension/payment/mollie');
+		} else {
+			$this->load->language('payment/mollie');
+		}
+		$this->load->model('setting/setting');
+		$this->load->model('localisation/language');
+
+		$json = array();
+
+		$code = $this->mollieHelper->getModuleCode();
+
+		$stores = $this->getStores();
+		foreach ($stores as $store) {
+			// Set payment method title to default if not provided
+			foreach ($this->mollieHelper->MODULE_NAMES as $module_name) {
+				$desc = $this->request->post[$store["store_id"] . '_' . $code . '_' . $module_name . '_description'];
+				foreach ($this->model_localisation_language->getLanguages() as $language) {
+					if (empty($desc[$language['language_id']]['title'])) {
+						$this->request->post[$store["store_id"] . '_' . $code . '_' . $module_name . '_description'][$language['language_id']]['title'] = $this->request->post[$store["store_id"] . '_' . $code . '_' . $module_name . '_name'];
+					}
+				}
+			}
+			$this->model_setting_setting->editSetting($code, $this->removePrefix($this->request->post, $store["store_id"] . "_"), $store["store_id"]);
+		}
+
+		$json['success'] = $this->language->get('text_success');
+
+		$this->response->addHeader('Content-Type: application/json');
+		$this->response->setOutput(json_encode($json));
+	}
+
+	protected function savePaymentFeeSettings() {
+		$code = "mollie";
+		$code2 = "mollie_payment_fee";
+		if (version_compare(VERSION, '3.0', '>=')) {
+			$code = "payment_mollie";
+			$code2 = "total_mollie_payment_fee";
+		}
+		if (version_compare(VERSION, '2.0', '>=')) {
+			$q = $this->db->query("SELECT * FROM " . DB_PREFIX . "setting WHERE code = '" . $code2 . "' AND `key` = '" . $code2 . "_charge'");
+		} else {
+			$q = $this->db->query("SELECT * FROM " . DB_PREFIX . "setting WHERE `group` = '" . $code2 . "'  AND `key` = '" . $code2 . "_charge'");
+		}
+		
+		if (!$q->num_rows) {
+			if (version_compare(VERSION, '2.0', '>=')) {
+				$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "setting WHERE code = '" . $code . "'");
+			} else {
+				$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "setting WHERE `group` = '" . $code . "'");
+			}
+	
+			$results = $query->rows;
+	
+			$paymentFee = array();
+			foreach ($this->mollieHelper->MODULE_NAMES as $module_name) {
+				$key = $code . '_' . $module_name . '_payment_fee';
+				foreach ($results as $result) {
+					if (($result['key'] == $key) && !empty($result['value'])) {
+						if (version_compare(VERSION, '2.1', '>=')) {
+							$fee_setting = json_decode($result['value'], true);
+						} else {
+							$fee_setting = unserialize($result['value']);
+						}
+	
+						if (!empty($fee_setting['amount'])) {
+							$paymentFee[] = array(
+								"description" => $fee_setting['description'],
+								"payment_method" => $module_name,
+								"cost" => $fee_setting['amount'],
+								"customer_group_id" => $this->config->get('config_customer_group_id'),
+								"geo_zone_id" => "0",
+								"priority" => '',
+							);
+						}
+	
+						
+					}
+				}
+			}
+			
+			if (!empty($paymentFee)) {
+				if (version_compare(VERSION, '2.0', '>=')) {
+					$this->db->query("INSERT INTO " . DB_PREFIX . "setting SET store_id = '0', code = '" . $this->db->escape($code2) . "', `key` = '" . $this->db->escape($code2 . '_charge') . "', `value` = '" . $this->db->escape(json_encode($paymentFee, true)) . "', serialized = '1'");
+				} else {
+					$this->db->query("INSERT INTO " . DB_PREFIX . "setting SET store_id = '0', `group` = '" . $this->db->escape($code2) . "', `key` = '" . $this->db->escape($code2 . '_charge') . "', `value` = '" . $this->db->escape(serialize($paymentFee)) . "', serialized = '1'");
+				}
+			}
+		}
+	}
 }

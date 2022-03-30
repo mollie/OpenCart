@@ -4,12 +4,12 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit552d80c532875dae321570ab87f1c779
+class ComposerStaticInit6e72c6ac60f98cc5b826478f198cf9ed
 {
     public static $prefixLengthsPsr4 = array (
         '_' => 
         array (
-            '_PhpScoperf6dbed3faadf\\Composer\\CaBundle\\' => 41,
+            '_PhpScoper740c5da73ef7\\Composer\\CaBundle\\' => 41,
         ),
         'M' => 
         array (
@@ -18,7 +18,7 @@ class ComposerStaticInit552d80c532875dae321570ab87f1c779
     );
 
     public static $prefixDirsPsr4 = array (
-        '_PhpScoperf6dbed3faadf\\Composer\\CaBundle\\' => 
+        '_PhpScoper740c5da73ef7\\Composer\\CaBundle\\' => 
         array (
             0 => __DIR__ . '/..' . '/composer/ca-bundle/src',
         ),
@@ -32,6 +32,7 @@ class ComposerStaticInit552d80c532875dae321570ab87f1c779
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'Mollie\\Api\\CompatibilityChecker' => __DIR__ . '/../..' . '/src/CompatibilityChecker.php',
         'Mollie\\Api\\Endpoints\\ChargebackEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/ChargebackEndpoint.php',
+        'Mollie\\Api\\Endpoints\\ClientEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/ClientEndpoint.php',
         'Mollie\\Api\\Endpoints\\CollectionEndpointAbstract' => __DIR__ . '/../..' . '/src/Endpoints/CollectionEndpointAbstract.php',
         'Mollie\\Api\\Endpoints\\CustomerEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/CustomerEndpoint.php',
         'Mollie\\Api\\Endpoints\\CustomerPaymentsEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/CustomerPaymentsEndpoint.php',
@@ -45,6 +46,7 @@ class ComposerStaticInit552d80c532875dae321570ab87f1c779
         'Mollie\\Api\\Endpoints\\OrderPaymentEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/OrderPaymentEndpoint.php',
         'Mollie\\Api\\Endpoints\\OrderRefundEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/OrderRefundEndpoint.php',
         'Mollie\\Api\\Endpoints\\OrganizationEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/OrganizationEndpoint.php',
+        'Mollie\\Api\\Endpoints\\OrganizationPartnerEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/OrganizationPartnerEndpoint.php',
         'Mollie\\Api\\Endpoints\\PaymentCaptureEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/PaymentCaptureEndpoint.php',
         'Mollie\\Api\\Endpoints\\PaymentChargebackEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/PaymentChargebackEndpoint.php',
         'Mollie\\Api\\Endpoints\\PaymentEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/PaymentEndpoint.php',
@@ -61,6 +63,8 @@ class ComposerStaticInit552d80c532875dae321570ab87f1c779
         'Mollie\\Api\\Endpoints\\SubscriptionEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/SubscriptionEndpoint.php',
         'Mollie\\Api\\Endpoints\\WalletEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/WalletEndpoint.php',
         'Mollie\\Api\\Exceptions\\ApiException' => __DIR__ . '/../..' . '/src/Exceptions/ApiException.php',
+        'Mollie\\Api\\Exceptions\\CurlConnectTimeoutException' => __DIR__ . '/../..' . '/src/Exceptions/CurlConnectTimeoutException.php',
+        'Mollie\\Api\\Exceptions\\HttpAdapterDoesNotSupportDebuggingException' => __DIR__ . '/../..' . '/src/Exceptions/HttpAdapterDoesNotSupportDebuggingException.php',
         'Mollie\\Api\\Exceptions\\IncompatiblePlatform' => __DIR__ . '/../..' . '/src/Exceptions/IncompatiblePlatform.php',
         'Mollie\\Api\\Exceptions\\UnrecognizedClientException' => __DIR__ . '/../..' . '/src/Exceptions/UnrecognizedClientException.php',
         'Mollie\\Api\\HttpAdapter\\CurlMollieHttpAdapter' => __DIR__ . '/../..' . '/src/HttpAdapter/CurlMollieHttpAdapter.php',
@@ -76,6 +80,8 @@ class ComposerStaticInit552d80c532875dae321570ab87f1c779
         'Mollie\\Api\\Resources\\CaptureCollection' => __DIR__ . '/../..' . '/src/Resources/CaptureCollection.php',
         'Mollie\\Api\\Resources\\Chargeback' => __DIR__ . '/../..' . '/src/Resources/Chargeback.php',
         'Mollie\\Api\\Resources\\ChargebackCollection' => __DIR__ . '/../..' . '/src/Resources/ChargebackCollection.php',
+        'Mollie\\Api\\Resources\\Client' => __DIR__ . '/../..' . '/src/Resources/Client.php',
+        'Mollie\\Api\\Resources\\ClientCollection' => __DIR__ . '/../..' . '/src/Resources/ClientCollection.php',
         'Mollie\\Api\\Resources\\CurrentProfile' => __DIR__ . '/../..' . '/src/Resources/CurrentProfile.php',
         'Mollie\\Api\\Resources\\CursorCollection' => __DIR__ . '/../..' . '/src/Resources/CursorCollection.php',
         'Mollie\\Api\\Resources\\Customer' => __DIR__ . '/../..' . '/src/Resources/Customer.php',
@@ -97,6 +103,7 @@ class ComposerStaticInit552d80c532875dae321570ab87f1c779
         'Mollie\\Api\\Resources\\OrderLineCollection' => __DIR__ . '/../..' . '/src/Resources/OrderLineCollection.php',
         'Mollie\\Api\\Resources\\Organization' => __DIR__ . '/../..' . '/src/Resources/Organization.php',
         'Mollie\\Api\\Resources\\OrganizationCollection' => __DIR__ . '/../..' . '/src/Resources/OrganizationCollection.php',
+        'Mollie\\Api\\Resources\\Partner' => __DIR__ . '/../..' . '/src/Resources/Partner.php',
         'Mollie\\Api\\Resources\\Payment' => __DIR__ . '/../..' . '/src/Resources/Payment.php',
         'Mollie\\Api\\Resources\\PaymentCollection' => __DIR__ . '/../..' . '/src/Resources/PaymentCollection.php',
         'Mollie\\Api\\Resources\\PaymentLink' => __DIR__ . '/../..' . '/src/Resources/PaymentLink.php',
@@ -131,15 +138,15 @@ class ComposerStaticInit552d80c532875dae321570ab87f1c779
         'Mollie\\Api\\Types\\SequenceType' => __DIR__ . '/../..' . '/src/Types/SequenceType.php',
         'Mollie\\Api\\Types\\SettlementStatus' => __DIR__ . '/../..' . '/src/Types/SettlementStatus.php',
         'Mollie\\Api\\Types\\SubscriptionStatus' => __DIR__ . '/../..' . '/src/Types/SubscriptionStatus.php',
-        '_PhpScoperf6dbed3faadf\\Composer\\CaBundle\\CaBundle' => __DIR__ . '/..' . '/composer/ca-bundle/src/CaBundle.php',
+        '_PhpScoper740c5da73ef7\\Composer\\CaBundle\\CaBundle' => __DIR__ . '/..' . '/composer/ca-bundle/src/CaBundle.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit552d80c532875dae321570ab87f1c779::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit552d80c532875dae321570ab87f1c779::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit552d80c532875dae321570ab87f1c779::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit6e72c6ac60f98cc5b826478f198cf9ed::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit6e72c6ac60f98cc5b826478f198cf9ed::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit6e72c6ac60f98cc5b826478f198cf9ed::$classMap;
 
         }, null, ClassLoader::class);
     }

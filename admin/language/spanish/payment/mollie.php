@@ -94,8 +94,7 @@ $_['text_edit']                     = "Corregir Mollie";
 $_['text_payment']                  = "Pago";
 $_['text_success']                  = "Realizado con éxito: ¡los ajustes para el módulo han sido modificados!";
 $_['text_missing_api_key']          = "Por favor, complete su clave API en la pestaña <a data-toggle='tab' href='#' class='settings'>Configuración</a>.";
-$_['text_enable_payment_method']    = 'Active esta forma de pago a través del <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank">panel de control de Mollie</a>.';
-$_['text_activate_payment_method']  = 'Habilite en el <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank">Dashboard de Mollie</a>, o configure la App en la pestaña de configuración para habilitar en esta página.';
+$_['text_activate_payment_method']  = 'Active esta forma de pago a través del <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank">panel de control de Mollie</a>.';
 $_['text_no_status_id']             = "- No cambiar de estado (no recomendado) -";
 $_['text_enable']                   = "Activar";
 $_['text_disable']                  = "Desactivar";
@@ -107,7 +106,8 @@ $_['text_mollie_app']               = "Mollie App";
 $_['text_general'] 	                = "General";
 $_['text_enquiry'] 	                = "Como podemos ayudarte?";
 $_['text_enquiry_success'] 	        = "Éxito: su consulta ha sido enviada. Nos pondremos en contacto con usted pronto. ¡Gracias!";
-$_['text_update_message']           = "Mollie: hay una versión actualizada (%s) disponible del módulo Mollie. Haga clic en <a href='%s'>aquí</a> para actualizar.";
+$_['text_update_message']           = 'Mollie: Hay una versión actualizada (%s) disponible del módulo Mollie. Haga clic <a href="%s">aquí</a> para actualizar. ¿No quieres volver a ver este mensaje? Haga clic en <a href="javascript:void(0);" onclick="document.cookie=\'hide_mollie_update_message_version=%s\'; $(this).parent().hide();">aquí</a>.';
+$_['text_update_message_warning']  = 'Mollie: Hay una versión actualizada (%s) disponible del módulo Mollie. Actualice su versión de PHP a 7.0.0 o posterior para actualizar el módulo o continuar usando la versión actual. ¿No quieres volver a ver este mensaje? Haga clic en <a href="javascript:void(0);" onclick="document.cookie=\'hide_mollie_update_message_version=%s\'; $(this).parent().hide();">aquí</a>.';
 $_['text_update_success']          = "Éxito: el módulo Mollie se ha actualizado a la versión %s.";
 $_['text_default_currency']        = "Moneda utilizada en la tienda";
 $_['text_custom_css']              = "Custom CSS For Mollie Components";
@@ -237,7 +237,7 @@ $_['entry_create_shipment_on_order_complete'] 		= "Crear envío al completar el 
 $_['button_update'] = "Actualizar";
 $_['button_mollie_connect'] = "Connect via Mollie";
 $_['button_advance_option'] = "Advance Option";
-$_['button_close'] = "Cerrar";
+$_['button_save_close'] = "Guardar cerrar";
 
 //Error log
 $_['text_log_success']	   = 'Éxito: ¡Ha borrado con éxito su registro de errores!';
