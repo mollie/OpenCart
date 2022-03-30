@@ -36,7 +36,7 @@
             "installation-source": "dist",
             "autoload": {
                 "psr-4": {
-                    "_PhpScoperf6dbed3faadf\\Composer\\CaBundle\\": "src"
+                    "_PhpScoper740c5da73ef7\\Composer\\CaBundle\\": "src"
                 }
             },
             "notification-url": "https:\/\/packagist.org\/downloads\/",

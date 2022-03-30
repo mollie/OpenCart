@@ -4,9 +4,11 @@ use Mollie\Api\MollieApiClient;
 
 class MollieHelper {
 
-	const PLUGIN_VERSION = "11.0.1";
+	const PLUGIN_VERSION = "11.1.0";
 
 	const OUTH_URL = 'https://api.mollie.com/oauth2';
+
+	const MIN_PHP_VERSION = "5.6.40";
 
 	// All available modules. These should correspond to the Mollie_API_Object_Method constants.
 	const MODULE_NAME_BANKTRANSFER  = "banktransfer";
@@ -174,7 +176,7 @@ class MollieHelper {
 		return version_compare(VERSION, '2.0', '>=');
 	}
 
-	public function generateAccessToken($store_id = 0) {
+	/*public function generateAccessToken($store_id = 0) {
 
 		$client_id = $this->getSettingValue($this->getModuleCode() . '_client_id', $store_id);
 		$client_secret = $this->getSettingValue($this->getModuleCode() . '_client_secret', $store_id);
@@ -200,7 +202,7 @@ class MollieHelper {
 		} else {
 			return null;
 		}
-	}
+	}*/
 
 	public function getSettingValue($key, $store_id = 0) {
 		$result = $this->db->query("SELECT value FROM " . DB_PREFIX . "setting WHERE store_id = '" . (int)$store_id . "' AND `key` = '" . $key . "'");

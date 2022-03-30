@@ -94,8 +94,7 @@ $_['text_edit']                     = "Éditer Mollie";
 $_['text_payment']                  = "Paiement";
 $_['text_success']                  = "Succès: Vous avez réussi à modifier les paramètres Mollie!";
 $_['text_missing_api_key']          = "S'il vous plaît remplir votre clé API dans l'onglet <a data-toggle='tab' href='#' class='settings'>Paramètres</a>.";
-$_['text_enable_payment_method']    = 'Activer ce mode de paiement via le <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank">Mollie dashboard</a>.';
-$_['text_activate_payment_method']  = 'Activer dans le <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank">tableau de bord Mollie<a/> ou configurer l\'application dans l\'onglet "reglages" pour l\'activer sur cette page.';
+$_['text_activate_payment_method']  = 'Activer ce mode de paiement via le <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank">Mollie dashboard</a>.';
 $_['text_no_status_id']             = '- Ne pas mettre à jour le statut (non recommandé) -';
 $_['text_enable']                   = "Activer";
 $_['text_disable']                  = "Désactiver";
@@ -107,7 +106,8 @@ $_['text_mollie_app']               = "Mollie App";
 $_['text_general'] 	                = "Général";
 $_['text_enquiry'] 	                = "Comment pouvons-nous vous aider?";
 $_['text_enquiry_success'] 	        = "Succès: Votre demande a été soumise. Nous reviendrons vers vous bientôt. Je vous remercie!";
-$_['text_update_message']           = "Une nouvelle version (%s) du module Mollie est disponible. Cliquez <a href='%s'>ici</a> pour mettre à jour.";
+$_['text_update_message']           = 'Mollie : une version mise à jour (%s) du module Mollie est disponible. Cliquez <a href="%s">ici</a> pour mettre à jour. Vous ne voulez plus voir ce message ? Cliquez sur <a href="javascript:void(0);" onclick="document.cookie=\'hide_mollie_update_message_version=%s\'; $(this).parent().hide();">ici</a>.';
+$_['text_update_message_warning']  = 'Mollie : une version mise à jour (%s) du module Mollie est disponible. Veuillez mettre à jour votre version PHP vers 7.0.0 ou une version ultérieure pour mettre à jour le module ou continuer à utiliser la version actuelle. Vous ne voulez plus voir ce message ? Cliquez sur <a href="javascript:void(0);" onclick="document.cookie=\'hide_mollie_update_message_version=%s\'; $(this).parent().hide();">ici</a>.';
 $_['text_update_success']          = "Succès: le module Mollie a été mis à jour vers la version %s.";
 $_['text_default_currency']        = "Devise utilisée dans le magasin";
 $_['text_custom_css']              = "Custom CSS For Mollie Components";
@@ -236,7 +236,7 @@ $_['entry_create_shipment_on_order_complete'] 		= "Créer une expédition à la 
 $_['button_update']         = "Mettre à jour";
 $_['button_mollie_connect'] = "Connect via Mollie";
 $_['button_advance_option'] = "Advance Option";
-$_['button_close'] = "Fermer";
+$_['button_save_close'] = "Sauvegarder et fermer";
 
 //Error log
 $_['text_log_success']	   = 'Succès: vous avez effacé avec succès votre journal des erreurs!';

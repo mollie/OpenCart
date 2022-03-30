@@ -79,7 +79,7 @@ $_['name_mollie_eps']           = 'EPS';
 $_['name_mollie_giropay']       = 'Giropay';
 $_['name_mollie_klarnapaylater'] = 'Klarna Pay Later';
 $_['name_mollie_klarnapaynow']   = 'Klarna Pay Now';
-$_['name_mollie_klarnasliceit']  = 'Klarna Slice It';
+$_['name_mollie_klarnasliceit']  = 'Klarna Betaal in 3 delen';
 $_['name_mollie_przelewy24']  	 = 'P24';
 $_['name_mollie_applepay']  	 = 'Apple Pay';
 $_['name_mollie_voucher']        = "Voucher";
@@ -95,8 +95,7 @@ $_['text_edit']                    = "Bewerk Mollie";
 $_['text_payment']                 = "Betaling";
 $_['text_success']                 = "Gelukt: de instellingen voor de module zijn aangepast!";
 $_['text_missing_api_key']         = "Vul uw API-key in bij de <a data-toggle='tab' href='#' class='settings'>Instellingen</a>.";
-$_['text_enable_payment_method']   = 'Activeer deze betaalmethode via het <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank">Mollie-dashboard</a>.';
-$_['text_activate_payment_method'] = 'Activeer via het <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank">Mollie dashboard</a>, of stel de App in via de instellingen van deze module om deze pagina te activeren.';
+$_['text_activate_payment_method'] = 'Activeer deze betaalmethode via het <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank">Mollie-dashboard</a>.';
 $_['text_no_status_id']            = "- Status niet wijzigen (niet aanbevolen) -";
 $_['text_enable']             = "Activeren";
 $_['text_disable']            = "Deactiveren";
@@ -108,7 +107,8 @@ $_['text_mollie_app'] = "Mollie App";
 $_['text_general'] 	  = "Algemeen";
 $_['text_enquiry'] 	  = "Hoe kunnen we u helpen?";
 $_['text_enquiry_success'] 	  = "Succes: Uw aanvraag is ingediend. We nemen zo snel mogelijk contact met u op.";
-$_['text_update_message']          = "Mollie: Er is een geüpdatet versie (%s) van de Mollie module beschikbaar. Klik <a href='%s'>hier</a> om te updaten.";
+$_['text_update_message']          = 'Mollie: Er is een bijgewerkte versie (%s) beschikbaar van de Mollie-module. Klik <a href="%s">hier</a> om bij te werken. Wil je dit bericht niet meer zien? Klik <a href="javascript:void(0);" onclick="document.cookie=\'hide_mollie_update_message_version=%s\'; $(this).parent().hide();">hier</a>.';
+$_['text_update_message_warning']  = 'Mollie: Er is een bijgewerkte versie (%s) beschikbaar van de Mollie-module. Werk uw PHP-versie bij naar 7.0.0 of hoger om de module bij te werken of blijf de huidige versie gebruiken. Wil je dit bericht niet meer zien? Klik <a href="javascript:void(0);" onclick="document.cookie=\'hide_mollie_update_message_version=%s\'; $(this).parent().hide();">hier</a>.';
 $_['text_update_success']          = "Succes: Mollie module is geüpdatet naar versie %s.";
 $_['text_default_currency']        = "Gebruikte valuta in de winkel";
 $_['text_custom_css']              = "Custom CSS For Mollie Components";
@@ -237,7 +237,7 @@ $_['entry_create_shipment_on_order_complete'] 		= "Maak verzending bij bestellin
 $_['button_update'] = "Bijwerken";
 $_['button_mollie_connect'] = "Connect via Mollie";
 $_['button_advance_option'] = "Advance Option";
-$_['button_close'] = "Sluiten";
+$_['button_save_close'] = "Opslaan en sluiten";
 
 //Error log
 $_['text_log_success']	   = 'Succes: u hebt met succes uw foutenlogboek gewist!';

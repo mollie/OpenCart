@@ -64,6 +64,7 @@ $_['entry_verification_code']	= 'CVV';
 
 // Error
 $_['error_card']				= 'Please check your card details.';
+$_['error_missing_field']	    = 'Missing required information. Please check if basic address details are provided.';
 
 // Status page: payment failed (e.g. cancelled).
 $_['heading_failed']     = 'Your payment has not been completed';
@@ -102,8 +103,11 @@ $_['method_giftcard']       = 'Giftcard';
 $_['method_eps']            = 'EPS';
 $_['method_giropay']        = 'Giropay';
 $_['method_klarnapaylater'] = 'Klarna Pay Later';
+$_['method_klarnapaynow']   = 'Klarna Pay Now';
 $_['method_klarnasliceit']  = 'Klarna Slice It';
 $_['method_przelewy24']  	= 'P24';
+$_['method_applepay']    	= 'Apple Pay';
+$_['method_voucher']    	= 'Voucher';
 
 //Round Off Description
 $_['roundoff_description']  = 'Rounding difference due to currency conversion';

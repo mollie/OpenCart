@@ -1,4 +1,7 @@
 <?php
+
+require_once(DIR_SYSTEM . "library/mollie/helper.php");
+
 class ControllerTotalMolliePaymentFee extends Controller {
 	protected $error = array();
 
@@ -6,6 +9,7 @@ class ControllerTotalMolliePaymentFee extends Controller {
 	protected $data = array();
 	private $token;
 	private $moduleCode;
+	public $mollieHelper;
 
 	public function __construct($registry) {
 		parent::__construct($registry);
@@ -17,6 +21,8 @@ class ControllerTotalMolliePaymentFee extends Controller {
 			$this->token = 'token=' . $this->session->data['token'];
 			$this->moduleCode = 'mollie_payment_fee';
 		}
+
+		$this->mollieHelper = new MollieHelper($registry);
 	}
 
 	public function install() {
@@ -39,6 +45,14 @@ class ControllerTotalMolliePaymentFee extends Controller {
 		$this->install();
 		// Load essential models
 		$this->load->model('setting/setting');
+		$this->load->model("localisation/language");
+		$this->load->model("localisation/geo_zone");
+		$this->load->model('localisation/tax_class');
+		if (version_compare(VERSION, '2.1', '>=')) {
+			$this->load->model("customer/customer_group");
+		} else {
+			$this->load->model("sale/customer_group");
+		}
 
 		if (version_compare(VERSION, '2.3', '>=')) {
 	      $this->load->language('extension/total/mollie_payment_fee');
@@ -83,12 +97,27 @@ class ControllerTotalMolliePaymentFee extends Controller {
 		$data['text_enabled']  = $this->language->get('text_enabled');
 		$data['text_disabled'] = $this->language->get('text_disabled');
 		$data['text_edit']     = $this->language->get('text_edit');
+		$data['text_all_zones'] = $this->language->get('text_all_zones');
+		$data['text_select'] = $this->language->get('text_select');
 
 		$data['entry_status']  = $this->language->get('entry_status');
 		$data['entry_sort_order']  = $this->language->get('entry_sort_order');
+		$data['entry_tax_class']  = $this->language->get('entry_tax_class');
+		$data['entry_title']  = $this->language->get('entry_title');
+		$data['entry_payment_method']  = $this->language->get('entry_payment_method');
+		$data['entry_cost']  = $this->language->get('entry_cost');
+		$data['entry_store']  = $this->language->get('entry_store');
+		$data['entry_customer_group']  = $this->language->get('entry_customer_group');
+		$data['entry_geo_zone']  = $this->language->get('entry_geo_zone');
+		$data['entry_priority']  = $this->language->get('entry_priority');
+
+		$data['tab_general']  = $this->language->get('tab_general');
+		$data['tab_charge']  = $this->language->get('tab_charge');
 		
 		$data['button_save'] = $this->language->get('button_save');
 		$data['button_cancel'] = $this->language->get('button_cancel');
+		$data['button_add_charge'] = $this->language->get('button_add_charge');
+		$data['button_remove_charge'] = $this->language->get('button_remove_charge');
       
    		$data['breadcrumbs'][] = array(
 	       	'text'      => $this->language->get('text_extension'),
@@ -106,6 +135,23 @@ class ControllerTotalMolliePaymentFee extends Controller {
 		
 		$data['cancel'] = $extension_link;
         $data['code']   = $this->moduleCode;
+        $data['payment_methods']   = $this->mollieHelper->MODULE_NAMES;
+        $data['stores']   = $this->getStores();
+		$data['geo_zones']			= $this->model_localisation_geo_zone->getGeoZones();
+		$data['tax_classes']        = $this->model_localisation_tax_class->getTaxClasses();
+		$data['languages']			= $this->model_localisation_language->getLanguages();
+		foreach ($data['languages'] as &$language) {
+	      if (version_compare(VERSION, '2.2', '>=')) {
+	        $language['image'] = 'language/'.$language['code'].'/'.$language['code'].'.png';
+	      } else {
+	        $language['image'] = 'view/image/flags/'. $language['image'];
+	      }
+	    }
+		if (version_compare(VERSION, '2.1', '>=')) {
+			$data['customer_groups'] = $this->model_customer_customer_group->getCustomerGroups();
+		} else {
+			$data['customer_groups'] = $this->model_sale_customer_group->getCustomerGroups();
+		}
 
 		if(isset($this->error['warning'])) {
 			$data['error_warning'] = $this->error['warning'];
@@ -123,6 +169,20 @@ class ControllerTotalMolliePaymentFee extends Controller {
 			$data['mollie_payment_fee_sort_order'] = $this->request->post[$this->moduleCode . '_sort_order'];
 		} else {
 			$data['mollie_payment_fee_sort_order'] = $this->config->get($this->moduleCode . '_sort_order');
+		}
+
+		if (isset($this->request->post[$this->moduleCode . '_tax_class_id'])) {
+			$data['mollie_payment_fee_tax_class_id'] = $this->request->post[$this->moduleCode . '_tax_class_id'];
+		} else {
+			$data['mollie_payment_fee_tax_class_id'] = $this->config->get($this->moduleCode . '_tax_class_id');
+		}
+
+		if (isset($this->request->post[$this->moduleCode . '_charge'])) {
+			$data['mollie_payment_fee_charge'] = $this->request->post[$this->moduleCode . '_charge'];
+		} elseif ($this->config->get($this->moduleCode . '_charge')) {
+			$data['mollie_payment_fee_charge'] = $this->config->get($this->moduleCode . '_charge');
+		} else {
+			$data['mollie_payment_fee_charge'] = array();;
 		}
 
 		if (version_compare(VERSION, '2', '>=')) {
@@ -156,5 +216,25 @@ class ControllerTotalMolliePaymentFee extends Controller {
 		}
 		
 		return !$this->error;
+	}
+
+	private function getStores() {
+		$this->load->model('setting/store');
+		$stores = array();
+		$stores[0] = array(
+			'store_id' => 0,
+			'name'     => $this->config->get('config_name')
+		);
+
+		$_stores = $this->model_setting_store->getStores();
+
+		foreach ($_stores as $store) {
+			$stores[$store['store_id']] = array(
+				'store_id' => $store['store_id'],
+				'name'     => $store['name']
+			);
+		}
+
+		return $stores;
 	}
 }

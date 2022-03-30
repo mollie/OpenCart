@@ -314,6 +314,57 @@ class ControllerPaymentMollieBase extends Controller
         return html_entity_decode($text, ENT_QUOTES, 'UTF-8');
     }
 
+    public function addressCheck($order) {
+		$valid = true;
+		$field = '';
+
+		if (empty($order['payment_firstname'])) {
+            $valid = false;
+            $field = 'Billing Firstname';
+        } elseif (empty($order['payment_lastname'])) {
+            $valid = false;
+            $field = 'Billing Lastname';
+        } elseif (empty($order['payment_address_1'])) {
+            $valid = false;
+            $field = 'Billing Street';
+        } elseif (empty($order['payment_city'])) {
+            $valid = false;
+            $field = 'Billing City';
+        } elseif (empty($order['payment_postcode'])) {
+            $valid = false;
+            $field = 'Billing Postcode';
+        } elseif (empty($order['payment_zone'])) {
+            $valid = false;
+            $field = 'Billing Zone';
+        }
+
+		if (empty($order['shipping_firstname'])) {
+            $valid = false;
+            $field = 'Shipping Firstname';
+        } elseif (empty($order['shipping_lastname'])) {
+            $valid = false;
+            $field = 'Shipping Lastname';
+        } elseif (empty($order['shipping_address_1'])) {
+            $valid = false;
+            $field = 'Shipping Street';
+        } elseif (empty($order['shipping_city'])) {
+            $valid = false;
+            $field = 'Shipping City';
+        } elseif (empty($order['shipping_postcode'])) {
+            $valid = false;
+            $field = 'Shipping Postcode';
+        } elseif (empty($order['shipping_zone'])) {
+            $valid = false;
+            $field = 'Shipping Zone';
+        }
+
+		if (!$valid) {
+			$this->writeToMollieLog("Mollie Payment Error: Mollie payment require payment and shipping address details. Empty required field: " . $field);
+		}
+
+		return $valid;
+	}
+
     /**
      * The payment action creates the payment and redirects the customer to the selected bank.
      *
@@ -326,7 +377,7 @@ class ControllerPaymentMollieBase extends Controller
 
         if ($this->request->server['REQUEST_METHOD'] != 'POST') {
             $this->showErrorPage($this->language->get('warning_secure_connection'));
-            $this->writeToMollieLog("Creating payment failed, connection is not secure.");
+            $this->writeToMollieLog("Creating order failed, connection is not secure.");
             return;
         }
         
@@ -749,10 +800,17 @@ class ControllerPaymentMollieBase extends Controller
                 $lines = array_merge($lines, $lineForSurcharge);
             }
             $data['lines'] = $lines;
-                /*
-                 * This data is sent along for credit card payments / fraud checks. You can remove this but you will
-                 * have a higher conversion if you leave it here.
-                 */
+
+            // Validate address for missing required fields
+            if (!$this->addressCheck($order)) {
+                $this->showErrorPage($this->language->get('error_missing_field'));
+                return;
+            }
+
+            /*
+            * This data is sent along for credit card payments / fraud checks. You can remove this but you will
+            * have a higher conversion if you leave it here.
+            */
            $data["billingAddress"] = [
                 "givenName"     =>   $this->formatText($order['payment_firstname']),
                 "familyName"    =>   $this->formatText($order['payment_lastname']),
@@ -922,6 +980,12 @@ class ControllerPaymentMollieBase extends Controller
             // Send cardToken in case of creditcard(if available)
             if (isset($this->request->post['cardToken'])) {
                 $data['cardToken'] = $this->request->post['cardToken'];
+            }
+
+            // Validate address for missing required fields
+            if (!$this->addressCheck($order)) {
+                $this->showErrorPage($this->language->get('error_missing_field'));
+                return;
             }
 
             /*
@@ -1095,7 +1159,8 @@ class ControllerPaymentMollieBase extends Controller
         if($molliePayment) {
             $data = array(
                 'payment_id' => $payment_id,
-                'status'     => $molliePayment->status
+                'status'     => $molliePayment->status,
+                'amount'     => $molliePayment->amount->value
             );
         }
 
@@ -1114,7 +1179,8 @@ class ControllerPaymentMollieBase extends Controller
             if(isset($molliePayment->amountRefunded->value) && ($molliePayment->amountRefunded->value > 0)) {
                 $data = array(
                     'payment_id' => $payment_id,
-                    'status'     => 'refunded'
+                    'status'     => 'refunded',
+                    'amount'     => $molliePayment->amount->value
                 );
 
                 if(!empty($data)) {
@@ -1220,7 +1286,8 @@ class ControllerPaymentMollieBase extends Controller
             $payment = $mollieOrder->_embedded->payments[0];
             $paymentData = array(
                 'payment_id' => $payment->id,
-                'status'     => $payment->status
+                'status'     => $payment->status,
+                'amount'     => $payment->amount->value
             );
             $model->updatePayment($mollieOrder->metadata->order_id, $order_id, $paymentData);
             $this->writeToMollieLog("Webhook for order : Updated mollie payment. transaction_id - {$payment->id}, status - {$paymentData['status']}, order_id - {$mollieOrder->metadata->order_id}, mollie_order_id - $order_id");            
@@ -1547,7 +1614,8 @@ class ControllerPaymentMollieBase extends Controller
                 $payment = $orderDetails->_embedded->payments[0];
                 $paymentData = array(
                     'payment_id' => $payment->id,
-                    'status'     => $payment->status
+                    'status'     => $payment->status,
+                    'amount'     => $payment->amount->value
                 );
                 $model->updatePayment($orderDetails->metadata->order_id, $mollie_order_id, $paymentData);
                 $this->writeToMollieLog("Updated mollie payment. transaction_id - {$payment->id}, status - {$paymentData['status']}, order_id - {$orderDetails->metadata->order_id}, mollie_order_id - $mollie_order_id");
@@ -1557,7 +1625,8 @@ class ControllerPaymentMollieBase extends Controller
             $payment = $orderDetails;
             $paymentData = array(
                 'payment_id' => $payment->id,
-                'status'     => $payment->status
+                'status'     => $payment->status,
+                'amount'     => $payment->amount->value
             );
             $model->updatePaymentForPaymentAPI($payment->metadata->order_id, $mollie_payment_id, $paymentData);
             $this->writeToMollieLog("Updated mollie payment. transaction_id - {$payment->id}, status - {$paymentData['status']}, order_id - {$payment->metadata->order_id}, mollie_payment_id - $mollie_payment_id");
