@@ -114,6 +114,11 @@ class ModelPaymentMollieBase extends Model
 	 */
 	public function getMethod($address, $total)
 	{
+		// Check required minimum php version to avoid errors
+		if (version_compare(phpversion(), MollieHelper::MIN_PHP_VERSION, "<")) {
+        	return;
+		}
+		
 		$this->load->language("payment/mollie");
 		$this->load->model('localisation/country');
 		$this->load->model('tool/image');
@@ -160,6 +165,23 @@ class ModelPaymentMollieBase extends Model
 		// Return nothing if ApplePay is not available
 		if(static::MODULE_NAME == 'applepay') {
 			if(isset($this->session->data['applePay']) && ($this->session->data['applePay'] == 0)) {
+				return NULL;
+			}
+		}
+
+		// Check if Vouchers are available
+		if(static::MODULE_NAME == 'voucher') {
+			$this->load->model('catalog/product');
+
+			$voucherStatus = false;
+			foreach ($this->cart->getProducts() as $cart_product) {
+				$productDetails = $this->model_catalog_product->getProduct($cart_product['product_id']);
+				if (!empty($productDetails['voucher_category'])) {
+					$voucherStatus = true;
+				}
+			}
+
+			if (!$voucherStatus) {
 				return NULL;
 			}
 		}

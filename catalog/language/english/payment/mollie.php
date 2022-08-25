@@ -36,19 +36,20 @@
  */
 
 // Text
-$_['heading_title']         = 'Payment by Mollie';
-$_['ideal_title']           = 'Your payment';
-$_['text_title']            = 'Pay online';
-$_['text_redirected']       = 'The client has been referred to the payment screen';
-$_['text_issuer_ideal']     = 'Select your bank';
-$_['text_issuer_giftcard']  = 'Select your giftcard';
-$_['text_issuer_kbc']       = 'Select your payment button.';
-$_['text_card_details']     = 'Please enter your credit card details.';
-$_['text_mollie_payments']  = 'Secure payments provided by %s';
-$_['text_recurring_desc']   = 'Order %s, %s - %s, Every %s for %s';
-$_['text_recurring']		= '%s every %s %s';
-$_['text_length']			= ' for %s payments';
-$_['text_trial']			= '%s every %s %s for %s payments then ';
+$_['heading_title']             = 'Payment by Mollie';
+$_['ideal_title']               = 'Your payment';
+$_['text_title']                = 'Pay online';
+$_['text_redirected']           = 'The client has been referred to the payment screen';
+$_['text_issuer_ideal']         = 'Select your bank';
+$_['text_issuer_giftcard']      = 'Select your giftcard';
+$_['text_issuer_kbc']           = 'Select your payment button.';
+$_['text_issuer_voucher']       = 'Select your brand.';
+$_['text_card_details']         = 'Please enter your credit card details.';
+$_['text_mollie_payments']      = 'Secure payments provided by %s';
+$_['text_recurring_desc']       = 'Order %s, %s - %s, Every %s for %s';
+$_['text_recurring']		    = '%s every %s %s';
+$_['text_length']			    = ' for %s payments';
+$_['text_trial']			    = '%s every %s %s for %s payments then ';
 $_['text_error_report_success']	= 'Error has been reported successfully!';
 
 // Button
@@ -108,6 +109,7 @@ $_['method_klarnasliceit']  = 'Klarna Slice It';
 $_['method_przelewy24']  	= 'P24';
 $_['method_applepay']    	= 'Apple Pay';
 $_['method_voucher']    	= 'Voucher';
+$_['method_in3']    	    = 'IN3';
 
 //Round Off Description
 $_['roundoff_description']  = 'Rounding difference due to currency conversion';

@@ -32,25 +32,26 @@
  */
 
 // These are called automatically by the Payment modules list - do not change the names
-$method_list_logo              = '<a href="https://www.mollie.com" target="_blank"><img src="../image/mollie/mollie_logo.png" alt="Mollie" title="Mollie" style="border:0px" /></a>';
-$_['text_mollie_banktransfer']  = $method_list_logo;
-$_['text_mollie_belfius']       = $method_list_logo;
-$_['text_mollie_creditcard']    = $method_list_logo;
-$_['text_mollie_ideal']         = $method_list_logo;
-$_['text_mollie_kbc']           = $method_list_logo;
-$_['text_mollie_bancontact']    = $method_list_logo;
-$_['text_mollie_paypal']        = $method_list_logo;
-$_['text_mollie_paysafecard']   = $method_list_logo;
-$_['text_mollie_sofort']        = $method_list_logo;
-$_['text_mollie_giftcard']      = $method_list_logo;
-$_['text_mollie_eps']           = $method_list_logo;
-$_['text_mollie_giropay']       = $method_list_logo;
-$_['text_mollie_klarnapaylater'] = $method_list_logo;
-$_['text_mollie_klarnapaynow']   = $method_list_logo;
-$_['text_mollie_klarnasliceit']  = $method_list_logo;
-$_['text_mollie_przelewy24']  	 = $method_list_logo;
-$_['text_mollie_applepay']  	 = $method_list_logo;
-$_['text_mollie_voucher']    	 = $method_list_logo;
+$method_list_logo                   = '<a href="https://www.mollie.com" target="_blank"><img src="../image/mollie/mollie_logo.png" alt="Mollie" title="Mollie" style="border:0px" /></a>';
+$_['text_mollie_banktransfer']      = $method_list_logo;
+$_['text_mollie_belfius']           = $method_list_logo;
+$_['text_mollie_creditcard']        = $method_list_logo;
+$_['text_mollie_ideal']             = $method_list_logo;
+$_['text_mollie_kbc']               = $method_list_logo;
+$_['text_mollie_bancontact']        = $method_list_logo;
+$_['text_mollie_paypal']            = $method_list_logo;
+$_['text_mollie_paysafecard']       = $method_list_logo;
+$_['text_mollie_sofort']            = $method_list_logo;
+$_['text_mollie_giftcard']          = $method_list_logo;
+$_['text_mollie_eps']               = $method_list_logo;
+$_['text_mollie_giropay']           = $method_list_logo;
+$_['text_mollie_klarnapaylater']    = $method_list_logo;
+$_['text_mollie_klarnapaynow']      = $method_list_logo;
+$_['text_mollie_klarnasliceit']     = $method_list_logo;
+$_['text_mollie_przelewy24']  	    = $method_list_logo;
+$_['text_mollie_applepay']  	    = $method_list_logo;
+$_['text_mollie_voucher']    	    = $method_list_logo;
+$_['text_mollie_in3']    	        = $method_list_logo;
 
 //These methods have been removed, it's here only to supress error of undefined variables. We'll remove it later
 $_['text_mollie_inghomepay']  	 = $method_list_logo;
@@ -65,30 +66,31 @@ $_['footer_text']           = "Betaaldiensten";
 $_['title_mail']            = "E-mail";
 
 // Module names
-$_['name_mollie_banktransfer']  = "Overboeking";
-$_['name_mollie_belfius']       = "Belfius Direct Net";
-$_['name_mollie_creditcard']    = "Creditcard";
-$_['name_mollie_ideal']         = "iDEAL";
-$_['name_mollie_kbc']           = "KBC/CBC-Betaalknop";
-$_['name_mollie_bancontact']    = "Bancontact";
-$_['name_mollie_paypal']        = "PayPal";
-$_['name_mollie_paysafecard']   = "paysafecard";
-$_['name_mollie_sofort']        = "SOFORT Banking";
-$_['name_mollie_giftcard']      = 'Giftcard';
-$_['name_mollie_eps']           = 'EPS';
-$_['name_mollie_giropay']       = 'Giropay';
+$_['name_mollie_banktransfer']   = "Overboeking";
+$_['name_mollie_belfius']        = "Belfius Direct Net";
+$_['name_mollie_creditcard']     = "Creditcard";
+$_['name_mollie_ideal']          = "iDEAL";
+$_['name_mollie_kbc']            = "KBC/CBC-Betaalknop";
+$_['name_mollie_bancontact']     = "Bancontact";
+$_['name_mollie_paypal']         = "PayPal";
+$_['name_mollie_paysafecard']    = "paysafecard";
+$_['name_mollie_sofort']         = "SOFORT Banking";
+$_['name_mollie_giftcard']       = 'Giftcard';
+$_['name_mollie_eps']            = 'EPS';
+$_['name_mollie_giropay']        = 'Giropay';
 $_['name_mollie_klarnapaylater'] = 'Klarna Pay Later';
 $_['name_mollie_klarnapaynow']   = 'Klarna Pay Now';
 $_['name_mollie_klarnasliceit']  = 'Klarna Betaal in 3 delen';
 $_['name_mollie_przelewy24']  	 = 'P24';
 $_['name_mollie_applepay']  	 = 'Apple Pay';
 $_['name_mollie_voucher']        = "Voucher";
+$_['name_mollie_in3']            = "IN3";
 
 //These methods have been removed, it's here only to supress error of undefined variables. We'll remove it later
 $_['name_mollie_inghomepay']  	 = 'INGHOMEPAY';
 $_['name_mollie_directdebit']  	 = 'Direct Debit';
-$_['name_mollie_bitcoin']       = "Bitcoin";
-$_['name_mollie_mistercash']    = "Bancontact/MisterCash";
+$_['name_mollie_bitcoin']        = "Bitcoin";
+$_['name_mollie_mistercash']     = "Bancontact/MisterCash";
 
 // Text
 $_['text_edit']                    = "Bewerk Mollie";
@@ -97,18 +99,18 @@ $_['text_success']                 = "Gelukt: de instellingen voor de module zij
 $_['text_missing_api_key']         = "Vul uw API-key in bij de <a data-toggle='tab' href='#' class='settings'>Instellingen</a>.";
 $_['text_activate_payment_method'] = 'Activeer deze betaalmethode via het <a href="https://www.mollie.com/dashboard/settings/profiles/" target="_blank">Mollie-dashboard</a>.';
 $_['text_no_status_id']            = "- Status niet wijzigen (niet aanbevolen) -";
-$_['text_enable']             = "Activeren";
-$_['text_disable']            = "Deactiveren";
-$_['text_connection_success'] = "Succes: verbinding met Mollie gelukt!";
-$_['text_error'] 			  = "Waarschuwing: er is iets misgegaan. Probeer het later opnieuw!";
-$_['text_creditcard_required'] = "Credit Card verplicht";
-$_['text_mollie_api'] = "Mollie API";
-$_['text_mollie_app'] = "Mollie App";
-$_['text_general'] 	  = "Algemeen";
-$_['text_enquiry'] 	  = "Hoe kunnen we u helpen?";
-$_['text_enquiry_success'] 	  = "Succes: Uw aanvraag is ingediend. We nemen zo snel mogelijk contact met u op.";
-$_['text_update_message']          = 'Mollie: Er is een bijgewerkte versie (%s) beschikbaar van de Mollie-module. Klik <a href="%s">hier</a> om bij te werken. Wil je dit bericht niet meer zien? Klik <a href="javascript:void(0);" onclick="document.cookie=\'hide_mollie_update_message_version=%s\'; $(this).parent().hide();">hier</a>.';
-$_['text_update_message_warning']  = 'Mollie: Er is een bijgewerkte versie (%s) beschikbaar van de Mollie-module. Werk uw PHP-versie bij naar 7.0.0 of hoger om de module bij te werken of blijf de huidige versie gebruiken. Wil je dit bericht niet meer zien? Klik <a href="javascript:void(0);" onclick="document.cookie=\'hide_mollie_update_message_version=%s\'; $(this).parent().hide();">hier</a>.';
+$_['text_enable']                  = "Activeren";
+$_['text_disable']                 = "Deactiveren";
+$_['text_connection_success']      = "Succes: verbinding met Mollie gelukt!";
+$_['text_error'] 			       = "Waarschuwing: er is iets misgegaan. Probeer het later opnieuw!";
+$_['text_creditcard_required']     = "Credit Card verplicht";
+$_['text_mollie_api']              = "Mollie API";
+$_['text_mollie_app']              = "Mollie App";
+$_['text_general'] 	               = "Algemeen";
+$_['text_enquiry'] 	               = "Hoe kunnen we u helpen?";
+$_['text_enquiry_success'] 	       = "Succes: Uw aanvraag is ingediend. We nemen zo snel mogelijk contact met u op.";
+$_['text_update_message']          = 'Mollie: Er is een nieuwe versie (%s) beschikbaar. Klik <a href="%s">hier</a> om bij te werken. Wil je dit bericht niet meer zien? Klik <a href="javascript:void(0);" onclick="document.cookie=\'hide_mollie_update_message_version=%s\'; $(this).parent().hide();">hier</a>.';
+$_['text_update_message_warning']  = 'Mollie: Er is een nieuwe versie (%s) beschikbaar. Werk uw PHP-versie bij naar %s of hoger om de module bij te werken of blijf de huidige versie gebruiken. Wil je dit bericht niet meer zien? Klik <a href="javascript:void(0);" onclick="document.cookie=\'hide_mollie_update_message_version=%s\'; $(this).parent().hide();">hier</a>.';
 $_['text_update_success']          = "Succes: Mollie module is geüpdatet naar versie %s.";
 $_['text_default_currency']        = "Gebruikte valuta in de winkel";
 $_['text_custom_css']              = "Custom CSS For Mollie Components";
@@ -198,35 +200,35 @@ $_['entry_support']         = "Support";
 $_['entry_version']         = '<a href="https://github.com/mollie/OpenCart/releases" target="_blank">Mollie Opencart</a>';
 
 // Error
-$_['error_permission']      = "Waarschuwing: U heeft geen toestemming om de module aan te passen.";
-$_['error_api_key']         = "Mollie API-sleutel is verplicht!";
-$_['error_api_key_invalid'] = "Ongeldige Mollie API-sleutel!";
-$_['error_description']     = "De omschrijving is verplicht!";
-$_['error_file_missing']    = "Bestand bestaat niet";
-$_['error_name']              = 'Waarschuwing: naam moet tussen 3 en 25 tekens bevatten!';
-$_['error_email']             = 'Waarschuwing: E-mailadres lijkt niet geldig te zijn!';
-$_['error_subject']           = 'Waarschuwing: onderwerp moet 3 tekens lang zijn!';
-$_['error_enquiry']           = 'Waarschuwing: onderzoekstekst moet 25 tekens lang zijn!';
-$_['error_no_api_client']     = 'API client not found.';
-$_['error_api_help']          = 'You can ask your hosting provider to help with this.';
-$_['error_comm_failed']       = '<strong>Communicating with Mollie failed:</strong><br/>%s<br/><br/>Please check the following conditions. You can ask your hosting provider to help with this.<ul><li>Make sure outside connections to %s are not blocked.</li><li>Make sure SSL v3 is disabled on your server. Mollie does not support SSL v3.</li><li>Make sure your server is up-to-date and the latest security patches have been installed.</li></ul><br/>Contact <a href="mailto:info@mollie.nl">info@mollie.nl</a> if this still does not fix your problem.';
-$_['error_no_api_key']        = 'No API key provided. Please insert your API key.';
-$_['error_order_expiry_days'] = 'Waarschuwing: het is niet mogelijk om Klarna Slice it of Klarna Pay later als methode te gebruiken wanneer de vervaldatum meer dan 28 dagen in de toekomst ligt.';
+$_['error_permission']         = "Waarschuwing: U heeft geen toestemming om de module aan te passen.";
+$_['error_api_key']            = "Mollie API-sleutel is verplicht!";
+$_['error_api_key_invalid']    = "Ongeldige Mollie API-sleutel!";
+$_['error_description']        = "De omschrijving is verplicht!";
+$_['error_file_missing']       = "Bestand bestaat niet";
+$_['error_name']               = 'Waarschuwing: naam moet tussen 3 en 25 tekens bevatten!';
+$_['error_email']              = 'Waarschuwing: E-mailadres lijkt niet geldig te zijn!';
+$_['error_subject']            = 'Waarschuwing: onderwerp moet 3 tekens lang zijn!';
+$_['error_enquiry']            = 'Waarschuwing: onderzoekstekst moet 25 tekens lang zijn!';
+$_['error_no_api_client']      = 'API client not found.';
+$_['error_api_help']           = 'You can ask your hosting provider to help with this.';
+$_['error_comm_failed']        = '<strong>Communicating with Mollie failed:</strong><br/>%s<br/><br/>Please check the following conditions. You can ask your hosting provider to help with this.<ul><li>Make sure outside connections to %s are not blocked.</li><li>Make sure SSL v3 is disabled on your server. Mollie does not support SSL v3.</li><li>Make sure your server is up-to-date and the latest security patches have been installed.</li></ul><br/>Contact <a href="mailto:info@mollie.nl">info@mollie.nl</a> if this still does not fix your problem.';
+$_['error_no_api_key']         = 'No API key provided. Please insert your API key.';
+$_['error_order_expiry_days']  = 'Waarschuwing: het is niet mogelijk om Klarna Slice it of Klarna Pay later als methode te gebruiken wanneer de vervaldatum meer dan 28 dagen in de toekomst ligt.';
 $_['error_mollie_payment_fee'] = 'Waarschuwing: Mollie Payment Fee ordertotaal is uitgeschakeld!';
+$_['error_min_php_version']    = 'Waarschuwing: deze Mollie-module heeft PHP-versie %s of hoger nodig om te kunnen functioneren. Neem contact op met uw webdeveloper om dit probleem op te lossen!';
 
 // Status
-$_['entry_pending_status']   = "Status betaling aangemaakt";
-$_['entry_failed_status']    = "Status betaling mislukt";
-$_['entry_canceled_status']  = "Status betaling geannuleerd";
-$_['entry_expired_status']   = "Status betaling verlopen";
-$_['entry_processing_status']= "Status betaling succesvol";
-$_['entry_refund_status']	  = "Status betaling terugbetaling";
+$_['entry_pending_status']            = "Status betaling aangemaakt";
+$_['entry_failed_status']             = "Status betaling mislukt";
+$_['entry_canceled_status']           = "Status betaling geannuleerd";
+$_['entry_expired_status']            = "Status betaling verlopen";
+$_['entry_processing_status']         = "Status betaling succesvol";
+$_['entry_refund_status']	          = "Status betaling terugbetaling";
 $_['entry_partial_refund_status']	  = "Gedeeltelijke terugbetalingsstatus";
-
-$_['entry_shipping_status']   = "Status bestelling verzonden";
-$_['entry_shipment']       			 = "Maak verzending";
-$_['entry_create_shipment_status']   = "Maak verzending aan na order status";
-$_['help_shipment'] 				 = "Verzending wordt direct na het maken van de bestelling gemaakt. Selecteer 'Nee' om een ​​zending te creëren wanneer de order een specifieke status bereikt en selecteer de bestelstatus van onder.";
+$_['entry_shipping_status']           = "Status bestelling verzonden";
+$_['entry_shipment']       			  = "Maak verzending";
+$_['entry_create_shipment_status']    = "Maak verzending aan na order status";
+$_['help_shipment'] 				  = "Verzending wordt direct na het maken van de bestelling gemaakt. Selecteer 'Nee' om een ​​zending te creëren wanneer de order een specifieke status bereikt en selecteer de bestelstatus van onder.";
 
 $_['text_create_shipment_automatically']            = "Maak automatisch een zending bij het maken van de bestelling";
 $_['text_create_shipment_on_status']                = "Maak verzending bij het plaatsen van de bestelling naar deze status";
@@ -234,10 +236,10 @@ $_['text_create_shipment_on_order_complete']        = "Maak verzending bij het p
 $_['entry_create_shipment_on_order_complete'] 		= "Maak verzending bij bestelling compleet";
 
 //Button
-$_['button_update'] = "Bijwerken";
+$_['button_update']         = "Bijwerken";
 $_['button_mollie_connect'] = "Connect via Mollie";
 $_['button_advance_option'] = "Advance Option";
-$_['button_save_close'] = "Opslaan en sluiten";
+$_['button_save_close']     = "Opslaan en sluiten";
 
 //Error log
 $_['text_log_success']	   = 'Succes: u hebt met succes uw foutenlogboek gewist!';

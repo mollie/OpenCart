@@ -259,6 +259,23 @@ class ControllerPaymentMollieBase extends Controller {
 				}
 			}
 		}
+
+		// Add voucher category field
+		if(!$this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "product` LIKE 'voucher_category'")->row) {
+			$this->db->query("ALTER TABLE `" . DB_PREFIX . "product` ADD `voucher_category` VARCHAR(20) NULL");
+		}
+
+		// Fix for empty transaction id in old versions
+		$query = $this->db->query("SELECT * FROM `" .DB_PREFIX. "mollie_payments`");
+		if ($query->num_rows) {
+			foreach ($query->rows as $row) {
+				if (!$row['transaction_id']) {
+					$rand_string = substr(str_shuffle(str_repeat($x='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil(10/strlen($x)) )), 1, 10);
+
+					$this->db->query("UPDATE `" .DB_PREFIX. "mollie_payments` SET transaction_id = '" . $rand_string . "' WHERE order_id = '" . $row['order_id'] . "' AND mollie_order_id = '" . $row['mollie_order_id'] . "'");
+				}
+			}
+		}
 	}
 
 	public function enableModFile($keep = '') {
@@ -507,6 +524,29 @@ class ControllerPaymentMollieBase extends Controller {
 				unlink(DIR_SYSTEM.'../vqmod/mods.cache');
 			}
 		}
+
+		// Remove installer files (if exist)
+		$languageFiles = glob($adminLanguageDir .'*/extension/payment/_mollie.php');
+        foreach($languageFiles as $file) {
+            if(file_exists($file)) {
+                unlink($file);
+            }
+        }
+
+        $languageFiles = glob($adminLanguageDir .'*/payment/_mollie.php');
+        foreach($languageFiles as $file) {
+            if(file_exists($file)) {
+                unlink($file);
+            }
+        }
+
+        if(file_exists($adminControllerDir . 'extension/payment/_mollie.php')) {
+            unlink($adminControllerDir . 'extension/payment/_mollie.php');
+        }
+
+		if(file_exists($adminControllerDir . 'payment/_mollie.php')) {
+            unlink($adminControllerDir . 'payment/_mollie.php');
+        }
 	}
 
 	public function delTree($dir) {
@@ -953,6 +993,7 @@ class ControllerPaymentMollieBase extends Controller {
 		$data['name_mollie_klarnasliceit'] = $this->language->get('name_mollie_klarnasliceit');
 		$data['name_mollie_przelewy24'] = $this->language->get('name_mollie_przelewy24');
 		$data['name_mollie_applepay'] = $this->language->get('name_mollie_applepay');
+		$data['name_mollie_in3'] = $this->language->get('name_mollie_in3');
 		// Deprecated names
 		$data['name_mollie_bitcoin'] = $this->language->get('name_mollie_bitcoin');
 		$data['name_mollie_mistercash'] = $this->language->get('name_mollie_mistercash');
@@ -1057,11 +1098,19 @@ class ControllerPaymentMollieBase extends Controller {
 
 		$data['update_url']         = ($this->getUpdateUrl()) ? $this->getUpdateUrl()['updateUrl'] : '';
 		if (version_compare(phpversion(), MollieHelper::MIN_PHP_VERSION, "<")) {
-        	$data['text_update']        = ($this->getUpdateUrl()) ? sprintf($this->language->get('text_update_message_warning'), $this->getUpdateUrl()['updateVersion'], $this->getUpdateUrl()['updateVersion']) : '';
-			$data['module_update'] = false;
+        	$data['error_min_php_version'] = sprintf($this->language->get('error_min_php_version'), MollieHelper::MIN_PHP_VERSION);
 		} else {
-        	$data['text_update']        = ($this->getUpdateUrl()) ? sprintf($this->language->get('text_update_message'), $this->getUpdateUrl()['updateVersion'], $data['update_url'], $this->getUpdateUrl()['updateVersion']) : '';
-			$data['module_update'] = true;
+        	$data['error_min_php_version'] = '';
+		}
+
+		if ($this->getUpdateUrl()) {
+			if (version_compare(phpversion(), MollieHelper::NEXT_PHP_VERSION, "<")) {
+				$data['text_update'] = sprintf($this->language->get('text_update_message_warning'), $this->getUpdateUrl()['updateVersion'], MollieHelper::NEXT_PHP_VERSION, $this->getUpdateUrl()['updateVersion']);
+				$data['module_update'] = false;
+			} else {
+				$data['text_update'] = sprintf($this->language->get('text_update_message'), $this->getUpdateUrl()['updateVersion'], $data['update_url'], $this->getUpdateUrl()['updateVersion']);
+				$data['module_update'] = true;
+			}
 		}
 
 		if (isset($_COOKIE["hide_mollie_update_message_version"]) && ($_COOKIE["hide_mollie_update_message_version"] == $this->getUpdateUrl()['updateVersion'])) {
@@ -1081,12 +1130,6 @@ class ControllerPaymentMollieBase extends Controller {
 
 		$data['currencies']			= $this->model_localisation_currency->getCurrencies();
 		$data['tax_classes']        = $this->model_localisation_tax_class->getTaxClasses();
-
-		// Check if Mollie Payment Fee order total is enabled
-		$molliePaymentFee = $this->config->get('total_mollie_payment_fee_status') || $this->config->get('mollie_payment_fee_status');
-		if (!$molliePaymentFee) {
-			$this->session->data['warning_payment_fee'] = $this->language->get('error_mollie_payment_fee');
-		}
 
 		$this->load->model('tool/image');
 
@@ -1110,13 +1153,6 @@ class ControllerPaymentMollieBase extends Controller {
 			$this->session->data['warning'] = '';
 		} else {
 			$data['warning'] = '';
-		}
-
-		if(isset($this->session->data['warning_payment_fee'])) {
-			$data['warning_payment_fee'] = $this->session->data['warning_payment_fee'];
-			$this->session->data['warning_payment_fee'] = '';
-		} else {
-			$data['warning_payment_fee'] = '';
 		}
 
 		if(isset($this->error['warning'])) {
@@ -1537,8 +1573,8 @@ class ControllerPaymentMollieBase extends Controller {
 
     function update() {
 
-		// CHeck for PHP version
-		if (version_compare(phpversion(), MollieHelper::MIN_PHP_VERSION, "<")) {
+		// Check for PHP version
+		if (version_compare(phpversion(), MollieHelper::NEXT_PHP_VERSION, "<")) {
 			if (version_compare(VERSION, '2.3', '>=')) {
 				$this->response->redirect($this->url->link('extension/payment/mollie_' . static::MODULE_NAME, $this->token, true));
 			} elseif (version_compare(VERSION, '2', '>=')) {
