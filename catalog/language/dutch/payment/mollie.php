@@ -36,19 +36,20 @@
  */
 
 // Text
-$_['heading_title']         = 'Betaling via Mollie';
-$_['ideal_title']           = 'Uw betaling';
-$_['text_title']            = 'Online betalen';
-$_['text_redirected']       = 'De klant is doorgestuurd naar het betaalscherm';
-$_['text_issuer_ideal']     = 'Kies uw bank';
-$_['text_issuer_giftcard']  = 'Kies uw giftcard';
-$_['text_issuer_kbc']       = 'Kies uw betaalknop';
-$_['text_card_details']     = 'Voer uw creditcardgegevens in.';
-$_['text_mollie_payments']  = 'Veilige betalingen geleverd door %s';
-$_['text_recurring_desc']   = 'Bestelling %s, %s - %s, elke %s voor %s';
-$_['text_recurring']		= '%s elke %s %s';
-$_['text_length']			= ' voor %s betalingen';
-$_['text_trial']			= '%s elke %s %s voor %s betalingen dan ';
+$_['heading_title']             = 'Betaling via Mollie';
+$_['ideal_title']               = 'Uw betaling';
+$_['text_title']                = 'Online betalen';
+$_['text_redirected']           = 'De klant is doorgestuurd naar het betaalscherm';
+$_['text_issuer_ideal']         = 'Kies uw bank';
+$_['text_issuer_giftcard']      = 'Kies uw giftcard';
+$_['text_issuer_kbc']           = 'Kies uw betaalknop';
+$_['text_issuer_voucher']       = 'Kies uw merk';
+$_['text_card_details']         = 'Voer uw creditcardgegevens in.';
+$_['text_mollie_payments']      = 'Veilige betalingen geleverd door %s';
+$_['text_recurring_desc']       = 'Bestelling %s, %s - %s, elke %s voor %s';
+$_['text_recurring']		    = '%s elke %s %s';
+$_['text_length']			    = ' voor %s betalingen';
+$_['text_trial']			    = '%s elke %s %s voor %s betalingen dan ';
 $_['text_error_report_success']	= 'De fout is met succes gerapporteerd!';
 
 // Button
@@ -108,6 +109,7 @@ $_['method_klarnasliceit']  = 'Klarna Betaal in 3 delen';
 $_['method_przelewy24']  	= 'P24';
 $_['method_applepay']    	= 'Apple Pay';
 $_['method_voucher']    	= 'Voucher';
+$_['method_in3']    	    = 'IN3';
 
 //Round Off Description
 $_['roundoff_description']  = 'Afrondingsverschil door valutaomrekening';

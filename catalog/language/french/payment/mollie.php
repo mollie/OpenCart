@@ -36,19 +36,20 @@
  */
 
 // Text
-$_['heading_title']           = 'Paiement par Mollie';
-$_['ideal_title']             = 'Votre paiement';
-$_['text_title']              = 'Payez en ligne';
-$_['text_redirected']         = 'Le client a été renvoyé à l\'écran de paiement';
-$_['text_issuer_ideal']       = 'Selectionnez votre banque:';
-$_['text_issuer_giftcard']    = 'Sélectionnez votre carte-cadeau:';
-$_['text_issuer_kbc']         = 'Sélectionnez votre bouton de paiement:';
-$_['text_card_details']       = 'S\'il vous plaît entrer les détails de votre carte de crédit.';
-$_['text_mollie_payments']    = 'Paiements sécurisés fournis par %s';
-$_['text_recurring_desc']   = 'Commande %s, %s - %s, tous les %s pour %s';
-$_['text_recurring']		= '%s tous les %s %s';
-$_['text_length']			= ' pour les paiements %s';
-$_['text_trial']			= '%s tous les %s %s pour %s paiements puis ';
+$_['heading_title']             = 'Paiement par Mollie';
+$_['ideal_title']               = 'Votre paiement';
+$_['text_title']                = 'Payez en ligne';
+$_['text_redirected']           = 'Le client a été renvoyé à l\'écran de paiement';
+$_['text_issuer_ideal']         = 'Selectionnez votre banque:';
+$_['text_issuer_giftcard']      = 'Sélectionnez votre carte-cadeau:';
+$_['text_issuer_kbc']           = 'Sélectionnez votre bouton de paiement:';
+$_['text_issuer_voucher']       = 'Sélectionnez votre marque:';
+$_['text_card_details']         = 'S\'il vous plaît entrer les détails de votre carte de crédit.';
+$_['text_mollie_payments']      = 'Paiements sécurisés fournis par %s';
+$_['text_recurring_desc']       = 'Commande %s, %s - %s, tous les %s pour %s';
+$_['text_recurring']		    = '%s tous les %s %s';
+$_['text_length']			    = ' pour les paiements %s';
+$_['text_trial']			    = '%s tous les %s %s pour %s paiements puis ';
 $_['text_error_report_success']	= 'L\'erreur a été signalée avec succès!';
 
 // Button
@@ -108,6 +109,7 @@ $_['method_klarnasliceit']  = 'Klarna Slice It';
 $_['method_przelewy24']     = 'P24';
 $_['method_applepay']    	= 'Apple Pay';
 $_['method_voucher']    	= 'Voucher';
+$_['method_in3']    	    = 'IN3';
 
 //Round Off Description
 $_['roundoff_description']  = 'Dû à la conversion de devise, il se peut qu’il y ait un écart d’arrondi';

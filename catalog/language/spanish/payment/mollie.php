@@ -36,19 +36,20 @@
  */
 
 // Text
-$_['heading_title']         = 'Pago a través de Mollie';
-$_['ideal_title']           = 'su pago';
-$_['text_title']            = 'Pagar en línea';
-$_['text_redirected']       = 'El cliente ha sido redirigido a la pantalla de pago';
-$_['text_issuer_ideal']     = 'Seleccione su banco';
-$_['text_issuer_giftcard']  = 'Seleccione su tarjeta regalo';
-$_['text_issuer_kbc']       = 'Seleccione su botón de pago';
-$_['text_card_details']     = 'Por favor ingrese los detalles de su tarjeta de crédito.';
-$_['text_mollie_payments']  = 'Pagos seguros proporcionados por %s';
-$_['text_recurring_desc']   = 'Pedido %s, %s - %s, cada %s durante %s';
-$_['text_recurring']		= '%s cada %s %s';
-$_['text_length']			= ' para pagos de %s';
-$_['text_trial']			= '%s cada %s %s para %s pagos luego ';
+$_['heading_title']             = 'Pago a través de Mollie';
+$_['ideal_title']               = 'su pago';
+$_['text_title']                = 'Pagar en línea';
+$_['text_redirected']           = 'El cliente ha sido redirigido a la pantalla de pago';
+$_['text_issuer_ideal']         = 'Seleccione su banco';
+$_['text_issuer_giftcard']      = 'Seleccione su tarjeta regalo';
+$_['text_issuer_kbc']           = 'Seleccione su botón de pago';
+$_['text_issuer_voucher']       = 'Selecciona tu marca';
+$_['text_card_details']         = 'Por favor ingrese los detalles de su tarjeta de crédito.';
+$_['text_mollie_payments']      = 'Pagos seguros proporcionados por %s';
+$_['text_recurring_desc']       = 'Pedido %s, %s - %s, cada %s durante %s';
+$_['text_recurring']		    = '%s cada %s %s';
+$_['text_length']			    = ' para pagos de %s';
+$_['text_trial']			    = '%s cada %s %s para %s pagos luego ';
 $_['text_error_report_success']	= 'El error se ha informado correctamente!';
 
 // Button
@@ -90,24 +91,25 @@ $_['refund_cancelled']   = 'El reembolso ha sido cancelado.';
 $_['refund_success'] 	 = '¡El reembolso ha sido procesado con éxito!';
 
 // Methods
-$_['method_ideal']                      = 'iDEAL';
-$_['method_creditcard']                 = 'Creditcard';
-$_['method_mistercash']                 = 'Bancontact';
-$_['method_banktransfer']               = 'Transferencia bancaria';
-$_['method_belfius']                    = 'Belfius Direct Net';
-$_['method_kbc']                        = 'KBC/CBC-Betaalknop';
-$_['method_sofort']                     = 'SOFORT Banking';
-$_['method_paypal']                     = 'PayPal';
-$_['method_paysafecard']                = 'paysafecard';
-$_['method_giftcard']                   = 'Giftcard';
-$_['method_eps']                        = 'EPS';
-$_['method_giropay']                    = 'Giropay';
-$_['method_klarnapaylater']             = 'Klarna Pay Later';
-$_['method_klarnapaynow']               = 'Klarna Pay Now';
-$_['method_klarnasliceit']              = 'Klarna Slice It';
-$_['method_przelewy24']  				= 'P24';
-$_['method_applepay']    	            = 'Apple Pay';
-$_['method_voucher']    	            = 'Voucher';
+$_['method_ideal']          = 'iDEAL';
+$_['method_creditcard']     = 'Creditcard';
+$_['method_mistercash']     = 'Bancontact';
+$_['method_banktransfer']   = 'Transferencia bancaria';
+$_['method_belfius']        = 'Belfius Direct Net';
+$_['method_kbc']            = 'KBC/CBC-Betaalknop';
+$_['method_sofort']         = 'SOFORT Banking';
+$_['method_paypal']         = 'PayPal';
+$_['method_paysafecard']    = 'paysafecard';
+$_['method_giftcard']       = 'Giftcard';
+$_['method_eps']            = 'EPS';
+$_['method_giropay']        = 'Giropay';
+$_['method_klarnapaylater'] = 'Klarna Pay Later';
+$_['method_klarnapaynow']   = 'Klarna Pay Now';
+$_['method_klarnasliceit']  = 'Klarna Slice It';
+$_['method_przelewy24']  	= 'P24';
+$_['method_applepay']    	= 'Apple Pay';
+$_['method_voucher']    	= 'Voucher';
+$_['method_in3']    	    = 'IN3';
 
 //Round Off Description
 $_['roundoff_description']  = ' Diferencia de redondeo por conversión de moneda';

@@ -2,6 +2,16 @@
 
 # Changelog #
 
+#### Changes in release 11.2.0
+  + Added IN3 Payment Method
+  + Fixed issue related to currencies decimal places
+  + Bugfix address validation of zone and postcode
+  + Removed order total notice when Mollie Payment Fee isn't enabled
+  + Changed PHP version check in update function
+
+#### Changes in release 11.1.1
+  + Fixed bug related to shipping details
+
 #### Changes in release 11.1.0
   + Updated mollie payment details interface on order page
   + Removed mollie payment fee options from 'payment' module and added them to 'order total' module (Mollie Payment Fee)

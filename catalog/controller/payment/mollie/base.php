@@ -232,7 +232,7 @@ class ControllerPaymentMollieBase extends Controller
         $order = $this->getOpenCartOrder($order_id);
 
         // Set template data.
-        if (in_array($method, ['klarnapaylater', 'klarnasliceit', 'klarnapaynow', 'voucher']) || ($this->config->get($this->mollieHelper->getModuleCode() . "_" . $method . "_api_to_use") == 'orders_api')) {
+        if (in_array($method, ['klarnapaylater', 'klarnasliceit', 'klarnapaynow', 'voucher', 'in3']) || ($this->config->get($this->mollieHelper->getModuleCode() . "_" . $method . "_api_to_use") == 'orders_api')) {
             $data['action'] = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/order", '', 'SSL');
         } else {
             $data['action'] = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/payment", '', 'SSL');
@@ -302,10 +302,8 @@ class ControllerPaymentMollieBase extends Controller
     }
 
     protected function convertCurrency($amount) {
-        $this->load->model("localisation/currency");
-        $currencies = $this->model_localisation_currency->getCurrencies();
-        $convertedAmount = $amount * $currencies[$this->getCurrency()]['value'];
-
+        $convertedAmount = $this->currency->format($amount, $this->getCurrency(), false, false);
+        
         return $convertedAmount;
     }
 
@@ -317,6 +315,8 @@ class ControllerPaymentMollieBase extends Controller
     public function addressCheck($order) {
 		$valid = true;
 		$field = '';
+
+        $noPostCode = ["AE", "AN", "AO", "AW", "BF", "BI", "BJ", "BO", "BS", "BV", "BW", "BZ", "CD", "CF", "CG", "CI", "CK", "CM", "DJ", "DM", "ER", "FJ", "GA", "GD", "GH", "GM", "GN", "GQ", "GY", "HK", "JM", "KE", "KI", "KM", "KN", "KP", "LC", "ML", "MO", "MR", "MS", "MU", "MW", "NA", "NR", "NU", "PA", "QA", "RW", "SB", "SC", "SL", "SO", "SR", "ST", "SY", "TF", "TK", "TL", "TO", "TT", "TV", "UG", "VU", "YE", "ZM", "ZW"];
 
 		if (empty($order['payment_firstname'])) {
             $valid = false;
@@ -331,32 +331,32 @@ class ControllerPaymentMollieBase extends Controller
             $valid = false;
             $field = 'Billing City';
         } elseif (empty($order['payment_postcode'])) {
-            $valid = false;
-            $field = 'Billing Postcode';
-        } elseif (empty($order['payment_zone'])) {
-            $valid = false;
-            $field = 'Billing Zone';
+            if (!in_array($order['payment_iso_code_2'], $noPostCode)) {
+                $valid = false;
+                $field = 'Billing Postcode';
+            }
         }
-
-		if (empty($order['shipping_firstname'])) {
-            $valid = false;
-            $field = 'Shipping Firstname';
-        } elseif (empty($order['shipping_lastname'])) {
-            $valid = false;
-            $field = 'Shipping Lastname';
-        } elseif (empty($order['shipping_address_1'])) {
-            $valid = false;
-            $field = 'Shipping Street';
-        } elseif (empty($order['shipping_city'])) {
-            $valid = false;
-            $field = 'Shipping City';
-        } elseif (empty($order['shipping_postcode'])) {
-            $valid = false;
-            $field = 'Shipping Postcode';
-        } elseif (empty($order['shipping_zone'])) {
-            $valid = false;
-            $field = 'Shipping Zone';
-        }
+		
+		if (isset($this->session->data['shipping_address'])) {
+			if (empty($order['shipping_firstname'])) {
+				$valid = false;
+				$field = 'Shipping Firstname';
+			} elseif (empty($order['shipping_lastname'])) {
+				$valid = false;
+				$field = 'Shipping Lastname';
+			} elseif (empty($order['shipping_address_1'])) {
+				$valid = false;
+				$field = 'Shipping Street';
+			} elseif (empty($order['shipping_city'])) {
+				$valid = false;
+				$field = 'Shipping City';
+			} elseif (empty($order['shipping_postcode'])) {
+				if (!in_array($order['shipping_iso_code_2'], $noPostCode)) {
+                    $valid = false;
+                    $field = 'Shipping Postcode';
+                }
+			}
+		}
 
 		if (!$valid) {
 			$this->writeToMollieLog("Mollie Payment Error: Mollie payment require payment and shipping address details. Empty required field: " . $field);
@@ -493,16 +493,31 @@ class ControllerPaymentMollieBase extends Controller
                 }
 
                 $vatAmount = $total * ( $vatRate / (100 +  $vatRate));
-                $lines[] = array(
-                    'type'          =>  'physical',
-                    'name'          =>  $this->formatText($orderProduct['name']),
-                    'quantity'      =>  $qty,
-                    'unitPrice'     =>  ["currency" => $currency, "value" => (string)$this->numberFormat($this->convertCurrency($price + $tax))],
-                    'totalAmount'   =>  ["currency" => $currency, "value" => (string)$this->numberFormat($total)],
-                    'vatRate'       =>  (string)$this->numberFormat($vatRate),
-                    'vatAmount'     =>  ["currency" => $currency, "value" => (string)$this->numberFormat($vatAmount)],
-                    'metadata'      =>  array("order_product_id" => $orderProduct['order_product_id'])
-                );
+
+                if (!empty($productDetails['voucher_category'])) {
+                    $lines[] = array(
+                        'type'          =>  'physical',
+                        'category'      =>  (string)$productDetails['voucher_category'],
+                        'name'          =>  $this->formatText($orderProduct['name']),
+                        'quantity'      =>  $qty,
+                        'unitPrice'     =>  ["currency" => $currency, "value" => (string)$this->numberFormat($this->convertCurrency($price + $tax))],
+                        'totalAmount'   =>  ["currency" => $currency, "value" => (string)$this->numberFormat($total)],
+                        'vatRate'       =>  (string)$this->numberFormat($vatRate),
+                        'vatAmount'     =>  ["currency" => $currency, "value" => (string)$this->numberFormat($vatAmount)],
+                        'metadata'      =>  array("order_product_id" => $orderProduct['order_product_id'])
+                    );
+                } else {
+                    $lines[] = array(
+                        'type'          =>  'physical',
+                        'name'          =>  $this->formatText($orderProduct['name']),
+                        'quantity'      =>  $qty,
+                        'unitPrice'     =>  ["currency" => $currency, "value" => (string)$this->numberFormat($this->convertCurrency($price + $tax))],
+                        'totalAmount'   =>  ["currency" => $currency, "value" => (string)$this->numberFormat($total)],
+                        'vatRate'       =>  (string)$this->numberFormat($vatRate),
+                        'vatAmount'     =>  ["currency" => $currency, "value" => (string)$this->numberFormat($vatAmount)],
+                        'metadata'      =>  array("order_product_id" => $orderProduct['order_product_id'])
+                    );
+                }
             }
 
             //Check for shipping fee
@@ -821,21 +836,23 @@ class ControllerPaymentMollieBase extends Controller
                 "postalCode" => $this->formatText($order['payment_postcode']),
                 "country" => $this->formatText($order['payment_iso_code_2'])
             ];
-
-            if (!empty($order['shipping_firstname']) || !empty($order['shipping_lastname'])) {
-                $data["shippingAddress"] = [
-                    "givenName"     =>   $this->formatText($order['shipping_firstname']),
-                    "familyName"    =>   $this->formatText($order['shipping_lastname']),
-                    "email"         =>   $this->formatText($order['email']),
-                    "streetAndNumber" => $this->formatText($order['shipping_address_1'] . ' ' . $order['shipping_address_2']),
-                    "city" => $this->formatText($order['shipping_city']),
-                    "region" => $this->formatText($order['shipping_zone']),
-                    "postalCode" => $this->formatText($order['shipping_postcode']),
-                    "country" => $this->formatText($order['shipping_iso_code_2'])
-                ];
-            } else {
-                $data["shippingAddress"] = $data["billingAddress"];
-            }
+			
+			if (isset($this->session->data['shipping_address'])) {
+				if (!empty($order['shipping_firstname']) || !empty($order['shipping_lastname'])) {
+					$data["shippingAddress"] = [
+						"givenName"     =>   $this->formatText($order['shipping_firstname']),
+						"familyName"    =>   $this->formatText($order['shipping_lastname']),
+						"email"         =>   $this->formatText($order['email']),
+						"streetAndNumber" => $this->formatText($order['shipping_address_1'] . ' ' . $order['shipping_address_2']),
+						"city" => $this->formatText($order['shipping_city']),
+						"region" => $this->formatText($order['shipping_zone']),
+						"postalCode" => $this->formatText($order['shipping_postcode']),
+						"country" => $this->formatText($order['shipping_iso_code_2'])
+					];
+				} else {
+					$data["shippingAddress"] = $data["billingAddress"];
+				}
+			}
 
             if (strstr(isset($this->session->data['language']) ? $this->session->data['language'] : $this->config->get('config_language'), '-')) {
                 list ($language, $country) = explode('-', isset($this->session->data['language']) ? $this->session->data['language'] : $this->config->get('config_language'));
@@ -999,18 +1016,20 @@ class ControllerPaymentMollieBase extends Controller
                 "postalCode" => $this->formatText($order['payment_postcode']),
                 "country" => $this->formatText($order['payment_iso_code_2'])
             ];
-
-            if (!empty($order['shipping_firstname']) || !empty($order['shipping_lastname'])) {
-                $data["shippingAddress"] = [
-                    "streetAndNumber" => $this->formatText($order['shipping_address_1'] . ' ' . $order['shipping_address_2']),
-                    "city" => $this->formatText($order['shipping_city']),
-                    "region" => $this->formatText($order['shipping_zone']),
-                    "postalCode" => $this->formatText($order['shipping_postcode']),
-                    "country" => $this->formatText($order['shipping_iso_code_2'])
-                ];
-            } else {
-                $data["shippingAddress"] = $data["billingAddress"];
-            }
+			
+			if (isset($this->session->data['shipping_address'])) {
+				if (!empty($order['shipping_firstname']) || !empty($order['shipping_lastname'])) {
+					$data["shippingAddress"] = [
+						"streetAndNumber" => $this->formatText($order['shipping_address_1'] . ' ' . $order['shipping_address_2']),
+						"city" => $this->formatText($order['shipping_city']),
+						"region" => $this->formatText($order['shipping_zone']),
+						"postalCode" => $this->formatText($order['shipping_postcode']),
+						"country" => $this->formatText($order['shipping_iso_code_2'])
+					];
+				} else {
+					$data["shippingAddress"] = $data["billingAddress"];
+				}
+			}
 
             if (strstr(isset($this->session->data['language']) ? $this->session->data['language'] : $this->config->get('config_language'), '-')) {
                 list ($language, $country) = explode('-', isset($this->session->data['language']) ? $this->session->data['language'] : $this->config->get('config_language'));

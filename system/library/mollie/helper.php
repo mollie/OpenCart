@@ -4,31 +4,33 @@ use Mollie\Api\MollieApiClient;
 
 class MollieHelper {
 
-	const PLUGIN_VERSION = "11.1.0";
+	const PLUGIN_VERSION = "11.2.0";
 
 	const OUTH_URL = 'https://api.mollie.com/oauth2';
 
 	const MIN_PHP_VERSION = "5.6.40";
+	const NEXT_PHP_VERSION = "7.0.0";
 
 	// All available modules. These should correspond to the Mollie_API_Object_Method constants.
-	const MODULE_NAME_BANKTRANSFER  = "banktransfer";
-	const MODULE_NAME_BELFIUS       = "belfius";
-	const MODULE_NAME_CREDITCARD    = "creditcard";
-	const MODULE_NAME_IDEAL         = "ideal";
-	const MODULE_NAME_BANCONTACT    = "bancontact";
-	const MODULE_NAME_PAYPAL        = "paypal";
-	const MODULE_NAME_PAYSAFECARD   = "paysafecard";
-	const MODULE_NAME_SOFORT        = "sofort";
-	const MODULE_NAME_KBC           = "kbc";
-	const MODULE_NAME_GIFTCARD      = "giftcard";
-	const MODULE_NAME_EPS           = "eps";
-	const MODULE_NAME_GIROPAY       = "giropay";
-	const MODULE_NAME_KLARNAPAYLATER = "klarnapaylater";
-	const MODULE_NAME_KLARNAPAYNOW   = "klarnapaynow";
-	const MODULE_NAME_KLARNASLICEIT  = "klarnasliceit";
-	const MODULE_NAME_PRZELEWY24  	 = "przelewy24";
-	const MODULE_NAME_APPLEPAY  	 = "applepay";
-	const MODULE_NAME_VOUCHER    	 = "voucher";
+	const MODULE_NAME_BANKTRANSFER  	= "banktransfer";
+	const MODULE_NAME_BELFIUS       	= "belfius";
+	const MODULE_NAME_CREDITCARD    	= "creditcard";
+	const MODULE_NAME_IDEAL         	= "ideal";
+	const MODULE_NAME_BANCONTACT    	= "bancontact";
+	const MODULE_NAME_PAYPAL        	= "paypal";
+	const MODULE_NAME_PAYSAFECARD   	= "paysafecard";
+	const MODULE_NAME_SOFORT        	= "sofort";
+	const MODULE_NAME_KBC           	= "kbc";
+	const MODULE_NAME_GIFTCARD      	= "giftcard";
+	const MODULE_NAME_EPS           	= "eps";
+	const MODULE_NAME_GIROPAY       	= "giropay";
+	const MODULE_NAME_KLARNAPAYLATER 	= "klarnapaylater";
+	const MODULE_NAME_KLARNAPAYNOW   	= "klarnapaynow";
+	const MODULE_NAME_KLARNASLICEIT  	= "klarnasliceit";
+	const MODULE_NAME_PRZELEWY24  	 	= "przelewy24";
+	const MODULE_NAME_APPLEPAY  	 	= "applepay";
+	const MODULE_NAME_VOUCHER    	 	= "voucher";
+	const MODULE_NAME_IN3    	 		= "in3";
 
 
 	// List of all available module names.
@@ -50,7 +52,8 @@ class MollieHelper {
 		self::MODULE_NAME_KLARNASLICEIT,
 		self::MODULE_NAME_PRZELEWY24,
 		self::MODULE_NAME_APPLEPAY,
-		self::MODULE_NAME_VOUCHER
+		self::MODULE_NAME_VOUCHER,
+		self::MODULE_NAME_IN3
 	);
 
 	protected $api_client;

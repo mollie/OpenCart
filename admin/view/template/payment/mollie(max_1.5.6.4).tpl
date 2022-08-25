@@ -37,12 +37,11 @@
 		<?php echo $warning; ?>
 	</div>
 	<?php } ?>
-	<?php if ($warning_payment_fee) { ?>
+	<?php if ($error_min_php_version) { ?>
 	<div class="attention">
-		<?php echo $warning_payment_fee; ?>
+		<?php echo $error_min_php_version; ?>
 	</div>
 	<?php } ?>
-
 	<div class="box">
 		<div class="heading">
 			<h1><img src="view/image/payment.png" alt=""><?php echo $heading_title; ?></h1>
@@ -175,7 +174,7 @@
 									<div class="form-group">
 										<label class="col-sm-2 control-label"><?php echo $entry_api_to_use; ?></label>
 										<div class="col-sm-10">
-											<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_api_to_use" class="form-control" <?php if (in_array($module_id, ['klarnapaylater', 'klarnasliceit', 'klarnapaynow', 'voucher'])) { ?>disabled="disabled"<?php } ?>>
+											<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_api_to_use" class="form-control" <?php if (in_array($module_id, ['klarnapaylater', 'klarnasliceit', 'klarnapaynow', 'voucher', 'in3'])) { ?>disabled="disabled"<?php } ?>>
 												<option value="orders_api"><?php echo $text_order_api; ?></option>
 												<option value="payments_api" <?php if ($payment_method['api_to_use'] == 'payments_api') { ?>selected="selected"<?php } ?>><?php echo $text_payment_api; ?></option>
 											</select>		
