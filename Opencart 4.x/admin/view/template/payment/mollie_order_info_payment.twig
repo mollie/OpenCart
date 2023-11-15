@@ -1,0 +1,62 @@
+{% if payment_status %}
+    <div id="tab-mollie" class="tab-pane">
+        <h4>{{ text_mollie_payment }}</h4>
+        <div id="mollie-payment" class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <td class="text-start">{{ column_date_added }}</td>
+                    <td class="text-start">{{ column_payment_method }}</td>
+                    <td class="text-start">{{ column_amount }}</td>
+                    <td class="text-start">{{ column_status }}</td>
+                </tr>
+                </thead>
+                <tbody>
+                {% for mollie_payment in mollie_payments %}
+                <tr>
+                    <td class="text-start">{{ mollie_payment['date_added'] }}</td>
+                    <td class="text-start">{{ mollie_payment['method'] }}</td>
+                    <td class="text-start">{{ mollie_payment['amount'] }}</td>
+                    <td class="text-start">{{ mollie_payment['status'] }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if 'mollie_payment_link' not in payment_code %}
+        <h4>{{ text_mollie_refund }}</h4>
+        <div id="mollie-refund" class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <td class="text-start">{{ column_date_added }}</td>
+                    <td class="text-start">{{ column_amount }}</td>
+                    <td class="text-start">{{ column_status }}</td>
+                </tr>
+                </thead>
+                <tbody>
+                {% for mollie_refund in mollie_refunds %}
+                <tr>
+                    <td class="text-start">{{ mollie_refund['date_added'] }}</td>
+                    <td class="text-start">{{ mollie_refund['amount'] }}</td>
+                    <td class="text-start">{{ mollie_refund['status'] }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td class="text-end" colspan="3">
+                            {% if((payment_status not in ['expired', 'refunded', 'failed', 'canceled', 'open']) and (paymentMethod not in ['paysafecard', 'giftcard']) and showRefundButton) %}
+                            <a href="#" onclick="event.preventDefault()" id="button-refund" class="btn btn-primary">{{ button_refund }}</a>
+                            {% endif %}
+                            {% if((payment_status not in ['expired', 'failed', 'canceled', 'open']) and (paymentMethod not in ['paysafecard', 'giftcard']) and showPartialRefundButton) %}
+                            <a href="#" onclick="event.preventDefault()" data-bs-toggle="modal" data-bs-target="#refundModal" class="btn btn-warning">{{ button_partial_refund }}</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}

@@ -1,0 +1,220 @@
+<!-- Refund Modal -->
+<div id="refundModal" class="modal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{{ button_partial_refund }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+            <form id="form-partial-refund">
+                <div class="mb-3">
+                    <label class="form-label">{{ entry_partial_refund_type }}</label>
+                    <select name="partial_refund_type" class="form-select" {% if productlines is empty %}disabled="disabled"{% endif %}>
+                        <option value="custom_amount">{{ text_custom_amount }}</option>
+                        <option value="productline">{{ text_productline }}</option>
+                    </select>
+                </div>
+                <div class="mb-3" id="amount-box">
+                    <label class="form-label">{{ entry_amount ~ " (" ~ currency ~ ")" }}</label>
+                    <input type="text" name="refund_amount" value="" placeholder="{{ entry_amount }}" id="refund-amount" class="form-control" />
+                </div>
+                <div class="mb-3" id="productline-box">
+                    <label class="form-label">{{ entry_productline }}</label>
+                    <table class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <td></td>
+                                <td>{{ column_product }}</td>
+                                <td><span data-toggle="tooltip" title="{{ help_quantity }}">{{ column_quantity }}</span></td>
+                                <td><span data-toggle="tooltip" title="{{ help_stock_mutation }}">{{ column_stock_mutation }}</span></td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for productline in productlines %}
+                        <tr>
+                            <td class="text-center"><input type="checkbox" name="productline[{{ productline['order_product_id'] }}][selected]" value="1" /><input type="hidden" name="productline[{{ productline['order_product_id'] }}][orderline_id]" value="{{ productline['id'] }}" /></td>
+                            <td class="text-start">{{ productline['name'] }}{% for option in productline.option %}
+                                <br/>
+                                {% if option.type != 'file' %}
+                                &nbsp;
+                                <small> - {{ option.name }}: {{ option.value }}</small> {% else %}
+                                &nbsp;
+                                <small> - {{ option.name }}: <a href="{{ option.href }}">{{ option.value }}</a></small> {% endif %}
+                            {% endfor %}</td>
+                            <td class="text-start">
+                                <input type="text" name="productline[{{ productline['order_product_id'] }}][quantity]" value="{{ productline['quantity'] }}" id="refund-quantity" class="form-control" />
+                            </td>
+                            <td><input type="checkbox" name="productline[{{ productline['order_product_id'] }}][stock_mutation]" value="1" {% if partial_credit_order %}checked="checked"{% endif %}></td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-end">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">{{ button_cancel }}</button>
+                    <button type="button" id="button-partial-refund" class="btn btn-primary"><i class="fa-solid fa-money-bill"></i> {{ button_refund }}</button>
+                </div>
+            </form>
+        </div>
+      </div>
+    </div>
+</div>
+
+<script type="text/javascript"><!--
+$('#button-refund').on('click', function() {
+if (!confirm('{{ text_confirm_refund }}')) {
+    return false;
+}
+
+  $('.alert').remove();
+  $.ajax({
+    url: 'index.php?route=extension/mollie/payment/mollie_ideal|refund&user_token={{ user_token }}&order_id={{ order_id }}',
+    type: 'post',
+    dataType: 'json',
+    beforeSend: function() {
+      $('#button-refund').button('loading');
+    },
+    complete: function() {
+      $('#button-refund').button('reset');
+    },
+    success: function(json) {
+      if (json['error']) {
+        $('#mollie-refund').prepend('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + '</div>');
+      }
+
+      if (json['success']) {
+        // Create Credit Order
+        if (json['partial_credit_order']) {
+            $.ajax({
+                url: 'index.php?route=extension/mollie/payment/mollie_ideal|call&user_token={{ user_token }}&action=extension/mollie/payment/mollie_ideal|creditOrder&order_id=' + $('#input-order-id').val(),
+                type: 'post',
+                dataType: 'json',
+                data: '',
+                success: function(json) {
+                    if (json['success']) {
+                        // Success
+                    }
+                },
+                error: function(xhr, ajaxOptions, thrownError) {
+                    alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+                }
+            });
+        }
+
+        $.ajax({
+            url: 'index.php?route=sale/order|call&user_token={{ user_token }}&action=sale/order|addHistory&order_id=' + $('#input-order-id').val(),
+            type: 'post',
+            dataType: 'json',
+            data: 'order_status_id=' + encodeURIComponent(json['order_status_id']) + '&notify=1&override=0&append=1&comment=' + encodeURIComponent(json['comment']) + '&order_id=' + encodeURIComponent(json['order_id']),
+            success: function(json) {
+                if (json['success']) {
+                    $('#history').load('index.php?route=sale/order|history&user_token={{ user_token }}&order_id=' + $('#input-order-id').val());
+                }
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+            }
+        });
+
+        html = '<tr>';
+        html += ' <td>' + json['date'] + '</td>';
+        html += ' <td>' + json['amount'] + '</td>';
+        html += ' <td>' + json['status'] + '</td>';
+        html += '</tr>';
+        $('#mollie-refund tbody').append(html);
+
+        $('#payment-status').removeClass().addClass("label label-primary").html('REFUNDED');
+        $('#button-refund').remove();
+        $('#mollie-refund').prepend('<div class="alert alert-success"><i class="fa fa-check-circle"></i> ' + json['success'] + '</div>');
+      }
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+    }
+  });
+});
+
+$('#refundModal select[name=\'partial_refund_type\']').on('change', function() {
+    if ($(this).val() == 'custom_amount') {
+        $('#amount-box').show();
+        $('#productline-box').hide();
+    }
+
+    if ($(this).val() == 'productline') {
+        $('#amount-box').hide();
+        $('#productline-box').show();
+    }
+});
+$('#refundModal select[name=\'partial_refund_type\']').trigger('change');
+
+$('#button-partial-refund').on('click', function() {
+  $('.alert').remove();
+  $.ajax({
+    url: 'index.php?route=extension/mollie/payment/mollie_ideal|partialRefund&user_token={{ user_token }}&order_id={{ order_id }}',
+    type: 'post',
+    data: $('#refundModal input[type=\'text\'], #refundModal input[type=\'hidden\'], #refundModal select, #refundModal input[type=\'checkbox\']:checked'),
+    dataType: 'json',
+    beforeSend: function() {
+      $('#button-partial-refund').button('loading');
+    },
+    complete: function() {
+      $('#button-partial-refund').button('reset');
+    },
+    success: function(json) {
+      if (json['error']) {
+        $('#form-partial-refund').prepend('<div class="alert alert-danger" style="margin-left: 15px;margin-right: 15px;"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + '</div>');
+      }
+
+    if (json['success']) {
+        // Create Credit Order
+        if (json['partial_credit_order']) {
+            $.ajax({
+                url: 'index.php?route=extension/mollie/payment/mollie_ideal|call&user_token={{ user_token }}&action=extension/mollie/payment/mollie_ideal|creditOrder&order_id=' + $('#input-order-id').val(),
+                type: 'post',
+                dataType: 'json',
+                data: $('#refundModal input[type=\'text\'], #refundModal input[type=\'hidden\'], #refundModal select, #refundModal input[type=\'checkbox\']:checked'),
+                success: function(json) {
+                    if (json['success']) {
+                        // Success
+                    }
+                },
+                error: function(xhr, ajaxOptions, thrownError) {
+                    alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+                }
+            });
+        }
+
+        $.ajax({
+            url: 'index.php?route=sale/order|call&user_token={{ user_token }}&action=sale/order|addHistory&order_id=' + $('#input-order-id').val(),
+            type: 'post',
+            dataType: 'json',
+            data: 'order_status_id=' + encodeURIComponent(json['order_status_id']) + '&notify=1&override=0&append=1&comment=' + encodeURIComponent(json['comment']) + '&order_id=' + encodeURIComponent(json['order_id']),
+            success: function(json) {
+                if (json['success']) {
+                    $('#history').load('index.php?route=sale/order|history&user_token={{ user_token }}&order_id=' + $('#input-order-id').val());
+                }
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+            }
+        });
+
+        html = '<tr>';
+        html += ' <td>' + json['date'] + '</td>';
+        html += ' <td>' + json['amount'] + '</td>';
+        html += ' <td>' + json['status'] + '</td>';
+        html += '</tr>';
+        $('#mollie-refund tbody').append(html);
+
+        $('#button-refund').remove();
+
+        $('#form-partial-refund').prepend('<div class="alert alert-success alert-dismissible"><i class="fa-solid fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+      }
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+    }
+  });
+});
+//--></script>

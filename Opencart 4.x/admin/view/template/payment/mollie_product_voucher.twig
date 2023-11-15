@@ -1,0 +1,21 @@
+        <label for="input-voucher-category" class="col-sm-2 col-form-label">{{ entry_voucher_category }}</label>
+        <div class="col-sm-10">
+        <div class="input-group">
+            <select name="voucher_category" id="input-voucher-category" class="form-select">
+            <option value="">{{ text_select }}</option>
+            {% for voucher_cat in voucher_categories %}
+                <option value="{{ voucher_cat }}" {% if voucher_cat == voucher_category %} selected{% endif %}>{{ voucher_cat|capitalize }}</option>
+            {% endfor %}
+            </select>
+            {% if master_id %}
+            <div class="input-group-text">
+                <div class="form-check form-switch">
+                <input type="checkbox" name="override[voucher_category]" value="1" id="input-variant-voucher-category" data-oc-toggle="switch" data-oc-target="#input-voucher-category" class="form-check-input"{% if override.voucher_category %} checked{% endif %}/> <label for="input-variant-voucher-category" class="form-check-label"></label>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        <div class="form-text">{{ help_voucher_category }}</div>
+        </div>
+    </div>
+<div class="row mb-3">

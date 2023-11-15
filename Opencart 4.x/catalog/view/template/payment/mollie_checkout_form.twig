@@ -1,0 +1,199 @@
+<div class="checkout-content">
+  <form action="{{ action }}" method="post" id="mollie_payment_form" {% if not mollieComponents %} class="form-horizontal" {% endif %}>
+    <div class="row">
+      {% if issuers is not empty %}
+      <div class="form-group pull-left col-md-6">
+        <label class="control-label"><img src="{{ image }}" width="20" /> <strong>{{ text_issuer }}:</strong></label>
+        <select name="mollie_issuer" id="mollie_issuers" class="form-select">
+          <option value="">&mdash;</option>
+          {% for issuer in issuers %}
+          <option value="{{ issuer.id }}">{{ issuer.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
+      {% if mollieComponents %}
+      <div class="left pull-left">
+        <strong>{{ text_card_details }}</strong>
+      </div><br><br>
+      <div id="mollie-response"></div>
+      <div class="row">
+        <div class="form-group col-md-4">
+          <label class="control-label">{{ entry_card_holder }}</label>
+          <div id="card-holder"></div>
+        </div>
+        <div class="form-group col-md-4">
+          <label class="control-label">{{ entry_card_number }}</label>
+          <div id="card-number"></div>
+        </div>
+        <div class="form-group col-md-2">
+          <label class="control-label">{{ entry_expiry_date }}</label>
+          <div id="expiry-date"></div>
+        </div>
+        <div class="form-group col-md-2">
+          <label class="control-label">{{ entry_verification_code }}</label>
+          <div id="verification-code"></div>
+        </div>
+      </div>
+      <input type="hidden" id="card-token" name="cardToken" value="">
+      {% endif %}
+      <div class="pt-4 text-end {% if issuers is not empty %}col-md-6{% endif %}">
+        <button type="submit" id="button-confirm" class="button btn btn-primary" form="mollie_payment_form">{{ message.get('button_confirm') }}</button>
+      </div>
+      <div class="mollie-text">
+        <span><i class="fa fa-lock"></i> {{ text_mollie_payments }}</span>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+      (function ($) {
+        $(function () {
+          var issuers = $("#mollie_issuers"),
+              confirm_button_exists = ($("#qc_confirm_order").length > 0);
+
+          if (issuers.find("option").length === 1) {
+            $.post("{{ set_issuer_url }}", {mollie_issuer_id: issuers.val()});
+          }
+
+          issuers.bind("change", function () {
+            $.post("{{ set_issuer_url }}", {mollie_issuer_id: $(this).val()});
+          });
+
+          {% if mollieComponents %}
+            // Initialize the mollie object
+            var mollie = Mollie("{{ currentProfile }}", { locale: "{{ locale }}", testmode: "{{ testMode }}" });
+
+            // Styling
+            var options = {
+               styles : {
+                base: {
+                    backgroundColor: '{{ base_input_css['background_color'] }}',
+                    color: '{{ base_input_css['color'] }}',
+                    fontSize: '{{ base_input_css['font_size'] }}',
+                    '::placeholder' : {
+                      color: 'rgba(68, 68, 68, 0.2)',
+                    }
+                },
+                valid: {
+                    backgroundColor: '{{ valid_input_css['background_color'] }}',
+                    color: '{{ valid_input_css['color'] }}',
+                    fontSize: '{{ valid_input_css['font_size'] }}',
+                },
+                invalid: {
+                    backgroundColor: '{{ invalid_input_css['background_color'] }}',
+                    color: '{{ invalid_input_css['color'] }}',
+                    fontSize: '{{ invalid_input_css['font_size'] }}',
+                }
+               }
+             };
+
+            // Mount credit card fileds
+            var cardHolder = mollie.createComponent('cardHolder', options);
+            cardHolder.mount('#card-holder');
+
+            var cardNumber = mollie.createComponent('cardNumber', options);
+            cardNumber.mount('#card-number');
+
+            var expiryDate = mollie.createComponent('expiryDate', options);
+            expiryDate.mount('#expiry-date');
+
+            var verificationCode = mollie.createComponent('verificationCode', options);
+            verificationCode.mount('#verification-code');
+
+            document.getElementById("mollie_payment_form").addEventListener('submit', function(e) {
+              e.preventDefault();
+
+             mollie.createToken().then(function(result) {
+              // Handle the result this can be either result.token or result.error.
+                // Add token to the form
+                if(result.error !== undefined) {
+                  {% if isJournalTheme %}
+                    triggerLoadingOff();
+                  {% endif %}
+                  $('.alert-danger').remove();
+                  $("#mollie-response").after('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> {{ error_card }}</div>');
+                } else {
+                  $('.alert-danger').remove();
+                  $("#card-token").val(result.token);
+
+                  // Re-submit the form
+                  document.getElementById("mollie_payment_form").submit();
+                }
+                
+              });  
+            });
+
+          {% endif %}
+
+          // See if we can find a a confirmation button on the page (i.e. ajax checkouts).
+          if (confirm_button_exists) {
+            // If we have issuers or mollie components are enabled, show the form.
+            var mollieComponents = '{{ mollieComponents }}';
+            if (issuers.length || mollieComponents) {
+              $("#mollie_payment_form").parent().show();
+            }
+
+            return;
+          }
+
+          // No confirmation button found. Show our own confirmation button.
+          $("#button-confirm").show();
+        });
+      })(window.jQuery || window.$);
+    </script>
+    <style type="text/css">
+    {% if mollieComponents %}
+      .mollie-component {
+        {{ base_input_css['other_css'] }}
+      }
+      .mollie-component.is-valid {
+        {{ valid_input_css['other_css'] }}
+      }
+      .mollie-component.is-invalid {
+        {{ invalid_input_css['other_css'] }}
+      }      
+
+      .journal-checkout #payment-confirm-button .buttons {
+           display: block !important; 
+           cursor: unset !important;
+      }
+
+      .journal-checkout #payment-confirm-button .buttons .btn {
+          pointer-events: unset !important;
+      }
+
+      .is-customer .journal-checkout .left {
+          display: block; 
+      }
+
+      {% if isJournalTheme %}
+      #button-confirm {
+        display: none !important;
+      }
+
+      .mollie-text img {
+          top: 4px;
+      }
+      {% endif %}          
+    {% endif %}
+    {% if (issuers is empty) and (not mollieComponents) %}
+      #payment-confirm-button {
+        display: none;
+      }
+    {% endif %}
+
+    .mollie-text {
+      clear: both;
+      margin-left: 7px;
+    }
+
+    .mollie-text img {
+      position: relative;
+      top: -3px;
+      width: 58px;
+      left: -5px;
+  }
+
+    </style>
+  </form>
+</div>

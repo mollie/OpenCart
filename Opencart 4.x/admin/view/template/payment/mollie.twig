@@ -1,0 +1,1035 @@
+{{ header }}{{ column_left }}
+<div id="content">
+	<div class="page-header">
+		<div class="container-fluid">
+			<div class="float-end">
+				{% if update_url and module_update %}
+				<a href="{{ update_url }}" class="btn btn-success" data-bs-toggle="tooltip" title="{{ button_update }}"><i class="fa-solid fa-arrow-circle-up"></i></a>
+				{% endif %}
+				<button type="submit" form="form-mollie" data-bs-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa-solid fa-save"></i></button>
+				<a href="{{ back }}" data-bs-toggle="tooltip" title="{{ button_back }}" class="btn btn-light"><i class="fa-solid fa-reply"></i></a></div>
+			<h1>{{ heading_title }}</h1>
+			<ol class="breadcrumb">
+				{% for breadcrumb in breadcrumbs %}
+					<li class="breadcrumb-item"><a href="{{ breadcrumb['href'] }}">{{ breadcrumb['text'] }}</a></li>
+				{% endfor %}
+			</ol>
+		</div>
+	</div>
+	<div class="container-fluid">
+		{% if modFilesError %}
+			{{ modFilesError }}
+		{% endif %}
+		<form action="{{ save }}" method="post" id="form-mollie" {{ modFilesError ? 'style="display: none;"' : '' }} data-oc-toggle="ajax">
+			{% set api_key = false %}
+			{% for store in stores %}
+				{% if store[code ~ '_api_key'] is not empty %}
+					{% set api_key = true %}
+				{% endif %}
+			{% endfor %}
+			{% if api_key == false %}
+			<div class="alert alert-primary alert-dismissible fade show" role="alert">
+				<i class="fa fa-info-circle"></i> {{ help_view_profile }}
+				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+			</div>
+			{% endif %}
+			{% if update_url and text_update %}
+			<div class="alert alert-success alert-dismissible fade show" role="alert"><i class="fa fa-check-circle"></i> {{ text_update }}
+				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+			</div>
+			{% endif %}
+			{% if error_warning %}
+				<div class="alert alert-danger alert-dismissible"><i class="fa-solid fa-circle-exclamation"></i> {{ error_warning }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+			{% endif %}
+			<div class="card">
+				<div class="card-header"><i class="fa-solid fa-pencil"></i> {{ text_edit }}</div>
+				<div class="card-body">
+					<div class="row mb-3">
+						<div class="col-sm-12">
+							<a href="https://www.mollie.com/" target="_blank"><img src=" ../image/mollie/mollie_logo.png" border="0" alt="Mollie"/></a><br/><br/>
+							{{ entry_version }}<br/><br/>
+							&copy; 2004-{{ "now"|date("Y") }} Mollie
+							B.V.
+						</div>
+					</div>
+
+					<ul class="nav nav-tabs">
+						{% for store in stores %}
+							<li class="nav-item"><a href="#store{{ store['store_id'] }}" data-bs-toggle="tab" class="nav-link{% if loop.first %} active{% endif %}">{{ store['name'] }}</a></li>
+						{% endfor %}
+					</ul>
+
+					<div class="tab-content">
+						{% for store in stores %}
+						<div id="store{{ store['store_id'] }}" class="tab-pane fade show{% if loop.first %} active{% endif %}">
+							<ul id="tabs{{ store['store_id'] }}" class="nav nav-tabs">
+								<li class="nav-item"><a data-bs-toggle="tab" class="nav-link active" href="#mollie-options-{{ store['store_id'] }}">{{ title_global_options }}</a></li>
+								<li class="nav-item"><a data-bs-toggle="tab" class="nav-link" href="#payment-methods-{{ store['store_id'] }}">{{ entry_payment_method }}</a></li>
+								<li class="nav-item"><a data-bs-toggle="tab" class="nav-link" href="#payment-statuses-{{ store['store_id'] }}">{{ title_payment_status }}</a></li>
+								<li class="nav-item"><a data-bs-toggle="tab" class="nav-link" href="#mollie-mail-{{ store['store_id'] }}">{{ title_mail }}</a></li>
+								<li class="nav-item"><a data-bs-toggle="tab" class="nav-link" href="#support-{{ store['store_id'] }}">Support</a></li>
+							</ul>
+
+							<div class="tab-content">
+								<div id="payment-methods-{{ store['store_id'] }}" class="tab-pane fade show" style="margin-left:30px;margin-right: 30px;">
+									<div class="row mb-3">
+										<div class="col-sm-3"><strong>{{ entry_payment_method }}</strong></div>
+										<div class="col-sm-2"><strong>{{ entry_status }}</strong></div>
+										<div class="col-sm-3"><strong>{{ entry_geo_zone }}</strong></div>
+										<div class="col-sm-2 text-end"><strong>{{ entry_sort_order }}</strong></div>
+										<div class="col-sm-2 text-end"><strong>{{ text_more }}</strong></div>
+									</div>
+									{% for module_id, payment_method in store_data[store['store_id'] ~ '_' ~ code ~ '_payment_methods'] %}
+									<div class="row mb-3">
+										<div class="col-sm-3">
+											<img src="{{ payment_method['icon'] }}" width="25" style="float:left; margin-right:1em; margin-top:-3px"/>
+											{{ payment_method['name'] }}
+											{% if((payment_method['name'] == 'Apple Pay') and store_data['creditCardEnabled'] == false) %}
+												<span data-bs-toggle="tooltip" title="{{ help_apple_pay }}" style="border: 1px solid; border-radius: 9px; background: #fff; color: #ffb100; text-transform: uppercase; margin-left: 5px; letter-spacing: .03em; line-height: 17px; padding: 0 6px; font-size: 10px;">{{ text_creditcard_required }}</span>
+											{% endif %}
+										</div>
+										<div class="col-sm-2">
+											{% set show_status_field = true %}
+											{% if (store[code ~ '_api_key'] is empty or store['error_api_key'] is not empty)  %}
+											{% set show_status_field = false %}
+											{{ text_missing_api_key }}
+											{% elseif payment_method['allowed'] == false %}
+											{% set show_status_field = false %}
+											{{ text_activate_payment_method }}
+											{% endif %}
+											<div class="form-check form-switch form-switch-lg">
+												<input type="hidden" name="{{ store['store_id'] }}_{{ code }}_{{ module_id }}_status" value="0"/>
+												<input type="checkbox" name="{{ store['store_id'] }}_{{ code }}_{{ module_id }}_status" value="1" class="form-check-input"{% if payment_method['status'] %} checked{% endif %} style="{{ show_status_field == false ? 'display: none;' : '' }}"/>
+											</div>
+										</div>
+										<div class="col-sm-3">
+											<select name="{{ store['store_id'] }}_{{ code }}_{{ module_id }}_geo_zone" class="form-select">
+												<option value="0">{{ text_all_zones }}</option>
+												{% for geo_zone in geo_zones %}
+													{% if geo_zone['geo_zone_id'] == payment_method['geo_zone'] %}
+													<option value="{{ geo_zone['geo_zone_id'] }}" selected="selected">{{ geo_zone['name'] }}</option>
+													{% else %}
+													<option value="{{ geo_zone['geo_zone_id'] }}">{{ geo_zone['name'] }}</option>
+													{% endif %}
+												{% endfor %}
+											</select>
+										</div>
+										<div class="col-sm-2">
+											<input type="text" name="{{ store['store_id'] }}_{{ code }}_{{ module_id }}_sort_order" value="{{ payment_method['sort_order'] }}" class="form-control" style="text-align:right;"/>
+										</div>
+										<div class="col-sm-2 text-end">
+											<a href="#collapse-{{ (payment_method['name']|replace({" " : "-", "/" : "-"}))|lower }}-{{ store['store_id'] }}" data-bs-toggle="collapse" class="btn btn-primary"><i class="fa fa-caret-down"></i></a>
+										</div>
+									</div>
+									<div class="collapse payment-method-collapse" id="collapse-{{ (payment_method['name']|replace({" " : "-", "/" : "-"}))|lower }}-{{ store['store_id'] }}">
+										<div class="card card-body" style=" border:1px solid #ddd;">
+											<div class="row mb-3">
+												<label class="col-sm-2 col-form-label">{{ entry_title }}</label>
+												<div class="col-sm-10">
+													{% for language in languages %}
+													<div class="input-group">
+													<div class="input-group-text"><img src="{{ language['image'] }}" title="{{ language['name'] }}" /></div>
+													<input type="text" name="{{ store['store_id'] }}_{{ code }}_{{ module_id }}_description[{{ language['language_id'] }}][title]" value="{{ payment_method['description'][language['language_id']] is not null ? payment_method['description'][language['language_id']]['title'] : payment_method['name'] }}" class="form-control"/>
+													</div>
+													{% endfor %}
+													<input type="hidden" name="{{ store['store_id'] }}_{{ code }}_{{ module_id }}_name" value="{{ payment_method['name'] }}">				
+												</div>
+											</div>
+											<div class="row mb-3">
+												<label class="col-sm-2 col-form-label">{{ entry_image }}</label>
+												<div class="col-sm-10">
+													<div class="card image">
+														<img src="{{ payment_method['thumb'] }}" alt="" title="" id="thumb-image-{{ store['store_id'] }}-{{ module_id }}" data-oc-placeholder="{{ placeholder }}" class="card-img-top"/> <input type="hidden" name="{{ store['store_id'] }}_{{ code }}_{{ module_id }}_image" value="{{ payment_method['image'] }}" id="input-image-{{ store['store_id'] }}-{{ module_id }}"/>
+														<div class="card-body">
+														<button type="button" data-oc-toggle="image" data-oc-target="#input-image" data-oc-thumb="#thumb-image" class="btn btn-primary btn-sm btn-block"><i class="fa-solid fa-pencil"></i> {{ button_edit }}</button>
+														<button type="button" data-oc-toggle="clear" data-oc-target="#input-image" data-oc-thumb="#thumb-image" class="btn btn-warning btn-sm btn-block"><i class="fa-regular fa-trash-can"></i> {{ button_clear }}</button>
+														</div>
+													</div>
+												</div>
+											</div>
+											<div class="row mb-3">
+												<label class="col-sm-2 col-form-label">{{ entry_total }}</label>
+												<div class="col-sm-10">
+													<div class="input-group">
+														<label class="col-sm-2 col-form-label text-center">{{ entry_minimum }}</label>
+														<div class="col-sm-4">
+															<input type="text" name="{{ store['store_id'] }}_{{ code }}_{{ module_id }}_total_minimum" value="{{ payment_method['total_minimum'] is not null ? payment_method['total_minimum'] : '' }}" placeholder="{{ entry_minimum }}" class="form-control"/>
+															<sub>{{ payment_method['minimumAmount'] is not null ? payment_method['minimumAmount'] : '' }}</sub>
+														</div>
+														<label class="col-sm-2 col-form-label text-center">{{ entry_maximum }}</label>
+														<div class="col-sm-4">
+															<input type="text" name="{{ store['store_id'] }}_{{ code }}_{{ module_id }}_total_maximum" value="{{ payment_method['total_maximum'] is not null ? payment_method['total_maximum'] : '' }}" placeholder="{{ entry_maximum }}" class="form-control"/>
+															<sub>{{ payment_method['maximumAmount'] is not null ? payment_method['maximumAmount'] : '' }}</sub>
+														</div>
+													</div>	
+													<div class="form-text">{{ help_total }}</div>																								
+												</div>
+											</div>
+											<div class="row mb-3">
+												<label class="col-sm-2 col-form-label">{{ entry_api_to_use }}</label>
+												<div class="col-sm-8">
+													<select name="{{ store['store_id'] }}_{{ code }}_{{ module_id }}_api_to_use" class="form-select" {% if module_id in ['klarnapaylater', 'klarnasliceit', 'klarnapaynow', 'voucher', 'in3', 'klarna'] %}disabled="disabled"{% endif %}>
+														<option value="orders_api">{{ text_order_api }}</option>
+														<option value="payments_api" {% if payment_method['api_to_use'] == 'payments_api' %}selected="selected"{% endif %}>{{ text_payment_api }}</option>
+													</select>		
+												</div>
+												<div class="col-sm-2"><a href="https://docs.mollie.com/orders/why-use-orders" target="_blank"><i class="fa fa-info-circle "></i> {{ text_info_orders_api }}</a></div>
+											</div>
+											<div class="row mb-3">
+												<div class="col-sm-12">
+													<button type="button" onclick="save('{{ store['store_id'] }}', '{{ (payment_method['name']|replace({" " : "-", "/" : "-"}))|lower }}');" id="save-setting-{{ (payment_method['name']|replace({" " : "-", "/" : "-"}))|lower }}-{{ store['store_id'] }}" class="btn btn-secondary float-end"><i class="fa fa-save"></i>&nbsp;{{ button_save_close }}</button>
+												</div>												
+											</div>											
+										</div>
+									</div>
+									{% endfor %}
+								</div>
+
+								<div id="payment-statuses-{{ store['store_id'] }}" class="tab-pane fade show">
+									<div class="row mb-3">
+										<label class="col-sm-2 col-form-label" for="{{ store['store_id'] }}_{{ code }}_ideal_pending_status_id">{{ entry_pending_status }}</label>
+										<div class="col-sm-10">
+											<select name="{{ store['store_id'] }}_{{ code }}_ideal_pending_status_id" id="{{ store['store_id'] }}_{{ code }}_ideal_pending_status_id" class="form-select">
+												{% for order_status in order_statuses %}
+													{% if order_status['order_status_id'] == store[code ~ '_ideal_pending_status_id'] %}
+													<option value="{{ order_status['order_status_id'] }}" selected="selected">{{ order_status['name'] }}</option>
+													{% else %}
+													<option value="{{ order_status['order_status_id'] }}">{{ order_status['name'] }}</option>
+													{% endif %}
+												{% endfor %}
+											</select>
+										</div>
+									</div>
+									<div class="row mb-3">
+										<label class="col-sm-2 col-form-label" for="{{ store['store_id'] }}_{{ code }}_ideal_failed_status_id">{{ entry_failed_status }}</label>
+										<div class="col-sm-10">
+											<select name="{{ store['store_id'] }}_{{ code }}_ideal_failed_status_id" id="{{ store['store_id'] }}_{{ code }}_ideal_failed_status_id" class="form-select">
+												{% if store[code ~ '_ideal_failed_status_id'] is empty %}
+												<option value="0" selected="selected">{{ text_no_status_id }}</option>
+												{% else %}
+												<option value="0">{{ text_no_status_id }}</option>
+												{% endif %}
+												{% for order_status in order_statuses %}
+													{% if order_status['order_status_id'] == store[code ~ '_ideal_failed_status_id'] %}
+													<option value="{{ order_status['order_status_id'] }}" selected="selected">{{ order_status['name'] }}</option>
+													{% else %}
+													<option value="{{ order_status['order_status_id'] }}">{{ order_status['name'] }}</option>
+													{% endif %}
+												{% endfor %}
+											</select>
+										</div>
+									</div>
+									<div class="row mb-3">
+										<label class="col-sm-2 col-form-label" for="{{ store['store_id'] }}_{{ code }}_ideal_canceled_status_id">{{ entry_canceled_status }}</label>
+										<div class="col-sm-10">
+											<select name="{{ store['store_id'] }}_{{ code }}_ideal_canceled_status_id" id="{{ store['store_id'] }}_{{ code }}_ideal_canceled_status_id" class="form-select">
+												{% if store[code ~ '_ideal_canceled_status_id'] is empty %}
+												<option value="0" selected="selected">{{ text_no_status_id }}</option>
+												{% else %}
+												<option value="0">{{ text_no_status_id }}</option>
+												{% endif %}
+												{% for order_status in order_statuses %}
+													{% if order_status['order_status_id'] == store[code ~ '_ideal_canceled_status_id'] %}
+													<option value="{{ order_status['order_status_id'] }}" selected="selected">{{ order_status['name'] }}</option>
+													{% else %}
+													<option value="{{ order_status['order_status_id'] }}">{{ order_status['name'] }}</option>
+													{% endif %}
+												{% endfor %}
+											</select>
+										</div>
+									</div>
+									<div class="row mb-3">
+										<label class="col-sm-2 col-form-label" for="{{ store['store_id'] }}_{{ code }}_ideal_expired_status_id">{{ entry_expired_status }}</label>
+										<div class="col-sm-10">
+											<select name="{{ store['store_id'] }}_{{ code }}_ideal_expired_status_id" id="{{ store['store_id'] }}_{{ code }}_ideal_expired_status_id" class="form-select">
+												{% if store[code ~ '_ideal_expired_status_id'] is empty %}
+												<option value="0" selected="selected">{{ text_no_status_id }}</option>
+												{% else %}
+												<option value="0">{{ text_no_status_id }}</option>
+												{% endif %}
+												{% for order_status in order_statuses %}
+													{% if order_status['order_status_id'] == store[code ~ '_ideal_expired_status_id'] %}
+													<option value="{{ order_status['order_status_id'] }}" selected="selected">{{ order_status['name'] }}</option>
+													{% else %}
+													<option value="{{ order_status['order_status_id'] }}">{{ order_status['name'] }}</option>
+													{% endif %}
+												{% endfor %}
+											</select>
+										</div>
+									</div>
+									<div class="row mb-3">
+										<label class="col-sm-2 col-form-label" for="{{ store['store_id'] }}_{{ code }}_ideal_processing_status_id">{{ entry_processing_status }}</label>
+										<div class="col-sm-10">
+											<select name="{{ store['store_id'] }}_{{ code }}_ideal_processing_status_id" id="{{ store['store_id'] }}_{{ code }}_ideal_processing_status_id" class="form-select">
+												{% for order_status in order_statuses %}
+													{% if order_status['order_status_id'] == store[code ~ '_ideal_processing_status_id'] %}
+													<option value="{{ order_status['order_status_id'] }}" selected="selected">{{ order_status['name'] }}</option>
+													{% else %}
+													<option value="{{ order_status['order_status_id'] }}">{{ order_status['name'] }}</option>
+													{% endif %}
+												{% endfor %}
+											</select>
+										</div>
+									</div>
+									<div class="row mb-3">
+										<label class="col-sm-2 col-form-label" for="{{ store['store_id'] }}_{{ code }}_ideal_shipping_status_id">{{ entry_shipping_status }}</label>
+										<div class="col-sm-10">
+											<select name="{{ store['store_id'] }}_{{ code }}_ideal_shipping_status_id" id="{{ store['store_id'] }}_{{ code }}_ideal_shipping_status_id" class="form-select">
+												{% for order_status in order_statuses %}
+													{% if order_status['order_status_id'] == store[code ~ '_ideal_shipping_status_id'] %}
+													<option value="{{ order_status['order_status_id'] }}" selected="selected">{{ order_status['name'] }}</option>
+													{% else %}
+													<option value="{{ order_status['order_status_id'] }}">{{ order_status['name'] }}</option>
+													{% endif %}
+												{% endfor %}
+											</select>
+										</div>
+									</div>
+
+									<div class="row mb-3">
+										<label class="col-sm-2 col-form-label" for="{{ store['store_id'] }}_{{ code }}_ideal_refund_status_id">{{ entry_refund_status }}</label>
+										<div class="col-sm-10">
+											<select name="{{ store['store_id'] }}_{{ code }}_ideal_refund_status_id" id="{{ store['store_id'] }}_{{ code }}_ideal_refund_status_id" class="form-select">
+												{% for order_status in order_statuses %}
+													{% if order_status['order_status_id'] == store[code ~ '_ideal_refund_status_id'] %}
+													<option value="{{ order_status['order_status_id'] }}" selected="selected">{{ order_status['name'] }}</option>
+													{% else %}
+													<option value="{{ order_status['order_status_id'] }}">{{ order_status['name'] }}</option>
+													{% endif %}
+												{% endfor %}
+											</select>
+										</div>
+									</div>
+
+									<div class="row mb-3">
+										<label class="col-sm-2 col-form-label" for="{{ store['store_id'] }}_{{ code }}_ideal_partial_refund_status_id">{{ entry_partial_refund_status }}</label>
+										<div class="col-sm-10">
+											<select name="{{ store['store_id'] }}_{{ code }}_ideal_partial_refund_status_id" id="{{ store['store_id'] }}_{{ code }}_ideal_partial_refund_status_id" class="form-select">
+												{% for order_status in order_statuses %}
+													{% if order_status['order_status_id'] == store[code ~ '_ideal_partial_refund_status_id'] %}
+													<option value="{{ order_status['order_status_id'] }}" selected="selected">{{ order_status['name'] }}</option>
+													{% else %}
+													<option value="{{ order_status['order_status_id'] }}">{{ order_status['name'] }}</option>
+													{% endif %}
+												{% endfor %}
+											</select>
+										</div>
+									</div>
+								</div>
+
+								<div id="mollie-options-{{ store['store_id'] }}" class="tab-pane fade show active">
+									<fieldset>
+										<legend>{{ text_mollie_api }}</legend>
+										<div class="row mb-3 {{ api_required ? 'required' : '' }}">
+											<label class="col-sm-2 col-form-label" for="{{ store['store_id'] }}_{{ code }}_api_key">{{ entry_api_key }}</label>
+											<div class="col-sm-10">
+												<div class="input-group">
+													{% if store[code ~ '_api_key'] %}
+															{% if store[code ~ '_api_key']|slice(0, 4) == 'live' %}
+																{% set text = '<i class="fa fa-check text-success"></i>&nbsp;<span class="text-success">Live</span>' %}
+															{% else %}
+																{% set text = '<i class="fa fa-check text-success"></i>&nbsp;<span class="text-success">Test</span>' %}
+															{% endif %}
+														{% else %}
+															{% set text = '<i class="fa fa-minus"></i>' %}
+													{% endif %}
+													<div class="input-group-text">{{ text }}</div>
+													<input type="text" name="{{ store['store_id'] }}_{{ code }}_api_key" value="{{ store[code ~ '_api_key'] }}" placeholder="live_..." id="{{ store['store_id'] }}_{{ code }}_api_key" class="form-control" autocomplete="new-password" store="{{ store['store_id'] }}" {{ store['store_id'] }}-data-payment-mollie-api-key/>
+													{% if store[code ~ '_api_key'] %}
+													<div onclick="transform({{ store['store_id'] }});" class="input-group-text toggleAPIKey{{ store['store_id'] }}"><i class="fa fa-eye fa-eye-slash"></i></div>
+													{% endif %}
+												</div>
+												<div class="form-text">{{ help_api_key }}</div>
+												<div id="error-{{ store['store_id'] }}-payment-mollie-api-key" class="invalid-feedback"></div>
+											</div>
+										</div>
+									</fieldset>
+									<fieldset>
+										<legend>{{ text_general }}</legend>		
+										<div class="row mb-3">
+											<label class="col-sm-2 col-form-label" for="input-show-icons">{{ entry_show_icons }}</label>
+											<div class="col-sm-10">
+												<select name="{{ store['store_id'] }}_{{ code }}_show_icons" id="{{ store['store_id'] }}-show-icons" class="form-select">
+													{% if store[code ~ '_show_icons'] %}
+													<option value="1" selected="selected">{{ text_yes }}</option>
+													<option value="0">{{ text_no }}</option>
+													{% else %}
+													<option value="1">{{ text_yes }}</option>
+													<option value="0" selected="selected">{{ text_no }}</option>
+													{% endif %}
+												</select>
+												<div class="form-text">{{ help_show_icons }}</div>
+											</div>
+										</div>
+										<div class="row mb-3" id="{{ store['store_id'] }}-align-icons">
+											<label class="col-sm-2 col-form-label" for="input-align-icons">{{ entry_align_icons }}</label>
+											<div class="col-sm-10">
+                                                <select name="{{ store['store_id'] }}_{{ code }}_align_icons" id="{{ store['store_id'] }}-show-icons" class="form-select">
+                                                    {% if store[code ~ '_align_icons'] == 'left' %}
+                                                    <option value="left" selected="selected">{{ text_left }}</option>
+                                                    <option value="right">{{ text_right }}</option>
+                                                    {% else %}
+                                                    <option value="left">{{ text_left }}</option>
+                                                    <option value="right" selected="selected">{{ text_right }}</option>
+                                                    {% endif %}
+                                                </select>
+                                            </div>
+										</div>
+										<div class="row mb-3">
+											<label class="col-sm-2 col-form-label" for="input-status">{{ entry_show_order_canceled_page }}</label>
+											<div class="col-sm-10">
+												<div class="form-check form-switch form-switch-lg">
+													<input type="hidden" name="{{ store['store_id'] }}_{{ code }}_show_order_canceled_page" value="0"/>
+													<input type="checkbox" name="{{ store['store_id'] }}_{{ code }}_show_order_canceled_page" value="1" class="form-check-input"{% if store[code ~ '_show_order_canceled_page'] %} checked{% endif %}/>
+												</div>
+												<div class="form-text">{{ help_show_order_canceled_page }}</div>
+											</div>
+										</div>
+										<div class="row mb-3">
+											<label class="col-sm-2 col-form-label" for="{{ store['store_id'] }}-input-language">{{ entry_payment_screen_language }}</label>
+											<div class="col-sm-10">
+												<select name="{{ store['store_id'] }}_{{ code }}_payment_screen_language" id="{{ store['store_id'] }}-input-language" class="form-select">
+													{% for language in languages %}
+								                    {% if language['code'] == store[code ~ '_payment_screen_language'] %}
+								                    <option value="{{ language['code'] }}" selected="selected">{{ language['name'] }}</option>
+								                    {% else %}
+								                    <option value="{{ language['code'] }}">{{ language['name'] }}</option>
+								                    {% endif %}
+								                    {% endfor %}
+												</select>
+											</div>
+										</div>
+										<div class="row mb-3">
+											<label class="col-sm-2 col-form-label">{{ entry_description }}</label>
+											<div class="col-sm-10">
+												{% for language in languages %}
+												<div class="input-group">
+													<div class="input-group-text"><img src="{{ language['image'] }}" title="{{ language['name'] }}" /></div>
+													<input type="text" name="{{ store['store_id'] }}_{{ code }}_description[{{ language['language_id'] }}][title]" value="{{ store[code ~ '_description'][language['language_id']] is not null ? store[code ~ '_description'][language['language_id']]['title'] : '' }}" class="form-control" placeholder="{{ entry_description }}"/>
+												</div>
+												{% endfor %}	
+												<div class="form-text">{{ help_description }}</div>												
+											</div>
+										</div>
+										<div class="row mb-3">
+											<label class="col-sm-2 col-form-label" for="{{ store['store_id'] }}-input-shipment">{{ entry_shipment }}</label>
+											<div class="col-sm-10">
+												<select name="{{ store['store_id'] }}_{{ code }}_create_shipment" id="{{ store['store_id'] }}-create-shipment" class="form-select">
+													{% if store[code ~ '_create_shipment'] == 1 %}
+													<option value="1" selected="selected">{{ text_create_shipment_automatically }}</option>
+													<option value="2">{{ text_create_shipment_on_status }}</option>
+													{% if is_order_complete_status %}
+													<option value="3">{{ text_create_shipment_on_order_complete }}</option>
+													{% endif %}
+													{% elseif store[code ~ '_create_shipment'] == 2 %}
+													<option value="1">{{ text_create_shipment_automatically }}</option>
+													<option value="2" selected="selected">{{ text_create_shipment_on_status }}</option>
+													{% if is_order_complete_status %}
+													<option value="3">{{ text_create_shipment_on_order_complete }}</option>
+													{% endif %}
+													{% else %}
+													<option value="1">{{ text_create_shipment_automatically }}</option>
+													<option value="2" selected="selected">{{ text_create_shipment_on_status }}</option>
+													<option value="3" selected="selected">{{ text_create_shipment_on_order_complete }}</option>
+													{% endif %}
+												</select>
+											</div>
+										</div>
+										<div class="row mb-3" id="{{ store['store_id'] }}-create-shipment-status">
+											<label class="col-sm-2 col-form-label" for="{{ store['store_id'] }}_{{ code }}_create_shipping_status_id">{{ entry_create_shipment_status }}</label>
+											<div class="col-sm-10">
+												<select name="{{ store['store_id'] }}_{{ code }}_create_shipment_status_id" id="{{ store['store_id'] }}_{{ code }}_create_shipment_status_id" class="form-select">
+													{% for order_status in order_statuses %}
+														{% if order_status['order_status_id'] == store[code ~ '_create_shipment_status_id'] %}
+														<option value="{{ order_status['order_status_id'] }}" selected="selected">{{ order_status['name'] }}</option>
+														{% else %}
+														<option value="{{ order_status['order_status_id'] }}">{{ order_status['name'] }}</option>
+														{% endif %}
+													{% endfor %}
+												</select>
+											</div>
+										</div>
+										<div class="row mb-3">
+											<label class="col-sm-2 col-form-label" for="{{ store['store_id'] }}_{{ code }}_order_expiry_days">{{ entry_order_expiry_days }}</label>
+											<div class="col-sm-10">				
+												<input type="text" name="{{ store['store_id'] }}_{{ code }}_order_expiry_days" value="{{ store[code ~ '_order_expiry_days'] }}" placeholder="{{ entry_order_expiry_days }} [1-100]" id="{{ store['store_id'] }}_{{ code }}_order_expiry_days" class="form-control" store="{{ store['store_id'] }}" {{ store['store_id'] }}-data-payment-mollie-order-expiry-days/>
+											</div>
+										</div>
+										<div class="row mb-3">
+											<label class="col-sm-2 col-form-label" for="{{ store['store_id'] }}-input-single-click-payment">{{ entry_single_click_payment }}</label>
+											<div class="col-sm-10">
+												<div class="form-check form-switch form-switch-lg">
+													<input type="hidden" name="{{ store['store_id'] }}_{{ code }}_single_click_payment" value="0"/>
+													<input type="checkbox" name="{{ store['store_id'] }}_{{ code }}_single_click_payment" value="1" id="{{ store['store_id'] }}-input-single-click-payment" class="form-check-input"{% if store[code ~ '_single_click_payment'] %} checked{% endif %}/>
+												</div>
+												<div class="form-text">{{ help_single_click_payment }}</div>
+											</div>
+										</div>
+										<div class="row mb-3">
+											<label class="col-sm-2 col-form-label" for="{{ store['store_id'] }}-input-default-currency">{{ entry_default_currency }}</label>
+											<div class="col-sm-10">
+												<select name="{{ store['store_id'] }}_{{ code }}_default_currency" id="{{ store['store_id'] }}-input-default-currency" class="form-select">
+													<option value="DEF" selected="selected">{{ text_default_currency }}</option>
+													{% for key, currency in currencies %}
+								                    {% if currency['code'] == store[code ~ '_default_currency'] %}
+								                    <option value="{{ currency['code'] }}" selected="selected">{{ currency['title'] }}</option>
+								                    {% else %}
+								                    <option value="{{ currency['code'] }}">{{ currency['title'] }}</option>
+								                    {% endif %}
+								                    {% endfor %}
+												</select>
+											</div>
+										</div>
+										<div class="row mb-3">
+											<label class="col-sm-2 col-form-label" for="{{ store['store_id'] }}-input-payment-link">{{ entry_payment_link }}</label>
+											<div class="col-sm-10">
+												<div class="btn-group">
+													<input type="radio" name="{{ store['store_id'] }}_{{ code }}_payment_link" value="1" id="{{ store['store_id'] }}-pay-link-order" class="btn-check"{% if store[code ~ '_payment_link'] %} checked{% endif %}/> <label for="{{ store['store_id'] }}-pay-link-order" class="btn btn-outline-secondary">{{ entry_payment_link_ord_email }}</label> <input type="radio" name="{{ store['store_id'] }}_{{ code }}_payment_link" value="0" id="{{ store['store_id'] }}-pay-link-sep" class="btn-check"{% if not store[code ~ '_payment_link'] %} checked{% endif %}/> <label for="{{ store['store_id'] }}-pay-link-sep" class="btn btn-outline-secondary">{{ entry_payment_link_sep_email }}</label>
+												</div>
+												<div class="form-text">{{ help_payment_link }}</div>
+											</div>
+										</div>
+										<div class="row mb-3">
+											<label class="col-sm-2 col-form-label" for="{{ store['store_id'] }}-input-partial-credit-order">{{ entry_partial_credit_order }}</label>
+											<div class="col-sm-10">
+												<div class="form-check form-switch form-switch-lg">
+													<input type="hidden" name="{{ store['store_id'] }}_{{ code }}_partial_credit_order" value="0"/>
+													<input type="checkbox" name="{{ store['store_id'] }}_{{ code }}_partial_credit_order" value="1" id="{{ store['store_id'] }}-input-partial-credit-order" class="form-check-input"{% if store[code ~ '_partial_credit_order'] %} checked{% endif %}/>
+												</div>
+											</div>
+										</div>
+										<div class="row mb-3">
+											<label class="col-sm-2 col-form-label" for="{{ store['store_id'] }}-input-mollie-component">{{ entry_mollie_component }}</label>
+											<div class="col-sm-10">
+												<div class="form-check form-switch form-switch-lg">
+													<input type="hidden" name="{{ store['store_id'] }}_{{ code }}_mollie_component" value="0"/>
+													<input type="checkbox" name="{{ store['store_id'] }}_{{ code }}_mollie_component" value="1" id="{{ store['store_id'] }}-input-mollie-component" class="form-check-input"{% if store[code ~ '_mollie_component'] %} checked{% endif %}/>
+												</div>
+												<div class="form-text">{{ help_mollie_component }}</div>
+											</div>
+										</div>
+									</fieldset>
+									<fieldset id="{{ store['store_id'] }}-mollie-component-css">
+										<legend>{{ text_custom_css }}</legend>
+										<div class="row">
+											<div class="col-sm-4">
+												<div class="col-sm-12 text-center form-group"><h4>{{ entry_mollie_component_base }}</h4></div>
+												<div class="row mb-3">
+													<label class="col-sm-6 col-form-label" for="{{ store['store_id'] }}-input-bg-color-base">{{ text_bg_color }}</label>
+													<div class="col-sm-6">
+														<input type="text" name="{{ store['store_id'] }}_{{ code }}_mollie_component_css_base[background_color]" id="{{ store['store_id'] }}-input-bg-color-base" class="form-control" value="{{ store[code ~ '_mollie_component_css_base']['background_color'] }}">
+													</div>
+												</div>
+												<div class="row mb-3">
+													<label class="col-sm-6 col-form-label" for="{{ store['store_id'] }}-input-color-base">{{ text_color }}</label>
+													<div class="col-sm-6">
+														<input type="text" name="{{ store['store_id'] }}_{{ code }}_mollie_component_css_base[color]" id="{{ store['store_id'] }}-input-color-base" class="form-control" value="{{ store[code ~ '_mollie_component_css_base']['color'] }}">
+													</div>
+												</div>
+												<div class="row mb-3">
+													<label class="col-sm-6 col-form-label" for="{{ store['store_id'] }}-input-font-size-base">{{ text_font_size }}</label>
+													<div class="col-sm-6">
+														<input type="text" name="{{ store['store_id'] }}_{{ code }}_mollie_component_css_base[font_size]" id="{{ store['store_id'] }}-input-font-size-base" class="form-control" value="{{ store[code ~ '_mollie_component_css_base']['font_size'] }}">
+													</div>
+												</div>
+												<div class="row mb-3">
+													<label class="col-sm-6 col-form-label" for="{{ store['store_id'] }}-input-other-css-base">{{ text_other_css }}</label>
+													<div class="col-sm-6">
+														<textarea name="{{ store['store_id'] }}_{{ code }}_mollie_component_css_base[other_css]" id="{{ store['store_id'] }}-input-other-css-base" class="form-control" style="height: 100px">{{ store[code ~ '_mollie_component_css_base']['other_css'] }}</textarea>
+													</div>
+												</div>												
+											</div>
+											<div class="col-sm-4">
+												<div class="col-sm-12 text-center form-group"><h4>{{ entry_mollie_component_valid }}</h4></div>
+												<div class="row mb-3">
+													<label class="col-sm-6 col-form-label" for="{{ store['store_id'] }}-input-bg-color-valid">{{ text_bg_color }}</label>
+													<div class="col-sm-6">
+														<input type="text" name="{{ store['store_id'] }}_{{ code }}_mollie_component_css_valid[background_color]" id="{{ store['store_id'] }}-input-bg-color-valid" class="form-control" value="{{ store[code ~ '_mollie_component_css_valid']['background_color'] }}">
+													</div>
+												</div>
+												<div class="row mb-3">
+													<label class="col-sm-6 col-form-label" for="{{ store['store_id'] }}-input-color-valid">{{ text_color }}</label>
+													<div class="col-sm-6">
+														<input type="text" name="{{ store['store_id'] }}_{{ code }}_mollie_component_css_valid[color]" id="{{ store['store_id'] }}-input-color-valid" class="form-control" value="{{ store[code ~ '_mollie_component_css_valid']['color'] }}">
+													</div>
+												</div>
+												<div class="row mb-3">
+													<label class="col-sm-6 col-form-label" for="{{ store['store_id'] }}-input-font-size-valid">{{ text_font_size }}</label>
+													<div class="col-sm-6">
+														<input type="text" name="{{ store['store_id'] }}_{{ code }}_mollie_component_css_valid[font_size]" id="{{ store['store_id'] }}-input-font-size-valid" class="form-control" value="{{ store[code ~ '_mollie_component_css_valid']['font_size'] }}">
+													</div>
+												</div>
+												<div class="row mb-3">
+													<label class="col-sm-6 col-form-label" for="{{ store['store_id'] }}-input-other-css-valid">{{ text_other_css }}</label>
+													<div class="col-sm-6">
+														<textarea name="{{ store['store_id'] }}_{{ code }}_mollie_component_css_valid[other_css]" id="{{ store['store_id'] }}-input-other-css-valid" class="form-control" style="height: 100px">{{ store[code ~ '_mollie_component_css_valid']['other_css'] }}</textarea>
+													</div>
+												</div>
+											</div>
+											<div class="col-sm-4">
+												<div class="col-sm-12 text-center form-group"><h4>{{ entry_mollie_component_invalid }}</h4></div>
+												<div class="row mb-3">
+													<label class="col-sm-6 col-form-label" for="{{ store['store_id'] }}-input-bg-color-invalid">{{ text_bg_color }}</label>
+													<div class="col-sm-6">
+														<input type="text" name="{{ store['store_id'] }}_{{ code }}_mollie_component_css_invalid[background_color]" id="{{ store['store_id'] }}-input-bg-color-invalid" class="form-control" value="{{ store[code ~ '_mollie_component_css_invalid']['background_color'] }}">
+													</div>
+												</div>
+												<div class="row mb-3">
+													<label class="col-sm-6 col-form-label" for="{{ store['store_id'] }}-input-color-invalid">{{ text_color }}</label>
+													<div class="col-sm-6">
+														<input type="text" name="{{ store['store_id'] }}_{{ code }}_mollie_component_css_invalid[color]" id="{{ store['store_id'] }}-input-color-invalid" class="form-control" value="{{ store[code ~ '_mollie_component_css_invalid']['color'] }}">
+													</div>
+												</div>
+												<div class="row mb-3">
+													<label class="col-sm-6 col-form-label" for="{{ store['store_id'] }}-input-font-size-invalid">{{ text_font_size }}</label>
+													<div class="col-sm-6">
+														<input type="text" name="{{ store['store_id'] }}_{{ code }}_mollie_component_css_invalid[font_size]" id="{{ store['store_id'] }}-input-font-size-invalid" class="form-control" value="{{ store[code ~ '_mollie_component_css_invalid']['font_size'] }}">
+													</div>
+												</div>
+												<div class="row mb-3">
+													<label class="col-sm-6 col-form-label" for="{{ store['store_id'] }}-input-other-css-invalid">{{ text_other_css }}</label>
+													<div class="col-sm-6">
+														<textarea name="{{ store['store_id'] }}_{{ code }}_mollie_component_css_invalid[other_css]" id="{{ store['store_id'] }}-input-other-css-invalid" class="form-control" style="height: 100px">{{ store[code ~ '_mollie_component_css_invalid']['other_css'] }}</textarea>
+													</div>
+												</div>
+											</div>
+										</div>	
+									</fieldset>
+								</div>
+
+								<div id="mollie-mail-{{ store['store_id'] }}" class="tab-pane fade show">
+								   <ul class="nav nav-tabs" id="language{{ store['store_id'] }}">
+					                {% for language in languages %}
+									<li class="nav-item"><a href="#language{{ store['store_id'] }}{{ language['language_id'] }}" data-bs-toggle="tab" class="nav-link{% if loop.first %} active{% endif %}"><img src="{{ language.image }}" title="{{ language.name }}"/> {{ language.name }}</a></li>
+					                {% endfor %}
+					              </ul>
+					              <div class="tab-content">
+					                {% for language in languages %}
+					                <div class="tab-pane {% if loop.first %} active{% endif %}" id="language{{ store['store_id'] }}{{ language['language_id'] }}" >
+										<fieldset>
+											<legend>{{ text_recurring_payment }}</legend>
+											<div class="row mb-3">
+												<label class="col-sm-2 col-form-label" for="input-subject{{ store['store_id'] }}{{ language['language_id'] }}">{{ entry_email_subject }}</label>
+												<div class="col-sm-10">
+												<input type="text" name="{{ store['store_id'] }}_{{ code }}_recurring_email[{{ language['language_id'] }}][subject]" value="{{ store[code ~ '_recurring_email'][language['language_id']] is not null ? store[code ~ '_recurring_email'][language['language_id']]['subject'] : '' }}" placeholder="{{ entry_email_subject }}" id="input-subject{{ store['store_id'] }}{{ language['language_id'] }}" class="form-control" />
+												</div>
+											</div>
+											<div class="row mb-3">
+												<label class="col-sm-2 col-form-label" for="input-body{{ store['store_id'] }}{{ language['language_id'] }}">{{ entry_email_body }}</label>
+												<div class="col-sm-10">
+												<textarea name="{{ store['store_id'] }}_{{ code }}_recurring_email[{{ language['language_id'] }}][body]" placeholder="{{ entry_email_body }}" id="input-body{{ store['store_id'] }}{{ language['language_id'] }}" data-oc-toggle="ckeditor" data-lang="{{ ckeditor }}" class="form-control">{{ store[code ~ '_recurring_email'][language['language_id']] ? store[code ~ '_recurring_email'][language['language_id']]['body'] : '' }}</textarea>
+												<small>{{ text_allowed_variables }}</small>
+												</div>
+											</div>
+										</fieldset>
+										<fieldset>
+											<legend>{{ text_payment_link }}</legend>
+											<div class="row mb-3">
+												<label class="col-sm-2 col-form-label" for="input-pay-link-subject{{ store['store_id'] }}{{ language['language_id'] }}">{{ entry_email_subject }}</label>
+												<div class="col-sm-10">
+												<input type="text" name="{{ store['store_id'] }}_{{ code }}_payment_link_email[{{ language['language_id'] }}][subject]" value="{{ store[code ~ '_payment_link_email'][language['language_id']] is not null ? store[code ~ '_payment_link_email'][language['language_id']]['subject'] : '' }}" placeholder="{{ entry_email_subject }}" id="input-pay-link-subject{{ store['store_id'] }}{{ language['language_id'] }}" class="form-control" />
+												</div>
+											</div>
+											<div class="row mb-3">
+												<label class="col-sm-2 col-form-label" for="input-body{{ store['store_id'] }}{{ language['language_id'] }}">{{ entry_email_body }}</label>
+												<div class="col-sm-10">
+												<textarea name="{{ store['store_id'] }}_{{ code }}_payment_link_email[{{ language['language_id'] }}][body]" placeholder="{{ entry_email_body }}" id="input-body{{ store['store_id'] }}{{ language['language_id'] }}" data-oc-toggle="ckeditor" data-lang="{{ ckeditor }}" class="form-control">{{ store[code ~ '_payment_link_email'][language['language_id']] ? store[code ~ '_payment_link_email'][language['language_id']]['body'] : text_pay_link_text }}</textarea>
+												<small>{{ text_pay_link_variables }}</small>
+												</div>
+											</div>
+										</fieldset>	
+					                </div>
+					                {% endfor %}
+					              </div>
+								</div>
+
+								<div id="support-{{ store['store_id'] }}" class="tab-pane fade show">
+									<div class="row mb-3">
+										<label class="col-sm-2 col-form-label">{{ entry_comm_status }}</label>
+										<div class="col-sm-10">
+											<p class="form-control-static" data-communication-status>{{ store['entry_cstatus'] }}</p>
+										</div>
+									</div>
+									<fieldset>
+										<legend>{{ text_module_by }}</legend>
+										<div class="row">
+											<label class="col-sm-2 col-form-label">Quality Works B.V.</label>
+											<div class="col-sm-10">Tel: +31(0)85 7430150<br>E-mail: <a href="mailto:support.mollie@qualityworks.eu">support.mollie@qualityworks.eu</a><br>Internet: <a href="https://www.qualityworks.eu" target="_blank">www.qualityworks.eu</a>
+											</div>
+										</div>										
+									</fieldset>
+									<fieldset>
+										<legend>{{ text_mollie_support }}</legend>
+										<div class="row mb-3">
+											<label class="col-sm-2 col-form-label">Mollie B.V.</label>
+											<div class="col-sm-10">
+												<p class="form-control-static"><a href="https://www.mollie.com/contact" target="_blank">{{ text_contact }}</a></p>
+											</div>
+										</div>									
+										<div class="row mb-3">
+											<label class="col-sm-2 col-form-label" for="{{ store['store_id'] }}-input-debug-mode">{{ entry_debug_mode }}</label>
+											<div class="col-sm-10">
+												<div class="form-check form-switch form-switch-lg">
+													<input type="hidden" name="{{ store['store_id'] }}_{{ code }}_debug_mode" value="0"/>
+													<input type="checkbox" name="{{ store['store_id'] }}_{{ code }}_debug_mode" value="1" id="{{ store['store_id'] }}-input-debug-mode" class="form-check-input"{% if store[code ~ '_debug_mode'] %} checked{% endif %}/>
+												</div>
+											</div>
+										</div>
+										<div class="row mb-3">
+											<div class="col-sm-2">&nbsp;</div>
+											<div class="col-sm-10">
+												<div class="panel-heading">
+													<div class="float-end" style="position: relative;bottom: 8px;">
+														<a href="{{ download }}" data-bs-toggle="tooltip" title="{{ button_download }}" class="btn btn-primary"><i class="fa-solid fa-download"></i></a>
+														<button type="button" value="{{ clear }}" data-bs-toggle="tooltip" title="{{ button_clear }}" data-oc-target="input-mollie-log" class="btn btn-danger"><i class="fa-solid fa-eraser"></i></button>
+													</div>
+													<h3 class="panel-title"><i class="fa fa-exclamation-triangle"></i> {{ text_log_list }}</h3>
+												</div>
+												<div class="card card-body">
+												    <textarea wrap="off" rows="15" readonly class="form-control input-mollie-log">{{ log }}</textarea>
+												</div>
+											</div>
+										</div>
+									</fieldset>
+									<fieldset>
+										<legend>{{ text_contact_us }}</legend>
+											<div id="contact-{{ store['store_id'] }}"></div>
+											<div class="row mb-3 required">
+												<label class="col-sm-2 col-form-label">{{ entry_name }}</label>
+												<div class="col-sm-10">
+													<input type="text" name="name" value="" placeholder="{{ entry_name }}" class="form-control"/>
+												</div>
+											</div>
+											<div class="row mb-3 required">
+												<label class="col-sm-2 col-form-label">{{ entry_email }}</label>
+												<div class="col-sm-10">
+													<input type="text" name="email" value="{{ store_email }}" placeholder="{{ entry_email }}" class="form-control"/>
+												</div>
+											</div>
+											<div class="row mb-3 required">
+												<label class="col-sm-2 col-form-label">{{ entry_subject }}</label>
+												<div class="col-sm-10">
+													<input type="text" name="subject" value="" placeholder="{{ entry_subject }}" class="form-control"/>
+												</div>
+											</div>											
+											<div class="row mb-3 required">
+												<label class="col-sm-2 col-form-label">{{ entry_enquiry }}</label>
+												<div class="col-sm-10">
+													<textarea name="enquiry" placeholder="{{ text_enquiry }}" class="form-control"></textarea>
+												</div>
+											</div>
+											<button type="button" id="button-support" onclick="sendMessage({{ store['store_id'] }})" class="btn btn-primary float-end"><i class="fa fa-envelope"></i>&nbsp;{{ button_submit }}</button>
+									</fieldset>
+								</div>
+							</div>
+						</div>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+			<input type="hidden" name="0_{{ code }}_version" value="{{ mollie_version }}">
+			<input type="hidden" name="0_{{ code }}_mod_file" value="{{ mod_file }}">
+		</form>
+	</div>
+</div>
+{{ footer }}
+<script type="text/javascript">
+$('textarea[data-oc-toggle=\'ckeditor\']').ckeditor({
+    language:'{{ ckeditor }}'
+});
+
+function save(store_id, payment_method) {
+	$.ajax({
+		type: "POST",
+		url: 'index.php?route=extension/mollie/payment/mollie_{{ module_name }}|save&{{ token }}',
+		dataType: 'json',
+		data: $('#form-mollie').serialize(),
+		beforeSend: function () {
+			$('#save-setting-' + payment_method + '-' + store_id).prop('disabled', true).addClass('loading');
+		},
+		complete: function () {
+			$('#save-setting-' + payment_method + '-' + store_id).prop('disabled', false).removeClass('loading');
+		},
+		success: function(json) {
+		if (json['success']) {
+			$('#collapse-' + payment_method + '-' + store_id).collapse('hide');
+
+			setTimeout(function() {
+				$('a[href="#collapse-' + payment_method + '-' + store_id + '"]').parent().parent().css('border-bottom', '2px solid #398c39');
+			}, 300);
+			setTimeout(function() {
+				$('a[href="#collapse-' + payment_method + '-' + store_id + '"]').parent().parent().css('border-bottom', '');
+			}, 1000);
+		}
+		},
+		error: function(xhr, ajaxOptions, thrownError) {
+			alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+		}
+	});
+}
+
+function sendMessage(store_id = 0) {
+	var data = {
+		'name':  $("#support-" + store_id + " input[name=\"name\"]").val(),
+		'email':  $("#support-" + store_id + " input[name=\"email\"]").val(),
+		'subject': $("#support-" + store_id + " input[name=\"subject\"]").val(),
+		'enquiry': $("#support-" + store_id + " textarea[name=\"enquiry\"]").val()
+	};
+
+	$.ajax({
+		type: "POST",
+		url: 'index.php?route=extension/mollie/payment/mollie_{{ module_name }}|sendMessage&{{ token }}',
+		data: data,
+		beforeSend: function() {
+			$('#button-support').prop('disabled', true).addClass('loading');
+		},
+		complete: function() {
+			$('#button-support').prop('disabled', false).removeClass('loading');
+		},
+		success: function(json) {
+		$('.alert-success, .alert-danger').remove();
+
+		if (json['error']) {
+			$('#contact-' + store_id).after('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> ' + json['error'] + '</div>');
+		}
+
+		if (json['success']) {
+			$('#contact-' + store_id).after('<div class="alert alert-success"><i class="fa fa-check-circle"></i> ' + json['success'] + '</div>');
+
+			$('input[name=\'subject\']').val('');
+			$('textarea[name=\'enquiry\']').val('');
+		}
+		}
+	});
+}
+
+(function () {
+	var timeout, xhr;
+	var api_check_url = $('<div/>').html('{{ api_check_url }}').text();
+
+	function checkIfAPIKeyIsValid(key) {
+		if (xhr) xhr.abort();
+
+		xhr = $.get(api_check_url + '&key=' + key);
+
+		return xhr;
+	}
+
+	function validateAPIKey(value, $icon_container, store_id) {
+		if (value == '') {
+			updateIcon($icon_container, 'fa-minus', null, true);
+			return;
+		}
+
+		clearTimeout(timeout);
+		timeout = setTimeout(function () {
+			updateIcon($icon_container, 'fa-spinner fa-spin', null);
+
+			checkIfAPIKeyIsValid(value).then(function (response) {
+				if (response.valid) {
+					updateIcon($icon_container, 'fa-check');
+					saveAPIKey(value, store_id);
+				} else if (response.invalid) {
+					updateIcon($icon_container, 'fa-times', response.message);
+				} else if (response.error) {
+					updateIcon($icon_container, 'fa-exclamation-triangle', response.message);
+				}
+			});
+		}, 400);
+	}
+
+	function saveAPIKey(key, store_id) {
+		var data = {
+			'api_key': key,
+			'store_id': store_id
+		};
+		$.ajax({
+			type: "POST",
+			url: 'index.php?route=extension/mollie/payment/mollie_{{ module_name }}|saveAPIKey&{{ token }}',
+			data: data,
+			success: function() {
+			window.location.reload();
+			}
+		});
+	}
+
+	function updateIcon($container, className, message, dontClearErrors) {
+		var colorClass = '';
+		var classPerIcon = {
+			'fa-check': 'text-success',
+			'fa-times': 'text-danger',
+			'fa-exclamation-triangle': 'text-danger'
+		};
+
+		if (classPerIcon[className]) {
+			colorClass += ' ' + classPerIcon[className];
+		}
+
+		var icon = '<i class="fa ' + className + colorClass + '"></i>';
+
+		$container.html(icon);
+		
+		var popover = new bootstrap.Popover($container, {container : 'body'});
+
+		popover.dispose();
+
+		if (message) {
+			var options = {
+				container : 'body',
+				content: '<span class="' + colorClass + '">' + message + '</span>',
+				html: true,
+				placement: 'top',
+				trigger: 'hover'
+			};
+
+			var popover = new bootstrap.Popover($container, options);
+
+			if ($container.is(':visible')) {
+				popover.show();
+			}
+		}
+
+		if (!message && -1 !== className.indexOf('spinner')) {
+			message = icon;
+		}
+
+		if (!dontClearErrors && $container.closest('.form-group').hasClass('has-error')) {
+			$container.parent().next().remove();
+			$container.closest('.form-group').removeClass('has-error');
+		}
+
+		$container.closest('.tab-content').find('[data-communication-status]').html('<span class="' + colorClass + '">' + (message || 'OK') + '</span>');
+	}
+
+	{% for store in stores %}
+
+		$('[{{ store["store_id"] }}-data-payment-mollie-api-key]').on('keyup', function () {
+			validateAPIKey(this.value, $(this).siblings('.input-group-text:first'), $(this).attr('store'));
+		});
+
+		var elem = document.getElementById('{{ store["store_id"] }}-create-shipment');
+		var hiddenDiv = document.getElementById('{{ store["store_id"] }}-create-shipment-status');
+		if(elem.value == 2) {
+			hiddenDiv.style.display = "flex";
+		} else {
+			hiddenDiv.style.display = "none";
+		}
+		
+		elem.onchange = function(){
+			var hiddenDiv = document.getElementById('{{ store["store_id"] }}-create-shipment-status');
+
+			if(this.value == 2) {
+				hiddenDiv.style.display = "flex";
+			} else {
+				hiddenDiv.style.display = "none";
+			}
+		};
+
+		// Hide/Show Align Icons Option
+		var elem2 = document.getElementById('{{ store["store_id"] }}-show-icons');
+		var hiddenDiv2 = document.getElementById('{{ store["store_id"] }}-align-icons');
+		if(elem2.value == 1) {
+			hiddenDiv2.style.display = "flex";
+		} else {
+			hiddenDiv2.style.display = "none";
+		}
+		
+		elem2.onchange = function(){
+			var hiddenDiv2 = document.getElementById('{{ store["store_id"] }}-align-icons');
+
+			if(this.value == 1) {
+				hiddenDiv2.style.display = "flex";
+			} else {
+				hiddenDiv2.style.display = "none";
+			}
+		};
+
+		// Hide/Show Mollie Components Option
+		var elem3 = document.getElementById('{{ store["store_id"] }}-input-mollie-component');
+		var hiddenDiv3 = document.getElementById('{{ store["store_id"] }}-mollie-component-css');
+		if(elem3.checked == true) {
+			hiddenDiv3.style.display = "block";
+		} else {
+			hiddenDiv3.style.display = "none";
+		}
+		
+		elem3.onchange = function(){
+			var hiddenDiv3 = document.getElementById('{{ store["store_id"] }}-mollie-component-css');
+
+			if(this.checked == true) {
+				hiddenDiv3.style.display = "block";
+			} else {
+				hiddenDiv3.style.display = "none";
+			}
+		};
+		
+		$('.settings').click(function(){
+			$('#tabs{{ store["store_id"] }} a:first').tab('show');
+		});
+
+		$('[{{ store["store_id"] }}-data-payment-mollie-order-expiry-days]').on('keyup', function() {
+			$('.error-expiry-days').remove();
+			var expiry_days = $('[{{ store["store_id"] }}-data-payment-mollie-order-expiry-days]').val();
+			if ((expiry_days != '') && (expiry_days > 28)) {
+				$('[{{ store["store_id"] }}-data-payment-mollie-order-expiry-days]').after('<div class="error-expiry-days" style="color: #e3503e;">{{ error_order_expiry_days }}</div>');
+			}
+		});
+		$('[{{ store["store_id"] }}-data-payment-mollie-order-expiry-days]').trigger('keyup');
+
+	{% endfor %}
+})();
+
+// Hide API Key
+$(document).ready(function () {
+	{% for store in stores %}
+	transform('{{ store['store_id'] }}');
+	{% endfor %}
+});
+
+function transform(store_id = 0) {	
+	var apiKey = $('[' + store_id + '-data-payment-mollie-api-key]').val();
+	if(apiKey != '') {
+		var input = $('[' + store_id + '-data-payment-mollie-api-key]');
+		if (input.attr("type") == "password") {
+			input.attr("type", "text");
+		} else {
+			input.attr("type", "password");				
+		}
+		$('.toggleAPIKey' + store_id).children('i').toggleClass('fa-eye-slash');
+	}
+}
+</script>
+<script type="text/javascript"><!--
+$('.tab-content .btn-danger').on('click', function () {
+    var element = this;
+
+    if (confirm('{{ text_confirm }}')) {
+        $.ajax({
+            url: $(element).attr('value'),
+            dataType: 'json',
+            beforeSend: function () {
+                $(element).prop('disabled', true).addClass('loading');
+            },
+            complete: function () {
+                $(element).prop('disabled', false).removeClass('loading');
+            },
+            success: function (json) {
+                $('.alert-dismissible').remove();
+
+                if (json['error']) {
+                    $('#alert').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa-solid fa-circle-exclamation"></i> ' + json['error'] + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+                }
+
+                if (json['success']) {
+                    $('#alert').prepend('<div class="alert alert-success alert-dismissible"><i class="fa-solid fa-check-circle"></i> ' + json['success'] + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+
+                    $('.' + $(element).attr('data-oc-target')).val('');
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+            }
+        });
+    }
+});
+//--></script>
