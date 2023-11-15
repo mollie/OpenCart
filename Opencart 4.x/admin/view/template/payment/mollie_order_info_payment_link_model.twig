@@ -1,0 +1,30 @@
+<!-- Payment Link Modal -->
+<div id="paymentLinkModal" class="modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ entry_amount }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="form-payment-link">
+                    <div class="mb-3">
+                        <label class="form-label">{{ entry_amount ~ " (" ~ currency ~ ")" }}</label>
+                        <input type="text" name="mollie_payment_link_amount" value="{{ order_total }}" placeholder="{{ entry_amount }}" class="form-control" />
+                    </div>
+                    <div class="text-end">
+                        <button type="button" id="button-payment-link" data-bs-dismiss="modal" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> {{ button_save }}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript"><!--
+$('input[name="mollie_payment_link"]').on('change', function () {
+    if (this.checked) {
+        $('#paymentLinkModal').modal('show');
+    }
+});
+//--></script>

@@ -14,6 +14,7 @@
 + Click on _Install (green button or text)_ and then _Edit (blue button or text)_.
 + Fill out your _Mollie API key_ on the settings tab. You can find your API key on your Mollie dashboard [Websiteprofiles](https://www.mollie.com/beheer/account/profielen/).
 + If you are using Content Security Policy, you should whitelist the _js.mollie.com_ domain. We recommend using a strict CSP on your checkout.
++ Opencart version 4 is still unstable and may have bugs that are not due to our module.
 
 # Next level payments, for everyone #
 Mollie is dedicated to making payments better for everyone. No need to spend weeks on
@@ -50,6 +51,9 @@ them ready-made into your OpenCart webshop with this powerful plugin.
 - Przelewy24
 - Apple Pay
 - Vouchers
+- IN3
+- MyBank
+- Billie
 
 Please go to the signup page to create a new Mollie account and start receiving payments in
 a couple of minutes. Contact info@mollie.com if you have any questions or comments about
@@ -57,7 +61,7 @@ this plugin.
 
 # Features #
 - Support for all available Mollie payment methods
-- Multiple translations: English, Dutch and French
+- Multiple translations: English, Dutch, French, Danish, German, Italian, Norwegian, Portuguese, Spanish and Swedish
 - Event log for debugging purposes
 - Multi-Store support
 - Multi-Language support
@@ -89,3 +93,6 @@ Contact Mollie: [www.mollie.com/nl/about](https://www.mollie.com/nl/about) — i
 + [More info on Przelewy24 It via Mollie](https://www.mollie.com/payments/p24/)
 + [More info on Apple Pay via Mollie](https://www.mollie.com/payments/apple-pay/)
 + [More info on Vouchers via Mollie](https://www.mollie.com/payments/meal-eco-gift-vouchers/)
++ [More info on IN3 via Mollie](https://www.mollie.com/payments/in3/)
++ [More info on MyBank via Mollie](https://www.mollie.com/payments/mybank/)
++ [More info on Billie via Mollie](https://www.mollie.com/payments/billie/)

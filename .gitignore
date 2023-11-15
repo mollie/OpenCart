@@ -1,9 +1,0 @@
-DS_Store
-php.ini
-desktop.ini
-*.zip
-
-release.sh
-editFiles.sh
-/.idea
-/upload/tests/

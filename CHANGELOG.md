@@ -2,6 +2,25 @@
 
 # Changelog #
 
+#### Changes in release 13.0.0
+  + Removed VQMod from module for opencart version 4 - now uses events 
+  + Added 'Payment Link' payment method for orders created through admin 
+  + New payment methods 'Klarna One', 'MyBank' and 'Billie' added
+  + New feature - Create credit order on (partial) refund
+  + Added option whether or not to re-stock the product after partial refund 
+  + Minimum required PHP version 7.2.0
+  + Fixed payment methods loading time issue on checkout
+  + Other bugfix and improvements
+
+#### Changes in release 12.0.0
+  + New module for Opencart version 4.x
+  + Dropped PHP 5.6 support
+  + Fixed bug related to recurring payment in opencart version 2.3 and earlier
+  + Fixed double listing of mollie payment fee (total)
+  + Fixed autofill api key bug
+  + Fixed bug regarding customer(not exists)
+  + Other bugfix and improvements
+
 #### Changes in release 11.2.0
   + Added IN3 Payment Method
   + Fixed issue related to currencies decimal places
