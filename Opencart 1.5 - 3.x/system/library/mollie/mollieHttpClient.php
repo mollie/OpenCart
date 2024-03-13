@@ -43,7 +43,7 @@ class mollieHttpClient
      * @param string $url The url to send the request to
      * @param string $token The session token
      */
-    function get($url, $token = false,$parse=true)
+    function get($url, $token = false, $parse=true)
     {
         global $is_in_debug;
         $ch = curl_init();

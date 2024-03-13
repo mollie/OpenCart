@@ -127,6 +127,9 @@ $_['method_in3']    	    = 'IN3';
 $_['method_mybank']         = 'MyBank';
 $_['method_billie']         = 'Billie';
 $_['method_klarna']         = 'Bezahlen Sie mit Klarna';
+$_['method_twint']          = 'Twint';
+$_['method_blik']           = 'Blik';
+$_['method_bancomatpay']    = 'Bancomat Pay';
 
 //Round Off Description
 $_['roundoff_description']  = 'Rundungsdifferenzen aufgrund von Währungsumrechnungen';

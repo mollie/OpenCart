@@ -55,6 +55,9 @@ $_['text_mollie_in_3']     	     = $method_list_logo;
 $_['text_mollie_mybank']      	 = $method_list_logo;
 $_['text_mollie_billie']      	 = $method_list_logo;
 $_['text_mollie_klarna']      	 = $method_list_logo;
+$_['text_mollie_twint']      	 = $method_list_logo;
+$_['text_mollie_blik']      	 = $method_list_logo;
+$_['text_mollie_bancomatpay']    = $method_list_logo;
 
 // Heading
 $_['heading_title']           = "Mollie";
@@ -87,6 +90,9 @@ $_['name_mollie_in_3']           = "IN3";
 $_['name_mollie_mybank']         = "MyBank";
 $_['name_mollie_billie']         = "Billie";
 $_['name_mollie_klarna']         = "Pay with Klarna";
+$_['name_mollie_twint']          = "Twint";
+$_['name_mollie_blik']           = "Blik";
+$_['name_mollie_bancomatpay']    = "Bancomat Pay";
 
 // Text
 $_['text_edit']                    = "Redigere";
@@ -135,6 +141,7 @@ $_['text_pay_link_variables']      = "Tilladte variabler: {firstname}, {lastname
 $_['text_pay_link_text']           = "Dear customer, <br /><br /> Click on the link below to complete your payment of {amount} for the order {order_id}.<br /><br /> {payment_link}<br /><br /><br /><br />Regards,<br /><br />{store_name}";
 $_['text_recurring_payment']       = "Tilbagevendende betaling";
 $_['text_payment_link']            = "Betalingslink";
+$_['text_coming_soon']             = "Kommer snart";
 
 // Entry
 $_['entry_payment_method']         = "Betalingsmetode";
@@ -222,6 +229,7 @@ $_['error_order_expiry_days']     = 'Advarsel: Det er ikke muligt at bruge Klarn
 $_['error_mollie_payment_fee']    = 'Advarsel: Mollie Betalingsgebyr ordre totalt er deaktiveret!';
 $_['error_file']                  = 'Advarsel: %s fil kunne ikke findes!';
 $_['error_address']               = 'Faktureringsadresse er slået fra, digitale ordrer vil ikke kunne betales. Du kan slå faktureringsadressen til i <a href="%s">indstillinger</a>.';
+$_['error_telephone']             = 'Telefonfelt er påkrævet af nogle betalingsmetoder. Aktiver det fra <a href="%s">indstillingerne</a> og gør det påkrævet.';
 
 // Status
 $_['entry_pending_status']        = "Status for oprettet betaling";

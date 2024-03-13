@@ -218,6 +218,16 @@ class Mollie extends \Opencart\System\Engine\Controller {
         return $currency;
     }
 
+    private function getMethodSeparator() {
+        $method_separator = '|';
+
+        if(version_compare(VERSION, '4.0.2.0', '>=')) {
+            $method_separator = '.';
+        }
+
+        return $method_separator;
+    }
+
     /**
      * This gets called by OpenCart at the final checkout step and should generate a confirmation button.
      * @return string
@@ -240,10 +250,10 @@ class Mollie extends \Opencart\System\Engine\Controller {
         $order = $this->getOpenCartOrder($order_id);
 
         // Set template data.
-        if (in_array($method, ['klarnapaylater', 'klarnasliceit', 'klarnapaynow', 'voucher', 'in3', 'klarna']) || ($this->config->get($this->mollieHelper->getModuleCode() . "_" . static::MODULE_NAME . "_api_to_use") == 'orders_api')) {
-            $data['action'] = $this->url->link("extension/mollie/payment/mollie_" . static::MODULE_NAME . "|order", '', true);
+        if (in_array($method, ['klarnapaylater', 'klarnasliceit', 'klarnapaynow', 'voucher', 'in3', 'klarna', 'billie']) || ($this->config->get($this->mollieHelper->getModuleCode() . "_" . static::MODULE_NAME . "_api_to_use") == 'orders_api')) {
+            $data['action'] = $this->url->link("extension/mollie/payment/mollie_" . static::MODULE_NAME . $this->getMethodSeparator() . "order", '', true);
         } else {
-            $data['action'] = $this->url->link("extension/mollie/payment/mollie_" . static::MODULE_NAME . "|payment", '', true);
+            $data['action'] = $this->url->link("extension/mollie/payment/mollie_" . static::MODULE_NAME . $this->getMethodSeparator() . "payment", '', true);
         }
         
         $data['image']                   = $payment_method->image->size1x;
@@ -251,7 +261,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
         $data['issuers']                 = isset($payment_method->issuers) ? $payment_method->issuers : array();
         if (!empty($data['issuers'])) {
             $data['text_issuer']             = $this->language->get("text_issuer_" . $method);
-            $data['set_issuer_url']          = $this->url->link("extension/mollie/payment/mollie_" . static::MODULE_NAME . "|set_issuer", '', true);
+            $data['set_issuer_url']          = $this->url->link("extension/mollie/payment/mollie_" . static::MODULE_NAME . $this->getMethodSeparator() . "set_issuer", '', true);
         }
         $data['entry_card_holder']       = $this->language->get('entry_card_holder');
         $data['entry_card_number']       = $this->language->get('entry_card_number');
@@ -411,7 +421,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
         $currency = $this->getCurrency();
         $amount = $this->convertCurrency($order['total']);
         //$description = str_replace("%", $order['order_id'], html_entity_decode($this->config->get($this->mollieHelper->getModuleCode() . "_description"), ENT_QUOTES, "UTF-8"));
-        $return_url = $this->url->link("extension/mollie/payment/mollie_" . static::MODULE_NAME . "|callback&order_id=" . $order['order_id']);
+        $return_url = $this->url->link("extension/mollie/payment/mollie_" . static::MODULE_NAME . $this->getMethodSeparator() . "callback&order_id=" . $order['order_id']);
         $issuer = $this->getIssuer();
 
         if (version_compare(VERSION, '4.0.1.1', '>')) {
@@ -863,12 +873,17 @@ class Mollie extends \Opencart\System\Engine\Controller {
                     "givenName"     =>   $this->formatText($order['payment_firstname']),
                     "familyName"    =>   $this->formatText($order['payment_lastname']),
                     "email"         =>   $this->formatText($order['email']),
+                    "phone"         =>   $this->formatText($order['telephone']),
                     "streetAndNumber" => $this->formatText($order['payment_address_1'] . ' ' . $order['payment_address_2']),
                     "city" => $this->formatText($order['payment_city']),
                     "region" => $this->formatText($order['payment_zone']),
                     "postalCode" => $this->formatText($order['payment_postcode']),
                     "country" => $this->formatText($order['payment_iso_code_2'])
                 ];
+
+                if (isset($order['payment_company']) && !empty($order['payment_company'])) {
+                    $data["billingAddress"]['organizationName'] = $this->formatText($order['payment_company']);
+                }
             }
 			
 			if (isset($this->session->data['shipping_address'])) {
@@ -877,12 +892,17 @@ class Mollie extends \Opencart\System\Engine\Controller {
 						"givenName"     =>   $this->formatText($order['shipping_firstname']),
 						"familyName"    =>   $this->formatText($order['shipping_lastname']),
 						"email"         =>   $this->formatText($order['email']),
+                        "phone"         =>   $this->formatText($order['telephone']),
 						"streetAndNumber" => $this->formatText($order['shipping_address_1'] . ' ' . $order['shipping_address_2']),
 						"city" => $this->formatText($order['shipping_city']),
 						"region" => $this->formatText($order['shipping_zone']),
 						"postalCode" => $this->formatText($order['shipping_postcode']),
 						"country" => $this->formatText($order['shipping_iso_code_2'])
 					];
+
+                    if (isset($order['shipping_company']) && !empty($order['shipping_company'])) {
+                        $data["shippingAddress"]['organizationName'] = $this->formatText($order['shipping_company']);
+                    }
 				} else {
                     if ($this->config->get('config_checkout_address')) {
                         $data["shippingAddress"] = $data["billingAddress"];
@@ -980,7 +1000,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
 		}
         $description = str_replace("%", $order['order_id'], html_entity_decode($description, ENT_QUOTES, "UTF-8"));
 
-        $return_url = $this->url->link("extension/mollie/payment/mollie_" . static::MODULE_NAME . "|callback&order_id=" . $order['order_id']);
+        $return_url = $this->url->link("extension/mollie/payment/mollie_" . static::MODULE_NAME . $this->getMethodSeparator() . "callback&order_id=" . $order['order_id']);
         $issuer = $this->getIssuer();
 
         if (version_compare(VERSION, '4.0.1.1', '>')) {
@@ -1324,8 +1344,6 @@ class Mollie extends \Opencart\System\Engine\Controller {
                     $this->writeToMollieLog("Webhook for payment : Order status has been updated to 'Processing' for order - {$order['order_id']}, {$mollieOrderId}, {$payment_id}");
                 }
             }
-
-            return;
         }
 
         // Only process the status if the order is stateless or in 'pending' status.
@@ -1425,10 +1443,6 @@ class Mollie extends \Opencart\System\Engine\Controller {
         if (empty($order)) {
             header("HTTP/1.0 404 Not Found");
             echo "Could not find order.";
-            return;
-        }
-
-        if($order['order_status_id'] != 0) {
             return;
         }
 
@@ -1914,6 +1928,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
         }
 
         $data['show_retry_button'] = $show_retry_button;
+        $data['method_separator']  = $this->getMethodSeparator();
 
         $data['button_continue'] = $this->language->get('button_continue');
 		$data['continue'] = $this->url->link('common/home');
@@ -1948,7 +1963,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
      */
     public function getWebhookUrl()
     {
-        $system_webhook_url = $this->url->link("extension/mollie/payment/mollie_" . static::MODULE_NAME . "|webhook");
+        $system_webhook_url = $this->url->link("extension/mollie/payment/mollie_" . static::MODULE_NAME . $this->getMethodSeparator() . "webhook");
 
         if (strpos($system_webhook_url, $this->getAdminDirectory()) !== false) {
             return str_replace($this->getAdminDirectory(), "", $system_webhook_url);

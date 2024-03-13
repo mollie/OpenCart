@@ -55,6 +55,9 @@ $_['text_mollie_in3']    	     = $method_list_logo;
 $_['text_mollie_mybank']      	 = $method_list_logo;
 $_['text_mollie_billie']      	 = $method_list_logo;
 $_['text_mollie_klarna']      	 = $method_list_logo;
+$_['text_mollie_twint']      	 = $method_list_logo;
+$_['text_mollie_blik']      	 = $method_list_logo;
+$_['text_mollie_bancomatpay']    = $method_list_logo;
 
 // Heading
 $_['heading_title']         = "Mollie";
@@ -87,6 +90,9 @@ $_['name_mollie_in3']            = "IN3";
 $_['name_mollie_mybank']         = "MyBank";
 $_['name_mollie_billie']         = "Billie";
 $_['name_mollie_klarna']         = "Pay with Klarna";
+$_['name_mollie_twint']          = "Twint";
+$_['name_mollie_blik']           = "Blik";
+$_['name_mollie_bancomatpay']    = "Bancomat Pay";
 
 // Text
 $_['text_edit']                     = "Corregir Mollie";
@@ -135,6 +141,7 @@ $_['text_pay_link_variables']      = "Variables permitidas: {firstname}, {lastna
 $_['text_pay_link_text']           = "Dear customer, <br /><br /> Click on the link below to complete your payment of {amount} for the order {order_id}.<br /><br /> {payment_link}<br /><br /><br /><br />Regards,<br /><br />{store_name}";
 $_['text_recurring_payment']       = "Pago recurrente";
 $_['text_payment_link']            = "Enlace de pago";
+$_['text_coming_soon']             = "Muy pronto";
 
 // Entry
 $_['entry_payment_method']           = "Método de pago";

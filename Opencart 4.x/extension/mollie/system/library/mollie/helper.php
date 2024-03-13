@@ -4,7 +4,7 @@ use Mollie\Api\MollieApiClient;
 
 class MollieHelper {
 
-	const PLUGIN_VERSION = "13.0.0";
+	const PLUGIN_VERSION = "13.1.0";
 
 	const OUTH_URL = 'https://api.mollie.com/oauth2';
 
@@ -34,6 +34,9 @@ class MollieHelper {
 	const MODULE_NAME_MYBANK    	 	= "mybank";
 	const MODULE_NAME_BILLIE    	 	= "billie";
 	const MODULE_NAME_KLARNA    	 	= "klarna";
+	const MODULE_NAME_TWINT    	 	    = "twint";
+	const MODULE_NAME_BLIK    	 	    = "blik";
+	const MODULE_NAME_BANCOMATPAY    	= "bancomatpay";
 
 
 	// List of all available module names.
@@ -59,11 +62,14 @@ class MollieHelper {
 		self::MODULE_NAME_IN3,
 		self::MODULE_NAME_MYBANK,
 		self::MODULE_NAME_BILLIE,
-		self::MODULE_NAME_KLARNA
+		self::MODULE_NAME_KLARNA,
+		self::MODULE_NAME_TWINT,
+		self::MODULE_NAME_BLIK,
+		self::MODULE_NAME_BANCOMATPAY
 	);
 
 	protected $api_client;
-    private object $db;
+    private $db;
 
 	public function __construct($registry) {
 		$this->db = $registry->get('db');

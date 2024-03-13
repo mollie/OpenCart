@@ -232,7 +232,7 @@ class ControllerPaymentMollieBase extends Controller
         $order = $this->getOpenCartOrder($order_id);
 
         // Set template data.
-        if (in_array($method, ['klarnapaylater', 'klarnasliceit', 'klarnapaynow', 'voucher', 'in3', 'klarna']) || ($this->config->get($this->mollieHelper->getModuleCode() . "_" . $method . "_api_to_use") == 'orders_api')) {
+        if (in_array($method, ['klarnapaylater', 'klarnasliceit', 'klarnapaynow', 'voucher', 'in3', 'klarna', 'billie']) || ($this->config->get($this->mollieHelper->getModuleCode() . "_" . $method . "_api_to_use") == 'orders_api')) {
             $data['action'] = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/order", '', 'SSL');
         } else {
             $data['action'] = $this->url->link("payment/mollie_" . static::MODULE_NAME . "/payment", '', 'SSL');
@@ -830,12 +830,17 @@ class ControllerPaymentMollieBase extends Controller
                 "givenName"     =>   $this->formatText($order['payment_firstname']),
                 "familyName"    =>   $this->formatText($order['payment_lastname']),
                 "email"         =>   $this->formatText($order['email']),
+                "phone"         =>   $this->formatText($order['telephone']),
                 "streetAndNumber" => $this->formatText($order['payment_address_1'] . ' ' . $order['payment_address_2']),
                 "city" => $this->formatText($order['payment_city']),
                 "region" => $this->formatText($order['payment_zone']),
                 "postalCode" => $this->formatText($order['payment_postcode']),
                 "country" => $this->formatText($order['payment_iso_code_2'])
             ];
+
+            if (isset($order['payment_company']) && !empty($order['payment_company'])) {
+                $data["billingAddress"]['organizationName'] = $this->formatText($order['payment_company']);
+            }
 			
 			if (isset($this->session->data['shipping_address'])) {
 				if (!empty($order['shipping_firstname']) || !empty($order['shipping_lastname'])) {
@@ -843,12 +848,17 @@ class ControllerPaymentMollieBase extends Controller
 						"givenName"     =>   $this->formatText($order['shipping_firstname']),
 						"familyName"    =>   $this->formatText($order['shipping_lastname']),
 						"email"         =>   $this->formatText($order['email']),
+                        "phone"         =>   $this->formatText($order['telephone']),
 						"streetAndNumber" => $this->formatText($order['shipping_address_1'] . ' ' . $order['shipping_address_2']),
 						"city" => $this->formatText($order['shipping_city']),
 						"region" => $this->formatText($order['shipping_zone']),
 						"postalCode" => $this->formatText($order['shipping_postcode']),
 						"country" => $this->formatText($order['shipping_iso_code_2'])
 					];
+
+                    if (isset($order['shipping_company']) && !empty($order['shipping_company'])) {
+                        $data["shippingAddress"]['organizationName'] = $this->formatText($order['shipping_company']);
+                    }
 				} else {
 					$data["shippingAddress"] = $data["billingAddress"];
 				}
@@ -1263,8 +1273,6 @@ class ControllerPaymentMollieBase extends Controller
                     $this->writeToMollieLog("Webhook for payment : Order status has been updated to 'Processing' for order - {$order['order_id']}, {$mollieOrderId}, {$payment_id}");
                 }
             }
-
-            return;
         }
 
         // Only process the status if the order is stateless or in 'pending' status.
@@ -1364,10 +1372,6 @@ class ControllerPaymentMollieBase extends Controller
         if (empty($order)) {
             header("HTTP/1.0 404 Not Found");
             echo "Could not find order.";
-            return;
-        }
-
-        if($order['order_status_id'] != 0) {
             return;
         }
 

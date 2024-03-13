@@ -97,14 +97,19 @@
 								</div>
 								<div class="col-sm-2">
 									<?php $show_status_field = true ?>
+                                    <?php $coming_soon = false; ?>
 									<?php if (empty($store[$code . '_api_key']) || !empty($store['error_api_key'])) { ?>
 									<?php $show_status_field = false ?>
 									<?php echo $text_missing_api_key; ?>
+                                    <?php } elseif (in_array($payment_method['name'], ['Bancomat Pay', 'Blik', 'Twint'])) { ?>
+									<?php $show_status_field = false ?>
+                                    <?php $coming_soon = true; ?>
+									<?php echo $text_coming_soon; ?>
 									<?php } elseif (!$payment_method['allowed']) { ?>
 									<?php $show_status_field = false ?>
 									<?php echo $text_activate_payment_method; ?>
 									<?php } ?>
-									<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_status" class="form-control" style="<?php echo !$show_status_field ? 'display: none;' : ''; ?>">
+									<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_status" class="form-control" style="<?php echo !$show_status_field || $coming_soon ? 'display: none;' : ''; ?>">
 										<?php if ($payment_method['status']) { ?>
 										<option value="1" selected="selected"><?php echo $text_enabled; ?></option>
 										<option value="0"><?php echo $text_disabled; ?></option>
@@ -114,7 +119,7 @@
 										<?php } ?>
 									</select>
 								</div>
-								<div class="col-sm-3">
+								<div class="col-sm-3" style="<?php echo $coming_soon ? 'display: none;' : ''; ?>">
 									<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_geo_zone" class="form-control">
 										<option value="0"><?php echo $text_all_zones; ?></option>
 										<?php foreach ($geo_zones as $geo_zone) { ?>
@@ -126,10 +131,10 @@
 										<?php } ?>
 									</select>
 								</div>
-								<div class="col-sm-2">
+								<div class="col-sm-2" style="<?php echo $coming_soon ? 'display: none;' : ''; ?>">
 									<input type="text" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_sort_order" value="<?php echo $payment_method['sort_order']; ?>" class="form-control" style="text-align:right;"/>
 								</div>
-								<div class="col-sm-2 text-right more-settings">
+								<div class="col-sm-2 text-right more-settings" style="<?php echo $coming_soon ? 'display: none;' : ''; ?>">
 									<a href="javascript:void(0);" data-collapse-id="collapse-<?php echo strtolower(str_replace([" ", "/"], "-", $payment_method['name'])); ?>-<?php echo $store['store_id']; ?>" data-toggle="collapse" class="btn btn-primary"><?php echo $button_advance_option; ?></a>
 								</div>
 							</div>
@@ -174,7 +179,7 @@
 									<div class="form-group">
 										<label class="col-sm-2 control-label"><?php echo $entry_api_to_use; ?></label>
 										<div class="col-sm-10">
-											<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_api_to_use" class="form-control" <?php if (in_array($module_id, ['klarnapaylater', 'klarnasliceit', 'klarnapaynow', 'voucher', 'in3', 'klarna'])) { ?>disabled="disabled"<?php } ?>>
+											<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_api_to_use" class="form-control" <?php if (in_array($module_id, ['klarnapaylater', 'klarnasliceit', 'klarnapaynow', 'voucher', 'in3', 'klarna', 'billie'])) { ?>disabled="disabled"<?php } ?>>
 												<option value="orders_api"><?php echo $text_order_api; ?></option>
 												<option value="payments_api" <?php if ($payment_method['api_to_use'] == 'payments_api') { ?>selected="selected"<?php } ?>><?php echo $text_payment_api; ?></option>
 											</select>		

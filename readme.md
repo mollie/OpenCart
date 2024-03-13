@@ -54,6 +54,9 @@ them ready-made into your OpenCart webshop with this powerful plugin.
 - IN3
 - MyBank
 - Billie
+- Twint
+- Blik
+- Bancomat Pay
 
 Please go to the signup page to create a new Mollie account and start receiving payments in
 a couple of minutes. Contact info@mollie.com if you have any questions or comments about
@@ -96,3 +99,6 @@ Contact Mollie: [www.mollie.com/nl/about](https://www.mollie.com/nl/about) — i
 + [More info on IN3 via Mollie](https://www.mollie.com/payments/in3/)
 + [More info on MyBank via Mollie](https://www.mollie.com/payments/mybank/)
 + [More info on Billie via Mollie](https://www.mollie.com/payments/billie/)
++ [More info on Twint via Mollie](https://www.mollie.com/payments/twint/)
++ [More info on Blik via Mollie](https://www.mollie.com/payments/blik/)
++ [More info on Bancomat Pay via Mollie](https://www.mollie.com/payments/bancomatpay/)

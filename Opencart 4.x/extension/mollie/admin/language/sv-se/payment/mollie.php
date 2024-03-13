@@ -55,6 +55,9 @@ $_['text_mollie_in_3']     	     = $method_list_logo;
 $_['text_mollie_mybank']      	 = $method_list_logo;
 $_['text_mollie_billie']      	 = $method_list_logo;
 $_['text_mollie_klarna']      	 = $method_list_logo;
+$_['text_mollie_twint']      	 = $method_list_logo;
+$_['text_mollie_blik']      	 = $method_list_logo;
+$_['text_mollie_bancomatpay']    = $method_list_logo;
 
 // Heading
 $_['heading_title']           = "Mollie";
@@ -87,6 +90,9 @@ $_['name_mollie_in_3']           = "IN3";
 $_['name_mollie_mybank']         = "MyBank";
 $_['name_mollie_billie']         = "Billie";
 $_['name_mollie_klarna']         = "Pay with Klarna";
+$_['name_mollie_twint']          = "Twint";
+$_['name_mollie_blik']           = "Blik";
+$_['name_mollie_bancomatpay']    = "Bancomat Pay";
 
 // Text
 $_['text_edit']                    = "Redigera";
@@ -135,6 +141,7 @@ $_['text_pay_link_variables']      = "Tillåtna variabler: {firstname}, {lastnam
 $_['text_pay_link_text']           = "Dear customer, <br /><br /> Click on the link below to complete your payment of {amount} for the order {order_id}.<br /><br /> {payment_link}<br /><br /><br /><br />Regards,<br /><br />{store_name}";
 $_['text_recurring_payment']       = "Återkommande betalning";
 $_['text_payment_link']            = "Betalningslänk";
+$_['text_coming_soon']             = "Kommer snart";
 
 // Entry
 $_['entry_payment_method']         = "Betalningsmetod";
@@ -222,6 +229,7 @@ $_['error_order_expiry_days']      = 'Varning: Det är inte möjligt att använd
 $_['error_mollie_payment_fee']     = 'Varning: Mollie Betalningsavgift ordersumman är inaktiverad!';
 $_['error_file']                   = 'Varning: %s fil kunde inte hittas!';
 $_['error_address']                = 'Faktureringsadress är avstängd, digitala beställningar kommer inte att kunna betalas. Du kan aktivera faktureringsadressen i <a href="%s">inställningar</a>.';
+$_['error_telephone']              = 'Telefonfält krävs av vissa betalningsmetoder. Aktivera det från <a href="%s">inställningarna</a> och gör det obligatoriskt.';
 
 // Status
 $_['entry_pending_status']         = "Betalning skapad status";

@@ -2,15 +2,15 @@
 
 namespace Mollie\Api\HttpAdapter;
 
-use _PhpScoperc4e61a44a745\Composer\CaBundle\CaBundle;
-use _PhpScoperc4e61a44a745\GuzzleHttp\Client;
-use _PhpScoperc4e61a44a745\GuzzleHttp\ClientInterface;
-use _PhpScoperc4e61a44a745\GuzzleHttp\Exception\GuzzleException;
-use _PhpScoperc4e61a44a745\GuzzleHttp\HandlerStack;
-use _PhpScoperc4e61a44a745\GuzzleHttp\Psr7\Request;
-use _PhpScoperc4e61a44a745\GuzzleHttp\RequestOptions as GuzzleRequestOptions;
+use _PhpScopercb67a1bccfc7\Composer\CaBundle\CaBundle;
+use _PhpScopercb67a1bccfc7\GuzzleHttp\Client;
+use _PhpScopercb67a1bccfc7\GuzzleHttp\ClientInterface;
+use _PhpScopercb67a1bccfc7\GuzzleHttp\Exception\GuzzleException;
+use _PhpScopercb67a1bccfc7\GuzzleHttp\HandlerStack;
+use _PhpScopercb67a1bccfc7\GuzzleHttp\Psr7\Request;
+use _PhpScopercb67a1bccfc7\GuzzleHttp\RequestOptions as GuzzleRequestOptions;
 use Mollie\Api\Exceptions\ApiException;
-use _PhpScoperc4e61a44a745\Psr\Http\Message\ResponseInterface;
+use _PhpScopercb67a1bccfc7\Psr\Http\Message\ResponseInterface;
 final class Guzzle6And7MollieHttpAdapter implements \Mollie\Api\HttpAdapter\MollieHttpAdapterInterface
 {
     /**
@@ -37,7 +37,7 @@ final class Guzzle6And7MollieHttpAdapter implements \Mollie\Api\HttpAdapter\Moll
      * @var bool
      */
     protected $debugging = \false;
-    public function __construct(\_PhpScoperc4e61a44a745\GuzzleHttp\ClientInterface $httpClient)
+    public function __construct(\_PhpScopercb67a1bccfc7\GuzzleHttp\ClientInterface $httpClient)
     {
         $this->httpClient = $httpClient;
     }
@@ -49,9 +49,9 @@ final class Guzzle6And7MollieHttpAdapter implements \Mollie\Api\HttpAdapter\Moll
     public static function createDefault()
     {
         $retryMiddlewareFactory = new \Mollie\Api\HttpAdapter\Guzzle6And7RetryMiddlewareFactory();
-        $handlerStack = \_PhpScoperc4e61a44a745\GuzzleHttp\HandlerStack::create();
+        $handlerStack = \_PhpScopercb67a1bccfc7\GuzzleHttp\HandlerStack::create();
         $handlerStack->push($retryMiddlewareFactory->retry());
-        $client = new \_PhpScoperc4e61a44a745\GuzzleHttp\Client([\_PhpScoperc4e61a44a745\GuzzleHttp\RequestOptions::VERIFY => \_PhpScoperc4e61a44a745\Composer\CaBundle\CaBundle::getBundledCaBundlePath(), \_PhpScoperc4e61a44a745\GuzzleHttp\RequestOptions::TIMEOUT => self::DEFAULT_TIMEOUT, \_PhpScoperc4e61a44a745\GuzzleHttp\RequestOptions::CONNECT_TIMEOUT => self::DEFAULT_CONNECT_TIMEOUT, 'handler' => $handlerStack]);
+        $client = new \_PhpScopercb67a1bccfc7\GuzzleHttp\Client([\_PhpScopercb67a1bccfc7\GuzzleHttp\RequestOptions::VERIFY => \_PhpScopercb67a1bccfc7\Composer\CaBundle\CaBundle::getBundledCaBundlePath(), \_PhpScopercb67a1bccfc7\GuzzleHttp\RequestOptions::TIMEOUT => self::DEFAULT_TIMEOUT, \_PhpScopercb67a1bccfc7\GuzzleHttp\RequestOptions::CONNECT_TIMEOUT => self::DEFAULT_CONNECT_TIMEOUT, 'handler' => $handlerStack]);
         return new \Mollie\Api\HttpAdapter\Guzzle6And7MollieHttpAdapter($client);
     }
     /**
@@ -66,10 +66,10 @@ final class Guzzle6And7MollieHttpAdapter implements \Mollie\Api\HttpAdapter\Moll
      */
     public function send($httpMethod, $url, $headers, $httpBody)
     {
-        $request = new \_PhpScoperc4e61a44a745\GuzzleHttp\Psr7\Request($httpMethod, $url, $headers, $httpBody);
+        $request = new \_PhpScopercb67a1bccfc7\GuzzleHttp\Psr7\Request($httpMethod, $url, $headers, $httpBody);
         try {
             $response = $this->httpClient->send($request, ['http_errors' => \false]);
-        } catch (\_PhpScoperc4e61a44a745\GuzzleHttp\Exception\GuzzleException $e) {
+        } catch (\_PhpScopercb67a1bccfc7\GuzzleHttp\Exception\GuzzleException $e) {
             // Prevent sensitive request data from ending up in exception logs unintended
             if (!$this->debugging) {
                 $request = null;
@@ -130,7 +130,7 @@ final class Guzzle6And7MollieHttpAdapter implements \Mollie\Api\HttpAdapter\Moll
      * @return \stdClass|null
      * @throws ApiException
      */
-    private function parseResponseBody(\_PhpScoperc4e61a44a745\Psr\Http\Message\ResponseInterface $response)
+    private function parseResponseBody(\_PhpScopercb67a1bccfc7\Psr\Http\Message\ResponseInterface $response)
     {
         $body = (string) $response->getBody();
         if (empty($body)) {
@@ -159,10 +159,10 @@ final class Guzzle6And7MollieHttpAdapter implements \Mollie\Api\HttpAdapter\Moll
     {
         if (\defined('\\GuzzleHttp\\ClientInterface::MAJOR_VERSION')) {
             // Guzzle 7
-            return "Guzzle/" . \_PhpScoperc4e61a44a745\GuzzleHttp\ClientInterface::MAJOR_VERSION;
+            return "Guzzle/" . \_PhpScopercb67a1bccfc7\GuzzleHttp\ClientInterface::MAJOR_VERSION;
         } elseif (\defined('\\GuzzleHttp\\ClientInterface::VERSION')) {
             // Before Guzzle 7
-            return "Guzzle/" . \_PhpScoperc4e61a44a745\GuzzleHttp\ClientInterface::VERSION;
+            return "Guzzle/" . \_PhpScopercb67a1bccfc7\GuzzleHttp\ClientInterface::VERSION;
         }
         return null;
     }

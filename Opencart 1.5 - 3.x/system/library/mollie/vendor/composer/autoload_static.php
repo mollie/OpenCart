@@ -9,7 +9,7 @@ class ComposerStaticInit9cd86ce48b73cb47f9ea8089667d0d43
     public static $prefixLengthsPsr4 = array (
         '_' => 
         array (
-            '_PhpScoperc4e61a44a745\\Composer\\CaBundle\\' => 41,
+            '_PhpScopercb67a1bccfc7\\Composer\\CaBundle\\' => 41,
         ),
         'M' => 
         array (
@@ -18,7 +18,7 @@ class ComposerStaticInit9cd86ce48b73cb47f9ea8089667d0d43
     );
 
     public static $prefixDirsPsr4 = array (
-        '_PhpScoperc4e61a44a745\\Composer\\CaBundle\\' => 
+        '_PhpScopercb67a1bccfc7\\Composer\\CaBundle\\' => 
         array (
             0 => __DIR__ . '/..' . '/composer/ca-bundle/src',
         ),
@@ -162,7 +162,7 @@ class ComposerStaticInit9cd86ce48b73cb47f9ea8089667d0d43
         'Mollie\\Api\\Types\\SettlementStatus' => __DIR__ . '/../..' . '/src/Types/SettlementStatus.php',
         'Mollie\\Api\\Types\\SubscriptionStatus' => __DIR__ . '/../..' . '/src/Types/SubscriptionStatus.php',
         'Mollie\\Api\\Types\\TerminalStatus' => __DIR__ . '/../..' . '/src/Types/TerminalStatus.php',
-        '_PhpScoperc4e61a44a745\\Composer\\CaBundle\\CaBundle' => __DIR__ . '/..' . '/composer/ca-bundle/src/CaBundle.php',
+        '_PhpScopercb67a1bccfc7\\Composer\\CaBundle\\CaBundle' => __DIR__ . '/..' . '/composer/ca-bundle/src/CaBundle.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
