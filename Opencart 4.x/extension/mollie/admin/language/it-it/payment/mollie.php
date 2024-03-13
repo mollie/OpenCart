@@ -55,6 +55,9 @@ $_['text_mollie_in_3']     	     = $method_list_logo;
 $_['text_mollie_mybank']      	 = $method_list_logo;
 $_['text_mollie_billie']      	 = $method_list_logo;
 $_['text_mollie_klarna']      	 = $method_list_logo;
+$_['text_mollie_twint']      	 = $method_list_logo;
+$_['text_mollie_blik']      	 = $method_list_logo;
+$_['text_mollie_bancomatpay']    = $method_list_logo;
 
 // Heading
 $_['heading_title']           = "Mollie";
@@ -87,6 +90,9 @@ $_['name_mollie_in_3']           = "IN3";
 $_['name_mollie_mybank']         = "MyBank";
 $_['name_mollie_billie']         = "Billie";
 $_['name_mollie_klarna']         = "Pay with Klarna";
+$_['name_mollie_twint']          = "Twint";
+$_['name_mollie_blik']           = "Blik";
+$_['name_mollie_bancomatpay']    = "Bancomat Pay";
 
 // Text
 $_['text_edit']                    = "Modificare";
@@ -135,6 +141,7 @@ $_['text_pay_link_variables']      = "Variabili consentite: {firstname}, {lastna
 $_['text_pay_link_text']           = "Dear customer, <br /><br /> Click on the link below to complete your payment of {amount} for the order {order_id}.<br /><br /> {payment_link}<br /><br /><br /><br />Regards,<br /><br />{store_name}";
 $_['text_recurring_payment']       = "Pagamenti ricorrenti";
 $_['text_payment_link']            = "Collegamento di pagamento";
+$_['text_coming_soon']             = "Prossimamente";
 
 // Entry
 $_['entry_payment_method']         = "Metodo di pagamento";
@@ -223,6 +230,7 @@ $_['error_order_expiry_days'] = 'Attenzione: Non è possibile utilizzare Klarna 
 $_['error_mollie_payment_fee'] = 'Attenzione: il totale dell\'ordine della Commissione di pagamento Mollie è disabilitato!';
 $_['error_file']               = 'Attenzione: impossibile trovare il file %s!';
 $_['error_address']            = 'L\'indirizzo di fatturazione è disattivato, gli ordini digitali non potranno essere pagati. Puoi attivare l\'indirizzo di fatturazione nelle <a href="%s">impostazioni</a>.';
+$_['error_telephone']          = 'Il campo telefonico è obbligatorio per alcuni metodi di pagamento. Abilitalo dalle <a href="%s">impostazioni</a> e rendilo obbligatorio.';
 
 // Status
 $_['entry_pending_status']        = "Stato pagamento creato";

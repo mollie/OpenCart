@@ -112,6 +112,11 @@ class Mollie extends \Opencart\System\Engine\Model {
 	 * @return array
 	 */
 	public function getMethod(array $address): array {
+        // Skip upcoming methods
+        if (in_array(static::MODULE_NAME, ['bancomatpay', 'blik', 'twint'])) {
+        	return [];
+		}
+
         if (empty($address) && isset($this->session->data['shipping_address'])) {
             $address = $this->session->data['shipping_address'];
         }
@@ -283,6 +288,11 @@ class Mollie extends \Opencart\System\Engine\Model {
 	}
 
 	public function getMethods(array $address = []): array {
+        // Skip upcoming methods
+        if (in_array(static::MODULE_NAME, ['bancomatpay', 'blik', 'twint'])) {
+        	return [];
+		}
+        
         if (empty($address) && isset($this->session->data['shipping_address'])) {
             $address = $this->session->data['shipping_address'];
         }

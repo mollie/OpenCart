@@ -119,6 +119,11 @@ class ModelPaymentMollieBase extends Model
         	return;
 		}
 
+        // Skip upcoming methods
+        if (in_array(static::MODULE_NAME, ['bancomatpay', 'blik', 'twint'])) {
+        	return null;
+		}
+
 		$currency = $this->getCurrency();
 		$moduleCode = $this->mollieHelper->getModuleCode();
 

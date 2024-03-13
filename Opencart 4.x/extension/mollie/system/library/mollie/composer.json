@@ -73,8 +73,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "_PhpScoperc4e61a44a745\\Tests\\": "tests\/",
-            "_PhpScoperc4e61a44a745\\Tests\\Mollie\\Api\\": "tests\/Mollie\/API\/"
+            "_PhpScopercb67a1bccfc7\\Tests\\": "tests\/",
+            "_PhpScopercb67a1bccfc7\\Tests\\Mollie\\Api\\": "tests\/Mollie\/API\/"
         }
     },
     "scripts": {

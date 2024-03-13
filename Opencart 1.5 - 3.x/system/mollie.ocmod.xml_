@@ -2885,8 +2885,8 @@ $('#button-partial-refund').on('click', function() {
             <search position="after"><![CDATA[=> $order_query->row['customer_id'],]]></search>
             <add position="after"><![CDATA[
             'customer_group_id' => $order_query->row['customer_group_id'],
-            'marketing_id' => $order_query->row['marketing_id'],
-            'tracking' => $order_query->row['tracking'],
+            'marketing_id' => isset($order_query->row['marketing_id']) ? $order_query->row['marketing_id'] : '',
+            'tracking' => isset($order_query->row['tracking']) ? $order_query->row['tracking'] : '',
             ]]></add>
         </operation>
         <operation error="skip">

@@ -102,7 +102,7 @@ class ControllerPaymentMollieBase extends Controller {
 	 */
 	protected function getAPIClient ($store = 0) {
 		$data = $this->data;
-		$data[$this->mollieHelper->getModuleCode() . "_api_key"] = $this->mollieHelper->getApiKey($store);
+		$data[$this->mollieHelper->getModuleCode() . "_api_key"] = (string)$this->mollieHelper->getApiKey($store);
 		
 		return $this->mollieHelper->getAPIClientAdmin($data);
 	}
@@ -971,6 +971,7 @@ class ControllerPaymentMollieBase extends Controller {
 		$data['text_pay_link_text'] = $this->language->get('text_pay_link_text');
 		$data['text_recurring_payment'] = $this->language->get('text_recurring_payment');
 		$data['text_payment_link'] = $this->language->get('text_payment_link');
+		$data['text_coming_soon'] = $this->language->get('text_coming_soon');
 
 		$data['title_global_options'] = $this->language->get('title_global_options');
 		$data['title_payment_status'] = $this->language->get('title_payment_status');
@@ -999,6 +1000,9 @@ class ControllerPaymentMollieBase extends Controller {
 		$data['name_mollie_mybank'] = $this->language->get('name_mollie_mybank');
 		$data['name_mollie_billie'] = $this->language->get('name_mollie_billie');
         $data['name_mollie_klarna'] = $this->language->get('name_mollie_klarna');
+        $data['name_mollie_twint'] = $this->language->get('name_mollie_twint');
+        $data['name_mollie_blik'] = $this->language->get('name_mollie_blik');
+        $data['name_mollie_bancomatpay'] = $this->language->get('name_mollie_bancomatpay');
 		// Deprecated names
 		$data['name_mollie_bitcoin'] = $this->language->get('name_mollie_bitcoin');
 		$data['name_mollie_mistercash'] = $this->language->get('name_mollie_mistercash');
@@ -1575,22 +1579,24 @@ class ControllerPaymentMollieBase extends Controller {
         $client = new mollieHttpClient();
         $info = $client->get(MOLLIE_VERSION_URL);
 
-        if(strpos($info["tag_name"], 'oc3') !== false) {
-            $tag_name = explode('_', explode("-", $info["tag_name"])[0]); // New tag_name = oc3_version-oc4_version
-        } else {
-            $tag_name = ["oc3", $info["tag_name"]]; // Old tag_name = release version
+        if (isset($info["tag_name"])) {
+            if(strpos($info["tag_name"], 'oc3') !== false) {
+                $tag_name = explode('_', explode("-", $info["tag_name"])[0]); // New tag_name = oc3_version-oc4_version
+            } else {
+                $tag_name = ["oc3", $info["tag_name"]]; // Old tag_name = release version
+            }
+    
+            if (isset($tag_name[0]) && ($tag_name[0] == 'oc3')) {
+                if (isset($tag_name[1]) && ($tag_name[1] != MOLLIE_VERSION) && version_compare(MOLLIE_VERSION, $tag_name[1], "<")) {
+                    $updateUrl = array(
+                        "updateUrl" => $this->url->link("payment/mollie_" . static::MODULE_NAME . "/update", $this->token, 'SSL'),
+                        "updateVersion" => $tag_name[1]
+                    );
+        
+                    return $updateUrl;
+                }
+            }
         }
-
-		if (isset($tag_name[0]) && ($tag_name[0] == 'oc3')) {
-			if (isset($tag_name[1]) && ($tag_name[1] != MOLLIE_VERSION) && version_compare(MOLLIE_VERSION, $tag_name[1], "<")) {
-				$updateUrl = array(
-					"updateUrl" => $this->url->link("payment/mollie_" . static::MODULE_NAME . "/update", $this->token, 'SSL'),
-					"updateVersion" => $tag_name[1]
-				);
-	
-				return $updateUrl;
-			}
-		}
         
         return false;
     }
@@ -1955,7 +1961,7 @@ class ControllerPaymentMollieBase extends Controller {
 			}
 			
 			if (!empty($paymentFee)) {
-				if (version_compare(VERSION, '2.0', '>=')) {
+				if (version_compare(VERSION, '2.1', '>=')) {
 					$this->db->query("INSERT INTO " . DB_PREFIX . "setting SET store_id = '0', code = '" . $this->db->escape($code2) . "', `key` = '" . $this->db->escape($code2 . '_charge') . "', `value` = '" . $this->db->escape(json_encode($paymentFee, true)) . "', serialized = '1'");
 				} else {
 					$this->db->query("INSERT INTO " . DB_PREFIX . "setting SET store_id = '0', `group` = '" . $this->db->escape($code2) . "', `key` = '" . $this->db->escape($code2 . '_charge') . "', `value` = '" . $this->db->escape(serialize($paymentFee)) . "', serialized = '1'");

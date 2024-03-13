@@ -139,5 +139,5 @@ return array(
     'Mollie\\Api\\Types\\SettlementStatus' => $baseDir . '/src/Types/SettlementStatus.php',
     'Mollie\\Api\\Types\\SubscriptionStatus' => $baseDir . '/src/Types/SubscriptionStatus.php',
     'Mollie\\Api\\Types\\TerminalStatus' => $baseDir . '/src/Types/TerminalStatus.php',
-    '_PhpScoperc4e61a44a745\\Composer\\CaBundle\\CaBundle' => $vendorDir . '/composer/ca-bundle/src/CaBundle.php',
+    '_PhpScopercb67a1bccfc7\\Composer\\CaBundle\\CaBundle' => $vendorDir . '/composer/ca-bundle/src/CaBundle.php',
 );

@@ -33,28 +33,31 @@
 
 // These are called automatically by the Payment modules list - do not change the names
 $method_list_logo                = '<a href="https://www.mollie.com" target="_blank"><img src="../image/mollie/mollie_logo.png" alt="Mollie" title="Mollie" style="border:0px" /></a>';
-$_['text_mollie_banktransfer']      = $method_list_logo;
-$_['text_mollie_belfius']           = $method_list_logo;
-$_['text_mollie_creditcard']        = $method_list_logo;
-$_['text_mollie_ideal']             = $method_list_logo;
-$_['text_mollie_kbc']               = $method_list_logo;
-$_['text_mollie_bancontact']        = $method_list_logo;
-$_['text_mollie_paypal']            = $method_list_logo;
-$_['text_mollie_paysafecard']       = $method_list_logo;
-$_['text_mollie_sofort']            = $method_list_logo;
-$_['text_mollie_giftcard']          = $method_list_logo;
-$_['text_mollie_eps']               = $method_list_logo;
-$_['text_mollie_giropay']           = $method_list_logo;
-$_['text_mollie_klarnapaylater']    = $method_list_logo;
-$_['text_mollie_klarnapaynow']      = $method_list_logo;
-$_['text_mollie_klarnasliceit']     = $method_list_logo;
-$_['text_mollie_przelewy_24']  	    = $method_list_logo;
-$_['text_mollie_applepay']  	    = $method_list_logo;
-$_['text_mollie_voucher']    	    = $method_list_logo;
-$_['text_mollie_in_3']    	        = $method_list_logo;
-$_['text_mollie_mybank']      	    = $method_list_logo;
-$_['text_mollie_billie']      	    = $method_list_logo;
-$_['text_mollie_klarna']      	    = $method_list_logo;
+$_['text_mollie_banktransfer']   = $method_list_logo;
+$_['text_mollie_belfius']        = $method_list_logo;
+$_['text_mollie_creditcard']     = $method_list_logo;
+$_['text_mollie_ideal']          = $method_list_logo;
+$_['text_mollie_kbc']            = $method_list_logo;
+$_['text_mollie_bancontact']     = $method_list_logo;
+$_['text_mollie_paypal']         = $method_list_logo;
+$_['text_mollie_paysafecard']    = $method_list_logo;
+$_['text_mollie_sofort']         = $method_list_logo;
+$_['text_mollie_giftcard']       = $method_list_logo;
+$_['text_mollie_eps']            = $method_list_logo;
+$_['text_mollie_giropay']        = $method_list_logo;
+$_['text_mollie_klarnapaylater'] = $method_list_logo;
+$_['text_mollie_klarnapaynow']   = $method_list_logo;
+$_['text_mollie_klarnasliceit']  = $method_list_logo;
+$_['text_mollie_przelewy_24']  	 = $method_list_logo;
+$_['text_mollie_applepay']  	 = $method_list_logo;
+$_['text_mollie_voucher']    	 = $method_list_logo;
+$_['text_mollie_in_3']     	     = $method_list_logo;
+$_['text_mollie_mybank']      	 = $method_list_logo;
+$_['text_mollie_billie']      	 = $method_list_logo;
+$_['text_mollie_klarna']      	 = $method_list_logo;
+$_['text_mollie_twint']      	 = $method_list_logo;
+$_['text_mollie_blik']      	 = $method_list_logo;
+$_['text_mollie_bancomatpay']    = $method_list_logo;
 
 // Heading
 $_['heading_title']         = "Mollie";
@@ -87,6 +90,9 @@ $_['name_mollie_in_3']           = "IN3";
 $_['name_mollie_mybank']         = "MyBank";
 $_['name_mollie_billie']         = "Billie";
 $_['name_mollie_klarna']         = "Pay with Klarna";
+$_['name_mollie_twint']          = "Twint";
+$_['name_mollie_blik']           = "Blik";
+$_['name_mollie_bancomatpay']    = "Bancomat Pay";
 
 // Text
 $_['text_edit']                     = "Mollie bearbeiten";
@@ -135,6 +141,7 @@ $_['text_pay_link_variables']      = "Zulässige Variablen: {firstname}, {lastna
 $_['text_pay_link_text']           = "Dear customer, <br /><br /> Click on the link below to complete your payment of {amount} for the order {order_id}.<br /><br /> {payment_link}<br /><br /><br /><br />Regards,<br /><br />{store_name}";
 $_['text_recurring_payment']       = "Wiederkehrende Zahlung";
 $_['text_payment_link']            = "Zahlungslink";
+$_['text_coming_soon']             = "Demnächst";
 
 // Entry
 $_['entry_payment_method']           = "Zahlungsart";
@@ -222,6 +229,7 @@ $_['error_order_expiry_days'] = 'Warnung: Es ist nicht möglich, Klarna Slice it
 $_['error_mollie_payment_fee'] = 'Warnung: Die Gesamtbestellgebühr für Mollie ist deaktiviert!';
 $_['error_file']               = 'Warnung: %s Datei konnte nicht gefunden werden!';
 $_['error_address']            = 'Rechnungsadresse ist deaktiviert, digitale Bestellungen können nicht bezahlt werden. Sie können die Rechnungsadresse in den <a href="%s">Einstellungen</a> aktivieren.';
+$_['error_telephone']          = 'Für einige Zahlungsmethoden ist das Feld „Telefon“ erforderlich. Bitte aktivieren Sie es in den <a href="%s">Einstellungen</a> und machen Sie es erforderlich.';
 
 // Status
 $_['entry_pending_status']           = "Status Zahlung erstellt";

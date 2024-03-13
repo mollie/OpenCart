@@ -51,10 +51,13 @@ $_['text_mollie_klarnasliceit']  = $method_list_logo;
 $_['text_mollie_przelewy_24']  	 = $method_list_logo;
 $_['text_mollie_applepay']  	 = $method_list_logo;
 $_['text_mollie_voucher']    	 = $method_list_logo;
-$_['text_mollie_in_3']    	     = $method_list_logo;
+$_['text_mollie_in_3']     	     = $method_list_logo;
 $_['text_mollie_mybank']      	 = $method_list_logo;
 $_['text_mollie_billie']      	 = $method_list_logo;
 $_['text_mollie_klarna']      	 = $method_list_logo;
+$_['text_mollie_twint']      	 = $method_list_logo;
+$_['text_mollie_blik']      	 = $method_list_logo;
+$_['text_mollie_bancomatpay']    = $method_list_logo;
 
 // Heading
 $_['heading_title']           = "Mollie";
@@ -87,6 +90,9 @@ $_['name_mollie_in_3']           = "IN3";
 $_['name_mollie_mybank']         = "MyBank";
 $_['name_mollie_billie']         = "Billie";
 $_['name_mollie_klarna']         = "Pay with Klarna";
+$_['name_mollie_twint']          = "Twint";
+$_['name_mollie_blik']           = "Blik";
+$_['name_mollie_bancomatpay']    = "Bancomat Pay";
 
 // Text
 $_['text_edit']                    = "Editar";
@@ -135,6 +141,7 @@ $_['text_pay_link_variables']      = "Variáveis ​​permitidas: {firstname}, 
 $_['text_pay_link_text']           = "Dear customer, <br /><br /> Click on the link below to complete your payment of {amount} for the order {order_id}.<br /><br /> {payment_link}<br /><br /><br /><br />Regards,<br /><br />{store_name}";
 $_['text_recurring_payment']       = "Pagamento recorrente";
 $_['text_payment_link']            = "Link de pagamento";
+$_['text_coming_soon']             = "Em breve";
 
 // Entry
 $_['entry_payment_method']         = "Forma de pagamento";
@@ -222,6 +229,7 @@ $_['error_order_expiry_days']  = 'Aviso: Não é possível usar Klarna Slice it 
 $_['error_mollie_payment_fee'] = 'Aviso: O total do pedido da Taxa de Pagamento Mollie está desabilitado!';
 $_['error_file']               = 'Aviso: o arquivo %s não foi encontrado!';
 $_['error_address']            = 'O endereço de cobrança está desativado, os pedidos digitais não poderão ser pagos. Você pode ativar o endereço de cobrança nas <a href="%s">configurações</a>.';
+$_['error_telephone']          = 'O campo telefone é obrigatório em alguns métodos de pagamento. Ative-o nas <a href="%s">configurações</a> e torne-o obrigatório.';
 
 // Status
 $_['entry_pending_status']        = "Status do pagamento criado";

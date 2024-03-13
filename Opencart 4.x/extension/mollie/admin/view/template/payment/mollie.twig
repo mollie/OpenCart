@@ -90,19 +90,24 @@
 										</div>
 										<div class="col-sm-2">
 											{% set show_status_field = true %}
+											{% set coming_soon = false %}
 											{% if (store[code ~ '_api_key'] is empty or store['error_api_key'] is not empty)  %}
 											{% set show_status_field = false %}
-											{{ text_missing_api_key }}
+											<div style="min-height: 36px;">{{ text_missing_api_key }}</div>
+                                            {% elseif payment_method['name'] in ['Bancomat Pay', 'Blik', 'Twint'] %}
+											{% set show_status_field = false %}
+                                            {% set coming_soon = true %}
+											<div style="min-height: 36px;">{{ text_coming_soon }}</div>
 											{% elseif payment_method['allowed'] == false %}
 											{% set show_status_field = false %}
-											{{ text_activate_payment_method }}
+											<div style="min-height: 36px;">{{ text_activate_payment_method }}</div>
 											{% endif %}
-											<div class="form-check form-switch form-switch-lg">
+											<div class="form-check form-switch form-switch-lg" style="{{ show_status_field == false or coming_soon == true ? 'display: none;' : '' }}">
 												<input type="hidden" name="{{ store['store_id'] }}_{{ code }}_{{ module_id }}_status" value="0"/>
-												<input type="checkbox" name="{{ store['store_id'] }}_{{ code }}_{{ module_id }}_status" value="1" class="form-check-input"{% if payment_method['status'] %} checked{% endif %} style="{{ show_status_field == false ? 'display: none;' : '' }}"/>
+												<input type="checkbox" name="{{ store['store_id'] }}_{{ code }}_{{ module_id }}_status" value="1" class="form-check-input"{% if payment_method['status'] %} checked{% endif %} style="{{ show_status_field == false or coming_soon == true ? 'display: none;' : '' }}"/>
 											</div>
 										</div>
-										<div class="col-sm-3">
+										<div class="col-sm-3" style="{{ coming_soon == true ? 'display: none;' : '' }}">
 											<select name="{{ store['store_id'] }}_{{ code }}_{{ module_id }}_geo_zone" class="form-select">
 												<option value="0">{{ text_all_zones }}</option>
 												{% for geo_zone in geo_zones %}
@@ -114,10 +119,10 @@
 												{% endfor %}
 											</select>
 										</div>
-										<div class="col-sm-2">
+										<div class="col-sm-2" style="{{ coming_soon == true ? 'display: none;' : '' }}">
 											<input type="text" name="{{ store['store_id'] }}_{{ code }}_{{ module_id }}_sort_order" value="{{ payment_method['sort_order'] }}" class="form-control" style="text-align:right;"/>
 										</div>
-										<div class="col-sm-2 text-end">
+										<div class="col-sm-2 text-end" style="{{ coming_soon == true ? 'display: none;' : '' }}">
 											<a href="#collapse-{{ (payment_method['name']|replace({" " : "-", "/" : "-"}))|lower }}-{{ store['store_id'] }}" data-bs-toggle="collapse" class="btn btn-primary"><i class="fa fa-caret-down"></i></a>
 										</div>
 									</div>
@@ -168,7 +173,7 @@
 											<div class="row mb-3">
 												<label class="col-sm-2 col-form-label">{{ entry_api_to_use }}</label>
 												<div class="col-sm-8">
-													<select name="{{ store['store_id'] }}_{{ code }}_{{ module_id }}_api_to_use" class="form-select" {% if module_id in ['klarnapaylater', 'klarnasliceit', 'klarnapaynow', 'voucher', 'in3', 'klarna'] %}disabled="disabled"{% endif %}>
+													<select name="{{ store['store_id'] }}_{{ code }}_{{ module_id }}_api_to_use" class="form-select" {% if module_id in ['klarnapaylater', 'klarnasliceit', 'klarnapaynow', 'voucher', 'in3', 'klarna', 'billie'] %}disabled="disabled"{% endif %}>
 														<option value="orders_api">{{ text_order_api }}</option>
 														<option value="payments_api" {% if payment_method['api_to_use'] == 'payments_api' %}selected="selected"{% endif %}>{{ text_payment_api }}</option>
 													</select>		
@@ -741,7 +746,7 @@ $('textarea[data-oc-toggle=\'ckeditor\']').ckeditor({
 function save(store_id, payment_method) {
 	$.ajax({
 		type: "POST",
-		url: 'index.php?route=extension/mollie/payment/mollie_{{ module_name }}|save&{{ token }}',
+		url: 'index.php?route=extension/mollie/payment/mollie_{{ module_name }}{{ method_separator }}save&{{ token }}',
 		dataType: 'json',
 		data: $('#form-mollie').serialize(),
 		beforeSend: function () {
@@ -778,7 +783,7 @@ function sendMessage(store_id = 0) {
 
 	$.ajax({
 		type: "POST",
-		url: 'index.php?route=extension/mollie/payment/mollie_{{ module_name }}|sendMessage&{{ token }}',
+		url: 'index.php?route=extension/mollie/payment/mollie_{{ module_name }}{{ method_separator }}sendMessage&{{ token }}',
 		data: data,
 		beforeSend: function() {
 			$('#button-support').prop('disabled', true).addClass('loading');
@@ -845,7 +850,7 @@ function sendMessage(store_id = 0) {
 		};
 		$.ajax({
 			type: "POST",
-			url: 'index.php?route=extension/mollie/payment/mollie_{{ module_name }}|saveAPIKey&{{ token }}',
+			url: 'index.php?route=extension/mollie/payment/mollie_{{ module_name }}{{ method_separator }}saveAPIKey&{{ token }}',
 			data: data,
 			success: function() {
 			window.location.reload();

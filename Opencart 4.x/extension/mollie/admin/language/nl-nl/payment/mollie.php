@@ -32,29 +32,32 @@
  */
 
 // These are called automatically by the Payment modules list - do not change the names
-$method_list_logo                   = '<a href="https://www.mollie.com" target="_blank"><img src="../image/mollie/mollie_logo.png" alt="Mollie" title="Mollie" style="border:0px" /></a>';
-$_['text_mollie_banktransfer']      = $method_list_logo;
-$_['text_mollie_belfius']           = $method_list_logo;
-$_['text_mollie_creditcard']        = $method_list_logo;
-$_['text_mollie_ideal']             = $method_list_logo;
-$_['text_mollie_kbc']               = $method_list_logo;
-$_['text_mollie_bancontact']        = $method_list_logo;
-$_['text_mollie_paypal']            = $method_list_logo;
-$_['text_mollie_paysafecard']       = $method_list_logo;
-$_['text_mollie_sofort']            = $method_list_logo;
-$_['text_mollie_giftcard']          = $method_list_logo;
-$_['text_mollie_eps']               = $method_list_logo;
-$_['text_mollie_giropay']           = $method_list_logo;
-$_['text_mollie_klarnapaylater']    = $method_list_logo;
-$_['text_mollie_klarnapaynow']      = $method_list_logo;
-$_['text_mollie_klarnasliceit']     = $method_list_logo;
-$_['text_mollie_przelewy_24']  	    = $method_list_logo;
-$_['text_mollie_applepay']  	    = $method_list_logo;
-$_['text_mollie_voucher']    	    = $method_list_logo;
-$_['text_mollie_in_3']    	        = $method_list_logo;
-$_['text_mollie_mybank']      	    = $method_list_logo;
-$_['text_mollie_billie']      	    = $method_list_logo;
-$_['text_mollie_klarna']      	    = $method_list_logo;
+$method_list_logo                = '<a href="https://www.mollie.com" target="_blank"><img src="../image/mollie/mollie_logo.png" alt="Mollie" title="Mollie" style="border:0px" /></a>';
+$_['text_mollie_banktransfer']   = $method_list_logo;
+$_['text_mollie_belfius']        = $method_list_logo;
+$_['text_mollie_creditcard']     = $method_list_logo;
+$_['text_mollie_ideal']          = $method_list_logo;
+$_['text_mollie_kbc']            = $method_list_logo;
+$_['text_mollie_bancontact']     = $method_list_logo;
+$_['text_mollie_paypal']         = $method_list_logo;
+$_['text_mollie_paysafecard']    = $method_list_logo;
+$_['text_mollie_sofort']         = $method_list_logo;
+$_['text_mollie_giftcard']       = $method_list_logo;
+$_['text_mollie_eps']            = $method_list_logo;
+$_['text_mollie_giropay']        = $method_list_logo;
+$_['text_mollie_klarnapaylater'] = $method_list_logo;
+$_['text_mollie_klarnapaynow']   = $method_list_logo;
+$_['text_mollie_klarnasliceit']  = $method_list_logo;
+$_['text_mollie_przelewy_24']  	 = $method_list_logo;
+$_['text_mollie_applepay']  	 = $method_list_logo;
+$_['text_mollie_voucher']    	 = $method_list_logo;
+$_['text_mollie_in_3']     	     = $method_list_logo;
+$_['text_mollie_mybank']      	 = $method_list_logo;
+$_['text_mollie_billie']      	 = $method_list_logo;
+$_['text_mollie_klarna']      	 = $method_list_logo;
+$_['text_mollie_twint']      	 = $method_list_logo;
+$_['text_mollie_blik']      	 = $method_list_logo;
+$_['text_mollie_bancomatpay']    = $method_list_logo;
 
 // Heading
 $_['heading_title']         = "Mollie";
@@ -87,6 +90,9 @@ $_['name_mollie_in_3']           = "IN3";
 $_['name_mollie_mybank']         = "MyBank";
 $_['name_mollie_billie']         = "Billie";
 $_['name_mollie_klarna']         = "Pay with Klarna";
+$_['name_mollie_twint']          = "Twint";
+$_['name_mollie_blik']           = "Blik";
+$_['name_mollie_bancomatpay']    = "Bancomat Pay";
 
 // Text
 $_['text_edit']                    = "Bewerk Mollie";
@@ -135,6 +141,7 @@ $_['text_pay_link_variables']      = "Toegestane variabelen: {firstname}, {lastn
 $_['text_pay_link_text']           = "Dear customer, <br /><br /> Click on the link below to complete your payment of {amount} for the order {order_id}.<br /><br /> {payment_link}<br /><br /><br /><br />Regards,<br /><br />{store_name}";
 $_['text_recurring_payment']       = "Terugkomende betaling";
 $_['text_payment_link']            = "Betalingslink";
+$_['text_coming_soon']             = "Binnenkort beschikbaar";
 
 // Entry
 $_['entry_payment_method']           = "Betaalmethode";
@@ -221,8 +228,8 @@ $_['error_no_api_key']         = 'No API key provided. Please insert your API ke
 $_['error_order_expiry_days']  = 'Waarschuwing: het is niet mogelijk om Klarna Slice it of Klarna Pay later als methode te gebruiken wanneer de vervaldatum meer dan 28 dagen in de toekomst ligt.';
 $_['error_mollie_payment_fee'] = 'Waarschuwing: Mollie Payment Fee ordertotaal is uitgeschakeld!';
 $_['error_file']               = 'Waarschuwing: %s bestand kon niet worden gevonden!';
-$_['error_address']            = 'Factuuradres staat uit, digitale bestellingen kunnen niet betaald worden. U kunt het factuuradres inschakelen in de
- <a href="%s">instellingen</a>.';
+$_['error_address']            = 'Factuuradres staat uit, digitale bestellingen kunnen niet betaald worden. U kunt het factuuradres inschakelen in de <a href="%s">instellingen</a>.';
+ $_['error_telephone']         = 'Telefoonveld is vereist bij sommige betaalmethoden. Schakel dit in via de <a href="%s">instellingen</a> en maak het verplicht.';
 
 // Status
 $_['entry_pending_status']            = "Status betaling aangemaakt";

@@ -2,6 +2,10 @@
 
 # Changelog #
 
+#### Changes in release 13.1.0
+  + New upcoming payment methods in next version - Twint, Blik, Bancomat Pay
+  + Bugfix and improvements
+
 #### Changes in release 13.0.0
   + Removed VQMod from module for opencart version 4 - now uses events 
   + Added 'Payment Link' payment method for orders created through admin 

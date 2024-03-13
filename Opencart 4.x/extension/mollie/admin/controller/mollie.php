@@ -93,9 +93,19 @@ class Mollie extends \Opencart\System\Engine\Controller {
 
     protected function getAPIClient($store) {
         $data = $this->config;
-        $data->set($this->mollieHelper->getModuleCode() . "_api_key", $this->mollieHelper->getApiKey($store));
+        $data->set($this->mollieHelper->getModuleCode() . "_api_key", (string)$this->mollieHelper->getApiKey($store));
 
         return $this->mollieHelper->getAPIClient($data);
+    }
+
+    private function getMethodSeparator() {
+        $method_separator = '|';
+
+        if(version_compare(VERSION, '4.0.2.0', '>=')) {
+            $method_separator = '.';
+        }
+
+        return $method_separator;
     }
 
 	/**
@@ -136,301 +146,152 @@ class Mollie extends \Opencart\System\Engine\Controller {
             $this->model_setting_event->deleteEventByCode($event_code);
         }
 
-        if(version_compare(VERSION, '4.0.2.0', '>=')) {
-			$event_data = [
-                0 => [
-                    "code" => "mollie_create_shipment",
-                    "description" => "Mollie Payment - Create shipment",
-                    "trigger" => "catalog/model/checkout/order/addHistory/after",
-                    "action" => 'extension/mollie/payment/mollie_ideal.createShipment',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                1 => [
-                    "code" => "mollie_order_info_controller",
-                    "description" => "Mollie Payment - Add mollie data to order controller",
-                    "trigger" => "admin/view/sale/order_info/before",
-                    "action" => 'extension/mollie/payment/mollie_ideal.orderController',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                2 => [
-                    "code" => "mollie_order_info_template",
-                    "description" => "Mollie Payment - Add mollie data to order info template",
-                    "trigger" => "admin/view/sale/order_info/before",
-                    "action" => 'extension/mollie/payment/mollie_ideal.orderInfoTemplate',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                3 => [
-                    "code" => "mollie_update_message_dashboard",
-                    "description" => "Mollie Payment - Module update message on dashboard",
-                    "trigger" => "admin/view/common/dashboard/before",
-                    "action" => 'extension/mollie/payment/mollie_ideal.addMollieUpgradeToDashboard',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                4 => [
-                    "code" => "mollie_update_message_dashboard_template",
-                    "description" => "Mollie Payment - Module update message on dashboard template",
-                    "trigger" => "admin/view/common/dashboard/before",
-                    "action" => 'extension/mollie/payment/mollie_ideal.addMollieUpgradeToDashboardTemplate',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                5 => [
-                    "code" => "mollie_product_controller",
-                    "description" => "Mollie Payment - Add mollie data to product controller",
-                    "trigger" => "admin/view/catalog/product_form/before",
-                    "action" => 'extension/mollie/payment/mollie_ideal.productController',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                6 => [
-                    "code" => "mollie_product_form_template",
-                    "description" => "Mollie Payment - Add mollie data to product form template",
-                    "trigger" => "admin/view/catalog/product_form/before",
-                    "action" => 'extension/mollie/payment/mollie_ideal.productFormTemplate',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                7 => [
-                    "code" => "mollie_product_model",
-                    "description" => "Mollie Payment - Add mollie data to product model",
-                    "trigger" => "admin/model/catalog/product/addProduct/after",
-                    "action" => 'extension/mollie/payment/mollie_ideal.productModelAddProductAfter',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                8 => [
-                    "code" => "mollie_product_model",
-                    "description" => "Mollie Payment - Add mollie data to product model",
-                    "trigger" => "admin/model/catalog/product/editProduct/after",
-                    "action" => 'extension/mollie/payment/mollie_ideal.productModelEditProductAfter',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                9 => [
-                    "code" => "mollie_checkout_controller",
-                    "description" => "Mollie Payment - Add mollie data on checkout controller",
-                    "trigger" => "catalog/controller/checkout/checkout/before",
-                    "action" => 'extension/mollie/payment/mollie_ideal.checkoutController',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                10 => [
-                    "code" => "mollie_login_controller",
-                    "description" => "Mollie Payment - Add mollie data to login controller",
-                    "trigger" => "catalog/controller/account/login/token/before",
-                    "action" => 'extension/mollie/payment/mollie_ideal.loginController',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                11 => [
-                    "code" => "mollie_mail_order_controller",
-                    "description" => "Mollie Payment - Add payment link to order mail controller",
-                    "trigger" => "catalog/view/mail/order_invoice/before",
-                    "action" => 'extension/mollie/payment/mollie_ideal.mailOrderController',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                12 => [
-                    "code" => "mollie_mail_order_template",
-                    "description" => "Mollie Payment - Add payment link to order mail template",
-                    "trigger" => "catalog/view/mail/order_invoice/before",
-                    "action" => 'extension/mollie/payment/mollie_ideal.mailOrderTemplate',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                13 => [
-                    "code" => "mollie_get_methods_after",
-                    "description" => "Mollie Payment",
-                    "trigger" => "catalog/model/checkout/payment_method/getMethods/after",
-                    "action" => 'extension/mollie/payment/mollie_ideal.getPaymentMethodsAfter',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                14 => [
-                    "code" => "mollie_add_order_after",
-                    "description" => "Mollie Payment",
-                    "trigger" => "catalog/model/checkout/order/addOrder/after",
-                    "action" => 'extension/mollie/payment/mollie_ideal.addOrderAfter',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                15 => [
-                    "code" => "mollie_edit_order_after",
-                    "description" => "Mollie Payment",
-                    "trigger" => "catalog/model/checkout/order/editOrder/after",
-                    "action" => 'extension/mollie/payment/mollie_ideal.editOrderAfter',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                16 => [
-                    "code" => "mollie_add_history_after",
-                    "description" => "Mollie Payment",
-                    "trigger" => "catalog/model/checkout/order/addHistory/after",
-                    "action" => 'extension/mollie/payment/mollie_ideal.addHistoryAfter',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                17 => [
-                    "code" => "mollie_payment_method_controller",
-                    "description" => "Mollie Payment",
-                    "trigger" => "catalog/view/checkout/payment_method/before",
-                    "action" => 'extension/mollie/payment/mollie_ideal.checkoutPaymentMethodController',
-                    "status" => 1,
-                    "sort_order" => 0
-                ]
-            ];
-		} else {
-			$event_data = [
-                0 => [
-                    "code" => "mollie_create_shipment",
-                    "description" => "Mollie Payment - Create shipment",
-                    "trigger" => "catalog/model/checkout/order/addHistory/after",
-                    "action" => 'extension/mollie/payment/mollie_ideal|createShipment',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                1 => [
-                    "code" => "mollie_order_info_controller",
-                    "description" => "Mollie Payment - Add mollie data to order controller",
-                    "trigger" => "admin/view/sale/order_info/before",
-                    "action" => 'extension/mollie/payment/mollie_ideal|orderController',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                2 => [
-                    "code" => "mollie_order_info_template",
-                    "description" => "Mollie Payment - Add mollie data to order info template",
-                    "trigger" => "admin/view/sale/order_info/before",
-                    "action" => 'extension/mollie/payment/mollie_ideal|orderInfoTemplate',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                3 => [
-                    "code" => "mollie_update_message_dashboard",
-                    "description" => "Mollie Payment - Module update message on dashboard",
-                    "trigger" => "admin/view/common/dashboard/before",
-                    "action" => 'extension/mollie/payment/mollie_ideal|addMollieUpgradeToDashboard',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                4 => [
-                    "code" => "mollie_update_message_dashboard_template",
-                    "description" => "Mollie Payment - Module update message on dashboard template",
-                    "trigger" => "admin/view/common/dashboard/before",
-                    "action" => 'extension/mollie/payment/mollie_ideal|addMollieUpgradeToDashboardTemplate',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                5 => [
-                    "code" => "mollie_product_controller",
-                    "description" => "Mollie Payment - Add mollie data to product controller",
-                    "trigger" => "admin/view/catalog/product_form/before",
-                    "action" => 'extension/mollie/payment/mollie_ideal|productController',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                6 => [
-                    "code" => "mollie_product_form_template",
-                    "description" => "Mollie Payment - Add mollie data to product form template",
-                    "trigger" => "admin/view/catalog/product_form/before",
-                    "action" => 'extension/mollie/payment/mollie_ideal|productFormTemplate',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                7 => [
-                    "code" => "mollie_product_model",
-                    "description" => "Mollie Payment - Add mollie data to product model",
-                    "trigger" => "admin/model/catalog/product/addProduct/after",
-                    "action" => 'extension/mollie/payment/mollie_ideal|productModelAddProductAfter',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                8 => [
-                    "code" => "mollie_product_model",
-                    "description" => "Mollie Payment - Add mollie data to product model",
-                    "trigger" => "admin/model/catalog/product/editProduct/after",
-                    "action" => 'extension/mollie/payment/mollie_ideal|productModelEditProductAfter',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                9 => [
-                    "code" => "mollie_checkout_controller",
-                    "description" => "Mollie Payment - Add mollie data on checkout controller",
-                    "trigger" => "catalog/controller/checkout/checkout/before",
-                    "action" => 'extension/mollie/payment/mollie_ideal|checkoutController',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                10 => [
-                    "code" => "mollie_login_controller",
-                    "description" => "Mollie Payment - Add mollie data to login controller",
-                    "trigger" => "catalog/controller/account/login/token/before",
-                    "action" => 'extension/mollie/payment/mollie_ideal|loginController',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                11 => [
-                    "code" => "mollie_mail_order_controller",
-                    "description" => "Mollie Payment - Add payment link to order mail controller",
-                    "trigger" => "catalog/view/mail/order_invoice/before",
-                    "action" => 'extension/mollie/payment/mollie_ideal|mailOrderController',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                12 => [
-                    "code" => "mollie_mail_order_template",
-                    "description" => "Mollie Payment - Add payment link to order mail template",
-                    "trigger" => "catalog/view/mail/order_invoice/before",
-                    "action" => 'extension/mollie/payment/mollie_ideal|mailOrderTemplate',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                13 => [
-                    "code" => "mollie_get_methods_after",
-                    "description" => "Mollie Payment",
-                    "trigger" => "catalog/model/checkout/payment_method/getMethods/after",
-                    "action" => 'extension/mollie/payment/mollie_ideal|getPaymentMethodsAfter',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                14 => [
-                    "code" => "mollie_add_order_after",
-                    "description" => "Mollie Payment",
-                    "trigger" => "catalog/model/checkout/order/addOrder/after",
-                    "action" => 'extension/mollie/payment/mollie_ideal|addOrderAfter',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                15 => [
-                    "code" => "mollie_edit_order_after",
-                    "description" => "Mollie Payment",
-                    "trigger" => "catalog/model/checkout/order/editOrder/after",
-                    "action" => 'extension/mollie/payment/mollie_ideal|editOrderAfter',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                16 => [
-                    "code" => "mollie_add_history_after",
-                    "description" => "Mollie Payment",
-                    "trigger" => "catalog/model/checkout/order/addHistory/after",
-                    "action" => 'extension/mollie/payment/mollie_ideal|addHistoryAfter',
-                    "status" => 1,
-                    "sort_order" => 0
-                ],
-                17 => [
-                    "code" => "mollie_payment_method_controller",
-                    "description" => "Mollie Payment",
-                    "trigger" => "catalog/view/checkout/payment_method/before",
-                    "action" => 'extension/mollie/payment/mollie_ideal|checkoutPaymentMethodController',
-                    "status" => 1,
-                    "sort_order" => 0
-                ]
-            ];
-		}
+        $event_data = [
+            0 => [
+                "code" => "mollie_create_shipment",
+                "description" => "Mollie Payment - Create shipment",
+                "trigger" => "catalog/model/checkout/order/addHistory/after",
+                "action" => 'extension/mollie/payment/mollie_ideal' . $this->getMethodSeparator() . 'createShipment',
+                "status" => 1,
+                "sort_order" => 0
+            ],
+            1 => [
+                "code" => "mollie_order_info_controller",
+                "description" => "Mollie Payment - Add mollie data to order controller",
+                "trigger" => "admin/view/sale/order_info/before",
+                "action" => 'extension/mollie/payment/mollie_ideal' . $this->getMethodSeparator() . 'orderController',
+                "status" => 1,
+                "sort_order" => 0
+            ],
+            2 => [
+                "code" => "mollie_order_info_template",
+                "description" => "Mollie Payment - Add mollie data to order info template",
+                "trigger" => "admin/view/sale/order_info/before",
+                "action" => 'extension/mollie/payment/mollie_ideal' . $this->getMethodSeparator() . 'orderInfoTemplate',
+                "status" => 1,
+                "sort_order" => 0
+            ],
+            3 => [
+                "code" => "mollie_update_message_dashboard",
+                "description" => "Mollie Payment - Module update message on dashboard",
+                "trigger" => "admin/view/common/dashboard/before",
+                "action" => 'extension/mollie/payment/mollie_ideal' . $this->getMethodSeparator() . 'addMollieUpgradeToDashboard',
+                "status" => 1,
+                "sort_order" => 0
+            ],
+            4 => [
+                "code" => "mollie_update_message_dashboard_template",
+                "description" => "Mollie Payment - Module update message on dashboard template",
+                "trigger" => "admin/view/common/dashboard/before",
+                "action" => 'extension/mollie/payment/mollie_ideal' . $this->getMethodSeparator() . 'addMollieUpgradeToDashboardTemplate',
+                "status" => 1,
+                "sort_order" => 0
+            ],
+            5 => [
+                "code" => "mollie_product_controller",
+                "description" => "Mollie Payment - Add mollie data to product controller",
+                "trigger" => "admin/view/catalog/product_form/before",
+                "action" => 'extension/mollie/payment/mollie_ideal' . $this->getMethodSeparator() . 'productController',
+                "status" => 1,
+                "sort_order" => 0
+            ],
+            6 => [
+                "code" => "mollie_product_form_template",
+                "description" => "Mollie Payment - Add mollie data to product form template",
+                "trigger" => "admin/view/catalog/product_form/before",
+                "action" => 'extension/mollie/payment/mollie_ideal' . $this->getMethodSeparator() . 'productFormTemplate',
+                "status" => 1,
+                "sort_order" => 0
+            ],
+            7 => [
+                "code" => "mollie_product_model",
+                "description" => "Mollie Payment - Add mollie data to product model",
+                "trigger" => "admin/model/catalog/product/addProduct/after",
+                "action" => 'extension/mollie/payment/mollie_ideal' . $this->getMethodSeparator() . 'productModelAddProductAfter',
+                "status" => 1,
+                "sort_order" => 0
+            ],
+            8 => [
+                "code" => "mollie_product_model",
+                "description" => "Mollie Payment - Add mollie data to product model",
+                "trigger" => "admin/model/catalog/product/editProduct/after",
+                "action" => 'extension/mollie/payment/mollie_ideal' . $this->getMethodSeparator() . 'productModelEditProductAfter',
+                "status" => 1,
+                "sort_order" => 0
+            ],
+            9 => [
+                "code" => "mollie_checkout_controller",
+                "description" => "Mollie Payment - Add mollie data on checkout controller",
+                "trigger" => "catalog/controller/checkout/checkout/before",
+                "action" => 'extension/mollie/payment/mollie_ideal' . $this->getMethodSeparator() . 'checkoutController',
+                "status" => 1,
+                "sort_order" => 0
+            ],
+            10 => [
+                "code" => "mollie_login_controller",
+                "description" => "Mollie Payment - Add mollie data to login controller",
+                "trigger" => "catalog/controller/account/login/token/before",
+                "action" => 'extension/mollie/payment/mollie_ideal' . $this->getMethodSeparator() . 'loginController',
+                "status" => 1,
+                "sort_order" => 0
+            ],
+            11 => [
+                "code" => "mollie_mail_order_controller",
+                "description" => "Mollie Payment - Add payment link to order mail controller",
+                "trigger" => "catalog/view/mail/order_invoice/before",
+                "action" => 'extension/mollie/payment/mollie_ideal' . $this->getMethodSeparator() . 'mailOrderController',
+                "status" => 1,
+                "sort_order" => 0
+            ],
+            12 => [
+                "code" => "mollie_mail_order_template",
+                "description" => "Mollie Payment - Add payment link to order mail template",
+                "trigger" => "catalog/view/mail/order_invoice/before",
+                "action" => 'extension/mollie/payment/mollie_ideal' . $this->getMethodSeparator() . 'mailOrderTemplate',
+                "status" => 1,
+                "sort_order" => 0
+            ],
+            13 => [
+                "code" => "mollie_get_methods_after",
+                "description" => "Mollie Payment",
+                "trigger" => "catalog/model/checkout/payment_method/getMethods/after",
+                "action" => 'extension/mollie/payment/mollie_ideal' . $this->getMethodSeparator() . 'getPaymentMethodsAfter',
+                "status" => 1,
+                "sort_order" => 0
+            ],
+            14 => [
+                "code" => "mollie_add_order_after",
+                "description" => "Mollie Payment",
+                "trigger" => "catalog/model/checkout/order/addOrder/after",
+                "action" => 'extension/mollie/payment/mollie_ideal' . $this->getMethodSeparator() . 'addOrderAfter',
+                "status" => 1,
+                "sort_order" => 0
+            ],
+            15 => [
+                "code" => "mollie_edit_order_after",
+                "description" => "Mollie Payment",
+                "trigger" => "catalog/model/checkout/order/editOrder/after",
+                "action" => 'extension/mollie/payment/mollie_ideal' . $this->getMethodSeparator() . 'editOrderAfter',
+                "status" => 1,
+                "sort_order" => 0
+            ],
+            16 => [
+                "code" => "mollie_add_history_after",
+                "description" => "Mollie Payment",
+                "trigger" => "catalog/model/checkout/order/addHistory/after",
+                "action" => 'extension/mollie/payment/mollie_ideal' . $this->getMethodSeparator() . 'addHistoryAfter',
+                "status" => 1,
+                "sort_order" => 0
+            ],
+            17 => [
+                "code" => "mollie_payment_method_controller",
+                "description" => "Mollie Payment",
+                "trigger" => "catalog/view/checkout/payment_method/before",
+                "action" => 'extension/mollie/payment/mollie_ideal' . $this->getMethodSeparator() . 'checkoutPaymentMethodController',
+                "status" => 1,
+                "sort_order" => 0
+            ]
+        ];
 
         foreach ($event_data as $event) {
             $this->model_setting_event->addEvent($event);
@@ -667,14 +528,21 @@ class Mollie extends \Opencart\System\Engine\Controller {
 			} else {
 				$data['error_warning'] = '';
 			}
+
+            $telephone_display = $this->config->get('config_telephone_display');
+			$telephone_required = $this->config->get('config_telephone_required');
+
+            if (!$telephone_display || !$telephone_required) {
+                $data['error_warning'] = sprintf($this->language->get('error_telephone'), $this->url->link('setting/setting', $this->token));
+            }
 		}
 		
-		$data['save'] = $this->url->link('extension/mollie/payment/mollie_' . static::MODULE_NAME . '|save', $this->token);		
+		$data['save'] = $this->url->link('extension/mollie/payment/mollie_' . static::MODULE_NAME . $this->getMethodSeparator() . 'save', $this->token);		
 		$data['back'] = $this->url->link('marketplace/extension', $this->token . '&type=payment');
 
 		// Set data for template
         $data['module_name']        = static::MODULE_NAME;
-        $data['api_check_url']      = $this->url->link("extension/mollie/payment/mollie_" . static::MODULE_NAME . "|validate_api_key", $this->token);
+        $data['api_check_url']      = $this->url->link("extension/mollie/payment/mollie_" . static::MODULE_NAME . $this->getMethodSeparator() . "validate_api_key", $this->token);
         $data['entry_version']      = $this->language->get("entry_version") . " " . MOLLIE_VERSION;
         $data['code']               = $code;
 		$data['token']          	= $this->token;
@@ -701,6 +569,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
 
 		$data['currencies']			= $this->model_localisation_currency->getCurrencies();
 		$data['tax_classes']        = $this->model_localisation_tax_class->getTaxClasses();
+        $data['method_separator']   = $this->getMethodSeparator();
 
 		$this->load->model('tool/image');
 
@@ -921,8 +790,8 @@ class Mollie extends \Opencart\System\Engine\Controller {
 		$data['mollie_version'] = $this->config->get($code . '_version');
 		$data['mod_file'] = $this->config->get($code . '_mod_file');
 
-		$data['download'] = $this->url->link("extension/mollie/payment/mollie_" . static::MODULE_NAME . "|download", $this->token);
-		$data['clear'] = $this->url->link("extension/mollie/payment/mollie_" . static::MODULE_NAME . "|clear", $this->token);
+		$data['download'] = $this->url->link("extension/mollie/payment/mollie_" . static::MODULE_NAME . $this->getMethodSeparator() . "download", $this->token);
+		$data['clear'] = $this->url->link("extension/mollie/payment/mollie_" . static::MODULE_NAME . $this->getMethodSeparator() . "clear", $this->token);
 
 		$data['log'] = '';
 
@@ -1119,22 +988,24 @@ class Mollie extends \Opencart\System\Engine\Controller {
         $client = new mollieHttpClient();
         $info = $client->get(MOLLIE_VERSION_URL);
 
-        if(strpos($info["tag_name"], 'oc4') !== false) {
-            $tag_name = explode('_', explode("-", $info["tag_name"])[1]); // New tag_name = oc3_version-oc4_version
-        } else {
-            $tag_name = ["oc4", $info["tag_name"]]; // Old tag_name = release version
+        if (isset($info["tag_name"])) {
+            if(strpos($info["tag_name"], 'oc4') !== false) {
+                $tag_name = explode('_', explode("-", $info["tag_name"])[1]); // New tag_name = oc3_version-oc4_version
+            } else {
+                $tag_name = ["oc4", $info["tag_name"]]; // Old tag_name = release version
+            }
+    
+            if (isset($tag_name[0]) && ($tag_name[0] == 'oc4')) {
+                if (isset($tag_name[1]) && ($tag_name[1] != MOLLIE_VERSION) && version_compare(MOLLIE_VERSION, $tag_name[1], "<")) {
+                    $updateUrl = array(
+                        "updateUrl" => $this->url->link("extension/mollie/payment/mollie_" . static::MODULE_NAME . $this->getMethodSeparator() . "update", $this->token),
+                        "updateVersion" => $tag_name[1]
+                    );
+        
+                    return $updateUrl;
+                }
+            }
         }
-
-		if (isset($tag_name[0]) && ($tag_name[0] == 'oc4')) {
-			if (isset($tag_name[1]) && ($tag_name[1] != MOLLIE_VERSION) && version_compare(MOLLIE_VERSION, $tag_name[1], "<")) {
-				$updateUrl = array(
-					"updateUrl" => $this->url->link("extension/mollie/payment/mollie_" . static::MODULE_NAME . "|update", $this->token),
-					"updateVersion" => $tag_name[1]
-				);
-	
-				return $updateUrl;
-			}
-		}
         
         return false;
     }
@@ -1973,10 +1844,14 @@ class Mollie extends \Opencart\System\Engine\Controller {
 
         $data['voucher_categories'] = ['meal', 'eco', 'gift'];
 
-        $voucher_category = $this->model_extension_mollie_payment_mollie->getProductVoucherCategory($data['product_id']);
+        if (!empty($data['product_id'])) {
+            $voucher_category = $this->model_extension_mollie_payment_mollie->getProductVoucherCategory($data['product_id']);
 
-        if (!empty($voucher_category)) {
-            $data['voucher_category'] = $voucher_category;
+            if (!empty($voucher_category)) {
+                $data['voucher_category'] = $voucher_category;
+            } else {
+                $data['voucher_category'] = '';
+            }
         } else {
             $data['voucher_category'] = '';
         }
