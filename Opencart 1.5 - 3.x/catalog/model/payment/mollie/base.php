@@ -188,6 +188,13 @@ class ModelPaymentMollieBase extends Model
 			}
 		}
 
+		// Company name required for Billie method
+		if(static::MODULE_NAME == 'billie') {
+			if (isset($this->session->data['payment_address']) && ($this->session->data['payment_address']['company'] == '')) {
+				return NULL;
+			}
+		}
+
 		// Get billing country	
 		$this->load->model('localisation/country');
 

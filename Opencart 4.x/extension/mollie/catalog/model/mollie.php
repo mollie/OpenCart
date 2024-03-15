@@ -187,6 +187,13 @@ class Mollie extends \Opencart\System\Engine\Model {
 			}
 		}
 
+		// Company name required for Billie method
+		if(static::MODULE_NAME == 'billie') {
+			if (isset($this->session->data['payment_address']) && ($this->session->data['payment_address']['company'] == '')) {
+				return NULL;
+			}
+		}
+
 		// Subscription
 		if ($this->cart->hasSubscription()) {
 			$subscription_methods = ["applepay", "bancontact", "belfius", "creditcard", "eps", "giropay", "ideal", "kbc", "paypal", "sofort"];
@@ -360,6 +367,13 @@ class Mollie extends \Opencart\System\Engine\Model {
 
 			if (!$voucherStatus) {
 				return [];
+			}
+		}
+
+		// Company name required for Billie method
+		if(static::MODULE_NAME == 'billie') {
+			if (isset($this->session->data['payment_address']) && ($this->session->data['payment_address']['company'] == '')) {
+				return NULL;
 			}
 		}
 

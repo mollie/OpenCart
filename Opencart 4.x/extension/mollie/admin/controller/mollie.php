@@ -1799,21 +1799,23 @@ class Mollie extends \Opencart\System\Engine\Controller {
                 $client = new \Mollie\mollieHttpClient();
                 $info = $client->get("https://api.github.com/repos/mollie/OpenCart/releases/latest");
 
-                if(strpos($info["tag_name"], 'oc4') !== false) {
-                    $tag_name = explode('_', explode("-", $info["tag_name"])[1]); // New tag_name = oc3_version-oc4_version
-                } else {
-                    $tag_name = ["oc4", $info["tag_name"]]; // Old tag_name = release version
-                }
-
-                $mollieHelper = new \MollieHelper($this->registry);
-
-                if (isset($tag_name[0]) && ($tag_name[0] == 'oc4')) {
-                    if (isset($tag_name[1]) && ($tag_name[1] != $mollieHelper::PLUGIN_VERSION) && version_compare($mollieHelper::PLUGIN_VERSION, $tag_name[1], "<") && (!isset($_COOKIE["hide_mollie_update_message_version"]) || ($_COOKIE["hide_mollie_update_message_version"] != $tag_name[1]))) {
-                        $this->load->language('extension/mollie/payment/mollie');
-
-                        $token = 'user_token=' . $this->session->data['user_token'];
-
-                        $data['mollie_update'] = sprintf($this->language->get('text_update_message'), $tag_name[1], $this->url->link("extension/mollie/payment/mollie_ideal/update", $token), $tag_name[1]);
+                if (isset($info["tag_name"])) {
+                    if(strpos($info["tag_name"], 'oc4') !== false) {
+                        $tag_name = explode('_', explode("-", $info["tag_name"])[1]); // New tag_name = oc3_version-oc4_version
+                    } else {
+                        $tag_name = ["oc4", $info["tag_name"]]; // Old tag_name = release version
+                    }
+    
+                    $mollieHelper = new \MollieHelper($this->registry);
+    
+                    if (isset($tag_name[0]) && ($tag_name[0] == 'oc4')) {
+                        if (isset($tag_name[1]) && ($tag_name[1] != $mollieHelper::PLUGIN_VERSION) && version_compare($mollieHelper::PLUGIN_VERSION, $tag_name[1], "<") && (!isset($_COOKIE["hide_mollie_update_message_version"]) || ($_COOKIE["hide_mollie_update_message_version"] != $tag_name[1]))) {
+                            $this->load->language('extension/mollie/payment/mollie');
+    
+                            $token = 'user_token=' . $this->session->data['user_token'];
+    
+                            $data['mollie_update'] = sprintf($this->language->get('text_update_message'), $tag_name[1], $this->url->link("extension/mollie/payment/mollie_ideal/update", $token), $tag_name[1]);
+                        }
                     }
                 }
                 

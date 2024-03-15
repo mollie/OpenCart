@@ -2,6 +2,10 @@
 
 # Changelog #
 
+#### Changes in release 13.1.1
+  + Fixed bug caused by missing telephone number
+  + Other bugfix and improvements
+
 #### Changes in release 13.1.0
   + New upcoming payment methods in next version - Twint, Blik, Bancomat Pay
   + Bugfix and improvements
