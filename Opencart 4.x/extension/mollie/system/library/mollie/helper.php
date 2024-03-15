@@ -4,7 +4,7 @@ use Mollie\Api\MollieApiClient;
 
 class MollieHelper {
 
-	const PLUGIN_VERSION = "13.1.0";
+	const PLUGIN_VERSION = "13.1.1";
 
 	const OUTH_URL = 'https://api.mollie.com/oauth2';
 

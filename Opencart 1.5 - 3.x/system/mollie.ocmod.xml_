@@ -992,23 +992,25 @@
                 require_once(DIR_SYSTEM . "/library/mollie/mollieHttpClient.php");
                 $client = new Mollie\mollieHttpClient();
                 $info = $client->get("https://api.github.com/repos/mollie/OpenCart/releases/latest");
-                
-                if(strpos($info["tag_name"], 'oc3') !== false) {
-                    $tag_name = explode('_', explode("-", $info["tag_name"])[0]); // New tag_name = oc3_version-oc4_version
-                } else {
-                    $tag_name = ["oc3", $info["tag_name"]]; // Old tag_name = release version
-                }
 
-                $mollieHelper = new MollieHelper($this->registry);
+                if (isset($info["tag_name"])) {
+                    if(strpos($info["tag_name"], 'oc3') !== false) {
+                        $tag_name = explode('_', explode("-", $info["tag_name"])[0]); // New tag_name = oc3_version-oc4_version
+                    } else {
+                        $tag_name = ["oc3", $info["tag_name"]]; // Old tag_name = release version
+                    }
 
-                if (isset($tag_name[0]) && ($tag_name[0] == 'oc3')) {
-                    if (isset($tag_name[1]) && ($tag_name[1] != $mollieHelper::PLUGIN_VERSION) && version_compare($mollieHelper::PLUGIN_VERSION, $tag_name[1], "<") && (!isset($_COOKIE["hide_mollie_update_message_version"]) || ($_COOKIE["hide_mollie_update_message_version"] != $tag_name[1]))) {
-                        $this->language->load('payment/mollie_ideal');
+                    $mollieHelper = new MollieHelper($this->registry);
 
-                        if (version_compare(phpversion(), $mollieHelper::MIN_PHP_VERSION, "<")) {
-                            $this->data['success'] = sprintf($this->language->get('text_update_message'), $tag_name[1], HTTPS_SERVER . 'index.php?route=payment/mollie_ideal&token=' . $this->session->data['token'], $tag_name[1]);
-                        } else {
-                            $this->data['success'] = sprintf($this->language->get('text_update_message'), $tag_name[1], HTTPS_SERVER . 'index.php?route=payment/mollie_ideal/update&token=' . $this->session->data['token'], $tag_name[1]);
+                    if (isset($tag_name[0]) && ($tag_name[0] == 'oc3')) {
+                        if (isset($tag_name[1]) && ($tag_name[1] != $mollieHelper::PLUGIN_VERSION) && version_compare($mollieHelper::PLUGIN_VERSION, $tag_name[1], "<") && (!isset($_COOKIE["hide_mollie_update_message_version"]) || ($_COOKIE["hide_mollie_update_message_version"] != $tag_name[1]))) {
+                            $this->language->load('payment/mollie_ideal');
+
+                            if (version_compare(phpversion(), $mollieHelper::MIN_PHP_VERSION, "<")) {
+                                $this->data['success'] = sprintf($this->language->get('text_update_message'), $tag_name[1], HTTPS_SERVER . 'index.php?route=payment/mollie_ideal&token=' . $this->session->data['token'], $tag_name[1]);
+                            } else {
+                                $this->data['success'] = sprintf($this->language->get('text_update_message'), $tag_name[1], HTTPS_SERVER . 'index.php?route=payment/mollie_ideal/update&token=' . $this->session->data['token'], $tag_name[1]);
+                            }
                         }
                     }
                 }
@@ -2390,31 +2392,33 @@ $('#button-partial-refund').on('click', function() {
                 require_once(DIR_SYSTEM . "/library/mollie/mollieHttpClient.php");
                 $client = new Mollie\mollieHttpClient();
                 $info = $client->get("https://api.github.com/repos/mollie/OpenCart/releases/latest");
-                
-                if(strpos($info["tag_name"], 'oc3') !== false) {
-                    $tag_name = explode('_', explode("-", $info["tag_name"])[0]); // New tag_name = oc3_version-oc4_version
-                } else {
-                    $tag_name = ["oc3", $info["tag_name"]]; // Old tag_name = release version
-                }
 
-                $mollieHelper = new MollieHelper($this->registry);
+                if (isset($info["tag_name"])) {
+                    if(strpos($info["tag_name"], 'oc3') !== false) {
+                        $tag_name = explode('_', explode("-", $info["tag_name"])[0]); // New tag_name = oc3_version-oc4_version
+                    } else {
+                        $tag_name = ["oc3", $info["tag_name"]]; // Old tag_name = release version
+                    }
 
-                if (isset($tag_name[0]) && ($tag_name[0] == 'oc3')) {
-                    if (isset($tag_name[1]) && ($tag_name[1] != $mollieHelper::PLUGIN_VERSION) && version_compare($mollieHelper::PLUGIN_VERSION, $tag_name[1], "<") && (!isset($_COOKIE["hide_mollie_update_message_version"]) || ($_COOKIE["hide_mollie_update_message_version"] != $tag_name[1]))) {
-                        $this->load->language('payment/mollie_ideal');
+                    $mollieHelper = new MollieHelper($this->registry);
 
-                        if(version_compare(VERSION, '3.0', '<')) {
-                            $token = 'token=' . $this->session->data['token'];
-                        } else {
-                            $token = 'user_token=' . $this->session->data['user_token'];
+                    if (isset($tag_name[0]) && ($tag_name[0] == 'oc3')) {
+                        if (isset($tag_name[1]) && ($tag_name[1] != $mollieHelper::PLUGIN_VERSION) && version_compare($mollieHelper::PLUGIN_VERSION, $tag_name[1], "<") && (!isset($_COOKIE["hide_mollie_update_message_version"]) || ($_COOKIE["hide_mollie_update_message_version"] != $tag_name[1]))) {
+                            $this->load->language('payment/mollie_ideal');
+
+                            if(version_compare(VERSION, '3.0', '<')) {
+                                $token = 'token=' . $this->session->data['token'];
+                            } else {
+                                $token = 'user_token=' . $this->session->data['user_token'];
+                            }
+
+                            if (version_compare(phpversion(), $mollieHelper::MIN_PHP_VERSION, "<")) {
+                                $data['success'] = sprintf($this->language->get('text_update_message'), $tag_name[1], $this->url->link("payment/mollie_ideal", $token), $tag_name[1]);
+                            } else {
+                                $data['success'] = sprintf($this->language->get('text_update_message'), $tag_name[1], $this->url->link("payment/mollie_ideal/update", $token), $tag_name[1]);
+                            }
                         }
-
-                        if (version_compare(phpversion(), $mollieHelper::MIN_PHP_VERSION, "<")) {
-                            $data['success'] = sprintf($this->language->get('text_update_message'), $tag_name[1], $this->url->link("payment/mollie_ideal", $token), $tag_name[1]);
-                        } else {
-                            $data['success'] = sprintf($this->language->get('text_update_message'), $tag_name[1], $this->url->link("payment/mollie_ideal/update", $token), $tag_name[1]);
-                        }
-                }
+                    }
                 }
                 
                 break;

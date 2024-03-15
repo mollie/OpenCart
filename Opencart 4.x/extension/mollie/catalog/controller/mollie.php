@@ -873,7 +873,6 @@ class Mollie extends \Opencart\System\Engine\Controller {
                     "givenName"     =>   $this->formatText($order['payment_firstname']),
                     "familyName"    =>   $this->formatText($order['payment_lastname']),
                     "email"         =>   $this->formatText($order['email']),
-                    "phone"         =>   $this->formatText($order['telephone']),
                     "streetAndNumber" => $this->formatText($order['payment_address_1'] . ' ' . $order['payment_address_2']),
                     "city" => $this->formatText($order['payment_city']),
                     "region" => $this->formatText($order['payment_zone']),
@@ -884,6 +883,10 @@ class Mollie extends \Opencart\System\Engine\Controller {
                 if (isset($order['payment_company']) && !empty($order['payment_company'])) {
                     $data["billingAddress"]['organizationName'] = $this->formatText($order['payment_company']);
                 }
+
+                if (isset($order['telephone']) && !empty($order['telephone'])) {
+                    //$data["billingAddress"]['phone'] = $this->formatText($order['telephone']);
+                }
             }
 			
 			if (isset($this->session->data['shipping_address'])) {
@@ -892,7 +895,6 @@ class Mollie extends \Opencart\System\Engine\Controller {
 						"givenName"     =>   $this->formatText($order['shipping_firstname']),
 						"familyName"    =>   $this->formatText($order['shipping_lastname']),
 						"email"         =>   $this->formatText($order['email']),
-                        "phone"         =>   $this->formatText($order['telephone']),
 						"streetAndNumber" => $this->formatText($order['shipping_address_1'] . ' ' . $order['shipping_address_2']),
 						"city" => $this->formatText($order['shipping_city']),
 						"region" => $this->formatText($order['shipping_zone']),
@@ -902,6 +904,10 @@ class Mollie extends \Opencart\System\Engine\Controller {
 
                     if (isset($order['shipping_company']) && !empty($order['shipping_company'])) {
                         $data["shippingAddress"]['organizationName'] = $this->formatText($order['shipping_company']);
+                    }
+
+                    if (isset($order['telephone']) && !empty($order['telephone'])) {
+                        //$data["shippingAddress"]['phone'] = $this->formatText($order['telephone']);
                     }
 				} else {
                     if ($this->config->get('config_checkout_address')) {
