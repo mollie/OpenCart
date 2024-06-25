@@ -2,11 +2,11 @@
 
 namespace Mollie\Api\HttpAdapter;
 
-use _PhpScopercb67a1bccfc7\GuzzleHttp\Exception\ConnectException;
-use _PhpScopercb67a1bccfc7\GuzzleHttp\Exception\TransferException;
-use _PhpScopercb67a1bccfc7\GuzzleHttp\Middleware;
-use _PhpScopercb67a1bccfc7\GuzzleHttp\Psr7\Request;
-use _PhpScopercb67a1bccfc7\GuzzleHttp\Psr7\Response;
+use _PhpScopera4a4d1654b06\GuzzleHttp\Exception\ConnectException;
+use _PhpScopera4a4d1654b06\GuzzleHttp\Exception\TransferException;
+use _PhpScopera4a4d1654b06\GuzzleHttp\Middleware;
+use _PhpScopera4a4d1654b06\GuzzleHttp\Psr7\Request;
+use _PhpScopera4a4d1654b06\GuzzleHttp\Psr7\Response;
 class Guzzle6And7RetryMiddlewareFactory
 {
     /**
@@ -24,7 +24,7 @@ class Guzzle6And7RetryMiddlewareFactory
      */
     public function retry($delay = \true)
     {
-        return \_PhpScopercb67a1bccfc7\GuzzleHttp\Middleware::retry($this->newRetryDecider(), $delay ? $this->getRetryDelay() : $this->getZeroRetryDelay());
+        return \_PhpScopera4a4d1654b06\GuzzleHttp\Middleware::retry($this->newRetryDecider(), $delay ? $this->getRetryDelay() : $this->getZeroRetryDelay());
     }
     /**
      * Returns a method that takes the number of retries and returns the number of milliseconds
@@ -54,11 +54,11 @@ class Guzzle6And7RetryMiddlewareFactory
      */
     private function newRetryDecider()
     {
-        return function ($retries, \_PhpScopercb67a1bccfc7\GuzzleHttp\Psr7\Request $request, \_PhpScopercb67a1bccfc7\GuzzleHttp\Psr7\Response $response = null, \_PhpScopercb67a1bccfc7\GuzzleHttp\Exception\TransferException $exception = null) {
+        return function ($retries, \_PhpScopera4a4d1654b06\GuzzleHttp\Psr7\Request $request, \_PhpScopera4a4d1654b06\GuzzleHttp\Psr7\Response $response = null, \_PhpScopera4a4d1654b06\GuzzleHttp\Exception\TransferException $exception = null) {
             if ($retries >= static::MAX_RETRIES) {
                 return \false;
             }
-            if ($exception instanceof \_PhpScopercb67a1bccfc7\GuzzleHttp\Exception\ConnectException) {
+            if ($exception instanceof \_PhpScopera4a4d1654b06\GuzzleHttp\Exception\ConnectException) {
                 return \true;
             }
             return \false;

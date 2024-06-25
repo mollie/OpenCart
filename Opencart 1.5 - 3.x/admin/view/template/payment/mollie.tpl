@@ -116,7 +116,7 @@
                                         <?php if (empty($store[$code . '_api_key']) || !empty($store['error_api_key'])) { ?>
                                         <?php $show_status_field = false ?>
                                         <?php echo $text_missing_api_key; ?>
-                                        <?php } elseif (in_array($payment_method['name'], ['Bancomat Pay', 'Blik', 'Twint'])) { ?>
+                                        <?php } elseif (in_array($payment_method['name'], [])) { ?>
                                         <?php $show_status_field = false ?>
                                         <?php $coming_soon = true; ?>
                                         <?php echo $text_coming_soon; ?>

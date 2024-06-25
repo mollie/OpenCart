@@ -40,7 +40,6 @@ $_['heading_title']             = 'Payment by Mollie';
 $_['ideal_title']               = 'Your payment';
 $_['text_title']                = 'Pay online';
 $_['text_redirected']           = 'The client has been referred to the payment screen';
-$_['text_issuer_ideal']         = 'Select your bank';
 $_['text_issuer_giftcard']      = 'Select your giftcard';
 $_['text_issuer_kbc']           = 'Select your payment button.';
 $_['text_issuer_voucher']       = 'Select your brand.';

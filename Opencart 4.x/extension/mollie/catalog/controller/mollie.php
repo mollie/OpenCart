@@ -244,7 +244,11 @@ class Mollie extends \Opencart\System\Engine\Controller {
 
         $method = str_replace('_', '', $method);
 
-        $payment_method = $this->getAPIClient()->methods->get($method, array('include' => 'issuers'));
+        if ($method == 'ideal') {
+            $payment_method = $this->getAPIClient()->methods->get($method);
+        } else {
+            $payment_method = $this->getAPIClient()->methods->get($method, array('include' => 'issuers'));
+        }
 
         $order_id = $this->getOrderID();
         $order = $this->getOpenCartOrder($order_id);
@@ -341,7 +345,13 @@ class Mollie extends \Opencart\System\Engine\Controller {
 
         $noPostCode = ["AE", "AN", "AO", "AW", "BF", "BI", "BJ", "BO", "BS", "BV", "BW", "BZ", "CD", "CF", "CG", "CI", "CK", "CM", "DJ", "DM", "ER", "FJ", "GA", "GD", "GH", "GM", "GN", "GQ", "GY", "HK", "JM", "KE", "KI", "KM", "KN", "KP", "LC", "ML", "MO", "MR", "MS", "MU", "MW", "NA", "NR", "NU", "PA", "QA", "RW", "SB", "SC", "SL", "SO", "SR", "ST", "SY", "TF", "TK", "TL", "TO", "TT", "TV", "UG", "VU", "YE", "ZM", "ZW"];
 
-        if ($this->config->get('config_checkout_address')) {
+        if (version_compare(VERSION, '4.0.1.1', '>')) {
+            $payment_address = $this->config->get('config_checkout_payment_address');
+        } else {
+            $payment_address = $this->config->get('config_checkout_address');
+        }
+
+        if ($payment_address) {
             if (empty($order['payment_firstname'])) {
                 $valid = false;
                 $field = 'Billing Firstname';
@@ -868,7 +878,13 @@ class Mollie extends \Opencart\System\Engine\Controller {
             * This data is sent along for credit card payments / fraud checks. You can remove this but you will
             * have a higher conversion if you leave it here.
             */
-            if ($this->config->get('config_checkout_address')) {
+            if (version_compare(VERSION, '4.0.1.1', '>')) {
+				$payment_address = $this->config->get('config_checkout_payment_address');
+			} else {
+				$payment_address = $this->config->get('config_checkout_address');
+			}
+            
+            if ($payment_address) {
                 $data["billingAddress"] = [
                     "givenName"     =>   $this->formatText($order['payment_firstname']),
                     "familyName"    =>   $this->formatText($order['payment_lastname']),
@@ -910,14 +926,21 @@ class Mollie extends \Opencart\System\Engine\Controller {
                         //$data["shippingAddress"]['phone'] = $this->formatText($order['telephone']);
                     }
 				} else {
-                    if ($this->config->get('config_checkout_address')) {
+                    if ($payment_address) {
                         $data["shippingAddress"] = $data["billingAddress"];
                     }
 				}
 			}
 
-            if (!$this->config->get('config_checkout_address')) {
-                $data["billingAddress"] = $data["shippingAddress"];
+            if (!$payment_address) {
+                if (isset($data["shippingAddress"])) {
+                    $data["billingAddress"] = $data["shippingAddress"];
+                } else {
+                    $this->writeToMollieLog("Billing address is turned off, digital orders will not be able to be paid. You can turn on the billing address in settings");
+
+                    $this->showErrorPage($this->language->get('error_missing_field'));
+                    return;
+                }
             }
 
             if (strstr(isset($this->session->data['language']) ? $this->session->data['language'] : $this->config->get('config_language'), '-')) {
@@ -1080,7 +1103,13 @@ class Mollie extends \Opencart\System\Engine\Controller {
             * This data is sent along for credit card payments / fraud checks. You can remove this but you will
             * have a higher conversion if you leave it here.
             */
-            if ($this->config->get('config_checkout_address')) {
+            if (version_compare(VERSION, '4.0.1.1', '>')) {
+				$payment_address = $this->config->get('config_checkout_payment_address');
+			} else {
+				$payment_address = $this->config->get('config_checkout_address');
+			}
+
+            if ($payment_address) {
                 $data["billingAddress"] = [
                     "streetAndNumber" => $this->formatText($order['payment_address_1'] . ' ' . $order['payment_address_2']),
                     "city" => $this->formatText($order['payment_city']),
@@ -1100,13 +1129,13 @@ class Mollie extends \Opencart\System\Engine\Controller {
 						"country" => $this->formatText($order['shipping_iso_code_2'])
 					];
 				} else {
-                    if ($this->config->get('config_checkout_address')) {
+                    if ($payment_address) {
                         $data["shippingAddress"] = $data["billingAddress"];
                     }
 				}
 			}
 
-            if (!$this->config->get('config_checkout_address')) {
+            if (!$payment_address) {
                 if (isset($data["shippingAddress"])) {
                     $data["billingAddress"] = $data["shippingAddress"];
                 } else {

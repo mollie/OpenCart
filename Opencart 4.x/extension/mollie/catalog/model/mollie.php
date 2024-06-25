@@ -113,7 +113,7 @@ class Mollie extends \Opencart\System\Engine\Model {
 	 */
 	public function getMethod(array $address): array {
         // Skip upcoming methods
-        if (in_array(static::MODULE_NAME, ['bancomatpay', 'blik', 'twint'])) {
+        if (in_array(static::MODULE_NAME, [])) {
         	return [];
 		}
 
@@ -296,7 +296,7 @@ class Mollie extends \Opencart\System\Engine\Model {
 
 	public function getMethods(array $address = []): array {
         // Skip upcoming methods
-        if (in_array(static::MODULE_NAME, ['bancomatpay', 'blik', 'twint'])) {
+        if (in_array(static::MODULE_NAME, [])) {
         	return [];
 		}
         
@@ -717,7 +717,7 @@ class Mollie extends \Opencart\System\Engine\Model {
 
 		$this->addProfileTransaction($order_recurring_id, $order_id_rand, $price, 1);
 
-		if (!empty(mollie_order_id)) {
+		if (!empty($mollie_order_id)) {
 			$this->db->query("UPDATE `" . DB_PREFIX . "mollie_payments` SET `subscription_id` = '" . $this->db->escape($subscription_id) . "', `next_payment` = '" . $this->db->escape(date_format($next_payment, 'Y-m-d H:i:s')) . "', subscription_end = '" . $this->db->escape(date_format($subscription_end, 'Y-m-d H:i:s')) . "', order_recurring_id = '" . $this->db->escape($order_recurring_id) . "' WHERE `order_id` = '" . (int)$this->session->data['order_id'] . "' AND `mollie_order_id` = '" . $this->db->escape($mollie_order_id) . "'");
 		} else {
 			$this->db->query("UPDATE `" . DB_PREFIX . "mollie_payments` SET `subscription_id` = '" . $this->db->escape($subscription_id) . "', `next_payment` = '" . $this->db->escape(date_format($next_payment, 'Y-m-d H:i:s')) . "', subscription_end = '" . $this->db->escape(date_format($subscription_end, 'Y-m-d H:i:s')) . "', order_recurring_id = '" . $this->db->escape($order_recurring_id) . "' WHERE `order_id` = '" . (int)$this->session->data['order_id'] . "' AND `mollie_payment_id` = '" . $this->db->escape($mollie_payment_id) . "'");

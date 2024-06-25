@@ -141,6 +141,11 @@
 					// No confirmation button found. Show our own confirmation button.
 					$("#button-confirm").show();
 				});
+				
+				$("#mollie_payment_form").submit(function () {
+					$("#button-confirm").attr("disabled", true);
+					return true;
+				});
 			})(window.jQuery || window.$);
 		</script>
 		<style type="text/css">
