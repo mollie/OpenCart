@@ -94,7 +94,7 @@
 											{% if (store[code ~ '_api_key'] is empty or store['error_api_key'] is not empty)  %}
 											{% set show_status_field = false %}
 											<div style="min-height: 36px;">{{ text_missing_api_key }}</div>
-                                            {% elseif payment_method['name'] in ['Bancomat Pay', 'Blik', 'Twint'] %}
+                                            {% elseif payment_method['name'] in [] %}
 											{% set show_status_field = false %}
                                             {% set coming_soon = true %}
 											<div style="min-height: 36px;">{{ text_coming_soon }}</div>

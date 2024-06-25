@@ -40,7 +40,6 @@ $_['heading_title']             = 'Zahlung via Mollie';
 $_['ideal_title']               = 'Ihre Zahlung';
 $_['text_title']                = 'Online bezahlen';
 $_['text_redirected']           = 'Der Kunde wurde auf den Zahlungs-Bildschirm umgeleitet';
-$_['text_issuer_ideal']         = 'Wählen Sie Ihre Bank';
 $_['text_issuer_giftcard']      = 'Wählen Sie Ihre Giftcard';
 $_['text_issuer_kbc']           = 'Wählen Sie Ihren Bezahl-Button';
 $_['text_issuer_voucher']       = 'Wähle Deine Marke';

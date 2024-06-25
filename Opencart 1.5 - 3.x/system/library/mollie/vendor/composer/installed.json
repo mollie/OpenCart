@@ -2,31 +2,31 @@
     "packages": [
         {
             "name": "composer\/ca-bundle",
-            "version": "1.4.0",
-            "version_normalized": "1.4.0.0",
+            "version": "1.5.0",
+            "version_normalized": "1.5.0.0",
             "source": {
                 "type": "git",
                 "url": "https:\/\/github.com\/composer\/ca-bundle.git",
-                "reference": "b66d11b7479109ab547f9405b97205640b17d385"
+                "reference": "0c5ccfcfea312b5c5a190a21ac5cef93f74baf99"
             },
             "dist": {
                 "type": "zip",
-                "url": "https:\/\/api.github.com\/repos\/composer\/ca-bundle\/zipball\/b66d11b7479109ab547f9405b97205640b17d385",
-                "reference": "b66d11b7479109ab547f9405b97205640b17d385",
+                "url": "https:\/\/api.github.com\/repos\/composer\/ca-bundle\/zipball\/0c5ccfcfea312b5c5a190a21ac5cef93f74baf99",
+                "reference": "0c5ccfcfea312b5c5a190a21ac5cef93f74baf99",
                 "shasum": ""
             },
             "require": {
                 "ext-openssl": "*",
                 "ext-pcre": "*",
-                "php": "^5.3.2 || ^7.0 || ^8.0"
+                "php": "^7.2 || ^8.0"
             },
             "require-dev": {
-                "phpstan\/phpstan": "^0.12.55",
+                "phpstan\/phpstan": "^1.10",
                 "psr\/log": "^1.0",
                 "symfony\/phpunit-bridge": "^4.2 || ^5",
-                "symfony\/process": "^2.5 || ^3.0 || ^4.0 || ^5.0 || ^6.0 || ^7.0"
+                "symfony\/process": "^4.0 || ^5.0 || ^6.0 || ^7.0"
             },
-            "time": "2023-12-18T12:05:55+00:00",
+            "time": "2024-03-15T14:00:32+00:00",
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -36,7 +36,7 @@
             "installation-source": "dist",
             "autoload": {
                 "psr-4": {
-                    "_PhpScopercb67a1bccfc7\\Composer\\CaBundle\\": "src"
+                    "_PhpScopera4a4d1654b06\\Composer\\CaBundle\\": "src"
                 }
             },
             "notification-url": "https:\/\/packagist.org\/downloads\/",
@@ -61,7 +61,7 @@
             "support": {
                 "irc": "irc:\/\/irc.freenode.org\/composer",
                 "issues": "https:\/\/github.com\/composer\/ca-bundle\/issues",
-                "source": "https:\/\/github.com\/composer\/ca-bundle\/tree\/1.4.0"
+                "source": "https:\/\/github.com\/composer\/ca-bundle\/tree\/1.5.0"
             },
             "funding": [
                 {

@@ -3,7 +3,6 @@
 namespace Mollie\Api\Resources;
 
 use Mollie\Api\Exceptions\ApiException;
-use Mollie\Api\MollieApiClient;
 use Mollie\Api\Types\OrderStatus;
 class Order extends \Mollie\Api\Resources\BaseResource
 {
@@ -70,7 +69,7 @@ class Order extends \Mollie\Api\Resources\BaseResource
      */
     public $orderNumber;
     /**
-     * The person and the address the order is billed to.
+     * The person and the address the order is shipped to.
      *
      * @var \stdClass
      */
@@ -416,11 +415,7 @@ class Order extends \Mollie\Api\Resources\BaseResource
      */
     public function refunds()
     {
-        if (!isset($this->_links->refunds->href)) {
-            return new \Mollie\Api\Resources\RefundCollection($this->client, 0, null);
-        }
-        $result = $this->client->performHttpCallToFullUrl(\Mollie\Api\MollieApiClient::HTTP_GET, $this->_links->refunds->href);
-        return \Mollie\Api\Resources\ResourceFactory::createCursorResourceCollection($this->client, $result->_embedded->refunds, \Mollie\Api\Resources\Refund::class, $result->_links);
+        return $this->client->orderRefunds->pageFor($this);
     }
     /**
      * Saves the order's updated billingAddress and/or shippingAddress.

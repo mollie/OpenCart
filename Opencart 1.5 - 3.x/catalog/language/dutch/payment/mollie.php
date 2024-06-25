@@ -40,7 +40,6 @@ $_['heading_title']             = 'Betaling via Mollie';
 $_['ideal_title']               = 'Uw betaling';
 $_['text_title']                = 'Online betalen';
 $_['text_redirected']           = 'De klant is doorgestuurd naar het betaalscherm';
-$_['text_issuer_ideal']         = 'Kies uw bank';
 $_['text_issuer_giftcard']      = 'Kies uw giftcard';
 $_['text_issuer_kbc']           = 'Kies uw betaalknop';
 $_['text_issuer_voucher']       = 'Kies uw merk';

@@ -60,4 +60,25 @@ class OrderRefundEndpoint extends \Mollie\Api\Endpoints\CollectionEndpointAbstra
         $this->parentId = $orderId;
         return parent::rest_create($data, $filters);
     }
+    /**
+     * @param $orderId
+     * @param array $parameters
+     * @return RefundCollection
+     * @throws \Mollie\Api\Exceptions\ApiException
+     */
+    public function pageForId($orderId, array $parameters = [])
+    {
+        $this->parentId = $orderId;
+        return parent::rest_list(null, null, $parameters);
+    }
+    /**
+     * @param \Mollie\Api\Resources\Order $order
+     * @param array $parameters
+     * @return \Mollie\Api\Resources\RefundCollection
+     * @throws \Mollie\Api\Exceptions\ApiException
+     */
+    public function pageFor(\Mollie\Api\Resources\Order $order, array $parameters = [])
+    {
+        return $this->pageForId($order->id, $parameters);
+    }
 }

@@ -2,6 +2,13 @@
 
 # Changelog #
 
+#### Changes in release 13.2.0
+  + New payment methods - Twint, Blik, Bancomat Pay
+  + In preparation of full iDeal 2.0 readiness we have removed the bank/issuer selection in the checkout. This is done to guarantee the most convenient experience possible for the shopper
+  + API update
+  + Bugfix when shipping is not required for products in Opencart 4.x
+  + Bugfix and improvements
+
 #### Changes in release 13.1.1
   + Fixed bug caused by missing telephone number
   + Other bugfix and improvements

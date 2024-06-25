@@ -2,7 +2,7 @@
 <modification>
     <name>Quality Works - Mollie</name>
     <code>mollie</code>
-    <version>3.3.0</version>
+    <version>3.3.1</version>
     <author>Quality Works</author>
     
     <file path="catalog/controller/event/compatibility.php">
@@ -2772,7 +2772,19 @@ $('#button-partial-refund').on('click', function() {
             <search position="after"><![CDATA[if ($recurring) {]]></search>
             <add position="after">
                 <![CDATA[
-                if (version_compare(VERSION, '2.3', '>=') && version_compare(VERSION, '3.0', '<')) {
+                if ((strpos($result['code'], 'mollie') !== false) && version_compare(VERSION, '2.3', '>=') && version_compare(VERSION, '3.0', '<')) {
+                    $this->load->model('payment/' . $result['code']);
+                }
+                ]]>
+            </add>
+        </operation>
+    </file>
+    <file path="catalog/model/journal3/checkout.php">
+        <operation error="skip">
+            <search position="after"><![CDATA[if ($recurring) {]]></search>
+            <add position="after">
+                <![CDATA[
+                if ((strpos($result['code'], 'mollie') !== false) && version_compare(VERSION, '2.3', '>=') && version_compare(VERSION, '3.0', '<')) {
                     $this->load->model('payment/' . $result['code']);
                 }
                 ]]>

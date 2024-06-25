@@ -101,7 +101,7 @@ abstract class EndpointAbstract
         return \Mollie\Api\Resources\ResourceFactory::createFromApiResult($result, $this->getResourceObject());
     }
     /**
-     * Sends a DELETE request to a single Molle API object.
+     * Sends a DELETE request to a single Mollie API object.
      *
      * @param string $id
      * @param array $body

@@ -40,7 +40,6 @@ $_['heading_title']                     = 'Betalning av Mollie';
 $_['ideal_title']                       = 'Din betalning';
 $_['text_title']                        = 'Betala online';
 $_['text_redirected']                   = 'Klienten har hänvisats till betalningsskärmen';
-$_['text_issuer_ideal']                 = 'Välj din bank';
 $_['text_issuer_giftcard']              = 'Välj ditt presentkort';
 $_['text_issuer_kbc']                   = 'Välj din betalningsknapp.';
 $_['text_issuer_voucher']               = 'Välj ditt varumärke.';

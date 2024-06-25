@@ -226,7 +226,11 @@ class ControllerPaymentMollieBase extends Controller
     {
         $this->load->language("payment/mollie");
         $method = str_replace('mollie_', '', $this->session->data['payment_method']['code']);
-        $payment_method = $this->getAPIClient()->methods->get($method, array('include' => 'issuers'));
+        if ($method == 'ideal') {
+            $payment_method = $this->getAPIClient()->methods->get($method);
+        } else {
+            $payment_method = $this->getAPIClient()->methods->get($method, array('include' => 'issuers'));
+        }
 
         $order_id = $this->getOrderID();
         $order = $this->getOpenCartOrder($order_id);
