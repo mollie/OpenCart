@@ -114,7 +114,6 @@ $_['method_paypal']         = 'PayPal';
 $_['method_paysafecard']    = 'paysafecard';
 $_['method_giftcard']       = 'Giftcard';
 $_['method_eps']            = 'EPS';
-$_['method_giropay']        = 'Giropay';
 $_['method_klarnapaylater'] = 'Klarna Pay Later';
 $_['method_klarnapaynow']   = 'Klarna Pay Now';
 $_['method_klarnasliceit']  = 'Klarna Betaal in 3 delen';
@@ -128,6 +127,10 @@ $_['method_klarna']         = 'Betaal met Klarna';
 $_['method_twint']          = 'Twint';
 $_['method_blik']           = 'Blik';
 $_['method_bancomatpay']    = 'Bancomat Pay';
+$_['method_trustly']        = 'Trustly';
+$_['method_alma']           = 'Alma';
+$_['method_riverty']        = 'Riverty';
+$_['method_payconiq']       = 'Payconiq';
 
 //Round Off Description
 $_['roundoff_description']  = 'Afrondingsverschil door valutaomrekening';

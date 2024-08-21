@@ -58,6 +58,7 @@ if(version_compare(VERSION, '2.0', '<')) {
 if (class_exists('VQMod')) {     
 	$vqversion = VQMod::$_vqversion;
 }
+
 define("VQ_VERSION", $vqversion);
 
 use Mollie\Api\Exceptions\ApiException;
@@ -71,8 +72,9 @@ require_once(DIR_SYSTEM . "/library/mollie/mollieHttpClient.php");
 define("MOLLIE_VERSION", MollieHelper::PLUGIN_VERSION);
 define("MOLLIE_RELEASE", "v" . MOLLIE_VERSION);
 define("MOLLIE_VERSION_URL", "https://api.github.com/repos/mollie/OpenCart/releases/latest");
+
 // Defining arrays in a constant cannot be done with "define" until PHP 7, so using this syntax for backwards compatibility.
-const DEPRECATED_METHODS = array('mistercash', 'bitcoin', 'directdebit', 'inghomepay');
+const DEPRECATED_METHODS = array('mistercash', 'bitcoin', 'directdebit', 'inghomepay', 'giropay');
 
 if (!defined("MOLLIE_TMP")) {
     define("MOLLIE_TMP", sys_get_temp_dir());
@@ -868,6 +870,7 @@ class ControllerPaymentMollieBase extends Controller {
         }
 
         $this->document->setTitle(strip_tags($this->language->get('heading_title')));
+
         //Set form variables
         $paymentDesc = array();
         $paymentImage = array();
@@ -888,12 +891,6 @@ class ControllerPaymentMollieBase extends Controller {
         	$paymentTotalMax[]  = $code . '_' . $module_name . '_total_maximum';
         	$paymentAPIToUse[]  = $code . '_' . $module_name . '_api_to_use';
 		}
-
-        $fields = array("show_icons", "show_order_canceled_page", "description", "api_key", "ideal_processing_status_id", "ideal_expired_status_id", "ideal_canceled_status_id", "ideal_failed_status_id", "ideal_pending_status_id", "ideal_shipping_status_id", "create_shipment_status_id", "ideal_refund_status_id", "create_shipment", "payment_screen_language", "debug_mode", "mollie_component", "mollie_component_css_base", "mollie_component_css_valid", "mollie_component_css_invalid", "default_currency", "recurring_email", "align_icons", "single_click_payment", "order_expiry_days", "ideal_partial_refund_status_id", "payment_link", "payment_link_email", "partial_credit_order");
-
-        $settingFields = $this->addPrefix($code . '_', $fields);
-
-        $storeFormFields = array_merge($settingFields, $paymentDesc, $paymentImage, $paymentStatus, $paymentSortOrder, $paymentGeoZone, $paymentTotalMin, $paymentTotalMax, $paymentAPIToUse);
 
         $data['stores'] = $this->getStores();
 
@@ -920,173 +917,173 @@ class ControllerPaymentMollieBase extends Controller {
 			$extension_link = $this->url->link('extension/payment', $this->token, 'SSL');
 		}
 
-		$data['heading_title'] = $this->language->get('heading_title');
-		$data['text_yes'] = $this->language->get('text_yes');
-		$data['text_no'] = $this->language->get('text_no');
-		$data['text_enabled'] = $this->language->get('text_enabled');
-		$data['text_disabled'] = $this->language->get('text_disabled');
-		$data['text_edit'] = $this->language->get('text_edit');
-		$data['text_payment'] = $this->language->get('text_payment');
-		$data['text_activate_payment_method'] = $this->language->get('text_activate_payment_method');
-		$data['text_no_status_id'] = $this->language->get('text_no_status_id');
-		$data['text_creditcard_required'] = $this->language->get('text_creditcard_required');
-		$data['text_mollie_api'] = $this->language->get('text_mollie_api');
-		$data['text_mollie_app'] = $this->language->get('text_mollie_app');
-		$data['text_general'] = $this->language->get('text_general');
-		$data['text_enquiry'] = $this->language->get('text_enquiry');
-		$data['text_update_message'] = $this->language->get('text_update_message');
-		$data['text_default_currency'] = $this->language->get('text_default_currency');
-		$data['text_custom_css'] = $this->language->get('text_custom_css');
-		$data['text_contact_us'] = $this->language->get('text_contact_us');
-		$data['text_bg_color'] = $this->language->get('text_bg_color');
-		$data['text_color'] = $this->language->get('text_color');
-		$data['text_font_size'] = $this->language->get('text_font_size');
-		$data['text_other_css'] = $this->language->get('text_other_css');
-		$data['text_module_by'] = $this->language->get('text_module_by');
-		$data['text_mollie_support'] = $this->language->get('text_mollie_support');
-		$data['text_contact'] = $this->language->get('text_contact');
-		$data['text_allowed_variables'] = $this->language->get('text_allowed_variables');
-		$data['text_browse'] = $this->language->get('text_browse');
-		$data['text_clear'] = $this->language->get('text_clear');
-		$data['text_image_manager'] = $this->language->get('text_image_manager');
-		$data['text_create_shipment_automatically'] = $this->language->get('text_create_shipment_automatically');
-		$data['text_create_shipment_on_status'] = $this->language->get('text_create_shipment_on_status');
-		$data['text_create_shipment_on_order_complete'] = $this->language->get('text_create_shipment_on_order_complete');
-		$data['text_log_success'] = $this->language->get('text_log_success');
-		$data['text_log_list'] = $this->language->get('text_log_list');
-		$data['text_all_zones'] = $this->language->get('text_all_zones');
-		$data['text_missing_api_key'] = $this->language->get('text_missing_api_key');
-		$data['text_left'] = $this->language->get('text_left');
-		$data['text_right'] = $this->language->get('text_right');
-		$data['text_more'] = $this->language->get('text_more');
-		$data['text_none'] = $this->language->get('text_none');
-		$data['text_select'] = $this->language->get('text_select');
-		$data['text_no_maximum_limit'] = $this->language->get('text_no_maximum_limit');
-		$data['text_standard_total'] = $this->language->get('text_standard_total');
-		$data['text_advance_option'] = $this->language->get('text_advance_option');
-		$data['text_payment_api'] = $this->language->get('text_payment_api');
-		$data['text_order_api'] = $this->language->get('text_order_api');
-		$data['text_info_orders_api'] = $this->language->get('text_info_orders_api');
-		$data['text_pay_link_variables'] = $this->language->get('text_pay_link_variables');
-		$data['text_pay_link_text'] = $this->language->get('text_pay_link_text');
-		$data['text_recurring_payment'] = $this->language->get('text_recurring_payment');
-		$data['text_payment_link'] = $this->language->get('text_payment_link');
-		$data['text_coming_soon'] = $this->language->get('text_coming_soon');
+		$data['heading_title'] 								= $this->language->get('heading_title');
+		$data['text_yes'] 									= $this->language->get('text_yes');
+		$data['text_no'] 									= $this->language->get('text_no');
+		$data['text_enabled'] 								= $this->language->get('text_enabled');
+		$data['text_disabled'] 								= $this->language->get('text_disabled');
+		$data['text_edit'] 									= $this->language->get('text_edit');
+		$data['text_payment'] 								= $this->language->get('text_payment');
+		$data['text_activate_payment_method'] 				= $this->language->get('text_activate_payment_method');
+		$data['text_no_status_id'] 							= $this->language->get('text_no_status_id');
+		$data['text_creditcard_required'] 					= $this->language->get('text_creditcard_required');
+		$data['text_mollie_api'] 							= $this->language->get('text_mollie_api');
+		$data['text_mollie_app'] 							= $this->language->get('text_mollie_app');
+		$data['text_general'] 								= $this->language->get('text_general');
+		$data['text_enquiry'] 								= $this->language->get('text_enquiry');
+		$data['text_update_message'] 						= $this->language->get('text_update_message');
+		$data['text_default_currency'] 						= $this->language->get('text_default_currency');
+		$data['text_custom_css'] 							= $this->language->get('text_custom_css');
+		$data['text_contact_us'] 							= $this->language->get('text_contact_us');
+		$data['text_bg_color'] 								= $this->language->get('text_bg_color');
+		$data['text_color'] 								= $this->language->get('text_color');
+		$data['text_font_size'] 							= $this->language->get('text_font_size');
+		$data['text_other_css'] 							= $this->language->get('text_other_css');
+		$data['text_module_by'] 							= $this->language->get('text_module_by');
+		$data['text_mollie_support'] 						= $this->language->get('text_mollie_support');
+		$data['text_contact'] 								= $this->language->get('text_contact');
+		$data['text_allowed_variables'] 					= $this->language->get('text_allowed_variables');
+		$data['text_browse'] 								= $this->language->get('text_browse');
+		$data['text_clear'] 								= $this->language->get('text_clear');
+		$data['text_image_manager'] 						= $this->language->get('text_image_manager');
+		$data['text_create_shipment_automatically'] 		= $this->language->get('text_create_shipment_automatically');
+		$data['text_create_shipment_on_status'] 			= $this->language->get('text_create_shipment_on_status');
+		$data['text_create_shipment_on_order_complete'] 	= $this->language->get('text_create_shipment_on_order_complete');
+		$data['text_log_success'] 							= $this->language->get('text_log_success');
+		$data['text_log_list'] 								= $this->language->get('text_log_list');
+		$data['text_all_zones']								= $this->language->get('text_all_zones');
+		$data['text_missing_api_key'] 						= $this->language->get('text_missing_api_key');
+		$data['text_left'] 									= $this->language->get('text_left');
+		$data['text_right'] 								= $this->language->get('text_right');
+		$data['text_more']									= $this->language->get('text_more');
+		$data['text_none'] 									= $this->language->get('text_none');
+		$data['text_select'] 								= $this->language->get('text_select');
+		$data['text_no_maximum_limit'] 						= $this->language->get('text_no_maximum_limit');
+		$data['text_standard_total'] 						= $this->language->get('text_standard_total');
+		$data['text_advance_option'] 						= $this->language->get('text_advance_option');
+		$data['text_payment_api'] 							= $this->language->get('text_payment_api');
+		$data['text_order_api'] 							= $this->language->get('text_order_api');
+		$data['text_info_orders_api'] 						= $this->language->get('text_info_orders_api');
+		$data['text_pay_link_variables'] 					= $this->language->get('text_pay_link_variables');
+		$data['text_pay_link_text'] 						= $this->language->get('text_pay_link_text');
+		$data['text_recurring_payment'] 					= $this->language->get('text_recurring_payment');
+		$data['text_payment_link'] 							= $this->language->get('text_payment_link');
+		$data['text_coming_soon'] 							= $this->language->get('text_coming_soon');
 
-		$data['title_global_options'] = $this->language->get('title_global_options');
-		$data['title_payment_status'] = $this->language->get('title_payment_status');
-		$data['title_mod_about'] = $this->language->get('title_mod_about');
-		$data['footer_text'] = $this->language->get('footer_text');
-		$data['title_mail'] = $this->language->get('title_mail');
+		$data['title_global_options'] 						= $this->language->get('title_global_options');
+		$data['title_payment_status'] 						= $this->language->get('title_payment_status');
+		$data['title_mod_about'] 							= $this->language->get('title_mod_about');
+		$data['footer_text'] 								= $this->language->get('footer_text');
+		$data['title_mail'] 								= $this->language->get('title_mail');
 
-		$data['name_mollie_banktransfer'] = $this->language->get('name_mollie_banktransfer');
-		$data['name_mollie_belfius'] = $this->language->get('name_mollie_belfius');
-		$data['name_mollie_creditcard'] = $this->language->get('name_mollie_creditcard');
-		$data['name_mollie_ideal'] = $this->language->get('name_mollie_ideal');
-		$data['name_mollie_kbc'] = $this->language->get('name_mollie_kbc');
-		$data['name_mollie_bancontact'] = $this->language->get('name_mollie_bancontact');
-		$data['name_mollie_paypal'] = $this->language->get('name_mollie_paypal');
-		$data['name_mollie_paysafecard'] = $this->language->get('name_mollie_paysafecard');
-		$data['name_mollie_sofort'] = $this->language->get('name_mollie_sofort');
-		$data['name_mollie_giftcard'] = $this->language->get('name_mollie_giftcard');
-		$data['name_mollie_eps'] = $this->language->get('name_mollie_eps');
-		$data['name_mollie_giropay'] = $this->language->get('name_mollie_giropay');
-		$data['name_mollie_klarnapaylater'] = $this->language->get('name_mollie_klarnapaylater');
-		$data['name_mollie_klarnapaynow'] = $this->language->get('name_mollie_klarnapaynow');
-		$data['name_mollie_klarnasliceit'] = $this->language->get('name_mollie_klarnasliceit');
-		$data['name_mollie_przelewy24'] = $this->language->get('name_mollie_przelewy24');
-		$data['name_mollie_applepay'] = $this->language->get('name_mollie_applepay');
-		$data['name_mollie_in3'] = $this->language->get('name_mollie_in3');
-		$data['name_mollie_mybank'] = $this->language->get('name_mollie_mybank');
-		$data['name_mollie_billie'] = $this->language->get('name_mollie_billie');
-        $data['name_mollie_klarna'] = $this->language->get('name_mollie_klarna');
-        $data['name_mollie_twint'] = $this->language->get('name_mollie_twint');
-        $data['name_mollie_blik'] = $this->language->get('name_mollie_blik');
-        $data['name_mollie_bancomatpay'] = $this->language->get('name_mollie_bancomatpay');
-		// Deprecated names
-		$data['name_mollie_bitcoin'] = $this->language->get('name_mollie_bitcoin');
-		$data['name_mollie_mistercash'] = $this->language->get('name_mollie_mistercash');
+		$data['name_mollie_banktransfer'] 					= $this->language->get('name_mollie_banktransfer');
+		$data['name_mollie_belfius'] 						= $this->language->get('name_mollie_belfius');
+		$data['name_mollie_creditcard'] 					= $this->language->get('name_mollie_creditcard');
+		$data['name_mollie_ideal'] 							= $this->language->get('name_mollie_ideal');
+		$data['name_mollie_kbc'] 							= $this->language->get('name_mollie_kbc');
+		$data['name_mollie_bancontact'] 					= $this->language->get('name_mollie_bancontact');
+		$data['name_mollie_paypal'] 						= $this->language->get('name_mollie_paypal');
+		$data['name_mollie_paysafecard'] 					= $this->language->get('name_mollie_paysafecard');
+		$data['name_mollie_sofort'] 						= $this->language->get('name_mollie_sofort');
+		$data['name_mollie_giftcard'] 						= $this->language->get('name_mollie_giftcard');
+		$data['name_mollie_eps'] 							= $this->language->get('name_mollie_eps');
+		$data['name_mollie_klarnapaylater'] 				= $this->language->get('name_mollie_klarnapaylater');
+		$data['name_mollie_klarnapaynow'] 					= $this->language->get('name_mollie_klarnapaynow');
+		$data['name_mollie_klarnasliceit'] 					= $this->language->get('name_mollie_klarnasliceit');
+		$data['name_mollie_przelewy24'] 					= $this->language->get('name_mollie_przelewy24');
+		$data['name_mollie_applepay'] 						= $this->language->get('name_mollie_applepay');
+		$data['name_mollie_in3'] 							= $this->language->get('name_mollie_in3');
+		$data['name_mollie_mybank'] 						= $this->language->get('name_mollie_mybank');
+		$data['name_mollie_billie'] 						= $this->language->get('name_mollie_billie');
+        $data['name_mollie_klarna'] 						= $this->language->get('name_mollie_klarna');
+        $data['name_mollie_twint'] 							= $this->language->get('name_mollie_twint');
+        $data['name_mollie_blik'] 							= $this->language->get('name_mollie_blik');
+        $data['name_mollie_bancomatpay'] 					= $this->language->get('name_mollie_bancomatpay');
+        $data['name_mollie_trustly'] 						= $this->language->get('name_mollie_trustly');
+        $data['name_mollie_alma'] 							= $this->language->get('name_mollie_alma');
+        $data['name_mollie_riverty'] 						= $this->language->get('name_mollie_riverty');
+        $data['name_mollie_payconiq'] 						= $this->language->get('name_mollie_payconiq');
 
-		$data['entry_payment_method'] = $this->language->get('entry_payment_method');
-		$data['entry_activate'] = $this->language->get('entry_activate');
-		$data['entry_sort_order'] = $this->language->get('entry_sort_order');
-		$data['entry_api_key'] = $this->language->get('entry_api_key');
-		$data['entry_description'] = $this->language->get('entry_description');
-		$data['entry_show_icons'] = $this->language->get('entry_show_icons');
-		$data['entry_align_icons'] = $this->language->get('entry_align_icons');
-		$data['entry_show_order_canceled_page'] = $this->language->get('entry_show_order_canceled_page');
-		$data['entry_geo_zone'] = $this->language->get('entry_geo_zone');
-		$data['entry_payment_screen_language'] = $this->language->get('entry_payment_screen_language');
-		$data['entry_name'] = $this->language->get('entry_name');
-		$data['entry_email'] = $this->language->get('entry_email');
-		$data['entry_subject'] = $this->language->get('entry_subject');
-		$data['entry_enquiry'] = $this->language->get('entry_enquiry');
-		$data['entry_debug_mode'] = $this->language->get('entry_debug_mode');
-		$data['entry_mollie_component'] = $this->language->get('entry_mollie_component');
-		$data['entry_test_mode'] = $this->language->get('entry_test_mode');
-		$data['entry_mollie_component_base'] = $this->language->get('entry_mollie_component_base');
-		$data['entry_mollie_component_valid'] = $this->language->get('entry_mollie_component_valid');
-		$data['entry_mollie_component_invalid'] = $this->language->get('entry_mollie_component_invalid');
-		$data['entry_default_currency'] = $this->language->get('entry_default_currency');
-		$data['entry_email_subject'] = $this->language->get('entry_email_subject');
-		$data['entry_email_body'] = $this->language->get('entry_email_body');
-		$data['entry_title'] = $this->language->get('entry_title');
-		$data['entry_image'] = $this->language->get('entry_image');
-		$data['entry_module'] = $this->language->get('entry_module');
-		$data['entry_mod_status'] = $this->language->get('entry_mod_status');
-		$data['entry_comm_status'] = $this->language->get('entry_comm_status');
-		$data['entry_support'] = $this->language->get('entry_support');
-		$data['entry_pending_status'] = $this->language->get('entry_pending_status');
-		$data['entry_failed_status'] = $this->language->get('entry_failed_status');
-		$data['entry_canceled_status'] = $this->language->get('entry_canceled_status');
-		$data['entry_expired_status'] = $this->language->get('entry_expired_status');
-		$data['entry_processing_status'] = $this->language->get('entry_processing_status');
-		$data['entry_refund_status'] = $this->language->get('entry_refund_status');
-		$data['entry_shipping_status'] = $this->language->get('entry_shipping_status');
-		$data['entry_shipment'] = $this->language->get('entry_shipment');
-		$data['entry_create_shipment_status'] = $this->language->get('entry_create_shipment_status');
-		$data['entry_create_shipment_on_order_complete'] = $this->language->get('entry_create_shipment_on_order_complete');
-		$data['entry_single_click_payment'] = $this->language->get('entry_single_click_payment');
-		$data['entry_order_expiry_days'] = $this->language->get('entry_order_expiry_days');
-		$data['entry_partial_refund_status'] = $this->language->get('entry_partial_refund_status');
-		$data['entry_amount'] = $this->language->get('entry_amount');
-		$data['entry_payment_fee'] = $this->language->get('entry_payment_fee');
-		$data['entry_payment_fee_tax_class'] = $this->language->get('entry_payment_fee_tax_class');
-		$data['entry_total'] = $this->language->get('entry_total');
-		$data['entry_minimum'] = $this->language->get('entry_minimum');
-		$data['entry_maximum'] = $this->language->get('entry_maximum');
-		$data['entry_api_to_use'] = $this->language->get('entry_api_to_use');
-		$data['entry_status'] = $this->language->get('entry_status');
-		$data['entry_payment_link'] = $this->language->get('entry_payment_link');
-		$data['entry_payment_link_sep_email'] = $this->language->get('entry_payment_link_sep_email');
-		$data['entry_payment_link_ord_email'] = $this->language->get('entry_payment_link_ord_email');
-		$data['entry_partial_credit_order'] = $this->language->get('entry_partial_credit_order');
+		$data['entry_payment_method'] 						= $this->language->get('entry_payment_method');
+		$data['entry_activate'] 							= $this->language->get('entry_activate');
+		$data['entry_sort_order'] 							= $this->language->get('entry_sort_order');
+		$data['entry_api_key'] 								= $this->language->get('entry_api_key');
+		$data['entry_description'] 							= $this->language->get('entry_description');
+		$data['entry_show_icons'] 							= $this->language->get('entry_show_icons');
+		$data['entry_align_icons'] 							= $this->language->get('entry_align_icons');
+		$data['entry_show_order_canceled_page'] 			= $this->language->get('entry_show_order_canceled_page');
+		$data['entry_geo_zone'] 							= $this->language->get('entry_geo_zone');
+		$data['entry_payment_screen_language'] 				= $this->language->get('entry_payment_screen_language');
+		$data['entry_name'] 								= $this->language->get('entry_name');
+		$data['entry_email'] 								= $this->language->get('entry_email');
+		$data['entry_subject'] 								= $this->language->get('entry_subject');
+		$data['entry_enquiry'] 								= $this->language->get('entry_enquiry');
+		$data['entry_debug_mode'] 							= $this->language->get('entry_debug_mode');
+		$data['entry_mollie_component'] 					= $this->language->get('entry_mollie_component');
+		$data['entry_test_mode'] 							= $this->language->get('entry_test_mode');
+		$data['entry_mollie_component_base'] 				= $this->language->get('entry_mollie_component_base');
+		$data['entry_mollie_component_valid'] 				= $this->language->get('entry_mollie_component_valid');
+		$data['entry_mollie_component_invalid'] 			= $this->language->get('entry_mollie_component_invalid');
+		$data['entry_default_currency'] 					= $this->language->get('entry_default_currency');
+		$data['entry_email_subject'] 						= $this->language->get('entry_email_subject');
+		$data['entry_email_body'] 							= $this->language->get('entry_email_body');
+		$data['entry_title'] 								= $this->language->get('entry_title');
+		$data['entry_image'] 								= $this->language->get('entry_image');
+		$data['entry_module'] 								= $this->language->get('entry_module');
+		$data['entry_mod_status'] 							= $this->language->get('entry_mod_status');
+		$data['entry_comm_status'] 							= $this->language->get('entry_comm_status');
+		$data['entry_support'] 								= $this->language->get('entry_support');
+		$data['entry_pending_status'] 						= $this->language->get('entry_pending_status');
+		$data['entry_failed_status'] 						= $this->language->get('entry_failed_status');
+		$data['entry_canceled_status'] 						= $this->language->get('entry_canceled_status');
+		$data['entry_expired_status'] 						= $this->language->get('entry_expired_status');
+		$data['entry_processing_status'] 					= $this->language->get('entry_processing_status');
+		$data['entry_refund_status'] 						= $this->language->get('entry_refund_status');
+		$data['entry_shipping_status'] 						= $this->language->get('entry_shipping_status');
+		$data['entry_shipment'] 							= $this->language->get('entry_shipment');
+		$data['entry_create_shipment_status'] 				= $this->language->get('entry_create_shipment_status');
+		$data['entry_create_shipment_on_order_complete'] 	= $this->language->get('entry_create_shipment_on_order_complete');
+		$data['entry_single_click_payment'] 				= $this->language->get('entry_single_click_payment');
+		$data['entry_order_expiry_days'] 					= $this->language->get('entry_order_expiry_days');
+		$data['entry_partial_refund_status'] 				= $this->language->get('entry_partial_refund_status');
+		$data['entry_amount'] 								= $this->language->get('entry_amount');
+		$data['entry_payment_fee'] 							= $this->language->get('entry_payment_fee');
+		$data['entry_payment_fee_tax_class'] 				= $this->language->get('entry_payment_fee_tax_class');
+		$data['entry_total'] 								= $this->language->get('entry_total');
+		$data['entry_minimum'] 								= $this->language->get('entry_minimum');
+		$data['entry_maximum'] 								= $this->language->get('entry_maximum');
+		$data['entry_api_to_use'] 							= $this->language->get('entry_api_to_use');
+		$data['entry_status'] 								= $this->language->get('entry_status');
+		$data['entry_payment_link'] 						= $this->language->get('entry_payment_link');
+		$data['entry_payment_link_sep_email'] 				= $this->language->get('entry_payment_link_sep_email');
+		$data['entry_payment_link_ord_email'] 				= $this->language->get('entry_payment_link_ord_email');
+		$data['entry_partial_credit_order'] 				= $this->language->get('entry_partial_credit_order');
 
-		$data['error_order_expiry_days'] = $this->language->get('error_order_expiry_days');
+		$data['error_order_expiry_days'] 					= $this->language->get('error_order_expiry_days');
 
-		$data['summernote'] = $this->language->get('summernote');
+		$data['summernote'] 								= $this->language->get('summernote');
 		
-		$data['help_view_profile'] = $this->language->get('help_view_profile');
-		$data['help_status'] = $this->language->get('help_status');
-		$data['help_api_key'] = $this->language->get('help_api_key');
-		$data['help_description'] = $this->language->get('help_description');
-		$data['help_show_icons'] = $this->language->get('help_show_icons');
-		$data['help_show_order_canceled_page'] = $this->language->get('help_show_order_canceled_page');
-		$data['help_apple_pay'] = $this->language->get('help_apple_pay');
-		$data['help_mollie_component'] = $this->language->get('help_mollie_component');
-		$data['help_shipment'] = $this->language->get('help_shipment');
-		$data['help_single_click_payment'] = $this->language->get('help_single_click_payment');
-		$data['help_total'] = $this->language->get('help_total');
-		$data['help_payment_link'] = $this->language->get('help_payment_link');
+		$data['help_view_profile'] 							= $this->language->get('help_view_profile');
+		$data['help_status'] 								= $this->language->get('help_status');
+		$data['help_api_key'] 								= $this->language->get('help_api_key');
+		$data['help_description'] 							= $this->language->get('help_description');
+		$data['help_show_icons'] 							= $this->language->get('help_show_icons');
+		$data['help_show_order_canceled_page'] 				= $this->language->get('help_show_order_canceled_page');
+		$data['help_apple_pay'] 							= $this->language->get('help_apple_pay');
+		$data['help_mollie_component'] 						= $this->language->get('help_mollie_component');
+		$data['help_shipment'] 								= $this->language->get('help_shipment');
+		$data['help_single_click_payment'] 					= $this->language->get('help_single_click_payment');
+		$data['help_total'] 								= $this->language->get('help_total');
+		$data['help_payment_link'] 							= $this->language->get('help_payment_link');
 		
-		$data['button_save'] = $this->language->get('button_save');
-		$data['button_cancel'] = $this->language->get('button_cancel');
-		$data['button_update'] = $this->language->get('button_update');
-		$data['button_download'] = $this->language->get('button_download');
-		$data['button_clear'] = $this->language->get('button_clear');
-		$data['button_submit'] = $this->language->get('button_submit');
-		$data['button_advance_option'] = $this->language->get('button_advance_option');
-		$data['button_save_close'] = $this->language->get('button_save_close');
+		$data['button_save'] 								= $this->language->get('button_save');
+		$data['button_cancel'] 								= $this->language->get('button_cancel');
+		$data['button_update'] 								= $this->language->get('button_update');
+		$data['button_download'] 							= $this->language->get('button_download');
+		$data['button_clear'] 								= $this->language->get('button_clear');
+		$data['button_submit'] 								= $this->language->get('button_submit');
+		$data['button_advance_option'] 						= $this->language->get('button_advance_option');
+		$data['button_save_close'] 							= $this->language->get('button_save_close');
       
    		$data['breadcrumbs'][] = array(
 	       	'text'      => $this->language->get('text_payment'),
@@ -1260,13 +1257,15 @@ class ControllerPaymentMollieBase extends Controller {
 			// Check which payment methods we can use with the current API key.
 			$allowed_methods = array();
 			try {
-				$api_methods = $this->getAPIClient($store['store_id'])->methods->allActive(array('resource' => 'orders', 'includeWallets' => 'applepay'));
+				$api_methods = $this->getAPIClient($store['store_id'])->methods->allAvailable();
 				foreach ($api_methods as $api_method) {
-					$allowed_methods[$api_method->id] = array(
-						"method" => $api_method->id,
-						"minimumAmount" => $api_method->minimumAmount,
-						"maximumAmount" => $api_method->maximumAmount
-					);
+					if ($api_method->status == 'activated') {
+						$allowed_methods[$api_method->id] = array(
+							"method" => $api_method->id,
+							"minimumAmount" => $api_method->minimumAmount,
+							"maximumAmount" => $api_method->maximumAmount
+						);
+					}
 				}
 			} catch (Mollie\Api\Exceptions\ApiException $e) {
 				// If we have an unauthorized request, our API key is likely invalid.
@@ -1335,30 +1334,45 @@ class ControllerPaymentMollieBase extends Controller {
 				if ($payment_method['allowed']) {
 					$minimumAmount = $allowed_methods[$module_name]['minimumAmount']->value;
 					$currency      = $allowed_methods[$module_name]['minimumAmount']->currency;
-					$payment_method['minimumAmount'] =  sprintf($this->language->get('text_standard_total'), $this->currency->format($this->currency->convert($minimumAmount, $currency, $this->config->get('config_currency')), $currency));
 
-					if (isset($this->data[$store['store_id'] . '_' . $code . '_' . $module_name . '_total_minimum'])) {
-						$payment_method['total_minimum'] = $this->data[$store['store_id'] . '_' . $code . '_' . $module_name . '_total_minimum'];
-					} elseif (isset($this->data[$code . "_" . $module_name . "_total_minimum"])) {
-						$payment_method['total_minimum'] =  $this->data[$code . "_" . $module_name . "_total_minimum"];
-					} else {
-						$payment_method['total_minimum'] =  $this->numberFormat($this->currency->convert($minimumAmount, $currency, $this->config->get('config_currency')), $this->config->get('config_currency'));
-					}
+					if ($this->currency->has($currency)) {
+						$payment_method['minimumAmount'] = sprintf($this->language->get('text_standard_total'), $this->currency->format($this->currency->convert($minimumAmount, $currency, $this->config->get('config_currency')), $currency));
 
-					if ($allowed_methods[$module_name]['maximumAmount']) {
-						$maximumAmount = $allowed_methods[$module_name]['maximumAmount']->value;
-						$currency      = $allowed_methods[$module_name]['maximumAmount']->currency;
-						$payment_method['maximumAmount'] =  sprintf($this->language->get('text_standard_total'), $this->currency->format($this->currency->convert($maximumAmount, $currency, $this->config->get('config_currency')), $currency));
-					} else {
-						$payment_method['maximumAmount'] =  $this->language->get('text_no_maximum_limit');
-					}				
+						if (isset($this->data[$store['store_id'] . '_' . $code . '_' . $module_name . '_total_minimum'])) {
+							$payment_method['total_minimum'] = $this->data[$store['store_id'] . '_' . $code . '_' . $module_name . '_total_minimum'];
+						} elseif (isset($this->data[$code . "_" . $module_name . "_total_minimum"])) {
+							$payment_method['total_minimum'] =  $this->data[$code . "_" . $module_name . "_total_minimum"];
+						} else {
+							$payment_method['total_minimum'] =  $this->numberFormat($this->currency->convert($minimumAmount, $currency, $this->config->get('config_currency')), $this->config->get('config_currency'));
+						}
 
-					if (isset($this->data[$store['store_id'] . '_' . $code . '_' . $module_name . '_total_maximum'])) {
-						$payment_method['total_maximum'] = $this->data[$store['store_id'] . '_' . $code . '_' . $module_name . '_total_maximum'];
-					} elseif (isset($this->data[$code . "_" . $module_name . "_total_maximum"])) {
-						$payment_method['total_maximum'] =  $this->data[$code . "_" . $module_name . "_total_maximum"];
+						if ($allowed_methods[$module_name]['maximumAmount']) {
+							$maximumAmount = $allowed_methods[$module_name]['maximumAmount']->value;
+							$currency      = $allowed_methods[$module_name]['maximumAmount']->currency;
+							$payment_method['maximumAmount'] = sprintf($this->language->get('text_standard_total'), $this->currency->format($this->currency->convert($maximumAmount, $currency, $this->config->get('config_currency')), $currency));
+						} else {
+							$payment_method['maximumAmount'] =  $this->language->get('text_no_maximum_limit');
+						}				
+
+						if (isset($this->data[$store['store_id'] . '_' . $code . '_' . $module_name . '_total_maximum'])) {
+							$payment_method['total_maximum'] = $this->data[$store['store_id'] . '_' . $code . '_' . $module_name . '_total_maximum'];
+						} elseif (isset($this->data[$code . "_" . $module_name . "_total_maximum"])) {
+							$payment_method['total_maximum'] =  $this->data[$code . "_" . $module_name . "_total_maximum"];
+						} else {
+							$payment_method['total_maximum'] =  ($allowed_methods[$module_name]['maximumAmount']) ? $this->numberFormat($this->currency->convert($maximumAmount, $currency, $this->config->get('config_currency')), $this->config->get('config_currency')) : '';
+						}
 					} else {
-						$payment_method['total_maximum'] =  ($allowed_methods[$module_name]['maximumAmount']) ? $this->numberFormat($this->currency->convert($maximumAmount, $currency, $this->config->get('config_currency')), $this->config->get('config_currency')) : '';
+						$payment_method['minimumAmount'] = sprintf($this->language->get('text_standard_total'), $currency . ' ' . $minimumAmount);
+						$payment_method['total_minimum'] =  $minimumAmount;
+
+						if ($allowed_methods[$module_name]['maximumAmount']) {	
+							$maximumAmount = $allowed_methods[$module_name]['maximumAmount']->value;
+							$payment_method['maximumAmount'] = sprintf($this->language->get('text_standard_total'), $currency . ' ' . $maximumAmount);
+							$payment_method['total_maximum'] = $maximumAmount;
+						} else {
+							$payment_method['maximumAmount'] =  $this->language->get('text_no_maximum_limit');
+							$payment_method['total_maximum'] = '';
+						}
 					}
 				}	
 				
@@ -1370,6 +1384,11 @@ class ControllerPaymentMollieBase extends Controller {
 
 				$data['store_data'][$store['store_id'] . '_' . $code . '_payment_methods'][$module_name] = $payment_method;
 			}
+
+			// Sort payment methods
+            uksort($data['store_data'][$store['store_id'] . '_' . $code . '_payment_methods'], function($a, $b) {
+                return $a <=> $b;
+            });
 
 			$data['stores'][$store['store_id']]['entry_cstatus'] = $this->checkCommunicationStatus(isset($this->data[$code . '_api_key']) ? $this->data[$code . '_api_key'] : null);
 
@@ -1474,7 +1493,7 @@ class ControllerPaymentMollieBase extends Controller {
 					$json['invalid'] = true;
 					$json['message'] = $this->language->get('error_no_api_client');
 				} else {
-					$client->methods->all();
+					$client->methods->allActive();
 
 					$json['valid'] = true;
 					$json['message'] = 'Ok.';
@@ -1532,7 +1551,7 @@ class ControllerPaymentMollieBase extends Controller {
 				return '<span style="color:red">' . $this->language->get('error_no_api_client') . '</span>';
 			}
 
-			$client->methods->all();
+			$client->methods->allActive();
 
 			return '<span style="color: green">OK</span>';
 		} catch (Mollie\Api\Exceptions\ApiException_IncompatiblePlatform $e) {

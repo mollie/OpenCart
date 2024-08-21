@@ -13,8 +13,8 @@ class Mollie extends \Opencart\System\Engine\Model {
 			`bank_account` VARCHAR(15),
 			`bank_status` VARCHAR(20),
 			`refund_id` VARCHAR(32),
-			`subscription_id` VARCHAR(32),
-			`order_recurring_id` INT(11),
+			`mollie_subscription_id` VARCHAR(32),
+			`order_subscription_id` INT(11),
 			`next_payment` DATETIME,
 			`subscription_end` DATETIME,
 			`date_modified` DATETIME NOT NULL,
@@ -32,13 +32,14 @@ class Mollie extends \Opencart\System\Engine\Model {
 			PRIMARY KEY (`id`)
 		) DEFAULT CHARSET=utf8");
 
-		// Create mollie recurring payments table
-		$this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "mollie_recurring_payments` (
+		// Create mollie subscription payments table
+		$this->db->query("CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "mollie_subscription_payments` (
 			`id` INT(11) NOT NULL AUTO_INCREMENT,
 			`transaction_id` VARCHAR(32),
-			`order_recurring_id` INT(11),
-			`subscription_id` VARCHAR(32) NOT NULL,
+			`order_subscription_id` INT(11),
+			`mollie_subscription_id` VARCHAR(32) NOT NULL,
 			`mollie_customer_id` VARCHAR(32) NOT NULL,
+			`amount` decimal(15,4) NOT NULL,
 			`method` VARCHAR(32) NOT NULL,
 			`status` VARCHAR(32) NOT NULL,
 			`date_created` DATETIME NOT NULL,
@@ -81,6 +82,14 @@ class Mollie extends \Opencart\System\Engine\Model {
         // Add stock mutation field
 		if(!$this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "order_product` LIKE 'stock_mutation'")->row) {
 			$this->db->query("ALTER TABLE `" . DB_PREFIX . "order_product` ADD `stock_mutation` BOOLEAN NOT NULL DEFAULT TRUE");
+		}
+
+		if($this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "mollie_payments` LIKE 'order_recurring_id'")->row) {
+			$this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_payments` CHANGE `order_recurring_id` `order_subscription_id` INT(11)");
+		}
+
+		if($this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "mollie_payments` LIKE 'subscription_id'")->row) {
+			$this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_payments` CHANGE `subscription_id` `mollie_subscription_id` VARCHAR(32)");
 		}
     }
 

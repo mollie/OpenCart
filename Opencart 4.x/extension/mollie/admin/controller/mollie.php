@@ -58,6 +58,8 @@ define("MOLLIE_VERSION", \MollieHelper::PLUGIN_VERSION);
 define("MOLLIE_RELEASE", "v" . MOLLIE_VERSION);
 define("MOLLIE_VERSION_URL", "https://api.github.com/repos/mollie/OpenCart/releases/latest");
 
+const DEPRECATED_METHODS = array('giropay');
+
 if (!defined("MOLLIE_TMP")) {
     define("MOLLIE_TMP", sys_get_temp_dir());
 }
@@ -328,6 +330,36 @@ class Mollie extends \Opencart\System\Engine\Controller {
         if (file_exists(DIR_SYSTEM . '../vqmod/xml/mollie.xml')) {
             unlink(DIR_SYSTEM . '../vqmod/xml/mollie.xml');
         }
+
+        //Remove deprecated method files from old version
+		$extensionDir   = DIR_EXTENSION . 'mollie/';
+		$adminControllerDir   = $extensionDir . 'admin/controller/';
+		$adminLanguageDir     = $extensionDir . 'admin/language/';
+		$catalogControllerDir = $extensionDir . 'catalog/controller/';
+		$catalogModelDir      = $extensionDir . 'catalog/model/';
+
+        $files = array();
+
+		foreach (DEPRECATED_METHODS as $method) {
+			$files = array(
+				$adminControllerDir . 'payment/mollie_' . $method . '.php',
+				$catalogControllerDir . 'payment/mollie_' . $method . '.php',
+				$catalogModelDir . 'payment/mollie_' . $method . '.php'
+			);
+
+			foreach ($files as $file) {
+				if (file_exists($file)) {
+					unlink($file);
+				}
+			}
+
+			$languageFiles = glob($adminLanguageDir . '*/payment/mollie_' . $method . '.php');
+			foreach ($languageFiles as $file) {
+				if (file_exists($file)) {
+					unlink($file);
+				}
+			}
+		}
     }
 
 	/**
@@ -392,6 +424,19 @@ class Mollie extends \Opencart\System\Engine\Controller {
 		}
 	}
 
+    //Delete deprecated method data from setting
+	public function clearData() {
+		foreach (DEPRECATED_METHODS as $method) {
+			$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "setting` WHERE `key` LIKE '%$method%'");
+			if ($query->num_rows > 0) {
+				$this->db->query("DELETE FROM `" . DB_PREFIX . "setting` WHERE `key` LIKE '%$method%'");
+			}
+
+            $this->db->query("DELETE FROM `" . DB_PREFIX . "extension` WHERE `type` = 'payment' AND `code` = 'mollie_" . $this->db->escape($method) . "'");
+            $this->db->query("DELETE FROM `" . DB_PREFIX . "extension_path` WHERE `path` LIKE '%" . $this->db->escape($method) . "%'");
+		}
+	}
+
 	private function removePrefix($input, $prefix) {
 		$result = [];
         $prefixLen = strlen($prefix);
@@ -440,6 +485,9 @@ class Mollie extends \Opencart\System\Engine\Controller {
 			$this->model_setting_setting->editValue($this->mollieHelper->getModuleCode(), $this->mollieHelper->getModuleCode() . '_version', MOLLIE_VERSION);
 		}
 
+        //Also delete data related to deprecated modules from settings
+		$this->clearData();
+
 		//Load language data
 		$data = array("version" => MOLLIE_RELEASE);
 
@@ -470,7 +518,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
         	$paymentAPIToUse[]  = $code . '_' . $module_name . '_api_to_use';
 		}
 
-        $fields = array("show_icons", "show_order_canceled_page", "description", "api_key", "ideal_processing_status_id", "ideal_expired_status_id", "ideal_canceled_status_id", "ideal_failed_status_id", "ideal_pending_status_id", "ideal_shipping_status_id", "create_shipment_status_id", "ideal_refund_status_id", "create_shipment", "payment_screen_language", "debug_mode", "mollie_component", "mollie_component_css_base", "mollie_component_css_valid", "mollie_component_css_invalid", "default_currency", "recurring_email", "align_icons", "single_click_payment", "order_expiry_days", "ideal_partial_refund_status_id", "payment_link", "payment_link_email", "partial_credit_order");
+        $fields = array("show_icons", "show_order_canceled_page", "description", "api_key", "ideal_processing_status_id", "ideal_expired_status_id", "ideal_canceled_status_id", "ideal_failed_status_id", "ideal_pending_status_id", "ideal_shipping_status_id", "create_shipment_status_id", "ideal_refund_status_id", "create_shipment", "payment_screen_language", "debug_mode", "mollie_component", "mollie_component_css_base", "mollie_component_css_valid", "mollie_component_css_invalid", "default_currency", "subscription_email", "align_icons", "single_click_payment", "order_expiry_days", "ideal_partial_refund_status_id", "payment_link", "payment_link_email", "partial_credit_order");
 
         $settingFields = $this->addPrefix($code . '_', $fields);
 
@@ -602,7 +650,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
 			$code . "_payment_screen_language"  		  		=> 'en-gb',
 			$code . "_default_currency"  		  				=> 'DEF',
 			$code . "_debug_mode"  		  						=> FALSE,
-			$code . "_recurring_email"  		  				=> array(),
+			$code . "_subscription_email"  		  				=> array(),
 			$code . "_mollie_component"  		  				=> FALSE,
 			$code . "_single_click_payment"  		  			=> FALSE,
 			$code . "_partial_credit_order"  		  			=> FALSE,
@@ -663,19 +711,21 @@ class Mollie extends \Opencart\System\Engine\Controller {
 			try {
 				$apiClient = $this->getAPIClientForKey($store['store_id']);
 				if ($apiClient) {
-					$api_methods = $apiClient->methods->allActive(array('resource' => 'orders', 'includeWallets' => 'applepay'));
+					$api_methods = $apiClient->methods->allAvailable();
 					foreach ($api_methods as $api_method) {
-						if ($api_method->id == 'in3') {
-							$api_method->id = 'in_3';
-						} elseif ($api_method->id == 'przelewy24') {
-							$api_method->id = 'przelewy_24';
-						}
-
-						$allowed_methods[$api_method->id] = array(
-							"method" => $api_method->id,
-							"minimumAmount" => $api_method->minimumAmount,
-							"maximumAmount" => $api_method->maximumAmount
-						);
+                        if ($api_method->status == 'activated') {
+                            if ($api_method->id == 'in3') {
+                                $api_method->id = 'in_3';
+                            } elseif ($api_method->id == 'przelewy24') {
+                                $api_method->id = 'przelewy_24';
+                            }
+    
+                            $allowed_methods[$api_method->id] = array(
+                                "method" => $api_method->id,
+                                "minimumAmount" => $api_method->minimumAmount,
+                                "maximumAmount" => $api_method->maximumAmount
+                            );
+                        }
 					}
 				} else {
 					$data['error_api_key'] = $this->language->get("error_api_key_invalid");
@@ -748,30 +798,45 @@ class Mollie extends \Opencart\System\Engine\Controller {
 				if ($payment_method['allowed']) {
 					$minimumAmount = $allowed_methods[$module_name]['minimumAmount']->value;
 					$currency      = $allowed_methods[$module_name]['minimumAmount']->currency;
-					$payment_method['minimumAmount'] =  sprintf($this->language->get('text_standard_total'), $this->currency->format($this->currency->convert($minimumAmount, $currency, $this->config->get('config_currency')), $currency));
+                    
+					if ($this->currency->has($currency)) {
+						$payment_method['minimumAmount'] = sprintf($this->language->get('text_standard_total'), $this->currency->format($this->currency->convert($minimumAmount, $currency, $this->config->get('config_currency')), $currency));
 
-					if (isset($config_setting[$store['store_id'] . '_' . $code . '_' . $module_name . '_total_minimum'])) {
-						$payment_method['total_minimum'] = $config_setting[$store['store_id'] . '_' . $code . '_' . $module_name . '_total_minimum'];
-					} elseif (isset($config_setting[$code . "_" . $module_name . "_total_minimum"])) {
-						$payment_method['total_minimum'] =  $config_setting[$code . "_" . $module_name . "_total_minimum"];
-					} else {
-						$payment_method['total_minimum'] =  $this->numberFormat($this->currency->convert($minimumAmount, $currency, $this->config->get('config_currency')), $this->config->get('config_currency'));
-					}
+						if (isset($config_setting[$store['store_id'] . '_' . $code . '_' . $module_name . '_total_minimum'])) {
+							$payment_method['total_minimum'] = $config_setting[$store['store_id'] . '_' . $code . '_' . $module_name . '_total_minimum'];
+						} elseif (isset($config_setting[$code . "_" . $module_name . "_total_minimum"])) {
+							$payment_method['total_minimum'] =  $config_setting[$code . "_" . $module_name . "_total_minimum"];
+						} else {
+							$payment_method['total_minimum'] =  $this->numberFormat($this->currency->convert($minimumAmount, $currency, $this->config->get('config_currency')), $this->config->get('config_currency'));
+						}
 
-					if ($allowed_methods[$module_name]['maximumAmount']) {
-						$maximumAmount = $allowed_methods[$module_name]['maximumAmount']->value;
-						$currency      = $allowed_methods[$module_name]['maximumAmount']->currency;
-						$payment_method['maximumAmount'] =  sprintf($this->language->get('text_standard_total'), $this->currency->format($this->currency->convert($maximumAmount, $currency, $this->config->get('config_currency')), $currency));
-					} else {
-						$payment_method['maximumAmount'] =  $this->language->get('text_no_maximum_limit');
-					}				
+						if ($allowed_methods[$module_name]['maximumAmount']) {
+							$maximumAmount = $allowed_methods[$module_name]['maximumAmount']->value;
+							$currency      = $allowed_methods[$module_name]['maximumAmount']->currency;
+							$payment_method['maximumAmount'] = sprintf($this->language->get('text_standard_total'), $this->currency->format($this->currency->convert($maximumAmount, $currency, $this->config->get('config_currency')), $currency));
+						} else {
+							$payment_method['maximumAmount'] =  $this->language->get('text_no_maximum_limit');
+						}				
 
-					if (isset($config_setting[$store['store_id'] . '_' . $code . '_' . $module_name . '_total_maximum'])) {
-						$payment_method['total_maximum'] = $config_setting[$store['store_id'] . '_' . $code . '_' . $module_name . '_total_maximum'];
-					} elseif (isset($config_setting[$code . "_" . $module_name . "_total_maximum"])) {
-						$payment_method['total_maximum'] =  $config_setting[$code . "_" . $module_name . "_total_maximum"];
+						if (isset($config_setting[$store['store_id'] . '_' . $code . '_' . $module_name . '_total_maximum'])) {
+							$payment_method['total_maximum'] = $config_setting[$store['store_id'] . '_' . $code . '_' . $module_name . '_total_maximum'];
+						} elseif (isset($config_setting[$code . "_" . $module_name . "_total_maximum"])) {
+							$payment_method['total_maximum'] =  $config_setting[$code . "_" . $module_name . "_total_maximum"];
+						} else {
+							$payment_method['total_maximum'] =  ($allowed_methods[$module_name]['maximumAmount']) ? $this->numberFormat($this->currency->convert($maximumAmount, $currency, $this->config->get('config_currency')), $this->config->get('config_currency')) : '';
+						}
 					} else {
-						$payment_method['total_maximum'] =  ($allowed_methods[$module_name]['maximumAmount']) ? $this->numberFormat($this->currency->convert($maximumAmount, $currency, $this->config->get('config_currency')), $this->config->get('config_currency')) : '';
+						$payment_method['minimumAmount'] = sprintf($this->language->get('text_standard_total'), $currency . ' ' . $minimumAmount);
+						$payment_method['total_minimum'] =  $minimumAmount;
+
+						if ($allowed_methods[$module_name]['maximumAmount']) {	
+							$maximumAmount = $allowed_methods[$module_name]['maximumAmount']->value;
+							$payment_method['maximumAmount'] = sprintf($this->language->get('text_standard_total'), $currency . ' ' . $maximumAmount);
+							$payment_method['total_maximum'] = $maximumAmount;
+						} else {
+							$payment_method['maximumAmount'] =  $this->language->get('text_no_maximum_limit');
+							$payment_method['total_maximum'] = '';
+						}
 					}
 				}	
 				
@@ -783,6 +848,11 @@ class Mollie extends \Opencart\System\Engine\Controller {
 
 				$data['store_data'][$store['store_id'] . '_' . $code . '_payment_methods'][$module_name] = $payment_method;
 			}
+
+            // Sort payment methods
+            uksort($data['store_data'][$store['store_id'] . '_' . $code . '_payment_methods'], function($a, $b) {
+                return $a <=> $b;
+            });
 
 			$data['stores'][$store['store_id']]['entry_cstatus'] = $this->checkCommunicationStatus(isset($config_setting[$code . '_api_key']) ? $config_setting[$code . '_api_key'] : null);			
 		}
@@ -904,7 +974,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
 					$json['invalid'] = true;
 					$json['message'] = $this->language->get('error_no_api_client');
 				} else {
-					$client->methods->all();
+					$client->methods->allActive();
 
 					$json['valid'] = true;
 					$json['message'] = 'Ok.';
@@ -941,7 +1011,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
 				return '<span style="color:red">' . $this->language->get('error_no_api_client') . '</span>';
 			}
 
-			$client->methods->all();
+			$client->methods->allActive();
 
 			return '<span style="color: green">OK</span>';
 		} catch (\Mollie\Api\Exceptions\ApiException_IncompatiblePlatform $e) {
@@ -1820,6 +1890,40 @@ class Mollie extends \Opencart\System\Engine\Controller {
                 }
                 
                 break;
+            }
+        }
+
+        // Check if path exists
+        $payment_methods = ["alma", "applepay", "bancomatpay", "bancontact", "banktransfer", "belfius", "billie", "blik", "creditcard", "eps", "giftcard", "ideal", "in_3", "kbc", "klarna", "klarnapaylater", "klarnapaynow", "klarnasliceit", "mybank", "payconiq", "paypal", "paysafecard", "przelewy_24", "riverty", "sofort", "trustly", "twint", "voucher"];
+
+        $paths = [
+            "mollie/admin/controller/payment/",
+            "mollie/admin/language/da-dk/payment/",
+            "mollie/admin/language/de-de/payment/",
+            "mollie/admin/language/en-gb/payment/",
+            "mollie/admin/language/es-es/payment/",
+            "mollie/admin/language/fr-fr/payment/",
+            "mollie/admin/language/it-it/payment/",
+            "mollie/admin/language/nb-no/payment/",
+            "mollie/admin/language/nl-nl/payment/",
+            "mollie/admin/language/pt-pt/payment/",
+            "mollie/admin/language/sv-se/payment/",
+            "mollie/catalog/controller/payment/",
+            "mollie/catalog/model/payment/"
+        ];
+
+        $path = $this->model_setting_extension->getPaths('%mollie/admin/controller/payment/mollie_ideal.php');
+        if (!empty($path)) {
+            $extension_install_id = $path[0]['extension_install_id'];
+
+            foreach ($payment_methods as $payment_method) {
+                foreach ($paths as $_path) {
+                    $path = $this->model_setting_extension->getPaths('%' . $_path . 'mollie_' . $payment_method . '.php');
+    
+                    if (empty($path)) {
+                        $this->model_setting_extension->addPath($extension_install_id, $_path . 'mollie_' . $payment_method . '.php');
+                    }
+                }
             }
         }
     }

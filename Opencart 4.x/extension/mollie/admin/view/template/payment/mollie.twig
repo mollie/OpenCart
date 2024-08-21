@@ -123,7 +123,7 @@
 											<input type="text" name="{{ store['store_id'] }}_{{ code }}_{{ module_id }}_sort_order" value="{{ payment_method['sort_order'] }}" class="form-control" style="text-align:right;"/>
 										</div>
 										<div class="col-sm-2 text-end" style="{{ coming_soon == true ? 'display: none;' : '' }}">
-											<a href="#collapse-{{ (payment_method['name']|replace({" " : "-", "/" : "-"}))|lower }}-{{ store['store_id'] }}" data-bs-toggle="collapse" class="btn btn-primary"><i class="fa fa-caret-down"></i></a>
+											<a href="#collapse-{{ (payment_method['name']|replace({" " : "-", "/" : "-"}))|lower }}-{{ store['store_id'] }}" data-bs-toggle="collapse" class="btn btn-primary button-more"><i class="fa fa-caret-down"></i></a>
 										</div>
 									</div>
 									<div class="collapse payment-method-collapse" id="collapse-{{ (payment_method['name']|replace({" " : "-", "/" : "-"}))|lower }}-{{ store['store_id'] }}">
@@ -173,7 +173,10 @@
 											<div class="row mb-3">
 												<label class="col-sm-2 col-form-label">{{ entry_api_to_use }}</label>
 												<div class="col-sm-8">
-													<select name="{{ store['store_id'] }}_{{ code }}_{{ module_id }}_api_to_use" class="form-select" {% if module_id in ['klarnapaylater', 'klarnasliceit', 'klarnapaynow', 'voucher', 'in3', 'klarna', 'billie'] %}disabled="disabled"{% endif %}>
+													{% if module_id in ['alma'] %}
+													{% set payment_method = payment_method|merge({'api_to_use': 'payments_api'}) %}
+													{% endif %}
+													<select name="{{ store['store_id'] }}_{{ code }}_{{ module_id }}_api_to_use" class="form-select" {% if module_id in ['klarnapaylater', 'klarnasliceit', 'klarnapaynow', 'voucher', 'in3', 'klarna', 'billie', 'riverty', 'alma'] %}disabled="disabled"{% endif %}>
 														<option value="orders_api">{{ text_order_api }}</option>
 														<option value="payments_api" {% if payment_method['api_to_use'] == 'payments_api' %}selected="selected"{% endif %}>{{ text_payment_api }}</option>
 													</select>		
@@ -612,17 +615,17 @@
 					                {% for language in languages %}
 					                <div class="tab-pane {% if loop.first %} active{% endif %}" id="language{{ store['store_id'] }}{{ language['language_id'] }}" >
 										<fieldset>
-											<legend>{{ text_recurring_payment }}</legend>
+											<legend>{{ text_subscription_payment }}</legend>
 											<div class="row mb-3">
 												<label class="col-sm-2 col-form-label" for="input-subject{{ store['store_id'] }}{{ language['language_id'] }}">{{ entry_email_subject }}</label>
 												<div class="col-sm-10">
-												<input type="text" name="{{ store['store_id'] }}_{{ code }}_recurring_email[{{ language['language_id'] }}][subject]" value="{{ store[code ~ '_recurring_email'][language['language_id']] is not null ? store[code ~ '_recurring_email'][language['language_id']]['subject'] : '' }}" placeholder="{{ entry_email_subject }}" id="input-subject{{ store['store_id'] }}{{ language['language_id'] }}" class="form-control" />
+												<input type="text" name="{{ store['store_id'] }}_{{ code }}_subscription_email[{{ language['language_id'] }}][subject]" value="{{ store[code ~ '_subscription_email'][language['language_id']] is not null ? store[code ~ '_subscription_email'][language['language_id']]['subject'] : '' }}" placeholder="{{ entry_email_subject }}" id="input-subject{{ store['store_id'] }}{{ language['language_id'] }}" class="form-control" />
 												</div>
 											</div>
 											<div class="row mb-3">
 												<label class="col-sm-2 col-form-label" for="input-body{{ store['store_id'] }}{{ language['language_id'] }}">{{ entry_email_body }}</label>
 												<div class="col-sm-10">
-												<textarea name="{{ store['store_id'] }}_{{ code }}_recurring_email[{{ language['language_id'] }}][body]" placeholder="{{ entry_email_body }}" id="input-body{{ store['store_id'] }}{{ language['language_id'] }}" data-oc-toggle="ckeditor" data-lang="{{ ckeditor }}" class="form-control">{{ store[code ~ '_recurring_email'][language['language_id']] ? store[code ~ '_recurring_email'][language['language_id']]['body'] : '' }}</textarea>
+												<textarea name="{{ store['store_id'] }}_{{ code }}_subscription_email[{{ language['language_id'] }}][body]" placeholder="{{ entry_email_body }}" id="input-body{{ store['store_id'] }}{{ language['language_id'] }}" data-oc-toggle="ckeditor" data-lang="{{ ckeditor }}" class="form-control">{{ store[code ~ '_subscription_email'][language['language_id']] ? store[code ~ '_subscription_email'][language['language_id']]['body'] : '' }}</textarea>
 												<small>{{ text_allowed_variables }}</small>
 												</div>
 											</div>
@@ -758,6 +761,7 @@ function save(store_id, payment_method) {
 		success: function(json) {
 		if (json['success']) {
 			$('#collapse-' + payment_method + '-' + store_id).collapse('hide');
+			$('a[href="#collapse-' + payment_method + '-' + store_id + '"]').trigger('click');
 
 			setTimeout(function() {
 				$('a[href="#collapse-' + payment_method + '-' + store_id + '"]').parent().parent().css('border-bottom', '2px solid #398c39');
@@ -989,6 +993,16 @@ $(document).ready(function () {
 	{% for store in stores %}
 	transform('{{ store['store_id'] }}');
 	{% endfor %}
+
+	$('.button-more').on('click', function () {
+		if ($(this).find('i').hasClass('fa-caret-down')) {
+			$(this).find('i').removeClass('fa-caret-down');
+			$(this).find('i').addClass('fa-caret-up');
+		} else if($(this).find('i').hasClass('fa-caret-up')) {
+			$(this).find('i').removeClass('fa-caret-up');
+			$(this).find('i').addClass('fa-caret-down');
+		}
+	});
 });
 
 function transform(store_id = 0) {	

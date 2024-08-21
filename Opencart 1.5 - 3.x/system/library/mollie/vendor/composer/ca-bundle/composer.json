@@ -29,17 +29,17 @@
     "require-dev": {
         "symfony\/phpunit-bridge": "^4.2 || ^5",
         "phpstan\/phpstan": "^1.10",
-        "psr\/log": "^1.0",
+        "psr\/log": "^1.0 || ^2.0 || ^3.0",
         "symfony\/process": "^4.0 || ^5.0 || ^6.0 || ^7.0"
     },
     "autoload": {
         "psr-4": {
-            "_PhpScopera4a4d1654b06\\Composer\\CaBundle\\": "src"
+            "_PhpScoper24648dd2614c\\Composer\\CaBundle\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "_PhpScopera4a4d1654b06\\Composer\\CaBundle\\": "tests"
+            "_PhpScoper24648dd2614c\\Composer\\CaBundle\\": "tests"
         }
     },
     "extra": {

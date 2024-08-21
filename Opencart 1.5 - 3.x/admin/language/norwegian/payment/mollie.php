@@ -32,32 +32,35 @@
  */
 
 // These are called automatically by the Payment modules list - do not change the names
-$method_list_logo                = '<a href="https://www.mollie.com" target="_blank"><img src="../image/mollie/mollie_logo.png" alt="Mollie" title="Mollie" style="border:0px" /></a>';
-$_['text_mollie_banktransfer']   = $method_list_logo;
-$_['text_mollie_belfius']        = $method_list_logo;
-$_['text_mollie_creditcard']     = $method_list_logo;
-$_['text_mollie_ideal']          = $method_list_logo;
-$_['text_mollie_kbc']            = $method_list_logo;
-$_['text_mollie_bancontact']     = $method_list_logo;
-$_['text_mollie_paypal']         = $method_list_logo;
-$_['text_mollie_paysafecard']    = $method_list_logo;
-$_['text_mollie_sofort']         = $method_list_logo;
-$_['text_mollie_giftcard']       = $method_list_logo;
-$_['text_mollie_eps']            = $method_list_logo;
-$_['text_mollie_giropay']        = $method_list_logo;
-$_['text_mollie_klarnapaylater'] = $method_list_logo;
-$_['text_mollie_klarnapaynow']   = $method_list_logo;
-$_['text_mollie_klarnasliceit']  = $method_list_logo;
-$_['text_mollie_przelewy24']  	 = $method_list_logo;
-$_['text_mollie_applepay']  	 = $method_list_logo;
-$_['text_mollie_voucher']    	 = $method_list_logo;
-$_['text_mollie_in3']      	     = $method_list_logo;
-$_['text_mollie_mybank']      	 = $method_list_logo;
-$_['text_mollie_billie']      	 = $method_list_logo;
-$_['text_mollie_klarna']      	 = $method_list_logo;
-$_['text_mollie_twint']      	 = $method_list_logo;
-$_['text_mollie_blik']      	 = $method_list_logo;
-$_['text_mollie_bancomatpay']    = $method_list_logo;
+$method_list_logo                   = '<a href="https://www.mollie.com" target="_blank"><img src="../image/mollie/mollie_logo.png" alt="Mollie" title="Mollie" style="border:0px" /></a>';
+$_['text_mollie_banktransfer']      = $method_list_logo;
+$_['text_mollie_belfius']           = $method_list_logo;
+$_['text_mollie_creditcard']        = $method_list_logo;
+$_['text_mollie_ideal']             = $method_list_logo;
+$_['text_mollie_kbc']               = $method_list_logo;
+$_['text_mollie_bancontact']        = $method_list_logo;
+$_['text_mollie_paypal']            = $method_list_logo;
+$_['text_mollie_paysafecard']       = $method_list_logo;
+$_['text_mollie_sofort']            = $method_list_logo;
+$_['text_mollie_giftcard']          = $method_list_logo;
+$_['text_mollie_eps']               = $method_list_logo;
+$_['text_mollie_klarnapaylater']    = $method_list_logo;
+$_['text_mollie_klarnapaynow']      = $method_list_logo;
+$_['text_mollie_klarnasliceit']     = $method_list_logo;
+$_['text_mollie_przelewy24']  	    = $method_list_logo;
+$_['text_mollie_applepay']  	    = $method_list_logo;
+$_['text_mollie_voucher']    	    = $method_list_logo;
+$_['text_mollie_in3']      	        = $method_list_logo;
+$_['text_mollie_mybank']      	    = $method_list_logo;
+$_['text_mollie_billie']      	    = $method_list_logo;
+$_['text_mollie_klarna']      	    = $method_list_logo;
+$_['text_mollie_twint']      	    = $method_list_logo;
+$_['text_mollie_blik']      	    = $method_list_logo;
+$_['text_mollie_bancomatpay']       = $method_list_logo;
+$_['text_mollie_trustly']           = $method_list_logo;
+$_['text_mollie_alma']              = $method_list_logo;
+$_['text_mollie_riverty']           = $method_list_logo;
+$_['text_mollie_payconiq']          = $method_list_logo;
 
 // Heading
 $_['heading_title']           = "Mollie";
@@ -79,7 +82,6 @@ $_['name_mollie_paysafecard']    = "paysafecard";
 $_['name_mollie_sofort']         = "SOFORT Banking";
 $_['name_mollie_giftcard']       = 'Giftcard';
 $_['name_mollie_eps']            = 'EPS';
-$_['name_mollie_giropay']        = 'Giropay';
 $_['name_mollie_klarnapaylater'] = 'Klarna Pay Later';
 $_['name_mollie_klarnapaynow']   = 'Klarna Pay Now';
 $_['name_mollie_klarnasliceit']  = 'Klarna Slice It';
@@ -93,6 +95,10 @@ $_['name_mollie_klarna']         = "Pay with Klarna";
 $_['name_mollie_twint']          = "Twint";
 $_['name_mollie_blik']           = "Blik";
 $_['name_mollie_bancomatpay']    = "Bancomat Pay";
+$_['name_mollie_trustly']        = "Trustly";
+$_['name_mollie_alma']           = "Alma";
+$_['name_mollie_riverty']        = "Riverty";
+$_['name_mollie_payconiq']       = "Payconiq";
 
 // Text
 $_['text_edit']                    = "Redigere";

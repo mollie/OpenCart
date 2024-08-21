@@ -44,7 +44,6 @@ them ready-made into your OpenCart webshop with this powerful plugin.
 - Cartes Bancaires
 - Dutch giftcards
 - EPS
-- Giropay
 - Klarna Pay Later
 - Klarna Pay Now
 - Klarna Slice It
@@ -57,6 +56,10 @@ them ready-made into your OpenCart webshop with this powerful plugin.
 - Twint
 - Blik
 - Bancomat Pay
+- Trustly
+- Alma
+- Riverty
+- Payconiq
 
 Please go to the signup page to create a new Mollie account and start receiving payments in
 a couple of minutes. Contact info@mollie.com if you have any questions or comments about
@@ -78,27 +81,30 @@ Copyright (c) 2018, Mollie B.V.
 Module developed by Quality Works: [www.qualityworks.eu](https://www.qualityworks.eu) — mollie.support@qualityworks.eu — +31 85-7430150 <br />
 Contact Mollie: [www.mollie.com/nl/about](https://www.mollie.com/nl/about) — info@mollie.com — +31 20-612 88 55
 
-+ [More info on iDEAL via Mollie](https://www.mollie.com/payments/ideal/)
-+ [More info on credit card via Mollie](https://www.mollie.com/payments/creditcard/)
-+ [More info on Bancontact via Mollie](https://www.mollie.com/payments/bancontact/)
-+ [More info on SOFORT Banking via Mollie](https://www.mollie.com/payments/sofort/)
-+ [More info on SEPA Bank transfer via Mollie](https://www.mollie.com/payments/banktransfer/)
-+ [More info on SEPA Direct debit via Mollie](https://www.mollie.com/payments/directdebit/)
-+ [More info on PayPal via Mollie](https://www.mollie.com/payments/paypal/)
-+ [More info on Belfius Direct Net via Mollie](https://www.mollie.com/payments/belfiusdirectnet/)
-+ [More info on paysafecard via Mollie](https://www.mollie.com/payments/paysafecard/)
-+ [More info on Giftcards via Mollie](https://www.mollie.com/payments/gift-cards/)
-+ [More info on EPS via Mollie](https://www.mollie.com/payments/eps/)
-+ [More info on Giropay via Mollie](https://www.mollie.com/payments/giropay/)
-+ [More info on Klarna Pay Later via Mollie](https://www.mollie.com/payments/klarna-pay-later/)
-+ [More info on Klarna Pay Now via Mollie](https://www.mollie.com/payments/klarna-pay-now/)
-+ [More info on Klarna Slite It via Mollie](https://www.mollie.com/payments/klarna-slice-it/)
-+ [More info on Przelewy24 It via Mollie](https://www.mollie.com/payments/p24/)
-+ [More info on Apple Pay via Mollie](https://www.mollie.com/payments/apple-pay/)
-+ [More info on Vouchers via Mollie](https://www.mollie.com/payments/meal-eco-gift-vouchers/)
-+ [More info on IN3 via Mollie](https://www.mollie.com/payments/in3/)
-+ [More info on MyBank via Mollie](https://www.mollie.com/payments/mybank/)
-+ [More info on Billie via Mollie](https://www.mollie.com/payments/billie/)
-+ [More info on Twint via Mollie](https://www.mollie.com/payments/twint/)
-+ [More info on Blik via Mollie](https://www.mollie.com/payments/blik/)
-+ [More info on Bancomat Pay via Mollie](https://www.mollie.com/payments/bancomatpay/)
++ [More info on iDEAL via Mollie](https://www.mollie.com/en/payments/ideal/)
++ [More info on credit card via Mollie](https://www.mollie.com/en/payments/creditcard/)
++ [More info on Bancontact via Mollie](https://www.mollie.com/en/payments/bancontact/)
++ [More info on SOFORT Banking via Mollie](https://www.mollie.com/en/payments/sofort/)
++ [More info on SEPA Bank transfer via Mollie](https://www.mollie.com/en/payments/banktransfer/)
++ [More info on SEPA Direct debit via Mollie](https://www.mollie.com/en/payments/directdebit/)
++ [More info on PayPal via Mollie](https://www.mollie.com/en/payments/paypal/)
++ [More info on Belfius Direct Net via Mollie](https://www.mollie.com/en/payments/belfiusdirectnet/)
++ [More info on paysafecard via Mollie](https://www.mollie.com/en/payments/paysafecard/)
++ [More info on Giftcards via Mollie](https://www.mollie.com/en/payments/gift-cards/)
++ [More info on EPS via Mollie](https://www.mollie.com/en/payments/eps/)
++ [More info on Klarna Pay Later via Mollie](https://www.mollie.com/en/payments/klarna-pay-later/)
++ [More info on Klarna Pay Now via Mollie](https://www.mollie.com/en/payments/klarna-pay-now/)
++ [More info on Klarna Slite It via Mollie](https://www.mollie.com/en/payments/klarna-slice-it/)
++ [More info on Przelewy24 It via Mollie](https://www.mollie.com/en/payments/p24/)
++ [More info on Apple Pay via Mollie](https://www.mollie.com/en/payments/apple-pay/)
++ [More info on Vouchers via Mollie](https://www.mollie.com/en/payments/meal-eco-gift-vouchers/)
++ [More info on IN3 via Mollie](https://www.mollie.com/en/payments/in3/)
++ [More info on MyBank via Mollie](https://www.mollie.com/en/payments/mybank/)
++ [More info on Billie via Mollie](https://www.mollie.com/en/payments/billie/)
++ [More info on Twint via Mollie](https://www.mollie.com/en/payments/twint/)
++ [More info on Blik via Mollie](https://www.mollie.com/en/payments/blik/)
++ [More info on Bancomat Pay via Mollie](https://www.mollie.com/en/payments/bancomatpay/)
++ [More info on Trustly Pay via Mollie](https://www.mollie.com/en/payments/trustly/)
++ [More info on Alma Pay via Mollie](https://www.mollie.com/en/payments/alma/)
++ [More info on Riverty Pay via Mollie](https://www.mollie.com/en/payments/riverty/)
++ [More info on Payconiq Pay via Mollie](https://www.mollie.com/en/payments/payconiq/)

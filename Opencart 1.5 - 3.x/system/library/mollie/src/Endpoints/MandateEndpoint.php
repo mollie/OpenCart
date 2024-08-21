@@ -110,8 +110,8 @@ class MandateEndpoint extends \Mollie\Api\Endpoints\CollectionEndpointAbstract
     }
     /**
      * @param string $customerId
-     * @param null $from
-     * @param null $limit
+     * @param string|null $from
+     * @param int|null $limit
      * @param array $parameters
      *
      * @return \Mollie\Api\Resources\MandateCollection

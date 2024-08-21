@@ -1,2 +1,2 @@
 <?php
-    include(__DIR__."/../../payment/mollie_klarnasliceit.php");
+    include(__DIR__."/../../../spanish/payment/mollie_klarnasliceit.php");

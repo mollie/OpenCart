@@ -8,10 +8,10 @@
  * For the full copyright and license information, please view
  * the LICENSE file that was distributed with this source code.
  */
-namespace _PhpScopera4a4d1654b06\Composer\CaBundle;
+namespace _PhpScoper24648dd2614c\Composer\CaBundle;
 
-use _PhpScopera4a4d1654b06\Psr\Log\LoggerInterface;
-use _PhpScopera4a4d1654b06\Symfony\Component\Process\PhpProcess;
+use _PhpScoper24648dd2614c\Psr\Log\LoggerInterface;
+use _PhpScoper24648dd2614c\Symfony\Component\Process\PhpProcess;
 /**
  * @author Chris Smith <chris@cs278.org>
  * @author Jordi Boggiano <j.boggiano@seld.be>
@@ -59,7 +59,7 @@ class CaBundle
      * @param  LoggerInterface $logger optional logger for information about which CA files were loaded
      * @return string          path to a CA bundle file or directory
      */
-    public static function getSystemCaRootBundlePath(?\_PhpScopera4a4d1654b06\Psr\Log\LoggerInterface $logger = null)
+    public static function getSystemCaRootBundlePath(?\_PhpScoper24648dd2614c\Psr\Log\LoggerInterface $logger = null)
     {
         if (self::$caPath !== null) {
             return self::$caPath;
@@ -150,7 +150,7 @@ class CaBundle
      *
      * @return bool
      */
-    public static function validateCaFile($filename, ?\_PhpScopera4a4d1654b06\Psr\Log\LoggerInterface $logger = null)
+    public static function validateCaFile($filename, ?\_PhpScoper24648dd2614c\Psr\Log\LoggerInterface $logger = null)
     {
         static $warned = \false;
         if (isset(self::$caFileValidity[$filename])) {
@@ -213,7 +213,7 @@ class CaBundle
      * @param  LoggerInterface|null $logger
      * @return bool
      */
-    private static function caFileUsable($certFile, ?\_PhpScopera4a4d1654b06\Psr\Log\LoggerInterface $logger = null)
+    private static function caFileUsable($certFile, ?\_PhpScoper24648dd2614c\Psr\Log\LoggerInterface $logger = null)
     {
         return $certFile && self::isFile($certFile, $logger) && self::isReadable($certFile, $logger) && self::validateCaFile($certFile, $logger);
     }
@@ -222,7 +222,7 @@ class CaBundle
      * @param  LoggerInterface|null $logger
      * @return bool
      */
-    private static function caDirUsable($certDir, ?\_PhpScopera4a4d1654b06\Psr\Log\LoggerInterface $logger = null)
+    private static function caDirUsable($certDir, ?\_PhpScoper24648dd2614c\Psr\Log\LoggerInterface $logger = null)
     {
         return $certDir && self::isDir($certDir, $logger) && self::isReadable($certDir, $logger) && self::glob($certDir . '/*', $logger);
     }
@@ -231,7 +231,7 @@ class CaBundle
      * @param  LoggerInterface|null $logger
      * @return bool
      */
-    private static function isFile($certFile, ?\_PhpScopera4a4d1654b06\Psr\Log\LoggerInterface $logger = null)
+    private static function isFile($certFile, ?\_PhpScoper24648dd2614c\Psr\Log\LoggerInterface $logger = null)
     {
         $isFile = @\is_file($certFile);
         if (!$isFile && $logger) {
@@ -244,7 +244,7 @@ class CaBundle
      * @param  LoggerInterface|null $logger
      * @return bool
      */
-    private static function isDir($certDir, ?\_PhpScopera4a4d1654b06\Psr\Log\LoggerInterface $logger = null)
+    private static function isDir($certDir, ?\_PhpScoper24648dd2614c\Psr\Log\LoggerInterface $logger = null)
     {
         $isDir = @\is_dir($certDir);
         if (!$isDir && $logger) {
@@ -257,7 +257,7 @@ class CaBundle
      * @param  LoggerInterface|null $logger
      * @return bool
      */
-    private static function isReadable($certFileOrDir, ?\_PhpScopera4a4d1654b06\Psr\Log\LoggerInterface $logger = null)
+    private static function isReadable($certFileOrDir, ?\_PhpScoper24648dd2614c\Psr\Log\LoggerInterface $logger = null)
     {
         $isReadable = @\is_readable($certFileOrDir);
         if (!$isReadable && $logger) {
@@ -270,7 +270,7 @@ class CaBundle
      * @param  LoggerInterface|null $logger
      * @return bool
      */
-    private static function glob($pattern, ?\_PhpScopera4a4d1654b06\Psr\Log\LoggerInterface $logger = null)
+    private static function glob($pattern, ?\_PhpScoper24648dd2614c\Psr\Log\LoggerInterface $logger = null)
     {
         $certs = \glob($pattern);
         if ($certs === \false) {
