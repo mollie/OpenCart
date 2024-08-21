@@ -4,7 +4,7 @@ use Mollie\Api\MollieApiClient;
 
 class MollieHelper {
 
-	const PLUGIN_VERSION = "13.2.0";
+	const PLUGIN_VERSION = "13.3.0";
 
 	const OUTH_URL = 'https://api.mollie.com/oauth2';
 
@@ -23,7 +23,6 @@ class MollieHelper {
 	const MODULE_NAME_KBC           	= "kbc";
 	const MODULE_NAME_GIFTCARD      	= "giftcard";
 	const MODULE_NAME_EPS           	= "eps";
-	const MODULE_NAME_GIROPAY       	= "giropay";
 	const MODULE_NAME_KLARNAPAYLATER 	= "klarnapaylater";
 	const MODULE_NAME_KLARNAPAYNOW   	= "klarnapaynow";
 	const MODULE_NAME_KLARNASLICEIT  	= "klarnasliceit";
@@ -37,6 +36,10 @@ class MollieHelper {
 	const MODULE_NAME_TWINT    	 	    = "twint";
 	const MODULE_NAME_BLIK    	 	    = "blik";
 	const MODULE_NAME_BANCOMATPAY 	    = "bancomatpay";
+	const MODULE_NAME_TRUSTLY	 	    = "trustly";
+	const MODULE_NAME_ALMA	 	    	= "alma";
+	const MODULE_NAME_RIVERTY	 	    = "riverty";
+	const MODULE_NAME_PAYCONIQ	 	    = "payconiq";
 
 
 	// List of all available module names.
@@ -52,7 +55,6 @@ class MollieHelper {
 		self::MODULE_NAME_KBC,
 		self::MODULE_NAME_GIFTCARD,
 		self::MODULE_NAME_EPS,
-		self::MODULE_NAME_GIROPAY,
 		self::MODULE_NAME_KLARNAPAYLATER,
 		self::MODULE_NAME_KLARNAPAYNOW,
 		self::MODULE_NAME_KLARNASLICEIT,
@@ -65,7 +67,11 @@ class MollieHelper {
 		self::MODULE_NAME_KLARNA,
 		self::MODULE_NAME_TWINT,
 		self::MODULE_NAME_BLIK,
-		self::MODULE_NAME_BANCOMATPAY
+		self::MODULE_NAME_BANCOMATPAY,
+		self::MODULE_NAME_TRUSTLY,
+		self::MODULE_NAME_ALMA,
+		self::MODULE_NAME_RIVERTY,
+		self::MODULE_NAME_PAYCONIQ
 	);
 
 	protected $api_client;

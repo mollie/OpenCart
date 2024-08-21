@@ -44,7 +44,6 @@ $_['text_mollie_paysafecard']    = $method_list_logo;
 $_['text_mollie_sofort']         = $method_list_logo;
 $_['text_mollie_giftcard']       = $method_list_logo;
 $_['text_mollie_eps']            = $method_list_logo;
-$_['text_mollie_giropay']        = $method_list_logo;
 $_['text_mollie_klarnapaylater'] = $method_list_logo;
 $_['text_mollie_klarnapaynow']   = $method_list_logo;
 $_['text_mollie_klarnasliceit']  = $method_list_logo;
@@ -58,6 +57,10 @@ $_['text_mollie_klarna']      	 = $method_list_logo;
 $_['text_mollie_twint']      	 = $method_list_logo;
 $_['text_mollie_blik']      	 = $method_list_logo;
 $_['text_mollie_bancomatpay']    = $method_list_logo;
+$_['text_mollie_trustly']        = $method_list_logo;
+$_['text_mollie_alma']           = $method_list_logo;
+$_['text_mollie_riverty']        = $method_list_logo;
+$_['text_mollie_payconiq']       = $method_list_logo;
 
 // Heading
 $_['heading_title']         = "Mollie";
@@ -79,7 +82,6 @@ $_['name_mollie_paysafecard']    = "paysafecard";
 $_['name_mollie_sofort']         = "SOFORT Banking";
 $_['name_mollie_giftcard']       = 'Giftcard';
 $_['name_mollie_eps']            = 'EPS';
-$_['name_mollie_giropay']        = 'Giropay';
 $_['name_mollie_klarnapaylater'] = 'Klarna Pay Later';
 $_['name_mollie_klarnapaynow']   = 'Klarna Pay Now';
 $_['name_mollie_klarnasliceit']  = 'Klarna Slice It';
@@ -93,6 +95,10 @@ $_['name_mollie_klarna']         = "Pay with Klarna";
 $_['name_mollie_twint']          = "Twint";
 $_['name_mollie_blik']           = "Blik";
 $_['name_mollie_bancomatpay']    = "Bancomat Pay";
+$_['name_mollie_trustly']        = "Trustly";
+$_['name_mollie_alma']           = "Alma";
+$_['name_mollie_riverty']        = "Riverty";
+$_['name_mollie_payconiq']       = "Payconiq";
 
 // Text
 $_['text_edit']                     = "Mollie bearbeiten";
@@ -139,7 +145,7 @@ $_['text_order_api']               = 'Bestell API';
 $_['text_info_orders_api']         = 'Warum Auftrags API verwenden?';
 $_['text_pay_link_variables']      = "Zulässige Variablen: {firstname}, {lastname}, {amount}, {order_id}, {store_name}, {payment_link}";
 $_['text_pay_link_text']           = "Dear customer, <br /><br /> Click on the link below to complete your payment of {amount} for the order {order_id}.<br /><br /> {payment_link}<br /><br /><br /><br />Regards,<br /><br />{store_name}";
-$_['text_recurring_payment']       = "Wiederkehrende Zahlung";
+$_['text_subscription_payment']    = "Abonnementzahlung";
 $_['text_payment_link']            = "Zahlungslink";
 $_['text_coming_soon']             = "Demnächst";
 

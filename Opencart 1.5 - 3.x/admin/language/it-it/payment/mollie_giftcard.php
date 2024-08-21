@@ -1,4 +1,2 @@
 <?php
-require(dirname(__FILE__) . "/mollie.php");
-
-$_['heading_title'] .= " &ndash; " . $_['name_mollie_giftcard'];
+    include(__DIR__."/../../italian/payment/mollie_giftcard.php");

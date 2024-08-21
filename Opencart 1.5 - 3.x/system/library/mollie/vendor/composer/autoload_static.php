@@ -9,7 +9,7 @@ class ComposerStaticInit9cd86ce48b73cb47f9ea8089667d0d43
     public static $prefixLengthsPsr4 = array (
         '_' => 
         array (
-            '_PhpScopera4a4d1654b06\\Composer\\CaBundle\\' => 41,
+            '_PhpScoper24648dd2614c\\Composer\\CaBundle\\' => 41,
         ),
         'M' => 
         array (
@@ -18,7 +18,7 @@ class ComposerStaticInit9cd86ce48b73cb47f9ea8089667d0d43
     );
 
     public static $prefixDirsPsr4 = array (
-        '_PhpScopera4a4d1654b06\\Composer\\CaBundle\\' => 
+        '_PhpScoper24648dd2614c\\Composer\\CaBundle\\' => 
         array (
             0 => __DIR__ . '/..' . '/composer/ca-bundle/src',
         ),
@@ -44,6 +44,7 @@ class ComposerStaticInit9cd86ce48b73cb47f9ea8089667d0d43
         'Mollie\\Api\\Endpoints\\InvoiceEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/InvoiceEndpoint.php',
         'Mollie\\Api\\Endpoints\\MandateEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/MandateEndpoint.php',
         'Mollie\\Api\\Endpoints\\MethodEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/MethodEndpoint.php',
+        'Mollie\\Api\\Endpoints\\MethodIssuerEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/MethodIssuerEndpoint.php',
         'Mollie\\Api\\Endpoints\\OnboardingEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/OnboardingEndpoint.php',
         'Mollie\\Api\\Endpoints\\OrderEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/OrderEndpoint.php',
         'Mollie\\Api\\Endpoints\\OrderLineEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/OrderLineEndpoint.php',
@@ -55,6 +56,7 @@ class ComposerStaticInit9cd86ce48b73cb47f9ea8089667d0d43
         'Mollie\\Api\\Endpoints\\PaymentChargebackEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/PaymentChargebackEndpoint.php',
         'Mollie\\Api\\Endpoints\\PaymentEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/PaymentEndpoint.php',
         'Mollie\\Api\\Endpoints\\PaymentLinkEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/PaymentLinkEndpoint.php',
+        'Mollie\\Api\\Endpoints\\PaymentLinkPaymentEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/PaymentLinkPaymentEndpoint.php',
         'Mollie\\Api\\Endpoints\\PaymentRefundEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/PaymentRefundEndpoint.php',
         'Mollie\\Api\\Endpoints\\PaymentRouteEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/PaymentRouteEndpoint.php',
         'Mollie\\Api\\Endpoints\\PermissionEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/PermissionEndpoint.php',
@@ -68,6 +70,7 @@ class ComposerStaticInit9cd86ce48b73cb47f9ea8089667d0d43
         'Mollie\\Api\\Endpoints\\SettlementsEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/SettlementsEndpoint.php',
         'Mollie\\Api\\Endpoints\\ShipmentEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/ShipmentEndpoint.php',
         'Mollie\\Api\\Endpoints\\SubscriptionEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/SubscriptionEndpoint.php',
+        'Mollie\\Api\\Endpoints\\SubscriptionPaymentEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/SubscriptionPaymentEndpoint.php',
         'Mollie\\Api\\Endpoints\\TerminalEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/TerminalEndpoint.php',
         'Mollie\\Api\\Endpoints\\WalletEndpoint' => __DIR__ . '/../..' . '/src/Endpoints/WalletEndpoint.php',
         'Mollie\\Api\\Exceptions\\ApiException' => __DIR__ . '/../..' . '/src/Exceptions/ApiException.php',
@@ -162,7 +165,7 @@ class ComposerStaticInit9cd86ce48b73cb47f9ea8089667d0d43
         'Mollie\\Api\\Types\\SettlementStatus' => __DIR__ . '/../..' . '/src/Types/SettlementStatus.php',
         'Mollie\\Api\\Types\\SubscriptionStatus' => __DIR__ . '/../..' . '/src/Types/SubscriptionStatus.php',
         'Mollie\\Api\\Types\\TerminalStatus' => __DIR__ . '/../..' . '/src/Types/TerminalStatus.php',
-        '_PhpScopera4a4d1654b06\\Composer\\CaBundle\\CaBundle' => __DIR__ . '/..' . '/composer/ca-bundle/src/CaBundle.php',
+        '_PhpScoper24648dd2614c\\Composer\\CaBundle\\CaBundle' => __DIR__ . '/..' . '/composer/ca-bundle/src/CaBundle.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

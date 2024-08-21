@@ -2,7 +2,7 @@
 
 namespace Mollie\Api\HttpAdapter;
 
-use _PhpScopera4a4d1654b06\Composer\CaBundle\CaBundle;
+use _PhpScoper24648dd2614c\Composer\CaBundle\CaBundle;
 use Mollie\Api\Exceptions\ApiException;
 use Mollie\Api\Exceptions\CurlConnectTimeoutException;
 use Mollie\Api\MollieApiClient;
@@ -66,7 +66,7 @@ final class CurlMollieHttpAdapter implements \Mollie\Api\HttpAdapter\MollieHttpA
         \curl_setopt($curl, \CURLOPT_CONNECTTIMEOUT, self::DEFAULT_CONNECT_TIMEOUT);
         \curl_setopt($curl, \CURLOPT_TIMEOUT, self::DEFAULT_TIMEOUT);
         \curl_setopt($curl, \CURLOPT_SSL_VERIFYPEER, \true);
-        \curl_setopt($curl, \CURLOPT_CAINFO, \_PhpScopera4a4d1654b06\Composer\CaBundle\CaBundle::getBundledCaBundlePath());
+        \curl_setopt($curl, \CURLOPT_CAINFO, \_PhpScoper24648dd2614c\Composer\CaBundle\CaBundle::getBundledCaBundlePath());
         switch ($httpMethod) {
             case \Mollie\Api\MollieApiClient::HTTP_POST:
                 \curl_setopt($curl, \CURLOPT_POST, \true);

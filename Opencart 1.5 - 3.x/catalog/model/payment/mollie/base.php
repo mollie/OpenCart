@@ -71,26 +71,43 @@ class ModelPaymentMollieBase extends Model
 
 	public function getAllActive($data) {
 		$allowed_methods = array();
-		try {
-			$payment_methods = $this->getAPIClient()->methods->allActive($data);
-		} catch (Mollie\Api\Exceptions\ApiException $e) {
-			$this->log->write("Error retrieving payment methods from Mollie: {$e->getMessage()}.");
-			return array();
-		}
-		
-		//Get payment methods allowed for this amount and currency
-		foreach ($payment_methods as $allowed_method)
-		{
-			$allowed_methods[] = $allowed_method->id;
-		}
-		
-		if(empty($allowed_methods)) {
-			$data["amount"]["currency"] = "EUR";
-			$allowed_methods = $this->getAllActive($data);
+		$resetMethods = false;
+
+		if (!isset($this->session->data['mollie_allowed_methods'])) {
+			$resetMethods = true;
+		} else {
+			if (isset($this->session->data['payment_address']) && ($this->session->data['payment_address']['country_id'] != $this->session->data['mollie_country_id'])) {
+				$resetMethods = true;
+			} elseif ($this->session->data['mollie_currency'] != $this->session->data["currency"]) {
+				$resetMethods = true;
+			}
 		}
 
-		$this->session->data['mollie_allowed_methods'] = $allowed_methods;
-		$this->session->data['mollie_currency'] = $this->session->data["currency"];
+		if (!$resetMethods) {
+			$allowed_methods = $this->session->data['mollie_allowed_methods'];
+		} else {
+			try {
+				$payment_methods = $this->getAPIClient()->methods->allActive($data);
+			} catch (Mollie\Api\Exceptions\ApiException $e) {
+				$this->log->write("Error retrieving payment methods from Mollie: {$e->getMessage()}.");
+				return array();
+			}
+			
+			//Get payment methods allowed for this amount and currency
+			foreach ($payment_methods as $allowed_method)
+			{
+				$allowed_methods[] = $allowed_method->id;
+			}
+			
+			if(empty($allowed_methods)) {
+				$data["amount"]["currency"] = "EUR";
+				$allowed_methods = $this->getAllActive($data);
+			}
+	
+			$this->session->data['mollie_allowed_methods'] = $allowed_methods;
+			$this->session->data['mollie_currency'] = $this->session->data["currency"];
+			$this->session->data['mollie_country_id'] = $this->session->data['payment_address']['country_id'];
+		}
 
 		return $allowed_methods;			
 	}
@@ -195,6 +212,13 @@ class ModelPaymentMollieBase extends Model
 			}
 		}
 
+		// Shipping address check
+		if(static::MODULE_NAME == 'alma') {
+			if (!isset($this->session->data['shipping_address'])) {
+				return NULL;
+			}
+		}
+
 		// Get billing country	
 		$this->load->model('localisation/country');
 
@@ -222,14 +246,10 @@ class ModelPaymentMollieBase extends Model
             "resource" 		 => "orders",
             "includeWallets" => "applepay",
 			"billingCountry" => $country,
-			"sequenceType" => $sequence
-        );
+			"sequenceType" 	 => $sequence
+        );     
 
-		if (isset($this->session->data['mollie_allowed_methods']) && ($this->session->data['mollie_currency'] == $this->session->data["currency"])) {
-			$allowed_methods = $this->session->data['mollie_allowed_methods'];
-		} else {
-			$allowed_methods = $this->getAllActive($data);
-		}     
+		$allowed_methods = $this->getAllActive($data);
 		
 		if(!in_array(static::MODULE_NAME, $allowed_methods)) {
 			return NULL;

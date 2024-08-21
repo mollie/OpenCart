@@ -70,26 +70,43 @@ class Mollie extends \Opencart\System\Engine\Model {
 
 	public function getAllActive($data) {
 		$allowed_methods = array();
-		try {
-			$payment_methods = $this->getAPIClient()->methods->allActive($data);
-		} catch (\Mollie\Api\Exceptions\ApiException $e) {
-			$this->log->write("Error retrieving payment methods from Mollie: {$e->getMessage()}.");
-			return array();
-		}
-		
-		//Get payment methods allowed for this amount and currency
-		foreach ($payment_methods as $allowed_method)
-		{
-			$allowed_methods[] = $allowed_method->id;
-		}
-		
-		if(empty($allowed_methods)) {
-			$data["amount"]["currency"] = "EUR";
-			$allowed_methods = $this->getAllActive($data);
+		$resetMethods = false;
+
+		if (!isset($this->session->data['mollie_allowed_methods'])) {
+			$resetMethods = true;
+		} else {
+			if (isset($this->session->data['payment_address']) && ($this->session->data['payment_address']['country_id'] != $this->session->data['mollie_country_id'])) {
+				$resetMethods = true;
+			} elseif ($this->session->data['mollie_currency'] != $this->session->data["currency"]) {
+				$resetMethods = true;
+			}
 		}
 
-		$this->session->data['mollie_allowed_methods'] = $allowed_methods;
-		$this->session->data['mollie_currency'] = $this->session->data["currency"];
+		if (!$resetMethods) {
+			$allowed_methods = $this->session->data['mollie_allowed_methods'];
+		} else {
+			try {
+				$payment_methods = $this->getAPIClient()->methods->allActive($data);
+			} catch (Mollie\Api\Exceptions\ApiException $e) {
+				$this->log->write("Error retrieving payment methods from Mollie: {$e->getMessage()}.");
+				return array();
+			}
+			
+			//Get payment methods allowed for this amount and currency
+			foreach ($payment_methods as $allowed_method)
+			{
+				$allowed_methods[] = $allowed_method->id;
+			}
+			
+			if(empty($allowed_methods)) {
+				$data["amount"]["currency"] = "EUR";
+				$allowed_methods = $this->getAllActive($data);
+			}
+	
+			$this->session->data['mollie_allowed_methods'] = $allowed_methods;
+			$this->session->data['mollie_currency'] = $this->session->data["currency"];
+			$this->session->data['mollie_country_id'] = $this->session->data['payment_address']['country_id'];
+		}
 
 		return $allowed_methods;			
 	}
@@ -112,189 +129,10 @@ class Mollie extends \Opencart\System\Engine\Model {
 	 * @return array
 	 */
 	public function getMethod(array $address): array {
-        // Skip upcoming methods
-        if (in_array(static::MODULE_NAME, [])) {
-        	return [];
-		}
-
-        if (empty($address) && isset($this->session->data['shipping_address'])) {
-            $address = $this->session->data['shipping_address'];
-        }
-
-		$currency = $this->getCurrency();
-		$moduleCode = $this->mollieHelper->getModuleCode();
-
-		$total = $this->cart->getTotal();
-
-		// Check total for minimum and maximum amount
-		$standardTotal = $this->currency->convert($total, $this->config->get("config_currency"), 'EUR');
-		$minimumAmount = 0;
-		$maximumAmount = 0;
-
-		if ($this->config->get($moduleCode . "_" . static::MODULE_NAME . "_total_minimum")) {
-			if (!empty($this->config->get($moduleCode . "_" . static::MODULE_NAME . "_total_minimum"))) {
-				$minimumAmount = (float)$this->config->get($moduleCode . "_" . static::MODULE_NAME . "_total_minimum");
-			} else {
-				$minimumAmount = 0.01;
-			}
-		} else {
-			$minimumAmount = 0.01;
-		}
-
-		if ($this->config->get($moduleCode . "_" . static::MODULE_NAME . "_total_maximum")) {
-			if (!empty($this->config->get($moduleCode . "_" . static::MODULE_NAME . "_total_maximum"))) {
-				$maximumAmount = (float)$this->config->get($moduleCode . "_" . static::MODULE_NAME . "_total_maximum");
-			}
-		}
-
-		if ($standardTotal < $this->currency->convert($minimumAmount, $this->config->get("config_currency"), 'EUR')) {
-			return [];
-		}
-
-		if (($maximumAmount > 0) && ($standardTotal > $this->currency->convert($maximumAmount, $this->config->get("config_currency"), 'EUR'))) {
-			return [];
-		}
-		
-
-		// Check for order expiry days
-		if ((static::MODULE_NAME == 'klarnapaylater') || (static::MODULE_NAME == 'klarnasliceit') || (static::MODULE_NAME == 'klarnapaynow') || (static::MODULE_NAME == 'klarna')) {
-			if ($this->config->get($moduleCode . "_order_expiry_days") && ($this->config->get($moduleCode . "_order_expiry_days") > 28)) {
-				return [];
-			}
-		}
-
-		// Return nothing if ApplePay is not available
-		if(static::MODULE_NAME == 'applepay') {
-			if(isset($this->session->data['applePay']) && ($this->session->data['applePay'] == 0)) {
-				return [];
-			}
-		}
-
-		// Check if Vouchers are available
-		if(static::MODULE_NAME == 'voucher') {
-			$this->load->model('catalog/product');
-
-			$voucherStatus = false;
-			foreach ($this->cart->getProducts() as $cart_product) {
-				$productDetails = $this->model_catalog_product->getProduct($cart_product['product_id']);
-				if (!empty($productDetails['voucher_category'])) {
-					$voucherStatus = true;
-				}
-			}
-
-			if (!$voucherStatus) {
-				return [];
-			}
-		}
-
-		// Company name required for Billie method
-		if(static::MODULE_NAME == 'billie') {
-			if (isset($this->session->data['payment_address']) && ($this->session->data['payment_address']['company'] == '')) {
-				return NULL;
-			}
-		}
-
-		// Subscription
-		if ($this->cart->hasSubscription()) {
-			$subscription_methods = ["applepay", "bancontact", "belfius", "creditcard", "eps", "giropay", "ideal", "kbc", "paypal", "sofort"];
-
-			if (!in_array(static::MODULE_NAME, $subscription_methods)) {
-				return [];
-			}
-		}
-
-		// Get billing country	
-		$this->load->model('localisation/country');
-
-		if (isset($this->session->data['payment_address']) && !empty($this->session->data['payment_address']['country_id'])) {
-			$countryDetails = $this->model_localisation_country->getCountry($this->session->data['payment_address']['country_id']);
-			$country = $countryDetails['iso_code_2'];
-		} else {
-			// Get billing country from store address
-			$country_id = $this->config->get('config_country_id');
-			$countryDetails = $this->model_localisation_country->getCountry($country_id);
-			$country = $countryDetails['iso_code_2'];
-		}
-
-		$total = $this->currency->convert($total, $this->config->get("config_currency"), $currency);	
-		if ($this->cart->hasSubscription()) {
-			$sequence = 'first';
-		} else {
-			$sequence = 'oneoff';
-		}
-			
-		$data = array(
-            "amount" 		 => ["value" => (string)$this->numberFormat($total), "currency" => $currency],
-            "resource" 		 => "orders",
-            "includeWallets" => "applepay",
-			"billingCountry" => $country,
-			"sequenceType" => $sequence
-        );
-
-		if (isset($this->session->data['mollie_allowed_methods']) && ($this->session->data['mollie_currency'] == $this->session->data["currency"])) {
-			$allowed_methods = $this->session->data['mollie_allowed_methods'];
-		} else {
-			$allowed_methods = $this->getAllActive($data);
-		}     
-		
-        $method = static::MODULE_NAME;
-        if ($method == 'in_3') {
-            $method = 'in3';
-        } elseif ($method == 'przelewy_24') {
-            $method = 'przelewy24';
-        }
-
-		if(!in_array($method, $allowed_methods)) {
-			return [];
-		}
-
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "zone_to_geo_zone WHERE geo_zone_id = '" . (int)$this->config->get($moduleCode . "_" . static::MODULE_NAME . "_geo_zone") . "' AND country_id = '" . (int)$address['country_id'] . "' AND (zone_id = '" . (int)$address['zone_id'] . "' OR zone_id = '0')");
-
-		if ((bool)$this->config->get($moduleCode . "_" . static::MODULE_NAME . "_geo_zone") && !$query->num_rows) {
-			return [];
-		}
-
-		// Translate payment method (if a translation is available).
-		$this->load->language("extension/mollie/payment/mollie");
-
-		$key = "method_" . $method;
-		$description = $this->language->get($key);
-
-		// Custom title
-		if(isset($this->config->get($moduleCode . "_" . static::MODULE_NAME . "_description")[$this->config->get('config_language_id')])) {
-			$title = $this->config->get($moduleCode . "_" . static::MODULE_NAME . "_description")[$this->config->get('config_language_id')]['title'];
-		} else {
-			$title = $description;
-		}
-
-		if ($this->config->get($moduleCode . "_show_icons")) {
-			if(!empty($this->config->get($moduleCode . "_" . static::MODULE_NAME . "_image"))) {
-				$this->load->model('tool/image');
-
-				$_image = $this->config->get($moduleCode . "_" . static::MODULE_NAME . "_image");
-				$image = $this->model_tool_image->resize($_image, 100, 100);
-			} else {
-				$image = $this->config->get('config_url') . 'image/mollie/' . static::MODULE_NAME . '.png';
-			}			
-			$icon = '<img src="' . $image . '" height="20" style="margin:0 5px 0 5px" />';
-
-			if ($this->config->get($moduleCode . "_align_icons") == 'left') {
-				$title = $icon . $title;
-			} else {
-				$title = $title . $icon;
-			}
-		}
-
-		return array(
-			"code" => "mollie_" . static::MODULE_NAME,
-			"title" => $title,
-			"sort_order" => $this->config->get($moduleCode . "_" . static::MODULE_NAME . "_sort_order"),
-			"terms" => NULL
-		);
-
+		return $this->getMethods($address, true);
 	}
 
-	public function getMethods(array $address = []): array {
+	public function getMethods(array $address = [], $old_version = false): array {
         // Skip upcoming methods
         if (in_array(static::MODULE_NAME, [])) {
         	return [];
@@ -373,13 +211,20 @@ class Mollie extends \Opencart\System\Engine\Model {
 		// Company name required for Billie method
 		if(static::MODULE_NAME == 'billie') {
 			if (isset($this->session->data['payment_address']) && ($this->session->data['payment_address']['company'] == '')) {
-				return NULL;
+				return [];
+			}
+		}
+
+		// Shipping address check
+		if(static::MODULE_NAME == 'alma') {
+			if (!isset($this->session->data['shipping_address'])) {
+				return [];
 			}
 		}
 
 		// Subscription
 		if ($this->cart->hasSubscription()) {
-			$subscription_methods = ["applepay", "bancontact", "belfius", "creditcard", "eps", "giropay", "ideal", "kbc", "paypal", "sofort"];
+			$subscription_methods = ["applepay", "bancontact", "belfius", "creditcard", "eps", "ideal", "kbc", "paypal", "sofort", "mybank"];
 
 			if (!in_array(static::MODULE_NAME, $subscription_methods)) {
 				return [];
@@ -412,13 +257,9 @@ class Mollie extends \Opencart\System\Engine\Model {
             "includeWallets" => "applepay",
 			"billingCountry" => $country,
 			"sequenceType" => $sequence
-        );
+        );  
 
-		if (isset($this->session->data['mollie_allowed_methods']) && ($this->session->data['mollie_currency'] == $this->session->data["currency"])) {
-			$allowed_methods = $this->session->data['mollie_allowed_methods'];
-		} else {
-			$allowed_methods = $this->getAllActive($data);
-		}     
+		$allowed_methods = $this->getAllActive($data);
 		
 		$method = static::MODULE_NAME;
         if ($method == 'in_3') {
@@ -468,21 +309,30 @@ class Mollie extends \Opencart\System\Engine\Model {
 			}
 		}
 
-		$method_data = [];
+		if ($old_version) {
+			return array(
+				"code" => "mollie_" . static::MODULE_NAME,
+				"title" => $title,
+				"sort_order" => $this->config->get($moduleCode . "_" . static::MODULE_NAME . "_sort_order"),
+				"terms" => NULL
+			);
+		} else {
+			$method_data = [];
 
-		$option_data["mollie_" . static::MODULE_NAME] = [
-			'code' => 'mollie_' . static::MODULE_NAME . '.' . 'mollie_' . static::MODULE_NAME,
-			'name' => $title
-		];
+			$option_data["mollie_" . static::MODULE_NAME] = [
+				'code' => 'mollie_' . static::MODULE_NAME . '.' . 'mollie_' . static::MODULE_NAME,
+				'name' => $title
+			];
 
-		$method_data = [
-			'code'       => "mollie_" . static::MODULE_NAME,
-			'name'       => $title,
-			'option'     => $option_data,
-			'sort_order' => $this->config->get($moduleCode . "_" . static::MODULE_NAME . "_sort_order")
-		];
+			$method_data = [
+				'code'       => "mollie_" . static::MODULE_NAME,
+				'name'       => $title,
+				'option'     => $option_data,
+				'sort_order' => $this->config->get($moduleCode . "_" . static::MODULE_NAME . "_sort_order")
+			];
 
-		return $method_data;
+			return $method_data;
+		}
 	}
 
 	/**
@@ -670,57 +520,22 @@ class Mollie extends \Opencart\System\Engine\Model {
 		$this->db->query("DELETE FROM `" . DB_PREFIX . "mollie_customers` WHERE email = '" . $this->db->escape(utf8_strtolower($email)) . "'");
 	}
 
-	public function recurringPayment($item, $subscription_id, $mollie_order_id = '', $mollie_payment_id = '') {
+	public function subscriptionPayment($item, $mollie_subscription_id, $mollie_order_id = '', $mollie_payment_id = '') {
+		$next_payment = new \DateTime('now');
+		$subscription_end = new \DateTime('now');
 
-		$this->load->model('checkout/recurring');
-		$this->load->language("extension/mollie/payment/mollie");
-		$order_id_rand = $this->session->data['order_id'] . '-' . $subscription_id;
-		//trial information
-		if ($item['recurring']['trial'] == 1) {
-			$price = $item['recurring']['trial_price'];
-			$trial_amt = $this->currency->format($this->tax->calculate($item['recurring']['trial_price'], $item['tax_class_id'], $this->config->get('config_tax')), $this->session->data['currency'], false, false) * $item['quantity'] . ' ' . $this->session->data['currency'];
-			$trial_text = sprintf($this->language->get('text_trial'), $trial_amt, $item['recurring']['trial_cycle'], $item['recurring']['trial_frequency'], $item['recurring']['trial_duration']);
+		if ($item['duration'] != 0) {
+			$next_payment = $this->calculateSchedule($item['frequency'], $next_payment, $item['cycle']);
+			$subscription_end = $this->calculateSchedule($item['frequency'], $subscription_end, $item['cycle'] * $item['duration']);
 		} else {
-			$price = $item['recurring']['price'];
-			$trial_text = '';
+			$next_payment = $this->calculateSchedule($item['frequency'], $next_payment, $item['cycle']);
+			$subscription_end = new \DateTime('0000-00-00');
 		}
-
-		$recurring_amt = $this->currency->format($this->tax->calculate($item['recurring']['price'], $item['tax_class_id'], $this->config->get('config_tax')), $this->session->data['currency'], false, false) * $item['quantity'] . ' ' . $this->session->data['currency'];
-		$recurring_description = $trial_text . sprintf($this->language->get('text_recurring'), $recurring_amt, $item['recurring']['cycle'], $item['recurring']['frequency']);
-
-		if ($item['recurring']['duration'] > 0) {
-			$recurring_description .= sprintf($this->language->get('text_length'), $item['recurring']['duration']);
-		}
-
-		if (version_compare(VERSION, '3.0', '>=')) {
-			if (version_compare(VERSION, '3.0.3.7', '>=')) {
-				$order_recurring_id = $this->model_checkout_recurring->addRecurring($this->session->data['order_id'], $recurring_description, $item);
-			} else {
-				$order_recurring_id = $this->model_checkout_recurring->addRecurring($this->session->data['order_id'], $recurring_description, $item['recurring']);
-			}
-		} else {
-			$order_recurring_id = $this->model_checkout_recurring->create($item, $this->session->data['order_id'], $recurring_description);
-		}
-		
-		$this->model_checkout_recurring->editReference($order_recurring_id, $order_id_rand);
-
-		$next_payment = new DateTime('now');
-		$subscription_end = new DateTime('now');
-
-		if ($item['recurring']['duration'] != 0) {
-			$next_payment = $this->calculateSchedule($item['recurring']['frequency'], $next_payment, $item['recurring']['cycle']);
-			$subscription_end = $this->calculateSchedule($item['recurring']['frequency'], $subscription_end, $item['recurring']['cycle'] * $item['recurring']['duration']);
-		} else {
-			$next_payment = $this->calculateSchedule($item['recurring']['frequency'], $next_payment, $item['recurring']['cycle']);
-			$subscription_end = new DateTime('0000-00-00');
-		}
-
-		$this->addProfileTransaction($order_recurring_id, $order_id_rand, $price, 1);
 
 		if (!empty($mollie_order_id)) {
-			$this->db->query("UPDATE `" . DB_PREFIX . "mollie_payments` SET `subscription_id` = '" . $this->db->escape($subscription_id) . "', `next_payment` = '" . $this->db->escape(date_format($next_payment, 'Y-m-d H:i:s')) . "', subscription_end = '" . $this->db->escape(date_format($subscription_end, 'Y-m-d H:i:s')) . "', order_recurring_id = '" . $this->db->escape($order_recurring_id) . "' WHERE `order_id` = '" . (int)$this->session->data['order_id'] . "' AND `mollie_order_id` = '" . $this->db->escape($mollie_order_id) . "'");
+			$this->db->query("UPDATE `" . DB_PREFIX . "mollie_payments` SET `mollie_subscription_id` = '" . $this->db->escape($mollie_subscription_id) . "', `next_payment` = '" . $this->db->escape(date_format($next_payment, 'Y-m-d H:i:s')) . "', subscription_end = '" . $this->db->escape(date_format($subscription_end, 'Y-m-d H:i:s')) . "', order_subscription_id = '" . $this->db->escape($item['order_subscription_id']) . "' WHERE `order_id` = '" . (int)$this->session->data['order_id'] . "' AND `mollie_order_id` = '" . $this->db->escape($mollie_order_id) . "'");
 		} else {
-			$this->db->query("UPDATE `" . DB_PREFIX . "mollie_payments` SET `subscription_id` = '" . $this->db->escape($subscription_id) . "', `next_payment` = '" . $this->db->escape(date_format($next_payment, 'Y-m-d H:i:s')) . "', subscription_end = '" . $this->db->escape(date_format($subscription_end, 'Y-m-d H:i:s')) . "', order_recurring_id = '" . $this->db->escape($order_recurring_id) . "' WHERE `order_id` = '" . (int)$this->session->data['order_id'] . "' AND `mollie_payment_id` = '" . $this->db->escape($mollie_payment_id) . "'");
+			$this->db->query("UPDATE `" . DB_PREFIX . "mollie_payments` SET `mollie_subscription_id` = '" . $this->db->escape($mollie_subscription_id) . "', `next_payment` = '" . $this->db->escape(date_format($next_payment, 'Y-m-d H:i:s')) . "', subscription_end = '" . $this->db->escape(date_format($subscription_end, 'Y-m-d H:i:s')) . "', order_subscription_id = '" . $this->db->escape($item['order_subscription_id']) . "' WHERE `order_id` = '" . (int)$this->session->data['order_id'] . "' AND `mollie_payment_id` = '" . $this->db->escape($mollie_payment_id) . "'");
 		}
 	}
 
@@ -762,75 +577,90 @@ class Mollie extends \Opencart\System\Engine\Model {
 		return $next_payment;
 	}
 
-	private function addProfileTransaction($order_recurring_id, $order_code, $price, $type) {
-		$this->db->query("INSERT INTO `" . DB_PREFIX . "order_recurring_transaction` SET `order_recurring_id` = '" . (int)$order_recurring_id . "', `date_added` = NOW(), `amount` = '" . (float)$price . "', `type` = '" . (int)$type . "', `reference` = '" . $this->db->escape($order_code) . "'");
-	}
-
-	public function getPaymentBySubscriptionID($subscription_id)
+	public function getPaymentBySubscriptionID($mollie_subscription_id)
 	{
-		if (!empty($subscription_id)) {
-			$results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `subscription_id` = '" . $subscription_id . "'");
+		if (!empty($mollie_subscription_id)) {
+			$results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `mollie_subscription_id` = '" . $mollie_subscription_id . "'");
 			if($results->num_rows == 0) return '';
 			return $results->row;
 		}
 		return '';
 	}
 
-	public function addRecurringPayment($data) {
-		$profile = $this->getProfile($data['order_recurring_id']);
-		$recurring_order = $this->getPaymentBySubscriptionID($data['subscription_id']);
+	public function addSubscriptionPayment($data) {
+		$profile = $this->getProfile($data['order_subscription_id']);
+		$subscription_order = $this->getPaymentBySubscriptionID($data['mollie_subscription_id']);
 
 		$this->load->model('checkout/order');
 		$order_info = $this->model_checkout_order->getOrder($profile['order_id']);
 
-		$price = $this->currency->convert($data['amount'], $data['currency'], $this->config->get("config_currency")); // Convert to default currency to display the right amount in the admin
-		$frequency = $profile['recurring_frequency'];
-		$cycle = $profile['recurring_cycle'];
+		$amount = $this->currency->convert($data['amount'], $data['currency'], $this->config->get("config_currency")); // Convert to default currency to display the right amount in the admin
+		$frequency = $profile['subscription_frequency'];
+		$cycle = $profile['subscription_cycle'];
 
-		$today = new DateTime('now');
-		$unlimited = new DateTime('0000-00-00');
-		$next_payment = new DateTime($recurring_order['next_payment']);
-		$subscription_end = new DateTime($recurring_order['subscription_end']);
+		$today = new \DateTime('now');
+		$unlimited = new \DateTime('0000-00-00');
+		$next_payment = new \DateTime($subscription_order['next_payment']);
+		$subscription_end = new \DateTime($subscription_order['subscription_end']);
 
 		if($data['status'] == 'paid') {
-			$this->db->query("INSERT INTO `" . DB_PREFIX . "mollie_recurring_payments` SET `transaction_id` = '" . $this->db->escape($data['transaction_id']) . "', `subscription_id` = '" . $this->db->escape($data['subscription_id']) . "', `mollie_customer_id` = '" . $this->db->escape($data['mollie_customer_id']) . "', `method` = '" . $this->db->escape($data['method']) . "', `status` = '" . $this->db->escape($data['status']) . "', `order_recurring_id` = '" . (int)$data['order_recurring_id'] . "', `date_created` = NOW()");
+			$this->db->query("INSERT INTO `" . DB_PREFIX . "mollie_subscription_payments` SET `transaction_id` = '" . $this->db->escape($data['transaction_id']) . "', `mollie_subscription_id` = '" . $this->db->escape($data['mollie_subscription_id']) . "', `mollie_customer_id` = '" . $this->db->escape($data['mollie_customer_id']) . "', `amount` = '" . (float)$amount . "', `method` = '" . $this->db->escape($data['method']) . "', `status` = '" . $this->db->escape($data['status']) . "', `order_subscription_id` = '" . (int)$data['order_subscription_id'] . "', `date_created` = NOW()");
 
-			$this->addProfileTransaction($profile['order_recurring_id'], $recurring_order['order_id'] .'-'. $recurring_order['subscription_id'], $price, 1);
 			$next_payment = $this->calculateSchedule($frequency, $next_payment, $cycle);
 			$next_payment = date_format($next_payment, 'Y-m-d H:i:s');
 
 			if($subscription_end > $today || $subscription_end == $unlimited) {
-				$this->db->query("UPDATE `" . DB_PREFIX . "mollie_payments` SET `next_payment` = '" . $this->db->escape($next_payment) . "' WHERE `subscription_id` = '" . $data['subscription_id'] . "'");
+				$this->db->query("UPDATE `" . DB_PREFIX . "mollie_payments` SET `next_payment` = '" . $this->db->escape($next_payment) . "' WHERE `mollie_subscription_id` = '" . $data['mollie_subscription_id'] . "'");
 
 				// Send mail to the customer
-				$subject = $this->config->get($this->mollieHelper->getModuleCode() . "_recurring_email")[$this->config->get('config_language_id')]['subject'];
-				$body = $this->config->get($this->mollieHelper->getModuleCode() . "_recurring_email")[$this->config->get('config_language_id')]['body'];
+				$subject = $this->config->get($this->mollieHelper->getModuleCode() . "_subscription_email")[$this->config->get('config_language_id')]['subject'];
+				$body = $this->config->get($this->mollieHelper->getModuleCode() . "_subscription_email")[$this->config->get('config_language_id')]['body'];
 				$find = array("{firstname}", "{lastname}", "{next_payment}", "{product_name}", "{order_id}", "{store_name}");
-				$replace = array($order_info['firstname'], $order_info['lastname'], date('d-m-Y', strtotime($next_payment)), $profile['recurring_name'], $profile['order_id'], $order_info['store_name']);
+				$replace = array($order_info['firstname'], $order_info['lastname'], date('d-m-Y', strtotime($next_payment)), $profile['subscription_name'], $profile['order_id'], $order_info['store_name']);
+				
 				$body = html_entity_decode(str_replace($find, $replace, $body), ENT_QUOTES, 'UTF-8');
-		
-				$mail = new Mail($this->config->get('config_mail_engine'));
-				$mail->parameter = $this->config->get('config_mail_parameter');
-				$mail->smtp_hostname = $this->config->get('config_mail_smtp_hostname');
-				$mail->smtp_username = $this->config->get('config_mail_smtp_username');
-				$mail->smtp_password = html_entity_decode($this->config->get('config_mail_smtp_password'), ENT_QUOTES, 'UTF-8');
-				$mail->smtp_port = $this->config->get('config_mail_smtp_port');
-				$mail->smtp_timeout = $this->config->get('config_mail_smtp_timeout');
-		
-				$mail->setTo($order_info['email']);
-				$mail->setFrom($this->config->get('config_email'));
-				$mail->setSender(html_entity_decode($this->config->get('config_name'), ENT_QUOTES, 'UTF-8'));
-				$mail->setSubject(html_entity_decode($subject), ENT_QUOTES, 'UTF-8');
-				$mail->setHtml($body);
-				$mail->send();
+
+				if ($this->config->get('config_mail_engine')) {
+					if (version_compare(VERSION, '4.0.2.0', '<')) {
+						$mail = new \Opencart\System\Library\Mail($this->config->get('config_mail_engine'));
+						$mail->parameter = $this->config->get('config_mail_parameter');
+						$mail->smtp_hostname = $this->config->get('config_mail_smtp_hostname');
+						$mail->smtp_username = $this->config->get('config_mail_smtp_username');
+						$mail->smtp_password = html_entity_decode($this->config->get('config_mail_smtp_password'), ENT_QUOTES, 'UTF-8');
+						$mail->smtp_port = $this->config->get('config_mail_smtp_port');
+						$mail->smtp_timeout = $this->config->get('config_mail_smtp_timeout');
+			
+						$mail->setTo($order_info['email']);
+						$mail->setFrom($this->config->get('config_email'));
+						$mail->setSender(html_entity_decode($this->config->get('config_name'), ENT_QUOTES, 'UTF-8'));
+						$mail->setSubject(html_entity_decode($subject, ENT_QUOTES, 'UTF-8'));
+						$mail->setHtml($body);
+					} else {
+						$mail_option = [
+							'parameter'     => $this->config->get('config_mail_parameter'),
+							'smtp_hostname' => $this->config->get('config_mail_smtp_hostname'),
+							'smtp_username' => $this->config->get('config_mail_smtp_username'),
+							'smtp_password' => html_entity_decode($this->config->get('config_mail_smtp_password'), ENT_QUOTES, 'UTF-8'),
+							'smtp_port'     => $this->config->get('config_mail_smtp_port'),
+							'smtp_timeout'  => $this->config->get('config_mail_smtp_timeout')
+						];
+			
+						$mail = new \Opencart\System\Library\Mail($this->config->get('config_mail_engine'), $mail_option);
+						$mail->setTo($order_info['email']);
+						$mail->setFrom($this->config->get('config_email'));
+						$mail->setSender(html_entity_decode($this->config->get('config_name'), ENT_QUOTES, 'UTF-8'));
+						$mail->setSubject(html_entity_decode($subject, ENT_QUOTES, 'UTF-8'));
+						$mail->setHtml($body);
+					}
+	
+					$mail->send();
+				}
 			}
-		} else {
-			$this->addProfileTransaction($profile['order_recurring_id'], $recurring_order['order_id'] .'-'. $recurring_order['subscription_id'], $price, 4);
 		}
 	}
 
-	private function getProfile($order_recurring_id) {
-		$qry = $this->db->query("SELECT * FROM " . DB_PREFIX . "order_recurring WHERE order_recurring_id = " . (int)$order_recurring_id);
+	private function getProfile($order_subscription_id) {
+		$qry = $this->db->query("SELECT * FROM " . DB_PREFIX . "order_subscription WHERE order_subscription_id = " . (int)$order_subscription_id);
 		return $qry->row;
 	}
 

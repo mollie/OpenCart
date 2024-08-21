@@ -179,7 +179,10 @@
 									<div class="form-group">
 										<label class="col-sm-2 control-label"><?php echo $entry_api_to_use; ?></label>
 										<div class="col-sm-10">
-											<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_api_to_use" class="form-control" <?php if (in_array($module_id, ['klarnapaylater', 'klarnasliceit', 'klarnapaynow', 'voucher', 'in3', 'klarna', 'billie'])) { ?>disabled="disabled"<?php } ?>>
+											<?php if ((in_array($module_id, ['alma']))) {
+												$payment_method['api_to_use'] = 'payments_api';
+											} ?>
+											<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_<?php echo $module_id; ?>_api_to_use" class="form-control" <?php if (in_array($module_id, ['klarnapaylater', 'klarnasliceit', 'klarnapaynow', 'voucher', 'in3', 'klarna', 'billie', 'riverty', 'alma'])) { ?>disabled="disabled"<?php } ?>>
 												<option value="orders_api"><?php echo $text_order_api; ?></option>
 												<option value="payments_api" <?php if ($payment_method['api_to_use'] == 'payments_api') { ?>selected="selected"<?php } ?>><?php echo $text_payment_api; ?></option>
 											</select>		

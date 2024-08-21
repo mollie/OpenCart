@@ -250,11 +250,15 @@ class Mollie extends \Opencart\System\Engine\Controller {
             $payment_method = $this->getAPIClient()->methods->get($method, array('include' => 'issuers'));
         }
 
-        $order_id = $this->getOrderID();
-        $order = $this->getOpenCartOrder($order_id);
+        $api_to_use = $this->config->get($this->mollieHelper->getModuleCode() . "_" . static::MODULE_NAME . "_api_to_use");
+        
+        if (in_array($method, ['klarnapaylater', 'klarnasliceit', 'klarnapaynow', 'voucher', 'in3', 'klarna', 'billie', 'riverty'])) {
+            $api_to_use = 'orders_api';
+        } elseif (in_array($method, ['alma'])) {
+            $api_to_use = 'payments_api';
+        }
 
-        // Set template data.
-        if (in_array($method, ['klarnapaylater', 'klarnasliceit', 'klarnapaynow', 'voucher', 'in3', 'klarna', 'billie']) || ($this->config->get($this->mollieHelper->getModuleCode() . "_" . static::MODULE_NAME . "_api_to_use") == 'orders_api')) {
+        if ($api_to_use == 'orders_api') {
             $data['action'] = $this->url->link("extension/mollie/payment/mollie_" . static::MODULE_NAME . $this->getMethodSeparator() . "order", '', true);
         } else {
             $data['action'] = $this->url->link("extension/mollie/payment/mollie_" . static::MODULE_NAME . $this->getMethodSeparator() . "payment", '', true);
@@ -442,17 +446,17 @@ class Mollie extends \Opencart\System\Engine\Controller {
         
         $method = str_replace('_', '', $method);
 
-        // Check for recurring profiles
-        $recurring = false;
+        // Check for subscription profiles
+        $subscription = false;
         if ($this->cart->hasSubscription()) {
-            $recurring = true;
+            $subscription = true;
         }
 
         $singleClickPayment = false;
         if(($method == 'creditcard') && $this->config->get($this->mollieHelper->getModuleCode() . "_single_click_payment")) {
             $mollie_customer_id = $this->createCustomer($order);
             $singleClickPayment = true;
-        } elseif ($recurring) {
+        } elseif ($subscription) {
             $mollie_customer_id = $this->createCustomer($order);
         }
 
@@ -493,12 +497,12 @@ class Mollie extends \Opencart\System\Engine\Controller {
                 "webhookUrl" => $this->getWebhookUrl()
             );
 
-            if((($singleClickPayment && $mandate) || $recurring) && !empty($mollie_customer_id)) {
+            if((($singleClickPayment && $mandate) || $subscription) && !empty($mollie_customer_id)) {
                 $data['payment']['customerId'] = (string)$mollie_customer_id;
             }
 
-            // Additional data for recurring profile
-            if($recurring) {
+            // Additional data for subscription profile
+            if($subscription) {
                 $data['payment']['sequenceType'] = "first";
             }
 
@@ -601,7 +605,12 @@ class Mollie extends \Opencart\System\Engine\Controller {
             }
 
             //Check if coupon applied
-            if(isset($this->session->data['coupon'])) {
+            $super_ultimate_coupons = false;
+            if ($this->config->get('total_ultimate_coupons_status') || $this->config->get('total_super_coupons_status')) {
+                $super_ultimate_coupons = true;
+            }
+
+            if(isset($this->session->data['coupon']) && !$super_ultimate_coupons) {
                 //Get coupon data
 
                 $this->load->model('marketing/coupon');
@@ -1040,17 +1049,17 @@ class Mollie extends \Opencart\System\Engine\Controller {
         
         $method = str_replace('_', '', $method);
 
-        // Check for recurring profiles
-        $recurring = false;
+        // Check for subscription profiles
+        $subscription = false;
         if ($this->cart->hasSubscription()) {
-            $recurring = true;
+            $subscription = true;
         }
 
         $singleClickPayment = false;
         if(($method == 'creditcard') && $this->config->get($this->mollieHelper->getModuleCode() . "_single_click_payment")) {
             $mollie_customer_id = $this->createCustomer($order);
             $singleClickPayment = true;
-        } elseif ($recurring) {
+        } elseif ($subscription) {
             $mollie_customer_id = $this->createCustomer($order);
         }
 
@@ -1079,12 +1088,12 @@ class Mollie extends \Opencart\System\Engine\Controller {
 
             
 
-            if((($singleClickPayment && $mandate) || $recurring) && !empty($mollie_customer_id)) {
+            if((($singleClickPayment && $mandate) || $subscription) && !empty($mollie_customer_id)) {
                 $data['customerId'] = (string)$mollie_customer_id;
             }
 
-            // Additional data for recurring profile
-            if($recurring) {
+            // Additional data for subscription profile
+            if($subscription) {
                 $data['sequenceType'] = "first";
             }
 
@@ -1287,22 +1296,22 @@ class Mollie extends \Opencart\System\Engine\Controller {
 
         $molliePayment = $this->getAPIClient()->payments->get($payment_id);
 
-        // Check for recurring payment
+        // Check for subscription payment
         if(isset($molliePayment->subscriptionId) && !empty($molliePayment->subscriptionId)) {
             $firstPaymentDetails = $model->getPaymentBySubscriptionID($molliePayment->subscriptionId);
             if(!empty($firstPaymentDetails)) {
                 $data = array(
                     'transaction_id' => $payment_id,
-                    'subscription_id' => $molliePayment->subscriptionId,
+                    'mollie_subscription_id' => $molliePayment->subscriptionId,
                     'mollie_customer_id' => $molliePayment->customerId,
                     'method' => $molliePayment->method,
                     'status' => $molliePayment->status,
                     'amount' => $molliePayment->amount->value,
                     'currency' => $molliePayment->amount->currency,
-                    'order_recurring_id' => $firstPaymentDetails['order_recurring_id']
+                    'order_subscription_id' => $firstPaymentDetails['order_subscription_id']
                 );
-                $model->addRecurringPayment($data);
-                $this->writeToMollieLog("Webhook for payment(recurring) : subscription_id - {$molliePayment->subscriptionId}, transaction_id - {$payment_id}, status - {$data['status']}, mollie_customer_id - $molliePayment->customerId");
+                $model->addSubscriptionPayment($data);
+                $this->writeToMollieLog("Webhook for payment(subscription) : mollie_subscription_id - {$molliePayment->subscriptionId}, transaction_id - {$payment_id}, status - {$data['status']}, mollie_customer_id - $molliePayment->customerId");
             }
            
             return;            
@@ -1684,6 +1693,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
 
         // Double-check whether or not the status of the order is correct.
         $model = $this->getModuleModel();
+        $this->load->model('checkout/order');
 
         $paid_status_id = intval($this->config->get($moduleCode . "_ideal_processing_status_id"));
         $pending_status_id = intval($this->config->get($moduleCode . "_ideal_pending_status_id"));
@@ -1708,66 +1718,81 @@ class Mollie extends \Opencart\System\Engine\Controller {
         // Create subscriptions if any
         $mollie_customer_id = $model->getMollieCustomer($order['email']);        
         if(!empty($mollie_customer_id) && $orderDetails->isPaid()) {
-            $api = $this->getAPIClient();
-            $customer = $api->customers->get($mollie_customer_id);
-            $mandates = $customer->mandates();
-            foreach($mandates as $mandate) {
-                if(($mandate->isValid()) || ($mandate->isPending())) {
-                    $recurring_products = $this->cart->getRecurringProducts();
-                    foreach ($recurring_products as $product) {
-                        $unit_price = $this->tax->calculate($product['recurring']['price'], $product['tax_class_id'], $this->config->get('config_tax'));
-                
-                        $total = $this->numberFormat($this->convertCurrency($unit_price * $product['quantity']));
-                        $duration = $product['recurring']['duration'];
-                        $cycle = $product['recurring']['cycle'];    
-                        switch ($product['recurring']['frequency']) {
-                            case 'day':
-                                $frequency = 'day';
-                                break;
-                            case 'week':
-                                $frequency = 'week';
-                                break;
-                            case 'semi_month':
-                                $frequency = 'day';
-                                $cycle = $cycle * 15;
-                                break;
-                            case 'year':
-                                $frequency = 'month';
-                                $cycle = $cycle * 12;
-                                break;                                
-                            default:
-                                $frequency = 'month';
-                                break;
-                        }      
-                        $interval = ($cycle > 1) ? $cycle . ' ' .  $frequency . 's' : $cycle . ' ' .  $frequency;
-                        $subscription_start = new \DateTime('now');
-                                                    
-                        $data = array(
-                            "amount" => ["currency" => $this->getCurrency(), "value" => (string)$this->numberFormat($total)],
-                            "times" => $duration,
-                            "interval" => $interval,
-                            "mandateId" => $mandate->id,
-                            "startDate" => date_format($subscription_start->modify('+' . $cycle . ' ' . $frequency), 'Y-m-d'),
-                            "description" => sprintf($this->language->get('text_recurring_desc'), $order['order_id'], $order['store_name'], date('Y-m-d H:i:s'), $interval, $product['name']),
-                            "webhookUrl" => $this->getWebhookUrl() 
-                        );
+            if(!empty($orderDetails->_embedded->payments)) {
+                $payment = $orderDetails->_embedded->payments[0];
 
-                        if ($duration <= 0) {
-                            unset($data['times']);
-                        }
+                if ($payment->mandateId) {
+                    $mandate_id = $payment->mandateId;
 
-                        try {
-                            $subscription = $customer->createSubscription($data);
-                            $this->writeToMollieLog("Subscription created: subscription_id - {$subscription->id}, order_id - {$order['order_id']}");
+                    $api = $this->getAPIClient();
+                    $customer = $api->customers->get($mollie_customer_id);
+                    $mandates = $customer->mandates();
+                    foreach($mandates as $mandate) {
+                        if((($mandate->isValid()) || ($mandate->isPending())) && ($mandate->id == $mandate_id)) {
+                            $order_products = $this->model_checkout_order->getProducts($order_id);
+                            foreach ($order_products as $product) {
+                                // Subscription
+                                $order_subscription_info = $this->model_checkout_order->getSubscription($order_id, $product['order_product_id']);
 
-                            // Add to recurring profile
-                            $model->recurringPayment($product, $subscription->id, $mollie_order_id, $mollie_payment_id);
-                        } catch (\Mollie\Api\Exceptions\ApiException $e) {
-                            $this->showErrorPage(htmlspecialchars($e->getMessage()));
-                            $this->writeToMollieLog("Creating subscription failed for order_id - " . $order['order_id'] . ' ; ' . htmlspecialchars($e->getMessage()));
-                        }                        
+                                if ($order_subscription_info) {
+                                    $unit_price = $order_subscription_info['price'] + $order_subscription_info['tax'];
+                        
+                                    $total = $this->numberFormat($this->convertCurrency($unit_price));
+                                    $duration = $order_subscription_info['duration'];
+                                    $cycle = $order_subscription_info['cycle'];    
+                                    switch ($order_subscription_info['frequency']) {
+                                        case 'day':
+                                            $frequency = 'day';
+                                            break;
+                                        case 'week':
+                                            $frequency = 'week';
+                                            break;
+                                        case 'semi_month':
+                                            $frequency = 'day';
+                                            $cycle = $cycle * 15;
+                                            break;
+                                        case 'year':
+                                            $frequency = 'month';
+                                            $cycle = $cycle * 12;
+                                            break;                                
+                                        default:
+                                            $frequency = 'month';
+                                            break;
+                                    }      
+                                    $interval = ($cycle > 1) ? $cycle . ' ' .  $frequency . 's' : $cycle . ' ' .  $frequency;
+                                    $subscription_start = new \DateTime('now');
+                                                                
+                                    $data = array(
+                                        "amount" => ["currency" => $this->getCurrency(), "value" => (string)$this->numberFormat($total)],
+                                        "times" => $duration,
+                                        "interval" => $interval,
+                                        "mandateId" => $mandate->id,
+                                        "startDate" => date_format($subscription_start->modify('+' . $cycle . ' ' . $frequency), 'Y-m-d'),
+                                        "description" => sprintf($this->language->get('text_subscription_desc'), $order['order_id'], $order['store_name'], date('Y-m-d H:i:s'), $interval, $product['name']),
+                                        "webhookUrl" => $this->getWebhookUrl() 
+                                    );
+
+                                    if ($duration <= 0) {
+                                        unset($data['times']);
+                                    }
+
+                                    try {
+                                        $subscription = $customer->createSubscription($data);
+                                        $this->writeToMollieLog("Subscription created: mollie_subscription_id - {$subscription->id}, order_id - {$order['order_id']}");
+
+                                        // Add to subscription profile
+                                        $model->subscriptionPayment($order_subscription_info, $subscription->id, $mollie_order_id, $mollie_payment_id);
+                                    } catch (\Mollie\Api\Exceptions\ApiException $e) {
+                                        $this->showErrorPage(htmlspecialchars($e->getMessage()));
+                                        $this->writeToMollieLog("Creating subscription failed for order_id - " . $order['order_id'] . ' ; ' . htmlspecialchars($e->getMessage()));
+                                    }     
+                                }                   
+                            }
+
+                            break;
+                        }                
                     }
-                }                
+                }
             }
         }
 

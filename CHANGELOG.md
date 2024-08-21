@@ -2,6 +2,11 @@
 
 # Changelog #
 
+#### Changes in release 13.3.0
+  + Removed Giropay payment method
+  + New payment methods - Trustly, Alma, Riverty, Payconiq
+  + Other bugfix and improvements
+
 #### Changes in release 13.2.0
   + New payment methods - Twint, Blik, Bancomat Pay
   + In preparation of full iDeal 2.0 readiness we have removed the bank/issuer selection in the checkout. This is done to guarantee the most convenient experience possible for the shopper

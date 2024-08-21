@@ -4,7 +4,6 @@ namespace Mollie\Api\Endpoints;
 
 use Mollie\Api\Exceptions\ApiException;
 use Mollie\Api\Resources\LazyCollection;
-use Mollie\Api\Resources\Payment;
 use Mollie\Api\Resources\PaymentLink;
 use Mollie\Api\Resources\PaymentLinkCollection;
 class PaymentLinkEndpoint extends \Mollie\Api\Endpoints\CollectionEndpointAbstract
@@ -14,6 +13,36 @@ class PaymentLinkEndpoint extends \Mollie\Api\Endpoints\CollectionEndpointAbstra
      * @var string
      */
     public const RESOURCE_ID_PREFIX = 'pl_';
+    /**
+     * Update a Payment Link.
+     *
+     * @param string $paymentLinkId
+     * @param array $data
+     * @return PaymentLink
+     * @throws \Mollie\Api\Exceptions\ApiException
+     */
+    public function update(string $paymentLinkId, array $data)
+    {
+        if (empty($paymentLinkId) || \strpos($paymentLinkId, self::RESOURCE_ID_PREFIX) !== 0) {
+            throw new \Mollie\Api\Exceptions\ApiException("Invalid payment ID: '{$paymentLinkId}'. A Payment Link ID should start with '" . self::RESOURCE_ID_PREFIX . "'.");
+        }
+        return $this->rest_update($paymentLinkId, $data);
+    }
+    /**
+     * Delete a Payment Link.
+     *
+     * @param string $paymentLinkId
+     * @param array $data
+     * @return void
+     * @throws \Mollie\Api\Exceptions\ApiException
+     */
+    public function delete(string $paymentLinkId, array $data = [])
+    {
+        if (empty($paymentLinkId) || \strpos($paymentLinkId, self::RESOURCE_ID_PREFIX) !== 0) {
+            throw new \Mollie\Api\Exceptions\ApiException("Invalid payment ID: '{$paymentLinkId}'. A Payment Link ID should start with '" . self::RESOURCE_ID_PREFIX . "'.");
+        }
+        $this->rest_delete($paymentLinkId, $data);
+    }
     /**
      * @return PaymentLink
      */
