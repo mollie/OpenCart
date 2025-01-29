@@ -45,8 +45,8 @@ $_['text_issuer_kbc']                   = 'Välj din betalningsknapp.';
 $_['text_issuer_voucher']               = 'Välj ditt varumärke.';
 $_['text_card_details']                 = 'Ange dina kreditkortsuppgifter.';
 $_['text_mollie_payments']              = 'Säker betalning från %s';
-$_['text_recurring_desc']               = 'Beställ %s, %s - %s, varje %s för %s';
-$_['text_recurring']                    = '%s varje %s %s';
+$_['text_subscription_desc']            = 'Beställ %s, %s - %s, varje %s för %s';
+$_['text_subscription']                 = '%s varje %s %s';
 $_['text_length']                       = ' för %s betalningar';
 $_['text_trial']                        = '%s varje %s %s för %s betalningar sedan ';
 $_['text_error_report_success']         = 'Fel har rapporterats framgångsrikt!';
@@ -57,11 +57,14 @@ $_['text_link']                         = 'För att se din beställning klicka p
 $_['text_footer']                       = 'Vänligen svara på det här e-postmeddelandet om du har några frågor.';
 $_['text_payment_link_full_title']	    = 'Mollie betalningslänk - Hela beloppet';
 $_['text_payment_link_open_title']	    = 'Mollie betalningslänk - Öppet belopp';
+$_['text_cancelled']                    = 'Återkommande betalning har avbrutits';
+$_['text_subscription_cancel_confirm']  = 'Vill du säga upp prenumerationen?';
 
 // Button
 $_['button_retry']  = 'Återgå till kassasidan';
 $_['button_report'] = 'Rapportera fel';
 $_['button_submit'] = 'Skicka';
+$_['button_subscription_cancel'] = 'Avsluta prenumeration';
 
 // Entry
 $_['entry_card_holder']         = 'Kortinnehavarens namn';
@@ -72,6 +75,7 @@ $_['entry_verification_code']   = 'CVV';
 // Error
 $_['error_card']            = 'Kontrollera dina kortuppgifter.';
 $_['error_missing_field']   = 'Nödvändig information saknas. Kontrollera om grundläggande adressuppgifter finns.';
+$_['error_not_cancelled']   = 'Fel: %s';
 
 // Status page: payment failed (e.g. cancelled).
 $_['heading_failed'] = 'Din betalning har inte slutförts';
@@ -109,9 +113,7 @@ $_['method_bancontact']     = 'Bankontakt';
 $_['method_banktransfer']   = 'Banköverföring';
 $_['method_belfius']        = 'Belfius direktnät';
 $_['method_kbc']            = 'KBC/CBC-betalningsknapp';
-$_['method_sofort']         = 'SOFORT Banking';
 $_['method_paypal']         = 'PayPal';
-$_['method_paysafecard']    = 'paysafecard';
 $_['method_giftcard']       = 'Presentkort';
 $_['method_eps']            = 'EPS';
 $_['method_klarnapaylater'] = 'Klarna betala senare';
@@ -120,7 +122,7 @@ $_['method_klarnasliceit']  = 'Klarna Slice It';
 $_['method_przelewy24']     = 'P24';
 $_['method_applepay']       = 'Apple Pay';
 $_['method_voucher']        = 'Kupong';
-$_['method_in3']            = 'IN3';
+$_['method_in3']            = 'iDEAL in3';
 $_['method_mybank']         = 'MyBank';
 $_['method_billie']         = 'Billie';
 $_['method_klarna']         = 'Betala med Klarna';
@@ -131,6 +133,7 @@ $_['method_trustly']        = 'Trustly';
 $_['method_alma']           = 'Alma';
 $_['method_riverty']        = 'Riverty';
 $_['method_payconiq']       = 'Payconiq';
+$_['method_satispay']       = 'Satispay';
 
 //Round Off Description
 $_['roundoff_description'] = 'Avrundningsskillnad på grund av valutaomvandling';

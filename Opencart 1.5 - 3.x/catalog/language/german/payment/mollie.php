@@ -45,8 +45,8 @@ $_['text_issuer_kbc']           = 'Wählen Sie Ihren Bezahl-Button';
 $_['text_issuer_voucher']       = 'Wähle Deine Marke';
 $_['text_card_details']         = 'Bitte geben Sie Ihre Kreditkartendaten ein.';
 $_['text_mollie_payments']      = 'Sichere Zahlungen von %s';
-$_['text_recurring_desc']       = 'Bestellung %s, %s - %s, Alle %s für %s';
-$_['text_recurring']		    = '%s alle %s %s';
+$_['text_subscription_desc']    = 'Bestellung %s, %s - %s, Alle %s für %s';
+$_['text_subscription']		    = '%s alle %s %s';
 $_['text_length']			    = ' für %s Zahlungen';
 $_['text_trial']			    = '%s alle %s %s für %s Zahlungen dann ';
 $_['text_error_report_success']	= 'Fehler wurde erfolgreich gemeldet!';
@@ -57,12 +57,14 @@ $_['text_link']             = 'Um Ihre Bestellung anzuzeigen, klicken Sie auf de
 $_['text_footer']           = 'Bitte antworten Sie auf diese E-Mail, wenn Sie Fragen haben.';
 $_['text_payment_link_full_title']	    = 'Mollie-Zahlungslink - Gesamtbetrag';
 $_['text_payment_link_open_title']	    = 'Mollie-Zahlungslink - Offener Betrag';
+$_['text_cancelled']                    = 'Die Dauerzahlung wurde storniert';
+$_['text_subscription_cancel_confirm']  = 'Möchten Sie das Abonnement kündigen?';
 
 // Button
 $_['button_retry']          = 'Erneut versuchen, abzurechnen';
 $_['button_report']         = 'Report Error';
-$_['button_submit']         = 'Einreichen
-';
+$_['button_submit']         = 'Einreichen';
+$_['button_subscription_cancel'] = 'Abonnement kündigen';
 
 // Entry
 $_['entry_card_holder']     	= 'Card Holder Name';
@@ -73,6 +75,7 @@ $_['entry_verification_code']	= 'CVV';
 // Error
 $_['error_card']				= 'Bitte überprüfen Sie Ihre Kartendaten.';
 $_['error_missing_field']	    = 'Fehlende erforderliche Informationen. Bitte überprüfen Sie, ob grundlegende Adressdaten angegeben sind.';
+$_['error_not_cancelled']       = 'Fehler: %s';
 
 // Status page: payment failed (e.g. cancelled).
 $_['heading_failed']     = 'Ihre Zahlung ist nicht abgeschlossen';
@@ -110,9 +113,7 @@ $_['method_mistercash']     = 'Bancontact';
 $_['method_banktransfer']   = 'Übertragung';
 $_['method_belfius']        = 'Belfius Direct Net';
 $_['method_kbc']            = 'KBC/CBC-Betaalknop';
-$_['method_sofort']         = 'SOFORT Banking';
 $_['method_paypal']         = 'PayPal';
-$_['method_paysafecard']    = 'paysafecard';
 $_['method_giftcard']       = 'Giftcard';
 $_['method_eps']            = 'EPS';
 $_['method_klarnapaylater'] = 'Klarna Pay Later';
@@ -121,7 +122,7 @@ $_['method_klarnasliceit']  = 'Klarna Slice It';
 $_['method_przelewy24']     = 'P24';
 $_['method_applepay']    	= 'Apple Pay';
 $_['method_voucher']    	= 'Voucher';
-$_['method_in3']    	    = 'IN3';
+$_['method_in3']    	    = 'iDEAL in3';
 $_['method_mybank']         = 'MyBank';
 $_['method_billie']         = 'Billie';
 $_['method_klarna']         = 'Bezahlen Sie mit Klarna';
@@ -132,6 +133,7 @@ $_['method_trustly']        = 'Trustly';
 $_['method_alma']           = 'Alma';
 $_['method_riverty']        = 'Riverty';
 $_['method_payconiq']       = 'Payconiq';
+$_['method_satispay']       = 'Satispay';
 
 //Round Off Description
 $_['roundoff_description']  = 'Rundungsdifferenzen aufgrund von Währungsumrechnungen';

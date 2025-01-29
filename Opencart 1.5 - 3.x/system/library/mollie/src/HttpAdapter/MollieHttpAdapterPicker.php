@@ -25,7 +25,7 @@ class MollieHttpAdapterPicker implements \Mollie\Api\HttpAdapter\MollieHttpAdapt
         if ($httpClient instanceof \Mollie\Api\HttpAdapter\MollieHttpAdapterInterface) {
             return $httpClient;
         }
-        if ($httpClient instanceof \_PhpScoper24648dd2614c\GuzzleHttp\ClientInterface) {
+        if ($httpClient instanceof \_PhpScoperbbe44365fb20\GuzzleHttp\ClientInterface) {
             return new \Mollie\Api\HttpAdapter\Guzzle6And7MollieHttpAdapter($httpClient);
         }
         throw new \Mollie\Api\Exceptions\UnrecognizedClientException('The provided http client or adapter was not recognized.');
@@ -35,7 +35,7 @@ class MollieHttpAdapterPicker implements \Mollie\Api\HttpAdapter\MollieHttpAdapt
      */
     private function guzzleIsDetected()
     {
-        return \interface_exists('\\' . \_PhpScoper24648dd2614c\GuzzleHttp\ClientInterface::class);
+        return \interface_exists('\\' . \_PhpScoperbbe44365fb20\GuzzleHttp\ClientInterface::class);
     }
     /**
      * @return int|null
@@ -44,11 +44,11 @@ class MollieHttpAdapterPicker implements \Mollie\Api\HttpAdapter\MollieHttpAdapt
     {
         // Guzzle 7
         if (\defined('\\GuzzleHttp\\ClientInterface::MAJOR_VERSION')) {
-            return (int) \_PhpScoper24648dd2614c\GuzzleHttp\ClientInterface::MAJOR_VERSION;
+            return (int) \_PhpScoperbbe44365fb20\GuzzleHttp\ClientInterface::MAJOR_VERSION;
         }
         // Before Guzzle 7
         if (\defined('\\GuzzleHttp\\ClientInterface::VERSION')) {
-            return (int) \_PhpScoper24648dd2614c\GuzzleHttp\ClientInterface::VERSION[0];
+            return (int) \_PhpScoperbbe44365fb20\GuzzleHttp\ClientInterface::VERSION[0];
         }
         return null;
     }

@@ -40,8 +40,6 @@ $_['text_mollie_ideal']          = $method_list_logo;
 $_['text_mollie_kbc']            = $method_list_logo;
 $_['text_mollie_bancontact']     = $method_list_logo;
 $_['text_mollie_paypal']         = $method_list_logo;
-$_['text_mollie_paysafecard']    = $method_list_logo;
-$_['text_mollie_sofort']         = $method_list_logo;
 $_['text_mollie_giftcard']       = $method_list_logo;
 $_['text_mollie_eps']            = $method_list_logo;
 $_['text_mollie_klarnapaylater'] = $method_list_logo;
@@ -61,6 +59,7 @@ $_['text_mollie_trustly']        = $method_list_logo;
 $_['text_mollie_alma']           = $method_list_logo;
 $_['text_mollie_riverty']        = $method_list_logo;
 $_['text_mollie_payconiq']       = $method_list_logo;
+$_['text_mollie_satispay']       = $method_list_logo;
 
 // Heading
 $_['heading_title']         = "Mollie";
@@ -78,8 +77,6 @@ $_['name_mollie_ideal']          = "iDEAL";
 $_['name_mollie_kbc']            = "KBC/CBC-Betaalknop";
 $_['name_mollie_bancontact']     = "Bancontact";
 $_['name_mollie_paypal']         = "PayPal";
-$_['name_mollie_paysafecard']    = "paysafecard";
-$_['name_mollie_sofort']         = "SOFORT Banking";
 $_['name_mollie_giftcard']       = 'Giftcard';
 $_['name_mollie_eps']            = 'EPS';
 $_['name_mollie_klarnapaylater'] = 'Klarna Pay Later';
@@ -88,7 +85,7 @@ $_['name_mollie_klarnasliceit']  = 'Klarna Betaal in 3 delen';
 $_['name_mollie_przelewy_24']  	 = 'P24';
 $_['name_mollie_applepay']  	 = 'Apple Pay';
 $_['name_mollie_voucher']        = "Voucher";
-$_['name_mollie_in_3']           = "IN3";
+$_['name_mollie_in_3']           = "iDEAL in3";
 $_['name_mollie_mybank']         = "MyBank";
 $_['name_mollie_billie']         = "Billie";
 $_['name_mollie_klarna']         = "Pay with Klarna";
@@ -99,6 +96,7 @@ $_['name_mollie_trustly']        = "Trustly";
 $_['name_mollie_alma']           = "Alma";
 $_['name_mollie_riverty']        = "Riverty";
 $_['name_mollie_payconiq']       = "Payconiq";
+$_['name_mollie_satispay']       = "Satispay";
 
 // Text
 $_['text_edit']                    = "Bewerk Mollie";

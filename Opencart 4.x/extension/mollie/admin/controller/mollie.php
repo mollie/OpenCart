@@ -58,7 +58,7 @@ define("MOLLIE_VERSION", \MollieHelper::PLUGIN_VERSION);
 define("MOLLIE_RELEASE", "v" . MOLLIE_VERSION);
 define("MOLLIE_VERSION_URL", "https://api.github.com/repos/mollie/OpenCart/releases/latest");
 
-const DEPRECATED_METHODS = array('giropay');
+const DEPRECATED_METHODS = array('giropay', 'sofort', 'paysafecard');
 
 if (!defined("MOLLIE_TMP")) {
     define("MOLLIE_TMP", sys_get_temp_dir());
@@ -292,7 +292,23 @@ class Mollie extends \Opencart\System\Engine\Controller {
                 "action" => 'extension/mollie/payment/mollie_ideal' . $this->getMethodSeparator() . 'checkoutPaymentMethodController',
                 "status" => 1,
                 "sort_order" => 0
-            ]
+            ],
+            18 => [
+                "code" => "mollie_account_subscription_controller",
+                "description" => "Mollie Payment - Add subscription cancel on account subscription",
+                "trigger" => "catalog/view/account/subscription_info/before",
+                "action" => 'extension/mollie/payment/mollie_ideal' . $this->getMethodSeparator() . 'accountSubscriptionController',
+                "status" => 1,
+                "sort_order" => 0
+            ],
+            19 => [
+                "code" => "mollie_account_subscription_template",
+                "description" => "Mollie Payment - Add subscription cancel on account subscription",
+                "trigger" => "catalog/view/account/subscription_info/before",
+                "action" => 'extension/mollie/payment/mollie_ideal' . $this->getMethodSeparator() . 'accountSubscriptionTemplate',
+                "status" => 1,
+                "sort_order" => 0
+            ],
         ];
 
         foreach ($event_data as $event) {
@@ -1894,7 +1910,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
         }
 
         // Check if path exists
-        $payment_methods = ["alma", "applepay", "bancomatpay", "bancontact", "banktransfer", "belfius", "billie", "blik", "creditcard", "eps", "giftcard", "ideal", "in_3", "kbc", "klarna", "klarnapaylater", "klarnapaynow", "klarnasliceit", "mybank", "payconiq", "paypal", "paysafecard", "przelewy_24", "riverty", "sofort", "trustly", "twint", "voucher"];
+        $payment_methods = ["alma", "applepay", "bancomatpay", "bancontact", "banktransfer", "belfius", "billie", "blik", "creditcard", "eps", "giftcard", "ideal", "in_3", "kbc", "klarna", "klarnapaylater", "klarnapaynow", "klarnasliceit", "mybank", "payconiq", "paypal", "przelewy_24", "riverty", "satispay", "trustly", "twint", "voucher"];
 
         $paths = [
             "mollie/admin/controller/payment/",

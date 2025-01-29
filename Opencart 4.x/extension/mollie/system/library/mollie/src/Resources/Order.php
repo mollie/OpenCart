@@ -6,6 +6,7 @@ use Mollie\Api\Exceptions\ApiException;
 use Mollie\Api\Types\OrderStatus;
 class Order extends \Mollie\Api\Resources\BaseResource
 {
+    use HasPresetOptions;
     /**
      * Id of the order.
      *
@@ -453,28 +454,5 @@ class Order extends \Mollie\Api\Resources\BaseResource
             return null;
         }
         return \Mollie\Api\Resources\ResourceFactory::createCursorResourceCollection($this->client, $this->_embedded->payments, \Mollie\Api\Resources\Payment::class);
-    }
-    /**
-     * When accessed by oAuth we want to pass the testmode by default
-     *
-     * @return array
-     */
-    private function getPresetOptions()
-    {
-        $options = [];
-        if ($this->client->usesOAuth()) {
-            $options["testmode"] = $this->mode === "test" ? \true : \false;
-        }
-        return $options;
-    }
-    /**
-     * Apply the preset options.
-     *
-     * @param array $options
-     * @return array
-     */
-    private function withPresetOptions(array $options)
-    {
-        return \array_merge($this->getPresetOptions(), $options);
     }
 }

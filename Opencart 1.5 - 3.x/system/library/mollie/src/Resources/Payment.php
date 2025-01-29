@@ -8,6 +8,7 @@ use Mollie\Api\Types\PaymentStatus;
 use Mollie\Api\Types\SequenceType;
 class Payment extends \Mollie\Api\Resources\BaseResource
 {
+    use HasPresetOptions;
     /**
      * Id of the payment (on the Mollie platform).
      *
@@ -626,29 +627,6 @@ class Payment extends \Mollie\Api\Resources\BaseResource
         $body = ["description" => $this->description, "cancelUrl" => $this->cancelUrl, "redirectUrl" => $this->redirectUrl, "webhookUrl" => $this->webhookUrl, "metadata" => $this->metadata, "restrictPaymentMethodsToCountry" => $this->restrictPaymentMethodsToCountry, "locale" => $this->locale, "dueDate" => $this->dueDate];
         $result = $this->client->payments->update($this->id, $this->withPresetOptions($body));
         return \Mollie\Api\Resources\ResourceFactory::createFromApiResult($result, new \Mollie\Api\Resources\Payment($this->client));
-    }
-    /**
-     * When accessed by oAuth we want to pass the testmode by default
-     *
-     * @return array
-     */
-    private function getPresetOptions()
-    {
-        $options = [];
-        if ($this->client->usesOAuth()) {
-            $options["testmode"] = $this->mode === "test" ? \true : \false;
-        }
-        return $options;
-    }
-    /**
-     * Apply the preset options.
-     *
-     * @param array $options
-     * @return array
-     */
-    private function withPresetOptions(array $options)
-    {
-        return \array_merge($this->getPresetOptions(), $options);
     }
     /**
      * The total amount that is already captured for this payment. Only available

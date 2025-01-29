@@ -45,8 +45,8 @@ $_['text_issuer_kbc']                   = 'Vælg din betalingsknap.';
 $_['text_issuer_voucher']               = 'Vælg dit brand.';
 $_['text_card_details']                 = 'Indtast venligst dine kreditkortoplysninger.';
 $_['text_mollie_payments']              = 'Sikkere betalinger leveret af %s';
-$_['text_recurring_desc']               = 'Bestil %s, %s - %s, hver %s for %s';
-$_['text_recurring']                    = '%s hver %s %s';
+$_['text_subscription_desc']            = 'Bestil %s, %s - %s, hver %s for %s';
+$_['text_subscription']                 = '%s hver %s %s';
 $_['text_length']                       = ' for %s betalinger';
 $_['text_trial']                        = '%s hver %s %s for %s betalinger derefter ';
 $_['text_error_report_success']         = 'Fejl er rapporteret med succes!';
@@ -57,11 +57,14 @@ $_['text_link']                         = 'For at se din ordre klik på linket n
 $_['text_footer']                       = 'Besvar venligst denne e-mail, hvis du har spørgsmål.';
 $_['text_payment_link_full_title']	    = 'Mollie betalingslink - Fuldt beløb';
 $_['text_payment_link_open_title']	    = 'Mollie betalingslink - Åbent beløb';
+$_['text_cancelled']                    = 'Tilbagevendende betaling er blevet annulleret';
+$_['text_subscription_cancel_confirm']  = 'Vil du opsige abonnementet?';
 
 // Button
 $_['button_retry']  = 'Vend tilbage til betalingssiden';
 $_['button_report'] = 'Rapportér fejl';
 $_['button_submit'] = 'Send';
+$_['button_subscription_cancel'] = 'Annuller abonnement';
 
 // Entry
 $_['entry_card_holder'] = 'Kortindehaverens navn';
@@ -72,6 +75,7 @@ $_['entry_verification_code'] = 'CVV';
 // Error
 $_['error_card']            = 'Kontroller venligst dine kortoplysninger.';
 $_['error_missing_field']   = 'Manglende nødvendige oplysninger. Tjek venligst om grundlæggende adresseoplysninger er angivet.';
+$_['error_not_cancelled']   = 'Fejl: %s';
 
 // Status page: payment failed (e.g. cancelled).
 $_['heading_failed']    = 'Din betaling er ikke blevet gennemført';
@@ -109,9 +113,7 @@ $_['method_bancontact']     = 'Bancontact';
 $_['method_banktransfer']   = 'Bankoverførsel';
 $_['method_belfius']        = 'Belfius Direct Net';
 $_['method_kbc']            = 'KBC/CBC betalingsknap';
-$_['method_sofort']         = 'SOFORT Banking';
 $_['method_paypal']         = 'PayPal';
-$_['method_paysafecard']    = 'paysafecard';
 $_['method_giftcard']       = 'Gavekort';
 $_['method_eps']            = 'EPS';
 $_['method_klarnapaylater'] = 'Klarna betal senere';
@@ -120,7 +122,7 @@ $_['method_klarnasliceit']  = 'Klarna skær det';
 $_['method_przelewy24']     = 'P24';
 $_['method_applepay']       = 'Apple Pay';
 $_['method_voucher']        = 'Voucher';
-$_['method_in3']            = 'IN3';
+$_['method_in3']            = 'iDEAL in3';
 $_['method_mybank']         = 'MyBank';
 $_['method_billie']         = 'Billie';
 $_['method_klarna']         = 'Betal med Klarna';
@@ -131,6 +133,7 @@ $_['method_trustly']        = 'Trustly';
 $_['method_alma']           = 'Alma';
 $_['method_riverty']        = 'Riverty';
 $_['method_payconiq']       = 'Payconiq';
+$_['method_satispay']       = 'Satispay';
 
 //Round Off Description
 $_['roundoff_description'] = 'Afrundingsforskel på grund af valutaomregning';

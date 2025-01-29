@@ -45,8 +45,8 @@ $_['text_issuer_kbc']                   = 'Seleziona il tuo pulsante di pagament
 $_['text_issuer_voucher']               = 'Seleziona il tuo marchio.';
 $_['text_card_details']                 = 'Inserisci i dettagli della tua carta di credito.';
 $_['text_mollie_payments']              = 'Pagamenti sicuri forniti da %s';
-$_['text_recurring_desc']               = 'Ordina %s, %s - %s, Ogni %s per %s';
-$_['text_recurring']                    = '%s ogni %s %s';
+$_['text_subscription_desc']            = 'Ordina %s, %s - %s, Ogni %s per %s';
+$_['text_subscription']                 = '%s ogni %s %s';
 $_['text_length']                       = 'per %s pagamenti';
 $_['text_trial']                        = '%s ogni %s %s per %s pagamenti poi ';
 $_['text_error_report_success']         = 'L\'errore è stato segnalato con successo!';
@@ -57,11 +57,14 @@ $_['text_link']                         = 'Per visualizzare il tuo ordine clicca
 $_['text_footer']                       = 'Per qualsiasi domanda, rispondi a questa email.';
 $_['text_payment_link_full_title']	    = 'Collegamento di pagamento Mollie - Importo complessivo';
 $_['text_payment_link_open_title']	    = 'Collegamento di pagamento Mollie - Importo aperto';
+$_['text_cancelled']                    = 'Il pagamento ricorrente è stato annullato';
+$_['text_subscription_cancel_confirm']  = 'Vuoi annullare l\'abbonamento?';
 
 // Button
 $_['button_retry']  = 'Torna alla pagina di pagamento';
 $_['button_report'] = 'Segnala errore';
 $_['button_submit'] = 'Invia';
+$_['button_subscription_cancel'] = 'Annulla abbonamento';
 
 // Entry
 $_['entry_card_holder'] = 'Nome titolare della carta';
@@ -72,6 +75,7 @@ $_['entry_verification_code'] = 'CVV';
 // Error
 $_['error_card']            = 'Verifica i dettagli della tua carta.';
 $_['error_missing_field']   = 'Informazioni richieste mancanti. Si prega di verificare se sono stati forniti i dettagli dell\'indirizzo di base.';
+$_['error_not_cancelled']   = 'Errore: %s';
 
 // Status page: payment failed (e.g. cancelled).
 $_['heading_failed']    = 'Il tuo pagamento non è stato completato';
@@ -109,9 +113,7 @@ $_['method_bancontact']     = 'Contatto ban';
 $_['method_banktransfer']   = 'Trasferimento bancario';
 $_['method_belfius']        = 'Belfius Direct Net';
 $_['method_kbc']            = 'Pulsante di pagamento KBC/CBC';
-$_['method_sofort']         = 'SOFORT Banking';
 $_['method_paypal']         = 'PayPal';
-$_['method_paysafecard']    = 'paysafecard';
 $_['method_giftcard']       = 'Buono regalo';
 $_['method_eps']            = 'EPS';
 $_['method_klarnapaylater'] = 'Klarna paga più tardi';
@@ -120,7 +122,7 @@ $_['method_klarnasliceit']  = 'Klarna affettalo';
 $_['method_przelewy24']     = 'P24';
 $_['method_applepay']       = 'Apple Pay';
 $_['method_voucher']        = 'Buono';
-$_['method_in3']            = 'IN3';
+$_['method_in3']            = 'iDEAL in3';
 $_['method_mybank']         = 'MyBank';
 $_['method_billie']         = 'Billie';
 $_['method_klarna']         = 'Paga con Klarna';
@@ -131,6 +133,7 @@ $_['method_trustly']        = 'Trustly';
 $_['method_alma']           = 'Alma';
 $_['method_riverty']        = 'Riverty';
 $_['method_payconiq']       = 'Payconiq';
+$_['method_satispay']       = 'Satispay';
 
 //Round Off Description
 $_['roundoff_description'] = 'Differenza di arrotondamento dovuta alla conversione di valuta';
