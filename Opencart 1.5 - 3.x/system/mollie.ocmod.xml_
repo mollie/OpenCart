@@ -2,7 +2,7 @@
 <modification>
     <name>Quality Works - Mollie</name>
     <code>mollie</code>
-    <version>3.3.1</version>
+    <version>3.4.0</version>
     <author>Quality Works</author>
     
     <file path="catalog/controller/event/compatibility.php">
@@ -1449,15 +1449,15 @@
                         <tfoot>
                             <tr>
                                 <td class="text-right" colspan="3">
-                                    <?php if(!in_array($payment_status, ['expired', 'refunded', 'failed', 'canceled', 'open']) && !in_array($paymentMethod, ['paysafecard', 'giftcard']) && $showRefundButton) { ?>
+                                    <?php if(!in_array($payment_status, ['expired', 'refunded', 'failed', 'canceled', 'open']) && !in_array($paymentMethod, ['giftcard']) && $showRefundButton) { ?>
                                     <a href="#" onclick="event.preventDefault()" id="button-refund" class="btn btn-primary"><?php echo $button_refund; ?></a>
                                     <?php } ?>
                                     <?php if(isset($isVersion15x)) { ?>
-                                        <?php if(!in_array($payment_status, ['expired', 'failed', 'canceled', 'open']) && !in_array($paymentMethod, ['paysafecard', 'giftcard']) && $showPartialRefundButton) { ?>
+                                        <?php if(!in_array($payment_status, ['expired', 'failed', 'canceled', 'open']) && !in_array($paymentMethod, ['giftcard']) && $showPartialRefundButton) { ?>
                                             <a href="#" onclick="event.preventDefault()" id="button-partial-refund-model" class="label label-primary"><?php echo $button_partial_refund; ?></a>
                                         <?php } ?>
                                     <?php } else { ?>
-                                        <?php if(!in_array($payment_status, ['expired', 'failed', 'canceled', 'open']) && !in_array($paymentMethod, ['paysafecard', 'giftcard']) && $showPartialRefundButton) { ?>
+                                        <?php if(!in_array($payment_status, ['expired', 'failed', 'canceled', 'open']) && !in_array($paymentMethod, ['giftcard']) && $showPartialRefundButton) { ?>
                                         <a href="#" onclick="event.preventDefault()" data-toggle="modal" data-target="#refundModal" class="btn btn-warning"><?php echo $button_partial_refund; ?></a>
                                         <?php } ?>
                                     <?php } ?>
@@ -2099,10 +2099,10 @@ $('.alert').remove();
                         <tfoot>
                             <tr>
                                 <td class="text-right" colspan="3">
-                                    {% if((payment_status not in ['expired', 'refunded', 'failed', 'canceled', 'open']) and (paymentMethod not in ['paysafecard', 'giftcard']) and showRefundButton) %}
+                                    {% if((payment_status not in ['expired', 'refunded', 'failed', 'canceled', 'open']) and (paymentMethod not in ['giftcard']) and showRefundButton) %}
                                     <a href="#" onclick="event.preventDefault()" id="button-refund" class="btn btn-primary">{{ button_refund }}</a>
                                     {% endif %}
-                                    {% if((payment_status not in ['expired', 'failed', 'canceled', 'open']) and (paymentMethod not in ['paysafecard', 'giftcard']) and showPartialRefundButton) %}
+                                    {% if((payment_status not in ['expired', 'failed', 'canceled', 'open']) and (paymentMethod not in ['giftcard']) and showPartialRefundButton) %}
                                     <a href="#" onclick="event.preventDefault()" data-toggle="modal" data-target="#refundModal" class="btn btn-warning">{{ button_partial_refund }}</a>
                                     {% endif %}
                                 </td>
@@ -3100,4 +3100,160 @@ $('#button-partial-refund').on('click', function() {
         </operation>
     </file>
     <!-- ************ -->
+    <file path="catalog/view/theme/default/template/account/recurring_info.twig">
+        <operation error="skip">
+            <search position="before"><![CDATA[<div class="row">{{ column_left }}]]></search>
+            <add position="before"><![CDATA[
+            {% if success %}
+            <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+            </div>
+            {% endif %}
+            {% if error_warning %}
+            <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+            </div>
+            {% endif %}
+            ]]></add>
+        </operation>
+        <operation error="skip">
+            <search position="replace"><![CDATA[{{ content_bottom }}</div>]]></search>
+            <add position="replace"><![CDATA[{% if cancel_subscription %}<a href="{{ cancel_subscription }}" onclick="return confirm('{{ text_subscription_cancel_confirm }}');" data-toggle="tooltip" title="{{ button_subscription_cancel }}" class="btn btn-danger">{{ button_subscription_cancel }}</a>{% endif %}{{ content_bottom }}</div>]]></add>
+        </operation>
+    </file>
+    <file path="catalog/view/theme/default/template/account/recurring_info.tpl">
+        <operation error="skip">
+            <search position="replace"><![CDATA[<?php echo $content_bottom; ?>]]></search>
+            <add position="replace"><![CDATA[<?php if ($cancel_subscription) { ?><a href="<?php echo $cancel_subscription; ?>" onclick="return confirm('<?php echo $text_subscription_cancel_confirm; ?>');" data-toggle="tooltip" title="<?php echo $button_subscription_cancel; ?>" class="btn btn-danger"><?php echo $button_subscription_cancel; ?></a><?php } ?><?php echo $content_bottom; ?>]]></add>
+        </operation>
+    </file>
+    <file path="catalog/controller/account/recurring.php">
+        <operation error="skip">
+            <search position="after"><![CDATA[$data['heading_title']]]></search>
+            <add position="after"><![CDATA[
+            $data['button_subscription_cancel'] = $this->language->get('button_subscription_cancel');
+            $data['text_subscription_cancel_confirm'] = $this->language->get('text_subscription_cancel_confirm');
+            ]]></add>
+        </operation>
+        <operation error="skip">
+            <search position="before"><![CDATA[$data['order_recurring_id']]]></search>
+            <add position="before"><![CDATA[
+            if (isset($this->session->data['error'])) {
+				$data['error_warning'] = $this->session->data['error'];
+
+				unset($this->session->data['error']);
+			} else {
+				$data['error_warning'] = '';
+			}
+
+			if (isset($this->session->data['success'])) {
+				$data['success'] = $this->session->data['success'];
+
+				unset($this->session->data['success']);
+			} else {
+				$data['success'] = '';
+			}
+            ]]></add>
+        </operation>
+        <operation error="skip">
+            <search position="before"><![CDATA[$data['recurring']]]></search>
+            <add position="before"><![CDATA[
+            $data['cancel_subscription'] = '';
+
+            if (isset($recurring_info)) {
+                if (strpos($recurring_info['payment_code'], 'mollie') !== false) {
+                    $this->load->model("payment/mollie_ideal");
+
+                    $language_data = $this->model_payment_mollie_ideal->getLanguageData(
+                            [
+                                "text_subscription_cancel_confirm",
+                                "button_subscription_cancel"
+                            ]
+                        );
+
+                    $data = array_merge($data, $language_data);
+
+                    $subscription_info = $this->model_payment_mollie_ideal->getSubscription($this->request->get['order_recurring_id']);
+
+                    if ($subscription_info) {
+                        if (($subscription_info->status == 'pending') || ($subscription_info->status == 'active')) {
+                            $data['cancel_subscription'] = $this->url->link('payment/mollie_ideal/cancelSubscription', 'order_recurring_id=' . $this->request->get['order_recurring_id'], true);
+                        } else {
+                            $data['cancel_subscription'] = false;
+                        }
+                    }
+                }
+            } else {
+                if (strpos($recurring['payment_code'], 'mollie') !== false) {
+                    if (isset($this->request->get['order_recurring_id'])) {
+                        $order_recurring_id = (int) $this->request->get['order_recurring_id'];
+                    } else {
+                        $order_recurring_id = (int) $this->request->get['recurring_id'];
+                    }
+
+                    $this->load->model("payment/mollie_ideal");
+
+                    $language_data = $this->model_payment_mollie_ideal->getLanguageData(
+                            [
+                                "text_subscription_cancel_confirm",
+                                "button_subscription_cancel"
+                            ]
+                        );
+
+                    $data = array_merge($data, $language_data);
+
+                    $subscription_info = $this->model_payment_mollie_ideal->getSubscription($order_recurring_id);
+
+                    if ($subscription_info) {
+                        if (($subscription_info->status == 'pending') || ($subscription_info->status == 'active')) {
+                            $data['cancel_subscription'] = $this->url->link('payment/mollie_ideal/cancelSubscription', 'order_recurring_id=' . $order_recurring_id, 'SSL');
+                        } else {
+                            $data['cancel_subscription'] = false;
+                        }
+                    }
+                }
+            }
+            ]]></add>
+        </operation>
+    </file>
+    <file path="catalog/controller/account/recurring.php">
+        <operation error="skip">
+            <search position="after"><![CDATA[$this->data['heading_title']]]></search>
+            <add position="after"><![CDATA[
+            $this->data['button_subscription_cancel'] = $this->language->get('button_subscription_cancel');
+            $this->data['text_subscription_cancel_confirm'] = $this->language->get('text_subscription_cancel_confirm');
+            ]]></add>
+        </operation>
+        <operation error="skip">
+            <search position="before"><![CDATA[$this->data['profile']]]></search>
+            <add position="before"><![CDATA[
+            $this->data['cancel_subscription'] = '';
+
+            if (strpos($profile['payment_code'], 'mollie') !== false) {
+                $order_recurring_id = (int) $this->request->get['recurring_id'];
+
+                $this->load->model("payment/mollie_ideal");
+
+                $language_data = $this->model_payment_mollie_ideal->getLanguageData(
+                        [
+                            "text_subscription_cancel_confirm",
+                            "button_subscription_cancel"
+                        ]
+                    );
+
+                $this->data = array_merge($this->data, $language_data);
+
+                $subscription_info = $this->model_payment_mollie_ideal->getSubscription($order_recurring_id);
+
+                if ($subscription_info) {
+                    if (($subscription_info->status == 'pending') || ($subscription_info->status == 'active')) {
+                        $this->data['cancel_subscription'] = $this->url->link('payment/mollie_ideal/cancelSubscription', 'order_recurring_id=' . $order_recurring_id, 'SSL');
+                    } else {
+                        $this->data['cancel_subscription'] = false;
+                    }
+                }
+            }
+            ]]></add>
+        </operation>
+    </file>
 </modification>

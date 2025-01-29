@@ -45,8 +45,8 @@ $_['text_issuer_kbc']           = 'Kies uw betaalknop';
 $_['text_issuer_voucher']       = 'Kies uw merk';
 $_['text_card_details']         = 'Voer uw creditcardgegevens in.';
 $_['text_mollie_payments']      = 'Veilige betalingen geleverd door %s';
-$_['text_recurring_desc']       = 'Bestelling %s, %s - %s, elke %s voor %s';
-$_['text_recurring']		    = '%s elke %s %s';
+$_['text_subscription_desc']    = 'Bestelling %s, %s - %s, elke %s voor %s';
+$_['text_subscription']		    = '%s elke %s %s';
 $_['text_length']			    = ' voor %s betalingen';
 $_['text_trial']			    = '%s elke %s %s voor %s betalingen dan ';
 $_['text_error_report_success']	= 'De fout is met succes gerapporteerd!';
@@ -57,11 +57,14 @@ $_['text_link']             = 'Klik op onderstaande link om uw bestelling te bek
 $_['text_footer']           = 'Beantwoord deze e-mail als u vragen heeft.';
 $_['text_payment_link_full_title']	    = 'Mollie Betaallink - Volledige bedrag';
 $_['text_payment_link_open_title']	    = 'Mollie Betaallink - Open hoeveelheid';
+$_['text_cancelled']                    = 'Terugkerende betaling is geannuleerd';
+$_['text_subscription_cancel_confirm']  = 'Wilt u het abonnement opzeggen?';
 
 // Button
 $_['button_retry']          = 'Opnieuw proberen af te rekenen';
 $_['button_report']         = 'Report Error';
 $_['button_submit']         = 'Verzenden';
+$_['button_subscription_cancel'] = 'Abonnement opzeggen';
 
 // Entry
 $_['entry_card_holder']     	= 'Kaarthouder naam';
@@ -72,6 +75,7 @@ $_['entry_verification_code']	= 'CVV';
 // Error
 $_['error_card']				= 'Controleer uw kaartgegevens.';
 $_['error_missing_field']	    = 'Vereiste informatie ontbreekt. Controleer of er basisadresgegevens zijn verstrekt.';
+$_['error_not_cancelled']       = 'Fout: %s';
 
 // Status page: payment failed (e.g. cancelled).
 $_['heading_failed']     = 'Uw betaling is niet voltooid';
@@ -109,9 +113,7 @@ $_['method_bancontact']     = 'Bancontact';
 $_['method_banktransfer']   = 'Overboeking';
 $_['method_belfius']        = 'Belfius Direct Net';
 $_['method_kbc']            = 'KBC/CBC-Betaalknop';
-$_['method_sofort']         = 'SOFORT Banking';
 $_['method_paypal']         = 'PayPal';
-$_['method_paysafecard']    = 'paysafecard';
 $_['method_giftcard']       = 'Giftcard';
 $_['method_eps']            = 'EPS';
 $_['method_klarnapaylater'] = 'Klarna Pay Later';
@@ -120,7 +122,7 @@ $_['method_klarnasliceit']  = 'Klarna Betaal in 3 delen';
 $_['method_przelewy24']  	= 'P24';
 $_['method_applepay']    	= 'Apple Pay';
 $_['method_voucher']    	= 'Voucher';
-$_['method_in3']    	    = 'IN3';
+$_['method_in3']    	    = 'iDEAL in3';
 $_['method_mybank']         = 'MyBank';
 $_['method_billie']         = 'Billie';
 $_['method_klarna']         = 'Betaal met Klarna';
@@ -131,6 +133,7 @@ $_['method_trustly']        = 'Trustly';
 $_['method_alma']           = 'Alma';
 $_['method_riverty']        = 'Riverty';
 $_['method_payconiq']       = 'Payconiq';
+$_['method_satispay']       = 'Satispay';
 
 //Round Off Description
 $_['roundoff_description']  = 'Afrondingsverschil door valutaomrekening';

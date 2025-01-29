@@ -4,7 +4,7 @@ use Mollie\Api\MollieApiClient;
 
 class MollieHelper {
 
-	const PLUGIN_VERSION = "13.3.0";
+	const PLUGIN_VERSION = "13.4.0";
 
 	const OUTH_URL = 'https://api.mollie.com/oauth2';
 
@@ -18,8 +18,6 @@ class MollieHelper {
 	const MODULE_NAME_IDEAL         	= "ideal";
 	const MODULE_NAME_BANCONTACT    	= "bancontact";
 	const MODULE_NAME_PAYPAL        	= "paypal";
-	const MODULE_NAME_PAYSAFECARD   	= "paysafecard";
-	const MODULE_NAME_SOFORT        	= "sofort";
 	const MODULE_NAME_KBC           	= "kbc";
 	const MODULE_NAME_GIFTCARD      	= "giftcard";
 	const MODULE_NAME_EPS           	= "eps";
@@ -40,6 +38,7 @@ class MollieHelper {
 	const MODULE_NAME_ALMA	 	    	= "alma";
 	const MODULE_NAME_RIVERTY	 	    = "riverty";
 	const MODULE_NAME_PAYCONIQ	 	    = "payconiq";
+	const MODULE_NAME_SATISPAY	 	    = "satispay";
 
 
 	// List of all available module names.
@@ -50,8 +49,6 @@ class MollieHelper {
 		self::MODULE_NAME_IDEAL,
 		self::MODULE_NAME_BANCONTACT,
 		self::MODULE_NAME_PAYPAL,
-		self::MODULE_NAME_PAYSAFECARD,
-		self::MODULE_NAME_SOFORT,
 		self::MODULE_NAME_KBC,
 		self::MODULE_NAME_GIFTCARD,
 		self::MODULE_NAME_EPS,
@@ -71,7 +68,8 @@ class MollieHelper {
 		self::MODULE_NAME_TRUSTLY,
 		self::MODULE_NAME_ALMA,
 		self::MODULE_NAME_RIVERTY,
-		self::MODULE_NAME_PAYCONIQ
+		self::MODULE_NAME_PAYCONIQ,
+		self::MODULE_NAME_SATISPAY
 	);
 
 	protected $api_client;

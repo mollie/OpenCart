@@ -1397,7 +1397,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
         }
 
         // Order paid ('processed').
-        if ($molliePayment->isPaid()) {
+        if ($molliePayment->isPaid() || $molliePayment->isAuthorized()) {
             $new_status_id = intval($this->config->get($moduleCode . "_ideal_processing_status_id"));
 
             if (!$new_status_id) {
@@ -1696,9 +1696,21 @@ class Mollie extends \Opencart\System\Engine\Controller {
         $this->load->model('checkout/order');
 
         $paid_status_id = intval($this->config->get($moduleCode . "_ideal_processing_status_id"));
+        $shipping_status_id = intval($this->config->get($moduleCode . "_ideal_shipping_status_id"));
         $pending_status_id = intval($this->config->get($moduleCode . "_ideal_pending_status_id"));
+        $failed_status_id = intval($this->config->get($moduleCode . "_ideal_failed_status_id"));
+
         $mollie_order_id = $model->getOrderID($order['order_id']);
         $mollie_payment_id = $model->getPaymentID($order['order_id']);
+
+        // Check if payment status is already updated (check for multiple callbacks)
+        if (($order["order_status_id"] == $paid_status_id) || ($order["order_status_id"] == $shipping_status_id)) {
+            $this->writeToMollieLog("Success redirect to success page for order - {$order['order_id']}, status already updated");
+
+            // Redirect to 'success' page.
+            $this->redirect($this->url->link('checkout/success', 'language=' . $this->config->get('config_language'), true));
+            return '';
+        }
 
         if (!($mollie_order_id) && !($mollie_payment_id)) {
             $this->writeToMollieLog("Error getting mollie_order_id / mollie_payment_id for order " . $order['order_id']);
@@ -1869,18 +1881,16 @@ class Mollie extends \Opencart\System\Engine\Controller {
 
                     $shipmentData['lines'] = $shipmentLine;
                     $mollieShipment = $orderDetails->createShipment($shipmentData);
-                    $shipped_status_id = intval($this->config->get($moduleCode . "_ideal_shipping_status_id"));
-                    $this->addOrderHistory($order, $shipped_status_id, $this->language->get("shipment_success"), true);
+                    $this->addOrderHistory($order, $shipping_status_id, $this->language->get("shipment_success"), true);
                     $this->writeToMollieLog("Shipment created for order - {$order_id}, {$mollie_order_id}");
-                    $order['order_status_id'] = $shipped_status_id;
+                    $order['order_status_id'] = $shipping_status_id;
                 } catch (\Mollie\Api\Exceptions\ApiException $e) {
                     $this->writeToMollieLog("Shipment could not be created for order - {$order_id}, {$mollie_order_id}; " . htmlspecialchars($e->getMessage()));
                 }                
             }
         }
-        // Show a 'transaction failed' page if we couldn't find the order or if the payment failed.
-        $failed_status_id = $this->config->get($moduleCode . "_ideal_failed_status_id");
 
+        // Show a 'transaction failed' page if we couldn't find the order or if the payment failed.
         if (!$order || ($failed_status_id && $order['order_status_id'] == $failed_status_id)) {
             if ($failed_status_id && $order['order_status_id'] == $failed_status_id) {
                 $this->writeToMollieLog("Error payment failed for order - {$order['order_id']}, {$mollie_order_id}");
@@ -1895,7 +1905,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
         }
 
         // If the order status is 'processing' (i.e. 'paid'), redirect to OpenCart's default 'success' page.
-        if ($order["order_status_id"] == $this->config->get($moduleCode . "_ideal_processing_status_id") || $order["order_status_id"] == $this->config->get($moduleCode . "_ideal_shipping_status_id")) {
+        if (($order["order_status_id"] == $paid_status_id) || ($order["order_status_id"] == $shipping_status_id)) {
             $this->writeToMollieLog("Success redirect to success page for order - {$order['order_id']}, {$mollie_order_id}");
 
             unset($this->session->data['mollie_issuer']);
@@ -1906,7 +1916,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
         }
 
         // If the status is 'pending' (i.e. a bank transfer), the report is not delivered yet.
-        if ($order['order_status_id'] == $this->config->get($moduleCode . "_ideal_pending_status_id")) {
+        if ($order['order_status_id'] == $pending_status_id) {
             $this->writeToMollieLog("Unknown payment status for order - {$order['order_id']}, {$mollie_order_id}, {$mollie_payment_id}");
 
             if ($this->cart) {
@@ -2394,6 +2404,54 @@ class Mollie extends \Opencart\System\Engine\Controller {
 		$this->response->setOutput(json_encode($json));
     }
 
+    public function cancelSubscription() {
+		$this->load->language("extension/mollie/payment/mollie");
+		$this->load->model("account/subscription");
+
+        $model = $this->getModuleModel();
+
+        $subscription_info = $this->model_account_subscription->getSubscription((int)$this->request->get['subscription_id']);
+        if ($subscription_info) {
+            $order_id = $subscription_info['order_id'];
+        } else {
+            return;
+        }
+
+		$mollie_order = $model->getPayment($order_id);
+
+		$subscription_id = $mollie_order['mollie_subscription_id'];
+
+		$mollie_customer = $model->getMollieCustomerById();
+
+        if (!$mollie_customer) {
+			$this->redirect($this->url->link('account/subscription.info', 'language=' . $this->config->get('config_language') . '&customer_token=' . $this->session->data['customer_token'] . '&subscription_id=' . (int)$this->request->get['subscription_id']));
+
+            return;
+		}
+
+		$api = $this->getAPIClient();
+
+		$customer = $api->customers->get($mollie_customer['mollie_customer_id']);
+
+		try {
+			$subscription = $customer->cancelSubscription($subscription_id);
+
+            $this->writeToMollieLog("Subscription cancelled: subscription_id - {$subscription->id}, order_id - {$order_id}");
+
+			// Update subscription status
+            $this->load->model('checkout/subscription');
+            $this->model_checkout_subscription->addHistory((int)$this->request->get['subscription_id'], (int)$this->config->get('config_subscription_canceled_status_id'));
+
+			$this->session->data['success'] = $this->language->get('text_cancelled');
+			$this->redirect($this->url->link('account/subscription.info', 'language=' . $this->config->get('config_language') . '&customer_token=' . $this->session->data['customer_token'] . '&subscription_id=' . (int)$this->request->get['subscription_id']));
+		} catch (\Mollie\Api\Exceptions\ApiException $e) {
+            $this->writeToMollieLog("Error canceling subscription: " . htmlspecialchars($e->getMessage()));
+
+			$this->session->data['error'] = sprintf($this->language->get('error_not_cancelled'), htmlspecialchars($e->getMessage()));
+			$this->redirect($this->url->link('account/subscription.info', 'language=' . $this->config->get('config_language') . '&customer_token=' . $this->session->data['customer_token'] . '&subscription_id=' . (int)$this->request->get['subscription_id']));
+		}  
+	}
+
     public function checkoutController(&$route, &$args) {
         $this->document->addScript('extension/mollie/catalog/view/javascript/mollie.js');
         $this->document->addScript('https://js.mollie.com/v1/mollie.js');
@@ -2613,6 +2671,8 @@ class Mollie extends \Opencart\System\Engine\Controller {
         $order_info = $this->model_checkout_order->getOrder($order_id);
 
         if (!empty($order_info)) {
+            $order_products = $this->model_checkout_order->getProducts($order_id);
+
             // If current order status is not processing or complete but new status is processing or complete then commence completing the order
 			if (!in_array($order_info['order_status_id'], array_merge((array)$this->config->get('config_processing_status'), (array)$this->config->get('config_complete_status'))) && in_array($order_status_id, array_merge((array)$this->config->get('config_processing_status'), (array)$this->config->get('config_complete_status')))) {
 				foreach ($order_products as $order_product) {
@@ -2674,4 +2734,56 @@ class Mollie extends \Opencart\System\Engine\Controller {
 
 		exit;
 	}
+
+    public function getLanguageData($keys = array()) {
+        $this->load->language("extension/mollie/payment/mollie");
+
+        $data = array();
+
+        foreach ($keys as $key) {
+            $data[$key] = $this->language->get($key);
+        }
+
+        return $data;
+    }
+
+    public function accountSubscriptionController(&$route, &$data, &$template_code) {
+        $this->load->model('extension/mollie/payment/mollie_ideal');
+
+        $language_data = $this->getLanguageData(
+                            [
+                                "text_subscription_cancel_confirm",
+                                "button_subscription_cancel"
+                            ]
+                        );
+
+        $data = array_merge($data, $language_data);
+
+        $data['cancel_subscription'] = '';
+
+        if (strpos($data['payment_method'], 'mollie') !== false) {
+            
+            $subscription_info = $this->model_extension_mollie_payment_mollie_ideal->getSubscription($data['order_id']);
+
+            if ($subscription_info) {
+                if (($subscription_info->status == 'pending') || ($subscription_info->status == 'active')) {
+                    $data['cancel_subscription'] = $this->url->link('extension/mollie/payment/mollie_ideal' . $this->getMethodSeparator() . 'cancelSubscription', 'subscription_id=' . $this->request->get['subscription_id'], true);
+                } else {
+                    $data['cancel_subscription'] = false;
+                }
+            }
+        }
+    }
+
+    public function accountSubscriptionTemplate(&$route, &$data, &$template_code) {
+        $template_buffer = $this->getTemplateBuffer($route, $template_code);
+
+        $search  = '<div class="text-end mt-3"><a href="{{ continue }}" class="btn btn-primary">{{ button_continue }}</a></div>';
+
+		$replace = '<div class="text-end mt-3">{% if cancel_subscription %}<a href="{{ cancel_subscription }}" onclick="return confirm(\'{{ text_subscription_cancel_confirm }}\');" data-toggle="tooltip" title="{{ button_subscription_cancel }}" class="btn btn-danger">{{ button_subscription_cancel }}</a>{% endif %} <a href="{{ continue }}" class="btn btn-primary">{{ button_continue }}</a></div>';
+
+		$template_buffer = str_replace($search, $replace, $template_buffer);
+
+        $template_code = $template_buffer;
+    }
 }

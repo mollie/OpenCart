@@ -57,11 +57,14 @@ $_['text_link']             = 'To view your order click on the link below:';
 $_['text_footer']           = 'Please reply to this e-mail if you have any questions.';
 $_['text_payment_link_full_title']	= 'Mollie Payment Link - Full Amount';
 $_['text_payment_link_open_title']	= 'Mollie Payment Link - Open Amount';
+$_['text_cancelled']                = 'Subscription has been cancelled';
+$_['text_subscription_cancel_confirm']  = 'Do you want to cancel the subscription?';
 
 // Button
 $_['button_retry']          = 'Return to checkout page';
 $_['button_report']         = 'Report Error';
 $_['button_submit']         = 'Submit';
+$_['button_subscription_cancel'] = 'Cancel Subscription';
 
 // Entry
 $_['entry_card_holder']     	= 'Card Holder Name';
@@ -72,6 +75,7 @@ $_['entry_verification_code']	= 'CVV';
 // Error
 $_['error_card']				= 'Please check your card details.';
 $_['error_missing_field']	    = 'Missing required information. Please check if basic address details are provided.';
+$_['error_not_cancelled']       = 'Error: %s';
 
 // Status page: payment failed (e.g. cancelled).
 $_['heading_failed']     = 'Your payment has not been completed';
@@ -109,9 +113,7 @@ $_['method_bancontact']     = 'Bancontact';
 $_['method_banktransfer']   = 'Bank transfer';
 $_['method_belfius']        = 'Belfius Direct Net';
 $_['method_kbc']            = 'KBC/CBC Payment Button';
-$_['method_sofort']         = 'SOFORT Banking';
 $_['method_paypal']         = 'PayPal';
-$_['method_paysafecard']    = 'paysafecard';
 $_['method_giftcard']       = 'Giftcard';
 $_['method_eps']            = 'EPS';
 $_['method_klarnapaylater'] = 'Klarna Pay Later';
@@ -120,7 +122,7 @@ $_['method_klarnasliceit']  = 'Klarna Slice It';
 $_['method_przelewy24']  	= 'P24';
 $_['method_applepay']    	= 'Apple Pay';
 $_['method_voucher']    	= 'Voucher';
-$_['method_in3']    	    = 'IN3';
+$_['method_in3']    	    = 'iDEAL in3';
 $_['method_mybank']         = 'MyBank';
 $_['method_billie']         = 'Billie';
 $_['method_klarna']         = 'Pay with Klarna';
@@ -131,6 +133,7 @@ $_['method_trustly']        = 'Trustly';
 $_['method_alma']           = 'Alma';
 $_['method_riverty']        = 'Riverty';
 $_['method_payconiq']       = 'Payconiq';
+$_['method_satispay']       = 'Satispay';
 
 //Round Off Description
 $_['roundoff_description']  = 'Rounding difference due to currency conversion';

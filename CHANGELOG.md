@@ -2,6 +2,12 @@
 
 # Changelog #
 
+#### Changes in release 13.4.0
+  + Removed SOFORT and Paysafecard payment methods
+  + Added Satispay method
+  + Added recurring/subscription cancel feature
+  + Bugfix and improvements
+
 #### Changes in release 13.3.0
   + Removed Giropay payment method
   + New payment methods - Trustly, Alma, Riverty, Payconiq

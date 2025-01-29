@@ -74,7 +74,7 @@ define("MOLLIE_RELEASE", "v" . MOLLIE_VERSION);
 define("MOLLIE_VERSION_URL", "https://api.github.com/repos/mollie/OpenCart/releases/latest");
 
 // Defining arrays in a constant cannot be done with "define" until PHP 7, so using this syntax for backwards compatibility.
-const DEPRECATED_METHODS = array('mistercash', 'bitcoin', 'directdebit', 'inghomepay', 'giropay');
+const DEPRECATED_METHODS = array('mistercash', 'bitcoin', 'directdebit', 'inghomepay', 'giropay', 'sofort', 'paysafecard');
 
 if (!defined("MOLLIE_TMP")) {
     define("MOLLIE_TMP", sys_get_temp_dir());
@@ -819,9 +819,9 @@ class ControllerPaymentMollieBase extends Controller {
 		}
 
 		if (version_compare(VERSION, '2.3', '>=')) {
-	      $this->load->language('extension/payment/mollie');
+	      $this->load->language('extension/payment/mollie_' . static::MODULE_NAME);
 	    } else {
-	      $this->load->language('payment/mollie');
+	      $this->load->language('payment/mollie_' . static::MODULE_NAME);
 	    }
 		$this->data = $data;		
 		$code = $this->mollieHelper->getModuleCode();
@@ -869,7 +869,7 @@ class ControllerPaymentMollieBase extends Controller {
             }
         }
 
-        $this->document->setTitle(strip_tags($this->language->get('heading_title')));
+        $this->document->setTitle(strip_tags(explode(' ', $this->language->get('heading_title'))[0]));
 
         //Set form variables
         $paymentDesc = array();
@@ -917,7 +917,7 @@ class ControllerPaymentMollieBase extends Controller {
 			$extension_link = $this->url->link('extension/payment', $this->token, 'SSL');
 		}
 
-		$data['heading_title'] 								= $this->language->get('heading_title');
+		$data['heading_title'] 								= explode(' ', $this->language->get('heading_title'))[0];
 		$data['text_yes'] 									= $this->language->get('text_yes');
 		$data['text_no'] 									= $this->language->get('text_no');
 		$data['text_enabled'] 								= $this->language->get('text_enabled');
@@ -983,8 +983,6 @@ class ControllerPaymentMollieBase extends Controller {
 		$data['name_mollie_kbc'] 							= $this->language->get('name_mollie_kbc');
 		$data['name_mollie_bancontact'] 					= $this->language->get('name_mollie_bancontact');
 		$data['name_mollie_paypal'] 						= $this->language->get('name_mollie_paypal');
-		$data['name_mollie_paysafecard'] 					= $this->language->get('name_mollie_paysafecard');
-		$data['name_mollie_sofort'] 						= $this->language->get('name_mollie_sofort');
 		$data['name_mollie_giftcard'] 						= $this->language->get('name_mollie_giftcard');
 		$data['name_mollie_eps'] 							= $this->language->get('name_mollie_eps');
 		$data['name_mollie_klarnapaylater'] 				= $this->language->get('name_mollie_klarnapaylater');
@@ -1003,6 +1001,7 @@ class ControllerPaymentMollieBase extends Controller {
         $data['name_mollie_alma'] 							= $this->language->get('name_mollie_alma');
         $data['name_mollie_riverty'] 						= $this->language->get('name_mollie_riverty');
         $data['name_mollie_payconiq'] 						= $this->language->get('name_mollie_payconiq');
+        $data['name_mollie_satispay'] 						= $this->language->get('name_mollie_satispay');
 
 		$data['entry_payment_method'] 						= $this->language->get('entry_payment_method');
 		$data['entry_activate'] 							= $this->language->get('entry_activate');
@@ -1092,7 +1091,7 @@ class ControllerPaymentMollieBase extends Controller {
    		);
 		
    		$data['breadcrumbs'][] = array(
-	       	'text'      => strip_tags($this->language->get('heading_title')),
+	       	'text'      => strip_tags(explode(' ', $this->language->get('heading_title'))[0]),
 	        'href'      => (version_compare(VERSION, '2.3', '>=')) ? $this->url->link('extension/payment/mollie_' . static::MODULE_NAME, $this->token, true) : $this->url->link('payment/mollie_' . static::MODULE_NAME, $this->token, 'SSL'),
 	        'separator' => ' :: '
    		);
@@ -1471,9 +1470,9 @@ class ControllerPaymentMollieBase extends Controller {
      */
     public function validate_api_key() {
     	if (version_compare(VERSION, '2.3', '>=')) {
-	      $this->load->language('extension/payment/mollie');
+	      $this->load->language('extension/payment/mollie_' . static::MODULE_NAME);
 	    } else {
-	      $this->load->language('payment/mollie');
+	      $this->load->language('payment/mollie_' . static::MODULE_NAME);
 	    }
 		$json = array(
 			'error' => false,
@@ -1536,9 +1535,9 @@ class ControllerPaymentMollieBase extends Controller {
 	 */
 	protected function checkCommunicationStatus ($api_key = null) {
 		if (version_compare(VERSION, '2.3', '>=')) {
-	      $this->load->language('extension/payment/mollie');
+	      $this->load->language('extension/payment/mollie_' . static::MODULE_NAME);
 	    } else {
-	      $this->load->language('payment/mollie');
+	      $this->load->language('payment/mollie_' . static::MODULE_NAME);
 	    }
 		if (empty($api_key)) {
 			return '<span style="color:red">' .  $this->language->get('error_no_api_key') . '</span>';
@@ -1714,9 +1713,9 @@ class ControllerPaymentMollieBase extends Controller {
         if (!$this->getUpdateUrl()) {
             $data = array("version" => MOLLIE_RELEASE);
             if (version_compare(VERSION, '2.3', '>=')) {
-		      $this->load->language('extension/payment/mollie');
+		      $this->load->language('extension/payment/mollie_' . static::MODULE_NAME);
 		    } else {
-		      $this->load->language('payment/mollie');
+		      $this->load->language('payment/mollie_' . static::MODULE_NAME);
 		    }
             $this->session->data['success'] = sprintf($this->language->get('text_update_success'), MOLLIE_RELEASE);
         }
@@ -1762,9 +1761,9 @@ class ControllerPaymentMollieBase extends Controller {
 
     public function download() {
 		if (version_compare(VERSION, '2.3', '>=')) {
-	      $this->load->language('extension/payment/mollie');
+	      $this->load->language('extension/payment/mollie_' . static::MODULE_NAME);
 	    } else {
-	      $this->load->language('payment/mollie');
+	      $this->load->language('payment/mollie_' . static::MODULE_NAME);
 	    }
 
 		$file = DIR_LOGS . 'Mollie.log';
@@ -1793,9 +1792,9 @@ class ControllerPaymentMollieBase extends Controller {
 	
 	public function clear() {
 		if (version_compare(VERSION, '2.3', '>=')) {
-	      $this->load->language('extension/payment/mollie');
+	      $this->load->language('extension/payment/mollie_' . static::MODULE_NAME);
 	    } else {
-	      $this->load->language('payment/mollie');
+	      $this->load->language('payment/mollie_' . static::MODULE_NAME);
 	    }
 
 		$file = DIR_LOGS . 'Mollie.log';
@@ -1817,9 +1816,9 @@ class ControllerPaymentMollieBase extends Controller {
 
 	public function sendMessage() {
 		if (version_compare(VERSION, '2.3', '>=')) {
-	      $this->load->language('extension/payment/mollie');
+	      $this->load->language('extension/payment/mollie_' . static::MODULE_NAME);
 	    } else {
-	      $this->load->language('payment/mollie');
+	      $this->load->language('payment/mollie_' . static::MODULE_NAME);
 	    }
 
 		$json = array();
@@ -1899,9 +1898,9 @@ class ControllerPaymentMollieBase extends Controller {
 
 	public function save() {
 		if (version_compare(VERSION, '2.3', '>=')) {
-			$this->load->language('extension/payment/mollie');
+			$this->load->language('extension/payment/mollie_' . static::MODULE_NAME);
 		} else {
-			$this->load->language('payment/mollie');
+			$this->load->language('payment/mollie_' . static::MODULE_NAME);
 		}
 		$this->load->model('setting/setting');
 		$this->load->model('localisation/language');

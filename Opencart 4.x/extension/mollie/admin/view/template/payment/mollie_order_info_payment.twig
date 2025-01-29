@@ -46,10 +46,10 @@
                 <tfoot>
                     <tr>
                         <td class="text-end" colspan="3">
-                            {% if((payment_status not in ['expired', 'refunded', 'failed', 'canceled', 'open']) and (paymentMethod not in ['paysafecard', 'giftcard']) and showRefundButton) %}
+                            {% if((payment_status not in ['expired', 'refunded', 'failed', 'canceled', 'open']) and (paymentMethod not in ['giftcard']) and showRefundButton) %}
                             <a href="#" onclick="event.preventDefault()" id="button-refund" class="btn btn-primary">{{ button_refund }}</a>
                             {% endif %}
-                            {% if((payment_status not in ['expired', 'failed', 'canceled', 'open']) and (paymentMethod not in ['paysafecard', 'giftcard']) and showPartialRefundButton) %}
+                            {% if((payment_status not in ['expired', 'failed', 'canceled', 'open']) and (paymentMethod not in ['giftcard']) and showPartialRefundButton) %}
                             <a href="#" onclick="event.preventDefault()" data-bs-toggle="modal" data-bs-target="#refundModal" class="btn btn-warning">{{ button_partial_refund }}</a>
                             {% endif %}
                         </td>

@@ -57,11 +57,14 @@ $_['text_link']             = 'Para ver su pedido, haga clic en el siguiente enl
 $_['text_footer']           = 'Responda a este correo electrónico si tiene alguna pregunta.';
 $_['text_payment_link_full_title']	    = 'Enlace de pago de Mollie - Monto total';
 $_['text_payment_link_open_title']	    = 'Enlace de pago de Mollie - Cantidad abierta';
+$_['text_cancelled']                    = 'Se ha cancelado el pago recurrente';
+$_['text_subscription_cancel_confirm']  = '¿Quieres cancelar la suscripción?';
 
 // Button
 $_['button_retry']          = 'Intente pagar de nuevo';
 $_['button_report']         = 'Report Error';
 $_['button_submit']         = 'Enviar';
+$_['button_subscription_cancel'] = 'Cancelar suscripción';
 
 // Entry
 $_['entry_card_holder']     	= 'Card Holder Name';
@@ -72,6 +75,7 @@ $_['entry_verification_code']	= 'CVV';
 // Error
 $_['error_card']				= 'Por favor verifique los detalles de su tarjeta.';
 $_['error_missing_field']	    = 'Falta información requerida. Verifique si se proporcionan los detalles básicos de la dirección.';
+$_['error_not_cancelled']       = 'Error: %s';
 
 // Status page: payment failed (e.g. cancelled).
 $_['heading_failed']     = 'Su pago no se ha completado';
@@ -109,9 +113,7 @@ $_['method_mistercash']     = 'Bancontact';
 $_['method_banktransfer']   = 'Transferencia bancaria';
 $_['method_belfius']        = 'Belfius Direct Net';
 $_['method_kbc']            = 'KBC/CBC-Betaalknop';
-$_['method_sofort']         = 'SOFORT Banking';
 $_['method_paypal']         = 'PayPal';
-$_['method_paysafecard']    = 'paysafecard';
 $_['method_giftcard']       = 'Giftcard';
 $_['method_eps']            = 'EPS';
 $_['method_klarnapaylater'] = 'Klarna Pay Later';
@@ -120,7 +122,7 @@ $_['method_klarnasliceit']  = 'Klarna Slice It';
 $_['method_przelewy24']  	= 'P24';
 $_['method_applepay']    	= 'Apple Pay';
 $_['method_voucher']    	= 'Voucher';
-$_['method_in3']    	    = 'IN3';
+$_['method_in3']    	    = 'iDEAL in3';
 $_['method_mybank']         = 'MyBank';
 $_['method_billie']         = 'Billie';
 $_['method_klarna']         = 'Paga con Klarna';
@@ -131,6 +133,7 @@ $_['method_trustly']        = 'Trustly';
 $_['method_alma']           = 'Alma';
 $_['method_riverty']        = 'Riverty';
 $_['method_payconiq']       = 'Payconiq';
+$_['method_satispay']       = 'Satispay';
 
 //Round Off Description
 $_['roundoff_description']  = ' Diferencia de redondeo por conversión de moneda';

@@ -2,16 +2,22 @@
 
 namespace Mollie\Api\Resources;
 
-use Mollie\Api\MollieApiClient;
 use Mollie\Api\Types\RefundStatus;
 class Refund extends \Mollie\Api\Resources\BaseResource
 {
+    use HasPresetOptions;
     /**
      * Id of the payment method.
      *
      * @var string
      */
     public $id;
+    /**
+     * Mode of the refund, either "live" or "test".
+     *
+     * @var string
+     */
+    public $mode;
     /**
      * The $amount that was refunded.
      *
@@ -147,7 +153,6 @@ class Refund extends \Mollie\Api\Resources\BaseResource
      */
     public function cancel()
     {
-        $this->client->performHttpCallToFullUrl(\Mollie\Api\MollieApiClient::HTTP_DELETE, $this->_links->self->href);
-        return null;
+        return $this->client->paymentRefunds->cancelForId($this->paymentId, $this->id, $this->getPresetOptions());
     }
 }

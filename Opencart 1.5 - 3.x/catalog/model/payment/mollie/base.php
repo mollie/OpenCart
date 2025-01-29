@@ -486,6 +486,12 @@ class ModelPaymentMollieBase extends Model
 		return '';
 	}
 
+	public function getMollieCustomerById() {
+		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_customers` WHERE `customer_id` = '" . (int)$this->customer->getId() . "'");
+		
+		return $query->row;
+	}
+
 	public function deleteMollieCustomer($email) {
 		$this->db->query("DELETE FROM `" . DB_PREFIX . "mollie_customers` WHERE email = '" . $this->db->escape(utf8_strtolower($email)) . "'");
 	}
@@ -506,7 +512,7 @@ class ModelPaymentMollieBase extends Model
 		}
 
 		$recurring_amt = $this->currency->format($this->tax->calculate($item['recurring']['price'], $item['tax_class_id'], $this->config->get('config_tax')), $this->session->data['currency'], false, false) * $item['quantity'] . ' ' . $this->session->data['currency'];
-		$recurring_description = $trial_text . sprintf($this->language->get('text_recurring'), $recurring_amt, $item['recurring']['cycle'], $item['recurring']['frequency']);
+		$recurring_description = $trial_text . sprintf($this->language->get('text_subscription'), $recurring_amt, $item['recurring']['cycle'], $item['recurring']['frequency']);
 
 		if ($item['recurring']['duration'] > 0) {
 			$recurring_description .= sprintf($this->language->get('text_length'), $item['recurring']['duration']);
@@ -521,6 +527,9 @@ class ModelPaymentMollieBase extends Model
 		} else {
 			$order_recurring_id = $this->model_checkout_recurring->create($item, $this->session->data['order_id'], $recurring_description);
 		}
+
+		// Set recurring status to 'Active'
+		$this->db->query("UPDATE " . DB_PREFIX . "order_recurring SET status = '1' WHERE order_recurring_id = '" . (int)$order_recurring_id . "'");
 		
 		if (version_compare(VERSION, '3.0', '>=')) {
 			$this->model_checkout_recurring->editReference($order_recurring_id, $order_id_rand);
@@ -653,8 +662,49 @@ class ModelPaymentMollieBase extends Model
 		}
 	}
 
-	private function getProfile($order_recurring_id) {
-		$qry = $this->db->query("SELECT * FROM " . DB_PREFIX . "order_recurring WHERE order_recurring_id = " . (int)$order_recurring_id);
-		return $qry->row;
+	public function getProfile($order_recurring_id) {
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "order_recurring WHERE order_recurring_id = " . (int)$order_recurring_id);
+
+		return $query->row;
 	}
+
+	public function editOrderRecurringStatus($order_recurring_id, $status) {
+		$this->db->query("UPDATE `" . DB_PREFIX . "order_recurring` SET `status` = '" . (int)$status . "' WHERE `order_recurring_id` = '" . (int)$order_recurring_id . "'");
+	}
+
+	public function getSubscription($order_recurring_id) {
+		$order_recurring = $this->getProfile($order_recurring_id);
+
+		$subscription_id = str_replace($order_recurring['order_id'] . '-', '', $order_recurring['reference']);
+		$mollie_customer = $this->getMollieCustomerById();
+
+		if (!$mollie_customer) {
+			return false;
+		}
+
+		$api = $this->getAPIClient();
+
+		$customer = $api->customers->get($mollie_customer['mollie_customer_id']);
+
+		try {
+			$subscription = $customer->getSubscription($subscription_id);
+
+            return $subscription;
+
+		} catch (Mollie\Api\Exceptions\ApiException $e) {
+            return false;
+		}  
+	}
+
+	public function getLanguageData($keys = array()) {
+        $this->load->language("payment/mollie");
+
+        $data = array();
+
+        foreach ($keys as $key) {
+            $data[$key] = $this->language->get($key);
+        }
+
+        return $data;
+    }
 }

@@ -1301,7 +1301,7 @@ class ControllerPaymentMollieBase extends Controller
         }
 
         // Order paid ('processed').
-        if ($molliePayment->isPaid()) {
+        if ($molliePayment->isPaid() || $molliePayment->isAuthorized()) {
             $new_status_id = intval($this->config->get($moduleCode . "_ideal_processing_status_id"));
 
             if (!$new_status_id) {
@@ -1606,9 +1606,21 @@ class ControllerPaymentMollieBase extends Controller
         $model = $this->getModuleModel();
 
         $paid_status_id = intval($this->config->get($moduleCode . "_ideal_processing_status_id"));
+        $shipping_status_id = intval($this->config->get($moduleCode . "_ideal_shipping_status_id"));
         $pending_status_id = intval($this->config->get($moduleCode . "_ideal_pending_status_id"));
+        $failed_status_id = intval($this->config->get($moduleCode . "_ideal_failed_status_id"));
+
         $mollie_order_id = $model->getOrderID($order['order_id']);
         $mollie_payment_id = $model->getPaymentID($order['order_id']);
+
+        // Check if payment status is already updated (check for multiple callbacks)
+        if (($order["order_status_id"] == $paid_status_id) || ($order["order_status_id"] == $shipping_status_id)) {
+            $this->writeToMollieLog("Success redirect to success page for order - {$order['order_id']}, status already updated");
+
+            // Redirect to 'success' page.
+            $this->redirect($this->url->link("checkout/success"));
+            return '';
+        }
 
         if (!($mollie_order_id) && !($mollie_payment_id)) {
             $this->writeToMollieLog("Error getting mollie_order_id / mollie_payment_id for order " . $order['order_id']);
@@ -1674,7 +1686,7 @@ class ControllerPaymentMollieBase extends Controller
                                     "interval" => $interval,
                                     "mandateId" => $mandate->id,
                                     "startDate" => date_format($subscription_start->modify('+' . $cycle . ' ' . $frequency), 'Y-m-d'),
-                                    "description" => sprintf($this->language->get('text_recurring_desc'), $order['order_id'], $order['store_name'], date('Y-m-d H:i:s'), $interval, $product['name']),
+                                    "description" => sprintf($this->language->get('text_subscription_desc'), $order['order_id'], $order['store_name'], date('Y-m-d H:i:s'), $interval, $product['name']),
                                     "webhookUrl" => $this->getWebhookUrl() 
                                 );
 
@@ -1774,18 +1786,16 @@ class ControllerPaymentMollieBase extends Controller
 
                     $shipmentData['lines'] = $shipmentLine;
                     $mollieShipment = $orderDetails->createShipment($shipmentData);
-                    $shipped_status_id = intval($this->config->get($moduleCode . "_ideal_shipping_status_id"));
-                    $this->addOrderHistory($order, $shipped_status_id, $this->language->get("shipment_success"), true);
+                    $this->addOrderHistory($order, $$shipping_status_id, $this->language->get("shipment_success"), true);
                     $this->writeToMollieLog("Shipment created for order - {$order_id}, {$mollie_order_id}");
-                    $order['order_status_id'] = $shipped_status_id;
+                    $order['order_status_id'] = $$shipping_status_id;
                 } catch (Mollie\Api\Exceptions\ApiException $e) {
                     $this->writeToMollieLog("Shipment could not be created for order - {$order_id}, {$mollie_order_id}; " . htmlspecialchars($e->getMessage()));
                 }                
             }
         }
-        // Show a 'transaction failed' page if we couldn't find the order or if the payment failed.
-        $failed_status_id = $this->config->get($moduleCode . "_ideal_failed_status_id");
 
+        // Show a 'transaction failed' page if we couldn't find the order or if the payment failed.
         if (!$order || ($failed_status_id && $order['order_status_id'] == $failed_status_id)) {
             if ($failed_status_id && $order['order_status_id'] == $failed_status_id) {
                 $this->writeToMollieLog("Error payment failed for order - {$order['order_id']}, {$mollie_order_id}");
@@ -1800,7 +1810,7 @@ class ControllerPaymentMollieBase extends Controller
         }
 
         // If the order status is 'processing' (i.e. 'paid'), redirect to OpenCart's default 'success' page.
-        if ($order["order_status_id"] == $this->config->get($moduleCode . "_ideal_processing_status_id") || $order["order_status_id"] == $this->config->get($moduleCode . "_ideal_shipping_status_id")) {
+        if (($order["order_status_id"] == $paid_status_id) || ($order["order_status_id"] == $shipping_status_id)) {
             $this->writeToMollieLog("Success redirect to success page for order - {$order['order_id']}, {$mollie_order_id}");
 
             unset($this->session->data['mollie_issuer']);
@@ -1811,7 +1821,7 @@ class ControllerPaymentMollieBase extends Controller
         }
 
         // If the status is 'pending' (i.e. a bank transfer), the report is not delivered yet.
-        if ($order['order_status_id'] == $this->config->get($moduleCode . "_ideal_pending_status_id")) {
+        if ($order['order_status_id'] == $pending_status_id) {
             $this->writeToMollieLog("Unknown payment status for order - {$order['order_id']}, {$mollie_order_id}, {$mollie_payment_id}");
 
             if ($this->cart) {
@@ -2348,4 +2358,45 @@ class ControllerPaymentMollieBase extends Controller
         $this->response->addHeader('Content-Type: application/json');
 		$this->response->setOutput(json_encode($json));
     }
+
+    public function cancelSubscription() {
+		$this->load->language("payment/mollie");
+
+        $model = $this->getModuleModel();
+
+		$order_recurring_id = (int) $this->request->get['order_recurring_id'];
+
+		$order_recurring = $model->getProfile($order_recurring_id);
+
+		$subscription_id = str_replace($order_recurring['order_id'] . '-', '', $order_recurring['reference']);
+		$mollie_customer = $model->getMollieCustomerById();
+
+        if (!$mollie_customer) {
+			$this->response->redirect($this->url->link('account/recurring/info', 'order_recurring_id=' . $order_recurring_id, true));
+
+            return;
+		}
+
+		$api = $this->getAPIClient();
+
+		$customer = $api->customers->get($mollie_customer['mollie_customer_id']);
+
+		try {
+			$subscription = $customer->cancelSubscription($subscription_id);
+
+            $this->writeToMollieLog("Subscription cancelled: subscription_id - {$subscription->id}, order_id - {$order_recurring['order_id']}");
+
+			// Update recurring status
+			$status = 3; // Cancelled
+			$model->editOrderRecurringStatus($order_recurring_id, $status);
+
+			$this->session->data['success'] = $this->language->get('text_cancelled');
+			$this->response->redirect($this->url->link('account/recurring/info', 'order_recurring_id=' . $order_recurring_id, true));
+		} catch (Mollie\Api\Exceptions\ApiException $e) {
+            $this->writeToMollieLog("Error canceling subscription: " . htmlspecialchars($e->getMessage()));
+
+			$this->session->data['error'] = sprintf($this->language->get('error_not_cancelled'), htmlspecialchars($e->getMessage()));
+			$this->response->redirect($this->url->link('account/recurring/info', 'order_recurring_id=' . $order_recurring_id, true));
+		}  
+	}
 }

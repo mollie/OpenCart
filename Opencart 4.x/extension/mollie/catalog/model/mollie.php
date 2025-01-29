@@ -87,7 +87,7 @@ class Mollie extends \Opencart\System\Engine\Model {
 		} else {
 			try {
 				$payment_methods = $this->getAPIClient()->methods->allActive($data);
-			} catch (Mollie\Api\Exceptions\ApiException $e) {
+			} catch (\Mollie\Api\Exceptions\ApiException $e) {
 				$this->log->write("Error retrieving payment methods from Mollie: {$e->getMessage()}.");
 				return array();
 			}
@@ -224,7 +224,7 @@ class Mollie extends \Opencart\System\Engine\Model {
 
 		// Subscription
 		if ($this->cart->hasSubscription()) {
-			$subscription_methods = ["applepay", "bancontact", "belfius", "creditcard", "eps", "ideal", "kbc", "paypal", "sofort", "mybank"];
+			$subscription_methods = ["applepay", "bancontact", "belfius", "creditcard", "eps", "ideal", "kbc", "paypal", "mybank"];
 
 			if (!in_array(static::MODULE_NAME, $subscription_methods)) {
 				return [];
@@ -516,6 +516,12 @@ class Mollie extends \Opencart\System\Engine\Model {
 		return '';
 	}
 
+	public function getMollieCustomerById() {
+		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_customers` WHERE `customer_id` = '" . (int)$this->customer->getId() . "'");
+		
+		return $query->row;
+	}
+
 	public function deleteMollieCustomer($email) {
 		$this->db->query("DELETE FROM `" . DB_PREFIX . "mollie_customers` WHERE email = '" . $this->db->escape(utf8_strtolower($email)) . "'");
 	}
@@ -669,4 +675,32 @@ class Mollie extends \Opencart\System\Engine\Model {
 
         return $query->row['voucher_category'];
     }
+
+	public function getSubscription($order_id) {
+		$mollie_order = $this->getPayment($order_id);
+
+		if (!$mollie_order) {
+			return false;
+		}
+
+		$subscription_id = $mollie_order['mollie_subscription_id'];
+		$mollie_customer = $this->getMollieCustomerById();
+
+		if (!$mollie_customer) {
+			return false;
+		}
+
+		$api = $this->getAPIClient();
+
+		$customer = $api->customers->get($mollie_customer['mollie_customer_id']);
+
+		try {
+			$subscription = $customer->getSubscription($subscription_id);
+
+            return $subscription;
+
+		} catch (\Mollie\Api\Exceptions\ApiException $e) {
+            return false;
+		}  
+	}
 }

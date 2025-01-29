@@ -5,6 +5,7 @@ namespace Mollie\Api\Resources;
 use Mollie\Api\Exceptions\ApiException;
 class Customer extends \Mollie\Api\Resources\BaseResource
 {
+    use HasPresetOptions;
     /**
      * Id of the customer.
      *
@@ -101,7 +102,7 @@ class Customer extends \Mollie\Api\Resources\BaseResource
     /**
      * @param string $subscriptionId
      *
-     * @return null
+     * @return \Mollie\Api\Resources\Subscription
      * @throws ApiException
      */
     public function cancelSubscription($subscriptionId)
@@ -189,28 +190,5 @@ class Customer extends \Mollie\Api\Resources\BaseResource
             }
         }
         return \false;
-    }
-    /**
-     * When accessed by oAuth we want to pass the testmode by default
-     *
-     * @return array
-     */
-    private function getPresetOptions()
-    {
-        $options = [];
-        if ($this->client->usesOAuth()) {
-            $options["testmode"] = $this->mode === "test" ? \true : \false;
-        }
-        return $options;
-    }
-    /**
-     * Apply the preset options.
-     *
-     * @param array $options
-     * @return array
-     */
-    private function withPresetOptions(array $options)
-    {
-        return \array_merge($this->getPresetOptions(), $options);
     }
 }
