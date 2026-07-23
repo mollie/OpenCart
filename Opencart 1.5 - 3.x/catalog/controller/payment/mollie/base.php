@@ -787,8 +787,8 @@ class ControllerPaymentMollieBase extends Controller
                     'type'          =>  'discount',
                     'description'   =>  $this->formatText($this->language->get("roundoff_description")),
                     'quantity'      =>  1,
-                    'unitPrice'     =>  ["currency" => $currency, "value" => (string)-$amountDiff],
-                    'totalAmount'   =>  ["currency" => $currency, "value" => (string)-$amountDiff],
+                    'unitPrice'     =>  ["currency" => $currency, "value" => "-$amountDiff"],
+                    'totalAmount'   =>  ["currency" => $currency, "value" => "-$amountDiff"],
                     'vatRate'       =>  "0.00",
                     'vatAmount'     =>  ["currency" => $currency, "value" => (string)$this->numberFormat(0.00)]
                 );
