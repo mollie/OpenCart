@@ -82,7 +82,7 @@
 									{% for module_id, payment_method in store_data[store['store_id'] ~ '_' ~ code ~ '_payment_methods'] %}
 									<div class="row mb-3">
 										<div class="col-sm-3">
-											<img src="{{ payment_method['icon'] }}" width="25" style="float:left; margin-right:1em; margin-top:-3px"/>
+											<img src="{{ payment_method['icon'] }}" width="25" style="float:left; margin-right:1em;"/>
 											{{ payment_method['name'] }}
 											{% if((payment_method['name'] == 'Apple Pay') and store_data['creditCardEnabled'] == false) %}
 												<span data-bs-toggle="tooltip" title="{{ help_apple_pay }}" style="border: 1px solid; border-radius: 9px; background: #fff; color: #ffb100; text-transform: uppercase; margin-left: 5px; letter-spacing: .03em; line-height: 17px; padding: 0 6px; font-size: 10px;">{{ text_creditcard_required }}</span>
@@ -137,7 +137,7 @@
 													<input type="text" name="{{ store['store_id'] }}_{{ code }}_{{ module_id }}_description[{{ language['language_id'] }}][title]" value="{{ payment_method['description'][language['language_id']] is not null ? payment_method['description'][language['language_id']]['title'] : payment_method['name'] }}" class="form-control"/>
 													</div>
 													{% endfor %}
-													<input type="hidden" name="{{ store['store_id'] }}_{{ code }}_{{ module_id }}_name" value="{{ payment_method['name'] }}">				
+													<input type="hidden" name="{{ store['store_id'] }}_{{ code }}_{{ module_id }}_name" value="{{ payment_method['name'] }}">
 												</div>
 											</div>
 											<div class="row mb-3">
@@ -166,15 +166,15 @@
 															<input type="text" name="{{ store['store_id'] }}_{{ code }}_{{ module_id }}_total_maximum" value="{{ payment_method['total_maximum'] is not null ? payment_method['total_maximum'] : '' }}" placeholder="{{ entry_maximum }}" class="form-control"/>
 															<sub>{{ payment_method['maximumAmount'] is not null ? payment_method['maximumAmount'] : '' }}</sub>
 														</div>
-													</div>	
-													<div class="form-text">{{ help_total }}</div>																								
+													</div>
+													<div class="form-text">{{ help_total }}</div>
 												</div>
 											</div>
 											<div class="row mb-3">
 												<div class="col-sm-12">
 													<button type="button" onclick="save('{{ store['store_id'] }}', '{{ (payment_method['name']|replace({" " : "-", "/" : "-", "|" : "-"}))|lower }}');" id="save-setting-{{ (payment_method['name']|replace({" " : "-", "/" : "-", "|" : "-"}))|lower }}-{{ store['store_id'] }}" class="btn btn-secondary float-end"><i class="fa fa-save"></i>&nbsp;{{ button_save_close }}</button>
-												</div>												
-											</div>											
+												</div>
+											</div>
 										</div>
 									</div>
 									{% endfor %}
@@ -396,7 +396,7 @@
 										</div>
 									</fieldset>
 									<fieldset>
-										<legend>{{ text_general }}</legend>		
+										<legend>{{ text_general }}</legend>
 										<div class="row mb-3">
 											<label class="col-sm-2 col-form-label" for="input-show-icons">{{ entry_show_icons }}</label>
 											<div class="col-sm-10">
@@ -458,8 +458,8 @@
 													<div class="input-group-text"><img src="{{ language['image'] }}" title="{{ language['name'] }}" /></div>
 													<input type="text" name="{{ store['store_id'] }}_{{ code }}_description[{{ language['language_id'] }}][title]" value="{{ store[code ~ '_description'][language['language_id']] is not null ? store[code ~ '_description'][language['language_id']]['title'] : '' }}" class="form-control" placeholder="{{ entry_description }}"/>
 												</div>
-												{% endfor %}	
-												<div class="form-text">{{ help_description }}</div>												
+												{% endfor %}
+												<div class="form-text">{{ help_description }}</div>
 											</div>
 										</div>
 										<div class="row mb-3">
@@ -502,7 +502,7 @@
 										</div>
 										<div class="row mb-3">
 											<label class="col-sm-2 col-form-label" for="{{ store['store_id'] }}_{{ code }}_order_expiry_days">{{ entry_order_expiry_days }}</label>
-											<div class="col-sm-10">				
+											<div class="col-sm-10">
 												<input type="text" name="{{ store['store_id'] }}_{{ code }}_order_expiry_days" value="{{ store[code ~ '_order_expiry_days'] }}" placeholder="{{ entry_order_expiry_days }} [1-100]" id="{{ store['store_id'] }}_{{ code }}_order_expiry_days" class="form-control" store="{{ store['store_id'] }}" {{ store['store_id'] }}-data-payment-mollie-order-expiry-days/>
 											</div>
 										</div>
@@ -588,7 +588,7 @@
 													<div class="col-sm-6">
 														<textarea name="{{ store['store_id'] }}_{{ code }}_mollie_component_css_base[other_css]" id="{{ store['store_id'] }}-input-other-css-base" class="form-control" style="height: 100px">{{ store[code ~ '_mollie_component_css_base']['other_css'] }}</textarea>
 													</div>
-												</div>												
+												</div>
 											</div>
 											<div class="col-sm-4">
 												<div class="col-sm-12 text-center form-group"><h4>{{ entry_mollie_component_valid }}</h4></div>
@@ -644,7 +644,7 @@
 													</div>
 												</div>
 											</div>
-										</div>	
+										</div>
 									</fieldset>
 								</div>
 
@@ -688,7 +688,7 @@
 												<small>{{ text_pay_link_variables }}</small>
 												</div>
 											</div>
-										</fieldset>	
+										</fieldset>
 					                </div>
 					                {% endfor %}
 					              </div>
@@ -707,7 +707,7 @@
 											<label class="col-sm-2 col-form-label">Quality Works B.V.</label>
 											<div class="col-sm-10">Tel: +31(0)85 7430150<br>E-mail: <a href="mailto:support.mollie@qualityworks.eu">support.mollie@qualityworks.eu</a><br>Internet: <a href="https://www.qualityworks.eu" target="_blank">www.qualityworks.eu</a>
 											</div>
-										</div>										
+										</div>
 									</fieldset>
 									<fieldset>
 										<legend>{{ text_mollie_support }}</legend>
@@ -716,7 +716,7 @@
 											<div class="col-sm-10">
 												<p class="form-control-static"><a href="https://www.mollie.com/contact" target="_blank">{{ text_contact }}</a></p>
 											</div>
-										</div>									
+										</div>
 										<div class="row mb-3">
 											<label class="col-sm-2 col-form-label" for="{{ store['store_id'] }}-input-debug-mode">{{ entry_debug_mode }}</label>
 											<div class="col-sm-10">
@@ -762,7 +762,7 @@
 												<div class="col-sm-10">
 													<input type="text" name="subject" value="" placeholder="{{ entry_subject }}" class="form-control"/>
 												</div>
-											</div>											
+											</div>
 											<div class="row mb-3 required">
 												<label class="col-sm-2 col-form-label">{{ entry_enquiry }}</label>
 												<div class="col-sm-10">
@@ -920,7 +920,7 @@ function sendMessage(store_id = 0) {
 		var icon = '<i class="fa ' + className + colorClass + '"></i>';
 
 		$container.html(icon);
-		
+
 		var popover = new bootstrap.Popover($container, {container : 'body'});
 
 		popover.dispose();
@@ -966,7 +966,7 @@ function sendMessage(store_id = 0) {
 		} else {
 			hiddenDiv.style.display = "none";
 		}
-		
+
 		elem.onchange = function(){
 			var hiddenDiv = document.getElementById('{{ store["store_id"] }}-create-shipment-status');
 
@@ -985,7 +985,7 @@ function sendMessage(store_id = 0) {
 		} else {
 			hiddenDiv2.style.display = "none";
 		}
-		
+
 		elem2.onchange = function(){
 			var hiddenDiv2 = document.getElementById('{{ store["store_id"] }}-align-icons');
 
@@ -1004,7 +1004,7 @@ function sendMessage(store_id = 0) {
 		} else {
 			hiddenDiv3.style.display = "none";
 		}
-		
+
 		elem3.onchange = function(){
 			var hiddenDiv3 = document.getElementById('{{ store["store_id"] }}-mollie-component-css');
 
@@ -1014,7 +1014,7 @@ function sendMessage(store_id = 0) {
 				hiddenDiv3.style.display = "none";
 			}
 		};
-		
+
 		$('.settings').click(function(){
 			$('#tabs{{ store["store_id"] }} a:first').tab('show');
 		});
@@ -1048,14 +1048,14 @@ $(document).ready(function () {
 	});
 });
 
-function transform(store_id = 0) {	
+function transform(store_id = 0) {
 	var apiKey = $('[' + store_id + '-data-payment-mollie-api-key]').val();
 	if(apiKey != '') {
 		var input = $('[' + store_id + '-data-payment-mollie-api-key]');
 		if (input.attr("type") == "password") {
 			input.attr("type", "text");
 		} else {
-			input.attr("type", "password");				
+			input.attr("type", "password");
 		}
 		$('.toggleAPIKey' + store_id).children('i').toggleClass('fa-eye-slash');
 	}

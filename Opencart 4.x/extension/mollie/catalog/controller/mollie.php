@@ -53,14 +53,14 @@ use Mollie\Api\MollieApiClient;
 use Mollie\Api\Http\Requests\CreatePaymentCaptureRequest;
 
 class Mollie extends \Opencart\System\Engine\Controller {
-    
+
     // List of accepted languages by Mollie
     private array $locales = [
         'en_US', 'nl_NL', 'nl_BE', 'fr_FR', 'fr_BE', 'de_DE', 'de_AT',
         'de_CH', 'es_ES', 'ca_ES', 'pt_PT', 'it_IT', 'nb_NO', 'sv_SE',
         'fi_FI', 'da_DK', 'is_IS', 'hu_HU', 'pl_PL', 'lv_LV', 'lt_LT'
     ];
-    
+
     public $mollieHelper;
 
     public function __construct($registry) {
@@ -202,7 +202,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
     public function numberFormat(float|string $amount): string {
         $currency = $this->getCurrency();
         $intCurrencies = ["ISK", "JPY"];
-        
+
         if (!in_array($currency, $intCurrencies)) {
             return number_format((float)$amount, 2, '.', '');
         }
@@ -249,34 +249,35 @@ class Mollie extends \Opencart\System\Engine\Controller {
 
         try {
             if ($method == 'ideal') {
-                $payment_method = $this->getAPIClient()->methods->get($method);
+                $payment_method = $this->getAPIClient()->methods->get($method, ['currency' => $this->getCurrency()]);
             } else {
-                $payment_method = $this->getAPIClient()->methods->get($method, ['include' => 'issuers']);
+                $payment_method = $this->getAPIClient()->methods->get($method, ['currency' => $this->getCurrency(), 'include' => 'issuers']);
             }
         } catch (\Exception $e) {
             $this->writeToMollieLog("Error getting payment method " . $method . ": " . $e->getMessage());
+
             return '';
         }
 
         $data['action'] = $this->url->link("extension/mollie/payment/mollie_" . static::MODULE_NAME . $this->getMethodSeparator() . "payment", '', true);
-        
+
         $data['image']                   = $payment_method->image->size1x ?? '';
         $data['message']                 = $this->language;
         $data['issuers']                 = $payment_method->issuers ?? [];
-        
+
         if (!empty($data['issuers'])) {
             $data['text_issuer']         = $this->language->get("text_issuer_" . $method);
             $data['set_issuer_url']      = $this->url->link("extension/mollie/payment/mollie_" . static::MODULE_NAME . $this->getMethodSeparator() . "set_issuer", '', true);
         }
-        
+
         $data['text_mollie_payments']    = sprintf($this->language->get('text_mollie_payments'), '<a href="https://www.mollie.com/" target="_blank"><img src="./image/mollie/mollie_logo.png" alt="Mollie" border="0"></a>');
 
         // Mollie components
         $data['mollieComponents'] = false;
-        
+
         if ($method == 'creditcard') {
             if ($this->config->get($this->mollieHelper->getModuleCode() . "_mollie_component") && !$this->config->get($this->mollieHelper->getModuleCode() . "_single_click_payment")) {
-                
+
                 try {
                     $data['currentProfile'] = $this->getAPIClient()->profiles->getCurrent()->id;
                 } catch (\Exception $e) {
@@ -285,7 +286,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
                 }
 
                 $language_code = (string)($this->session->data['language'] ?? $this->config->get('config_language'));
-                
+
                 $locale = 'en_US';
                 if (str_contains($language_code, '-')) {
                     list ($lang, $country) = explode('-', $language_code);
@@ -307,13 +308,13 @@ class Mollie extends \Opencart\System\Engine\Controller {
                 if (in_array(strtolower($locale), ['en_gb', 'en_en'])) {
                     $locale = 'en_US';
                 }
-                
+
                 $data['locale']            = $locale;
                 $data['mollieComponents']  = true;
                 $data['base_input_css']    = $this->config->get($this->mollieHelper->getModuleCode() . "_mollie_component_css_base");
                 $data['valid_input_css']   = $this->config->get($this->mollieHelper->getModuleCode() . "_mollie_component_css_valid");
                 $data['invalid_input_css'] = $this->config->get($this->mollieHelper->getModuleCode() . "_mollie_component_css_invalid");
-                
+
                 $apiKey = (string)$this->config->get($this->mollieHelper->getModuleCode() . "_api_key");
                 $data['testMode'] = str_starts_with($apiKey, 'test_');
             }
@@ -384,7 +385,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
                 }
             }
         }
-        
+
         if (isset($this->session->data['shipping_address'])) {
             if (empty($order['shipping_firstname'])) {
                 $valid = false;
@@ -422,7 +423,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
             $this->writeToMollieLog("Creating payment failed, connection is not secure.");
             return;
         }
-        
+
         try {
             $api = $this->getAPIClient();
         } catch (\Mollie\Api\Exceptions\ApiException $e) {
@@ -445,7 +446,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
 
         $config_desc = $this->config->get($this->mollieHelper->getModuleCode() . "_description");
         $lang_id = (int)$this->config->get('config_language_id');
-        
+
         if (isset($config_desc[$lang_id]['title'])) {
             $description = $config_desc[$lang_id]['title'];
         } else {
@@ -463,7 +464,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
         } else {
             $method = str_replace('mollie_', '', $this->session->data['payment_method'] ?? '');
         }
-        
+
         $method = str_replace('_', '', $method);
 
         // Check for subscription profiles
@@ -754,7 +755,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
                 //Get reward point data
                 $rewardPoints = $this->getRewardPointDetails($order['order_id']);
 
-                foreach ($this->cart->getProducts() as $product) {    
+                foreach ($this->cart->getProducts() as $product) {
                     if ($product['points']) {
                         if ($product['tax_class_id']) {
                             $taxClass = $product['tax_class_id'];
@@ -773,16 +774,16 @@ class Mollie extends \Opencart\System\Engine\Controller {
                 $unitPriceWithTax = $this->tax->calculate($rewardPoints['value'], $taxClass, true);
                 $unitPriceWithTax = $this->numberFormat($this->convertCurrency($unitPriceWithTax));
 
-                $rewardVATAmount = $unitPriceWithTax * ( $vatRate / (100 +  $vatRate));
+                $rewardVATAmount = $this->numberFormat($unitPriceWithTax * ( $vatRate / (100 +  $vatRate)));
 
                 $lineForRewardPoints[] = array(
                     'type'          =>  'discount',
                     'description'   =>  $this->formatText($rewardPoints['title']),
                     'quantity'      =>  1,
-                    'unitPrice'     =>  ["currency" => $currency, "value" => (string)-$unitPriceWithTax],
-                    'totalAmount'   =>  ["currency" => $currency, "value" => (string)-$unitPriceWithTax],
+                    'unitPrice'     =>  ["currency" => $currency, "value" => "-$unitPriceWithTax"],
+                    'totalAmount'   =>  ["currency" => $currency, "value" => "-$unitPriceWithTax"],
                     'vatRate'       =>  (string)$this->numberFormat($vatRate),
-                    'vatAmount'     =>  ["currency" => $currency, "value" => (string)$this->numberFormat(-$rewardVATAmount)]
+                    'vatAmount'     =>  ["currency" => $currency, "value" => "-$rewardVATAmount"]
                 );
 
                 $lines = array_merge($lines, $lineForRewardPoints);
@@ -845,7 +846,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
 
                 $lines = array_merge($lines, $otherTotals);
             }
-            
+
             //Check for rounding off issue in a general way (for all possible totals)
             $orderTotal = $this->numberFormat($amount);
             $orderLineTotal = 0;
@@ -853,17 +854,17 @@ class Mollie extends \Opencart\System\Engine\Controller {
             foreach($lines as $line) {
                 $orderLineTotal += $line['totalAmount']['value'];
             }
-            
+
             $orderLineTotal = $this->numberFormat($orderLineTotal);
-            
+
             if($orderTotal < $orderLineTotal) {
                 $amountDiff = $this->numberFormat($orderLineTotal - $orderTotal);
                 $lineForDiscount[] = array(
                     'type'          =>  'discount',
                     'description'   =>  $this->formatText($this->language->get("roundoff_description")),
                     'quantity'      =>  1,
-                    'unitPrice'     =>  ["currency" => $currency, "value" => (string)-$amountDiff],
-                    'totalAmount'   =>  ["currency" => $currency, "value" => (string)-$amountDiff],
+                    'unitPrice'     =>  ["currency" => $currency, "value" => "-$amountDiff"],
+                    'totalAmount'   =>  ["currency" => $currency, "value" => "-$amountDiff"],
                     'vatRate'       =>  "0.00",
                     'vatAmount'     =>  ["currency" => $currency, "value" => (string)$this->numberFormat(0.00)]
                 );
@@ -913,7 +914,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
                     "country"               => (string)$this->formatText($order['payment_iso_code_2'] ?? '')
                 ];
             }
-            
+
             if (isset($this->session->data['shipping_address'])) {
                 if (!empty($order['shipping_firstname']) || !empty($order['shipping_lastname'])) {
                     $data["shippingAddress"] = [
@@ -967,7 +968,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
             }
 
             $data["locale"] = $locale;
-			
+
 			// Debug mode
             if ($this->config->get($this->mollieHelper->getModuleCode() . "_debug_mode")) {
                 $this->writeToMollieDebugLog("===== DEBUG: DATA SENT TO MOLLIE (PAYMENT API) =====");
@@ -989,12 +990,12 @@ class Mollie extends \Opencart\System\Engine\Controller {
             $this->addOrderHistory($order, $this->config->get($this->mollieHelper->getModuleCode() . "_ideal_pending_status_id"), $this->language->get("text_redirected"), false);
         }
 
-        if ($model->setPaymentForPaymentAPI($order['order_id'], $paymentObject->id, $paymentObject->method)) {
-            $this->writeToMollieLog("Payments API: Payment created : order_id - " . $order['order_id'] . ', ' . "mollie_payment_id - " . $paymentObject->id);
+        if($model->setPaymentForPaymentAPI($order['order_id'], $paymentObject->id, $paymentObject->method)) {
+            $this->writeToMollieLog("Payments API: Payment created : method - " . $method . ', ' . "order_id - " . $order['order_id'] . ', ' . "mollie_payment_id - " . $paymentObject->id);
         } else {
-            $this->writeToMollieLog("Payments API: Payment created for order_id - " . $order['order_id'] . " but mollie_payment_id - " . $paymentObject->id . " not saved in the database. Should be updated when webhook called.");
+            $this->writeToMollieLog("Payments API: Payment created : method - " . $method . ', ' . "order_id - " . $order['order_id'] . ', ' . "mollie_payment_id - " . $paymentObject->id . ". Payment ID is not saved in the database. Should be updated when webhook called.");
         }
-		
+
 		$this->setSameSiteCookie();
         $this->redirect($paymentObject->_links->checkout->href, 303);
     }
@@ -1075,7 +1076,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
         // Load essentials
         $this->load->model("checkout/order");
         $this->load->language("extension/mollie/payment/mollie");
-        
+
         $model = $this->getModuleModel();
         $moduleCode = $this->mollieHelper->getModuleCode();
         $molliePayment = $this->getAPIClient()->payments->get($payment_id, ["embed" => "refunds"]);
@@ -1122,10 +1123,12 @@ class Mollie extends \Opencart\System\Engine\Controller {
                 $model->addSubscriptionPayment($data);
                 $this->writeToMollieLog("Webhook for payment: Subscription: mollie_subscription_id - {$molliePayment->subscriptionId}, transaction_id - {$payment_id}, status - {$data['status']}, mollie_customer_id - $molliePayment->customerId");
             }
-            return true;      
+            return true;
         }
 
         if (!empty($order)) {
+            $order_id = $order['order_id'];
+
             // Set transaction ID
             $data = [
                 'payment_id' => $payment_id,
@@ -1133,8 +1136,8 @@ class Mollie extends \Opencart\System\Engine\Controller {
                 'amount'     => (float)$molliePayment->amount->value
             ];
 
-            $model->updatePaymentForPaymentAPI($order['order_id'], $payment_id, $data);
-            $this->writeToMollieLog("Webhook for payment: transaction_id - {$payment_id}, status - {$data['status']}, order_id - {$order['order_id']}");
+            $model->updatePaymentForPaymentAPI($order_id, $payment_id, $data);
+            $this->writeToMollieLog("Webhook for payment: transaction_id - {$payment_id}, status - {$data['status']}, order_id - {$order_id}");
 
             if ((int)$order['order_status_id'] != 0) {
                 // Check for refund safely! (PHP 8.1 strict mode fix for the bug you reported)
@@ -1157,27 +1160,27 @@ class Mollie extends \Opencart\System\Engine\Controller {
                         'amount'     => (float)$molliePayment->amount->value
                     ];
 
-                    $model->updatePaymentForPaymentAPI($order['order_id'], $payment_id, $data);
-                    $this->writeToMollieLog("Webhook for payment: Updated mollie payment. transaction_id - {$payment_id}, status - {$data['status']}, order_id - {$order['order_id']}");
+                    $model->updatePaymentForPaymentAPI($order_id, $payment_id, $data);
+                    $this->writeToMollieLog("Webhook for payment: Updated mollie payment. transaction_id - {$payment_id}, status - {$data['status']}, order_id - {$order_id}");
 
-                    $this->writeToMollieLog("Webhook for payment: Order status has been updated to 'Refunded' for order - {$order['order_id']}, {$payment_id}");
+                    $this->writeToMollieLog("Webhook for payment: Order status has been updated to 'Refunded' for order - {$order_id}, {$payment_id}");
                 } elseif ($refund_cancel && !empty($order['order_status_id']) && $order['order_status_id'] == $this->config->get($moduleCode . "_ideal_refund_status_id")) {
                     $data['refund_id'] = '';
 
-                    $model->cancelReturn($order['order_id'], $data);
+                    $model->cancelReturn($order_id, $data);
 
                     $notify_customer = ($this->config->get($moduleCode . "_ideal_processing_status_notify")) ? true : false;
 
                     $this->addOrderHistory($order, $paid_status_id, $this->language->get("refund_cancelled"), $notify_customer);
 
-                    $this->writeToMollieLog("Webhook for payment: Refund has been cancelled for order - {$order['order_id']}, {$payment_id}");
-                    $this->writeToMollieLog("Webhook for payment: Order status has been updated to 'Processing' for order - {$order['order_id']}, {$payment_id}, {$payment_id}");
+                    $this->writeToMollieLog("Webhook for payment: Refund has been cancelled for order - {$order_id}, {$payment_id}");
+                    $this->writeToMollieLog("Webhook for payment: Order status has been updated to 'Processing' for order - {$order_id}, {$payment_id}, {$payment_id}");
                 }
             }
 
             // Only process the status if the order is stateless or in 'pending' status.
             if (!empty($order['order_status_id']) && $order['order_status_id'] != $pending_status_id) {
-                $this->writeToMollieLog("Webhook for payment : The order {$order['order_id']}, {$payment_id} was already processed (order status ID: " . (int)$order['order_status_id'] . ")");
+                $this->writeToMollieLog("Webhook for payment : The order {$order_id}, {$payment_id} was already processed (order status ID: " . (int)$order['order_status_id'] . ")");
                 return true;
             }
 
@@ -1185,7 +1188,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
             $status = '';
             $response = '';
             $notify_customer = false;
-            
+
             if ($molliePayment->isPaid() || $molliePayment->isAuthorized()) {
                 $new_status_id = $paid_status_id;
                 $status = 'paid/authorized';
@@ -1206,17 +1209,45 @@ class Mollie extends \Opencart\System\Engine\Controller {
                 $status = 'failed';
                 $response = $this->language->get("response_unknown");
                 $notify_customer = ($this->config->get($moduleCode . "_ideal_failed_status_notify")) ? true : false;
-            }   
+            }
 
             if (!$new_status_id) {
-                $this->writeToMollieLog("Webhook for payment: Payment status: {$status}, No '{$status}' status ID is configured, so the order status for order {$order['order_id']} could not be updated.");
+                $this->writeToMollieLog("Webhook for payment: Payment status: {$status}, No '{$status}' status ID is configured, so the order status for order {$order_id} could not be updated.");
             } else {
-                $this->writeToMollieLog("Webhook for payment: Payment status: {$status}. The order {$order['order_id']} has been moved to the '{$status}' status (new status ID: {$new_status_id}).");
+                $this->writeToMollieLog("Webhook for payment: Payment status: {$status}. The order {$order_id} has been moved to the '{$status}' status (new status ID: {$new_status_id}).");
                 $this->addOrderHistory($order, $new_status_id, $response, $notify_customer);
+            }
+
+            /* Check module module setting for capture creation,
+            $this->config->get($moduleCode . "_create_shipment")) == 1,
+            satisfies the 'Create capture immediately after order creation' condition. */
+            $orderStatuses = $model->getOrderStatuses($order_id);
+            if($molliePayment->isAuthorized() && ($this->config->get($moduleCode . "_create_shipment") == 1) && !in_array($shipping_status_id, $orderStatuses) && ($order['total'] > 0)) {
+                try {
+                    $captureObject = $this->getAPIClient()->send(
+                        new CreatePaymentCaptureRequest(
+                            paymentId: $payment_id,
+                            description: "Capture for order - $order_id",
+                            metadata: [
+                                "order_id" => $order_id,
+                                "transaction_id" => $payment_id
+                            ]
+                        )
+                    );
+
+                    $this->writeToMollieLog("Capture created for order - {$order_id}, {$payment_id}, {$captureObject->id}");
+
+                    $notify_customer = ($this->config->get($moduleCode . "_ideal_shipping_status_notify")) ? true : false;
+
+                    $this->addOrderHistory($order, $shipping_status_id, $this->language->get("capture_success"), $notify_customer);
+                } catch (\Mollie\Api\Exceptions\ApiException $e) {
+                    $this->writeToMollieLog("Webhook for payment: Capture could not be created for order - {$order_id}, {$payment_id}; " . htmlspecialchars($e->getMessage()));
+                }
             }
         }
 
         $this->writeToMollieLog("------------- End webhook for payment -------------");
+
         return true;
     }
 
@@ -1284,16 +1315,16 @@ class Mollie extends \Opencart\System\Engine\Controller {
         $order = $orderModel->getOrder($order_id);
         $mollie_payment_id = $mollieModel->getPaymentID($order_id);
 
-        if (!empty($order) && !empty($mollie_payment_id)) {
+        if (!empty($order) && !empty($mollie_payment_id) && ($order['total'] > 0)) {
             try {
                 $molliePayment = $this->getAPIClient()->payments->get($mollie_payment_id);
 
-                // 4. Check if order is paid/authorized and shipment creation is enabled (setting != 1 which means 'Off')
-                if (($molliePayment->isAuthorized() || $molliePayment->isPaid()) && ($this->config->get($moduleCode . "_create_shipment") != 1)) {
-                
-                    // Determine target status for shipment
+                // 4. Check if order is authorized and capture creation is enabled (setting != 1 which means 'Off')
+                if ($molliePayment->isAuthorized() && ($this->config->get($moduleCode . "_create_shipment") != 1)) {
+
+                    // Determine target status for capture
                     $target_statuses = [];
-                
+
                     // Setting = 2 means specific status, otherwise use complete statuses
                     if ($this->config->get($moduleCode . "_create_shipment") == 2) {
                         $target_statuses[] = (int)$this->config->get($moduleCode . "_create_shipment_status_id");
@@ -1304,7 +1335,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
                         }
                     }
 
-                    // 5. Create shipment if status matches
+                    // 5. Create capture if status matches
                     if (in_array($order_status_id, $target_statuses)) {
                         $captureObject = $this->getAPIClient()->send(
                             new CreatePaymentCaptureRequest(
@@ -1343,15 +1374,15 @@ class Mollie extends \Opencart\System\Engine\Controller {
         $model = $this->getModuleModel();
 
         $mollie_payment_id = $model->getPaymentID($order['order_id']);
-        $mollie_customer_id = $model->getMollieCustomer($order['email']);  
-          
+        $mollie_customer_id = $model->getMollieCustomer($order['email']);
+
         if (!empty($mollie_customer_id) && $paymentDetails->isPaid()) {
             if (isset($paymentDetails->mandateId)) {
                 $mandate_id = $paymentDetails->mandateId;
 
                 $api = $this->getAPIClient();
                 $customer = $api->customers->get($mollie_customer_id);
-            
+
                 // Fetch mandates to verify valid mandate exists
                 $mandates = $customer->mandates();
 
@@ -1364,10 +1395,10 @@ class Mollie extends \Opencart\System\Engine\Controller {
                             $order_subscription_info = $this->model_checkout_order->getSubscription($order['order_id'], $product['order_product_id']);
 
                             if ($order_subscription_info) {
-                                $unit_price = (float)$order_subscription_info['price'] + (float)$order_subscription_info['tax'];                        
+                                $unit_price = (float)$order_subscription_info['price'] + (float)$order_subscription_info['tax'];
                                 $total = $this->numberFormat((float)$this->convertCurrency($unit_price));
                                 $duration = (int)$order_subscription_info['duration'];
-                                $cycle = (int)$order_subscription_info['cycle'];    
+                                $cycle = (int)$order_subscription_info['cycle'];
 
                                 // Map OpenCart frequency to Mollie interval
                                 switch ($order_subscription_info['frequency']) {
@@ -1384,15 +1415,15 @@ class Mollie extends \Opencart\System\Engine\Controller {
                                     case 'year':
                                         $frequency = 'month';
                                         $cycle = $cycle * 12;
-                                        break;                                    
+                                        break;
                                     default:
                                         $frequency = 'month';
                                         break;
-                                }       
+                                }
 
                                 $interval = ($cycle > 1) ? $cycle . ' ' .  $frequency . 's' : $cycle . ' ' .  $frequency;
                                 $subscription_start = new \DateTime('now');
-                            
+
                                 // Prepare subscription data
                                 $subscriptionData = [
                                     "amount"      => ["currency" => $this->getCurrency(), "value" => (string)$this->numberFormat($total)],
@@ -1401,7 +1432,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
                                     "mandateId"   => $mandate->id,
                                     "startDate"   => $subscription_start->modify('+' . $cycle . ' ' . $frequency)->format('Y-m-d'),
                                     "description" => sprintf($this->language->get('text_subscription_desc'), $order['order_id'], $order['store_name'], date('Y-m-d H:i:s'), $interval, $product['name']),
-                                    "webhookUrl"  => $this->getWebhookUrl() 
+                                    "webhookUrl"  => $this->getWebhookUrl()
                                 ];
 
                                 if ($duration <= 0) {
@@ -1417,11 +1448,11 @@ class Mollie extends \Opencart\System\Engine\Controller {
                                     $model->subscriptionPayment($order_subscription_info, $subscription->id, $mollie_payment_id);
                                 } catch (\Mollie\Api\Exceptions\ApiException $e) {
                                     $this->writeToMollieLog("Creating subscription failed for order_id - " . $order['order_id'] . ' ; ' . htmlspecialchars($e->getMessage()));
-                                }      
-                            }                    
+                                }
+                            }
                         }
                         break;
-                    }                
+                    }
                 }
             }
         }
@@ -1438,7 +1469,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
     public function callback(): mixed {
         $order_id = $this->getOrderID();
         $moduleCode = $this->mollieHelper->getModuleCode();
-		 
+
 		 // Debug mode
         if ($this->config->get($moduleCode . "_debug_mode")) {
             $this->writeToMollieDebugLog("===== DEBUG: RETURNED FROM MOLLIE (CALLBACK) =====");
@@ -1511,14 +1542,14 @@ class Mollie extends \Opencart\System\Engine\Controller {
         if ($success_redirect) {
             $this->writeToMollieLog("Callback: Success redirect to success page for order - {$order['order_id']}, {$mollie_payment_id}");
             unset($this->session->data['mollie_issuer']);
-            
+
             $this->setSameSiteCookie();
             $this->redirect($this->url->link('checkout/success', $args, true));
             return true;
         } else {
             if (!(bool)$this->config->get($moduleCode . "_show_order_canceled_page")) {
                 $this->writeToMollieLog("Callback: Payment failed redirect to checkout page for order - {$order['order_id']}, {$mollie_payment_id}");
-                
+
                 $this->setSameSiteCookie();
                 $this->redirect($this->url->link('checkout/checkout', $args, true));
                 return true;
@@ -1652,7 +1683,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
     protected function redirect(string $url, int $status = 302): void {
         $this->response->redirect($url, $status);
     }
-	
+
 	private function setSameSiteCookie(): void {
         $session_id = $this->session->getId();
         $session_name = $this->config->get('session_name') ?? session_name() ?? 'OCSESSID';
@@ -1672,7 +1703,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
     private function createCustomer(array $data): string {
         $model = $this->getModuleModel();
         $api = $this->getAPIClient();
-        
+
         // Check if customer already exists
         $mollie_customer_id = $model->getMollieCustomer($data['email']);
         if (!empty($mollie_customer_id)) {
@@ -1703,8 +1734,8 @@ class Mollie extends \Opencart\System\Engine\Controller {
             $mollie_customer_id = (string)$customer->id;
         } else {
             $mollie_customer_id = '';
-        }        
-        
+        }
+
         $this->writeToMollieLog("Customer created: mollie_customer_id - {$mollie_customer_id}, customer_id - {$data['customer_id']}");
 
         return $mollie_customer_id;
@@ -1712,9 +1743,9 @@ class Mollie extends \Opencart\System\Engine\Controller {
 
     public function setApplePaySession(): void {
         $apple_pay = (int)($this->request->post['apple_pay'] ?? 0);
-    
+
         $this->session->data['applePay'] = $apple_pay;
-        sleep(1); 
+        sleep(1);
 
         $this->response->addHeader('Content-Type: application/json');
         $this->response->setOutput(json_encode(['success' => true]));
@@ -1741,7 +1772,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
                     $mail->smtp_password = html_entity_decode((string)$this->config->get('config_mail_smtp_password'), ENT_QUOTES, 'UTF-8');
                     $mail->smtp_port = $this->config->get('config_mail_smtp_port');
                     $mail->smtp_timeout = $this->config->get('config_mail_smtp_timeout');
-        
+
                     $mail->setTo('support.mollie@qualityworks.eu');
                     $mail->setFrom($email);
                     $mail->setSender($name);
@@ -1756,7 +1787,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
                         'smtp_port'     => $this->config->get('config_mail_smtp_port'),
                         'smtp_timeout'  => $this->config->get('config_mail_smtp_timeout')
                     ];
-        
+
                     $mail = new \Opencart\System\Library\Mail($this->config->get('config_mail_engine'), $mail_option);
                     $mail->setTo('support.mollie@qualityworks.eu');
                     $mail->setFrom($email);
@@ -1808,10 +1839,10 @@ class Mollie extends \Opencart\System\Engine\Controller {
 
                 if ($molliePaymentLink->isPaid()) {
                     $payment_success = true;
-                    
+
                     if (empty($paymentLink['date_payment'])) {
                         $date_payment = date("Y-m-d H:i:s", strtotime($molliePaymentLink->paidAt));
-                    
+
                         $this->model_extension_mollie_payment_mollie_payment_link->updatePaymentLink($payment_link_id, $date_payment);
 
                         $new_status_id = (int)$this->config->get($moduleCode . "_ideal_processing_status_id");
@@ -1826,7 +1857,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
                         $notify_customer = ($this->config->get($moduleCode . "_ideal_processing_status_notify")) ? true : false;
 
                         $this->addOrderHistory($order, $new_status_id, $this->language->get("response_success"), $notify_customer);
-                        
+
                         $this->writeToMollieLog("Callback for payment link : The payment was received and the order {$paymentLink['order_id']} was moved to the 'processing' status (new status ID: {$new_status_id}).");
                     }
                 }
@@ -1841,7 +1872,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
             $text = $this->language->get("text_payment_failed");
         }
 
-        return $this->showReturnPage($title, $text, null, false, false);        
+        return $this->showReturnPage($title, $text, null, false, false);
     }
 
     // Credit Order
@@ -1933,7 +1964,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
             $order_total = $order_sub_total + $order_tax;
             $creditData['total'] = -$order_total;
             $creditData['totals'] = [];
-            
+
             $order_totals = $this->model_checkout_order->getTotals($order_id);
             foreach ($order_totals as $_order_total) {
                 if ($_order_total['code'] == 'sub_total') {
@@ -2013,12 +2044,12 @@ class Mollie extends \Opencart\System\Engine\Controller {
             $this->writeToMollieLog("Error canceling subscription: " . htmlspecialchars($e->getMessage()));
             $this->session->data['error'] = sprintf($this->language->get('error_not_cancelled'), htmlspecialchars($e->getMessage()));
             $this->redirect($this->url->link('account/subscription.info', 'language=' . $this->config->get('config_language') . '&customer_token=' . ($this->session->data['customer_token'] ?? '') . '&subscription_id=' . $subscription_id));
-        }  
+        }
     }
 
     public function checkoutController(string &$route, array &$args): void {
         $script_path = 'extension/mollie/catalog/view/javascript/mollie.js';
-        
+
         if (is_file(DIR_OPENCART . $script_path)) {
             $this->document->addScript($script_path);
         }
@@ -2031,7 +2062,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
             $this->session->data['admin_login'] = true;
         }
     }
-    
+
     public function checkoutPaymentMethodController(string &$route, array &$data, mixed &$template_code): void {
         if (empty($data['code']) || !is_string($data['code'])) {
             return;
@@ -2060,7 +2091,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
         }
     }
 
-    public function mailOrderController(string &$route, array &$data, mixed &$template_code): void {        
+    public function mailOrderController(string &$route, array &$data, mixed &$template_code): void {
         $data['payment_link_order_email'] = false;
         $order_id = (int)($data['order_id'] ?? 0);
 
@@ -2093,9 +2124,9 @@ class Mollie extends \Opencart\System\Engine\Controller {
 
         $moduleCode = isset($this->mollieHelper) ? $this->mollieHelper->getModuleCode() : 'payment_mollie_ideal';
         $setting_key = $moduleCode . '_payment_link';
-        
+
         $is_combined = (bool)$this->config->get($setting_key);
-        
+
         if ($is_combined && !empty($result['payment_link'])) {
             $data['payment_link_order_email'] = true;
             $data['payment_link'] = $result['payment_link'];
@@ -2127,7 +2158,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
         if (!str_starts_with($current_route, 'api/')) {
             return;
         }
-        
+
         $mollie_active = false;
         foreach ($output as $key => $value) {
             if (str_contains((string)$key, 'mollie')) {
@@ -2145,7 +2176,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
 
         $order_id = (int)($this->session->data['order_id'] ?? 0);
         $payment_link_details = [];
-        
+
         if ($order_id > 0) {
             $payment_link_details = $this->model_extension_mollie_payment_mollie_payment_link->getPaymentLinkByOrderID($order_id);
         }
@@ -2212,7 +2243,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
 
         $this->processStockMutation($order_id, $data['products']);
     }
-    
+
     private function processStockMutation(int $order_id, array $products): void {
         foreach ($products as $product) {
             if (!isset($product['stock_mutation'])) {
@@ -2220,14 +2251,14 @@ class Mollie extends \Opencart\System\Engine\Controller {
             }
 
             $stock_mutation = (int)$product['stock_mutation'];
-            
+
             if (!empty($product['option']) && is_array($product['option'])) {
                 $first_option = reset($product['option']);
 
                 if (isset($first_option['product_option_value_id'], $first_option['value'])) {
-                    $sql = "SELECT order_product_id FROM `" . DB_PREFIX . "order_option` 
-                            WHERE `order_id` = '" . (int)$order_id . "' 
-                            AND `product_option_value_id` = '" . (int)$first_option['product_option_value_id'] . "' 
+                    $sql = "SELECT order_product_id FROM `" . DB_PREFIX . "order_option`
+                            WHERE `order_id` = '" . (int)$order_id . "'
+                            AND `product_option_value_id` = '" . (int)$first_option['product_option_value_id'] . "'
                             AND `value` = '" . $this->db->escape((string)$first_option['value']) . "'
                             LIMIT 1";
 
@@ -2235,15 +2266,15 @@ class Mollie extends \Opencart\System\Engine\Controller {
 
                     if ($query->num_rows) {
                         $order_product_id = (int)$query->row['order_product_id'];
-                        $this->db->query("UPDATE `" . DB_PREFIX . "order_product` 
-                                          SET `stock_mutation` = '" . $stock_mutation . "' 
+                        $this->db->query("UPDATE `" . DB_PREFIX . "order_product`
+                                          SET `stock_mutation` = '" . $stock_mutation . "'
                                           WHERE order_product_id = '" . $order_product_id . "'");
                     }
                 }
             } else {
-                $this->db->query("UPDATE `" . DB_PREFIX . "order_product` 
-                                  SET `stock_mutation` = '" . $stock_mutation . "' 
-                                  WHERE product_id = '" . (int)$product['product_id'] . "' 
+                $this->db->query("UPDATE `" . DB_PREFIX . "order_product`
+                                  SET `stock_mutation` = '" . $stock_mutation . "'
+                                  WHERE product_id = '" . (int)$product['product_id'] . "'
                                   AND order_id = '" . (int)$order_id . "'");
             }
         }
@@ -2302,7 +2333,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
                 }
 
                 $order_options = $this->model_checkout_order->getOptions($order_id, $order_product['order_product_id']);
-                
+
                 foreach ($order_options as $order_option) {
                     $this->db->query("UPDATE `" . DB_PREFIX . "product_option_value` SET `quantity` = (`quantity` {$operator} {$qty}) WHERE `product_option_value_id` = '" . (int)$order_option['product_option_value_id'] . "' AND `subtract` = '1'");
                 }
@@ -2334,14 +2365,14 @@ class Mollie extends \Opencart\System\Engine\Controller {
         // OpenCart 4 Extension & Theme Path Resolution
         if (str_starts_with($clean_route, 'extension/')) {
             $parts = explode('/', $clean_route);
-            
+
             if (count($parts) >= 3) {
-                $developer = $parts[1]; 
-                $module = $parts[2]; 
-                
-                $sub_path_1 = implode('/', array_slice($parts, 3)); 
-                $sub_path_2 = implode('/', array_slice($parts, 2)); 
-                
+                $developer = $parts[1];
+                $module = $parts[2];
+
+                $sub_path_1 = implode('/', array_slice($parts, 3));
+                $sub_path_2 = implode('/', array_slice($parts, 2));
+
                 $paths[] = DIR_EXTENSION . $developer . '/' . $module . '/catalog/view/template/' . $sub_path_1 . '.twig';
                 $paths[] = DIR_EXTENSION . $developer . '/catalog/view/template/' . $sub_path_2 . '.twig';
                 $paths[] = DIR_EXTENSION . $developer . '/theme/catalog/view/template/' . $sub_path_2 . '.twig';
@@ -2353,7 +2384,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
                 return file_get_contents($path);
             }
         }
-        
+
         $this->log->write('Mollie Event Warning: Template file not found for route: ' . $route);
         return '';
     }
@@ -2378,7 +2409,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
         $this->load->language('extension/mollie/payment/mollie');
 
         $data['cancel_subscription'] = '';
-        
+
         $order_id = (int)($data['order_id'] ?? 0);
         if ($order_id <= 0) {
             return;
@@ -2391,7 +2422,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
             if ($subscription_info && isset($subscription_info->status)) {
                 if (in_array($subscription_info->status, ['pending', 'active'])) {
                     $subscription_id = (int)($this->request->get['subscription_id'] ?? 0);
-                    
+
                     if ($subscription_id > 0) {
                         $route_path = 'extension/mollie/payment/mollie_ideal' . $this->getMethodSeparator() . 'cancelSubscription';
                         $data['cancel_subscription'] = $this->url->link($route_path, 'subscription_id=' . $subscription_id, true);
@@ -2432,12 +2463,12 @@ class Mollie extends \Opencart\System\Engine\Controller {
             $template_code = preg_replace($fallback_pattern, $fallback_html, (string)$template_buffer, 1);
         }
     }
-    
+
     public function customerOrderInfoController(string &$route, array &$data, mixed &$template_code): void {
         if (!str_contains($route, 'order_info')) {
             return;
         }
-        
+
         $order_id = (int)($this->request->get['order_id'] ?? 0);
 
         if ($order_id <= 0) {
@@ -2467,17 +2498,17 @@ class Mollie extends \Opencart\System\Engine\Controller {
                 require_once(DIR_EXTENSION . "mollie/system/library/mollie/helper.php");
                 $mollieHelper = new \MollieHelper($this->registry);
                 $moduleCode = $mollieHelper->getModuleCode();
-                
+
                 $this->config->set($moduleCode . "_api_key", $mollieHelper->getApiKey((int)$order_info['store_id']));
                 $mollieApi = $mollieHelper->getAPIClient($this->config);
 
                 $paymentLink = $mollieApi->paymentLinks->get($link_info['payment_link_id']);
                 $formatted_amount = $this->currency->format((float)$link_info['amount'], $link_info['currency_code'], 1);
                 $text_open_payment = $this->language->get('text_mollie_open_payment');
-                
+
                 $data['mollie_payment_link_url'] = (string)$paymentLink->getCheckoutUrl();
                 $data['text_mollie_open_payment'] = sprintf($text_open_payment, $formatted_amount);
-                
+
             } catch (\Exception $e) {
                 $this->log->write('Mollie API Error in customerOrderInfo: ' . $e->getMessage());
             }
@@ -2488,7 +2519,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
         if (!str_contains($route, 'order_info')) {
             return;
         }
-        
+
         $template_buffer = $this->getTemplateBuffer($route, $template_code);
 
         if (empty($template_buffer)) {

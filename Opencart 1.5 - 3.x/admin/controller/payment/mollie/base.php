@@ -42,7 +42,7 @@
  * @property URL                          $url
  * @property User                         $user
  */
- 
+
 //Check if VQMod is installed
 $vqversion = '';
 if(version_compare(VERSION, '2.0', '<')) {
@@ -55,7 +55,7 @@ if(version_compare(VERSION, '2.0', '<')) {
 	}
 }
 
-if (class_exists('VQMod')) {     
+if (class_exists('VQMod')) {
 	$vqversion = VQMod::$_vqversion;
 }
 
@@ -95,7 +95,7 @@ class ControllerPaymentMollieBase extends Controller {
 
 	public function __construct($registry) {
 		parent::__construct($registry);
-    
+
     	$this->token = isset($this->session->data['user_token']) ? 'user_token='.$this->session->data['user_token'] : 'token='.$this->session->data['token'];
     	$this->mollieHelper = new MollieHelper($registry);
 	}
@@ -107,7 +107,7 @@ class ControllerPaymentMollieBase extends Controller {
 	protected function getAPIClient ($store = 0) {
 		$data = $this->data;
 		$data[$this->mollieHelper->getModuleCode() . "_api_key"] = (string)$this->mollieHelper->getApiKey($store);
-		
+
 		return $this->mollieHelper->getAPIClientAdmin($data);
 	}
 
@@ -217,7 +217,7 @@ class ControllerPaymentMollieBase extends Controller {
 		//Check if payment_attempt field exists
 		if(!$this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "mollie_payments` LIKE 'payment_attempt'")->row)
 			$this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_payments` ADD `payment_attempt` INT(11) NOT NULL");
-		
+
 		//Check if amount fields exist
 		if(!$this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "mollie_payments` LIKE 'amount'")->row)
 			$this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_payments` ADD `amount` decimal(15,4)");
@@ -273,7 +273,7 @@ class ControllerPaymentMollieBase extends Controller {
 		}
 
 		$code = $this->mollieHelper->getModuleCode();
-		
+
 		$file = isset($this->request->get['file_name']) ? $this->request->get['file_name'] : '';
 		if ($file != '') {
 			if ($file == 'vqmod') {
@@ -339,7 +339,7 @@ class ControllerPaymentMollieBase extends Controller {
 
 		return 'true';
 	}
-	
+
 	/**
 	 * Clean up files that are not needed for the running version of OC.
 	 */
@@ -403,7 +403,7 @@ class ControllerPaymentMollieBase extends Controller {
 				$adminThemeDir . 'extension/payment/mollie.twig', //Remove twig file from old version
 				$adminThemeDir . 'payment/mollie.twig' //Remove twig file from old version
 			);
-			
+
 		} elseif ($this->mollieHelper->isOpenCart2x()) {
 			$files = array(
 				$adminThemeDir . 'extension/payment/mollie(max_1.5.6.4).tpl',
@@ -413,7 +413,7 @@ class ControllerPaymentMollieBase extends Controller {
 				$catalogThemeDir . 'extension/payment/mollie_checkout_form.twig',
 				$catalogThemeDir . 'payment/mollie_checkout_form.twig'
 			);
-			
+
 		} else {
 			$files = array(
 				$adminThemeDir . 'extension/payment/mollie.tpl',
@@ -423,7 +423,7 @@ class ControllerPaymentMollieBase extends Controller {
 				$catalogThemeDir . 'extension/payment/mollie_checkout_form.twig',
 				$catalogThemeDir . 'payment/mollie_checkout_form.twig'
 			);
-			
+
 		}
 
 		foreach ($files as $file) {
@@ -499,7 +499,7 @@ class ControllerPaymentMollieBase extends Controller {
 				if (is_dir(DIR_MODIFICATION . 'admin')) {
 					$this->delTree(DIR_MODIFICATION . 'admin');
 				}
-			}		
+			}
 			// Delete mods.cache
 			if (is_file(DIR_SYSTEM.'../vqmod/mods.cache')) {
 				unlink(DIR_SYSTEM.'../vqmod/mods.cache');
@@ -571,7 +571,7 @@ class ControllerPaymentMollieBase extends Controller {
         foreach($stores as $store) {
         	$storeData = array();
         	$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "setting WHERE store_id = '".$store['store_id']."'");
-			
+
 			foreach ($query->rows as $setting) {
 				if (!$setting['serialized']) {
 					$storeData[$setting["key"]] = $setting['value'];
@@ -616,12 +616,12 @@ class ControllerPaymentMollieBase extends Controller {
 			$this->load->model('extension/extension');
 			$model = 'model_extension_extension';
 		}
-		
+
 		$user_id = $this->getUserId();
 
 		foreach ($this->mollieHelper->MODULE_NAMES as $module_name) {
 			$extensions = $this->{$model}->getInstalled("payment");
-			
+
 			// Install extension.
 			$this->{$model}->install("payment", "mollie_" . $module_name);
 
@@ -636,8 +636,8 @@ class ControllerPaymentMollieBase extends Controller {
 				$this->model_user_user_group->removePermission($user_id, "access", "extension/payment/mollie_" . $module_name);
 				$this->model_user_user_group->removePermission($user_id, "modify", "payment/mollie_" . $module_name);
 				$this->model_user_user_group->removePermission($user_id, "modify", "extension/payment/mollie_" . $module_name);
-			}			
-			
+			}
+
 			// Set permissions.
 			$this->model_user_user_group->addPermission($user_id, "access", "payment/mollie_" . $module_name);
 			$this->model_user_user_group->addPermission($user_id, "access", "extension/payment/mollie_" . $module_name);
@@ -661,8 +661,8 @@ class ControllerPaymentMollieBase extends Controller {
 				$this->model_user_user_group->removePermission($user_id, "access", "extension/total/mollie_payment_fee");
 				$this->model_user_user_group->removePermission($user_id, "modify", "total/mollie_payment_fee");
 				$this->model_user_user_group->removePermission($user_id, "modify", "extension/total/mollie_payment_fee");
-			}			
-			
+			}
+
 			// Set permissions.
 			$this->model_user_user_group->addPermission($user_id, "access", "total/mollie_payment_fee");
 			$this->model_user_user_group->addPermission($user_id, "access", "extension/total/mollie_payment_fee");
@@ -804,7 +804,7 @@ class ControllerPaymentMollieBase extends Controller {
 	    } else {
 	      $this->load->language('payment/mollie_' . static::MODULE_NAME);
 	    }
-		$this->data = $data;		
+		$this->data = $data;
 		$code = $this->mollieHelper->getModuleCode();
 
 		if (($this->request->server['REQUEST_METHOD'] == 'POST')) {
@@ -876,7 +876,7 @@ class ControllerPaymentMollieBase extends Controller {
 
         //API key not required for multistores
         $data['api_required'] = true;
-        
+
         if(count($data['stores']) > 1) {
         	$data['api_required'] = false;
         }
@@ -982,11 +982,12 @@ class ControllerPaymentMollieBase extends Controller {
         $data['name_mollie_riverty'] 						= $this->language->get('name_mollie_riverty');
         $data['name_mollie_payconiq'] 						= $this->language->get('name_mollie_payconiq');
         $data['name_mollie_satispay'] 						= $this->language->get('name_mollie_satispay');
-        $data['name_mollie_multibanco'] 						    = $this->language->get('name_mollie_multibanco');
+        $data['name_mollie_multibanco'] 				    = $this->language->get('name_mollie_multibanco');
         $data['name_mollie_bizum'] 						    = $this->language->get('name_mollie_bizum');
         $data['name_mollie_mbway'] 						    = $this->language->get('name_mollie_mbway');
         $data['name_mollie_paybybank'] 						= $this->language->get('name_mollie_paybybank');
         $data['name_mollie_swish'] 						    = $this->language->get('name_mollie_swish');
+        $data['name_mollie_wero'] 						    = $this->language->get('name_mollie_wero');
 
 		$data['entry_payment_method'] 						= $this->language->get('entry_payment_method');
 		$data['entry_activate'] 							= $this->language->get('entry_activate');
@@ -1046,7 +1047,7 @@ class ControllerPaymentMollieBase extends Controller {
 		$data['error_order_expiry_days'] 					= $this->language->get('error_order_expiry_days');
 
 		$data['summernote'] 								= $this->language->get('summernote');
-		
+
 		$data['help_view_profile'] 							= $this->language->get('help_view_profile');
 		$data['help_status'] 								= $this->language->get('help_status');
 		$data['help_api_key'] 								= $this->language->get('help_api_key');
@@ -1059,7 +1060,7 @@ class ControllerPaymentMollieBase extends Controller {
 		$data['help_single_click_payment'] 					= $this->language->get('help_single_click_payment');
 		$data['help_total'] 								= $this->language->get('help_total');
 		$data['help_payment_link'] 							= $this->language->get('help_payment_link');
-		
+
 		$data['button_save'] 								= $this->language->get('button_save');
 		$data['button_cancel'] 								= $this->language->get('button_cancel');
 		$data['button_update'] 								= $this->language->get('button_update');
@@ -1068,21 +1069,21 @@ class ControllerPaymentMollieBase extends Controller {
 		$data['button_submit'] 								= $this->language->get('button_submit');
 		$data['button_advance_option'] 						= $this->language->get('button_advance_option');
 		$data['button_save_close'] 							= $this->language->get('button_save_close');
-      
+
    		$data['breadcrumbs'][] = array(
 	       	'text'      => $this->language->get('text_payment'),
 	        'href'      => $extension_link,
 	      	'separator' => ' :: '
    		);
-		
+
    		$data['breadcrumbs'][] = array(
 	       	'text'      => strip_tags(explode(' ', $this->language->get('heading_title'))[0]),
 	        'href'      => (version_compare(VERSION, '2.3', '>=')) ? $this->url->link('extension/payment/mollie_' . static::MODULE_NAME, $this->token, true) : $this->url->link('payment/mollie_' . static::MODULE_NAME, $this->token, 'SSL'),
 	        'separator' => ' :: '
    		);
-		
+
 		$data['action'] = (version_compare(VERSION, '2.3', '>=')) ? $this->url->link('extension/payment/mollie_' . static::MODULE_NAME, $this->token, true) : $this->url->link('payment/mollie_' . static::MODULE_NAME, $this->token, 'SSL');
-		
+
 		$data['cancel'] = $extension_link;
 
 		// Set data for template
@@ -1092,8 +1093,10 @@ class ControllerPaymentMollieBase extends Controller {
         $data['code']               = $code;
 		$data['token']          	= $this->token;
 
-		$data['update_url']         = ($this->getUpdateUrl()) ? $this->getUpdateUrl()['updateUrl'] : '';
-        $data['text_update'] = '';
+        $update_url_data                  = $this->getUpdateUrl();
+		$data['update_url']         = ($update_url_data) ? $update_url_data['updateUrl'] : '';
+        $data['text_update']        = '';
+        $data['module_update']      = false;
 
 		if (version_compare(phpversion(), MollieHelper::MIN_PHP_VERSION, "<")) {
         	$data['error_min_php_version'] = sprintf($this->language->get('error_min_php_version'), MollieHelper::MIN_PHP_VERSION);
@@ -1101,20 +1104,19 @@ class ControllerPaymentMollieBase extends Controller {
         	$data['error_min_php_version'] = '';
 		}
 
-		if ($this->getUpdateUrl()) {
-			if (version_compare(phpversion(), MollieHelper::NEXT_PHP_VERSION, "<") && ((int)$this->getUpdateUrl()['updateVersion'] > (int)MOLLIE_VERSION)) {
-				$data['text_update'] = sprintf($this->language->get('text_update_message_warning'), $this->getUpdateUrl()['updateVersion'], MollieHelper::NEXT_PHP_VERSION, $this->getUpdateUrl()['updateVersion']);
-				$data['module_update'] = false;
+		if ($update_url_data) {
+			if (version_compare(phpversion(), MollieHelper::NEXT_PHP_VERSION, "<") && ((int)$update_url_data['updateVersion'] > (int)MOLLIE_VERSION)) {
+				$data['text_update'] = sprintf($this->language->get('text_update_message_warning'), $update_url_data['updateVersion'], MollieHelper::NEXT_PHP_VERSION, $update_url_data['updateVersion']);
 			} else {
-				$data['text_update'] = sprintf($this->language->get('text_update_message'), $this->getUpdateUrl()['updateVersion'], $data['update_url'], $this->getUpdateUrl()['updateVersion']);
+				$data['text_update'] = sprintf($this->language->get('text_update_message'), $update_url_data['updateVersion'], $data['update_url'], $update_url_data['updateVersion']);
 				$data['module_update'] = true;
 			}
 
-            if (isset($_COOKIE["hide_mollie_update_message_version"]) && ($_COOKIE["hide_mollie_update_message_version"] == $this->getUpdateUrl()['updateVersion'])) {
+            if (isset($_COOKIE["hide_mollie_update_message_version"]) && ($_COOKIE["hide_mollie_update_message_version"] == $update_url_data['updateVersion'])) {
                 $data['text_update'] = '';
             }
 		}
-		
+
 		$data['geo_zones']			= $this->model_localisation_geo_zone->getGeoZones();
 		$data['order_statuses']		= $this->model_localisation_order_status->getOrderStatuses();
 		$data['languages']			= $this->model_localisation_language->getLanguages();
@@ -1174,11 +1176,11 @@ class ControllerPaymentMollieBase extends Controller {
 			$code . "_ideal_pending_status_id"    				=> 1,
 			$code . "_ideal_pending_status_notify"    			=> FALSE,
 			$code . "_ideal_processing_status_id" 				=> 2,
-			$code . "_ideal_processing_status_notify" 			=> TRUE,
+			$code . "_ideal_processing_status_notify" 			=> FALSE,
 			$code . "_ideal_canceled_status_id"   				=> 7,
 			$code . "_ideal_canceled_status_notify"   			=> FALSE,
 			$code . "_ideal_failed_status_id"     				=> 10,
-			$code . "_ideal_failed_status_notify"     			=> TRUE,
+			$code . "_ideal_failed_status_notify"     			=> FALSE,
 			$code . "_ideal_expired_status_id"    				=> 14,
 			$code . "_ideal_expired_status_notify"    			=> FALSE,
 			$code . "_ideal_shipping_status_id"   				=> 3,
@@ -1234,10 +1236,10 @@ class ControllerPaymentMollieBase extends Controller {
 				if (isset($this->request->post[$store['store_id'] . '_' . $setting_name])) {
 					$data['stores'][$store['store_id']][$setting_name] = $this->request->post[$store['store_id'] . '_' . $setting_name];
 				} else { // Otherwise, attempt to get the setting from the database
-					// same as $this->config->get() 
+					// same as $this->config->get()
 					$stored_setting = null;
 					if(isset($this->data[$setting_name])) {
-						$stored_setting = $this->data[$setting_name];						
+						$stored_setting = $this->data[$setting_name];
 					}
 
 					if($stored_setting === NULL && $default_value !== NULL) {
@@ -1309,7 +1311,7 @@ class ControllerPaymentMollieBase extends Controller {
 						$payment_method['thumb'] = $this->model_tool_image->resize($this->data[$store['store_id'] . '_' . $code . '_' . $module_name . '_image'], 100, 100);
 					} else {
 						$payment_method['thumb'] = $this->model_tool_image->resize($no_image, 100, 100);
-					}					
+					}
 				} else {
 					$payment_method['image'] = isset($this->data[$code . "_" . $module_name . "_image"]) ? $this->data[$code . "_" . $module_name . "_image"] : null;
 					$payment_method['thumb'] = (isset($this->data[$code . "_" . $module_name . "_image"]) && !empty($this->data[$code . "_" . $module_name . "_image"])) ? $this->model_tool_image->resize($this->data[$code . "_" . $module_name . "_image"], 100, 100) : $this->model_tool_image->resize($no_image, 100, 100);
@@ -1348,7 +1350,7 @@ class ControllerPaymentMollieBase extends Controller {
 							$payment_method['maximumAmount'] = sprintf($this->language->get('text_standard_total'), $this->currency->format($this->currency->convert($maximumAmount, $currency, $this->config->get('config_currency')), $currency));
 						} else {
 							$payment_method['maximumAmount'] =  $this->language->get('text_no_maximum_limit');
-						}				
+						}
 
 						if (isset($this->data[$store['store_id'] . '_' . $code . '_' . $module_name . '_total_maximum'])) {
 							$payment_method['total_maximum'] = $this->data[$store['store_id'] . '_' . $code . '_' . $module_name . '_total_maximum'];
@@ -1361,7 +1363,7 @@ class ControllerPaymentMollieBase extends Controller {
 						$payment_method['minimumAmount'] = sprintf($this->language->get('text_standard_total'), $currency . ' ' . $minimumAmount);
 						$payment_method['total_minimum'] =  $minimumAmount;
 
-						if ($allowed_methods[$module_name]['maximumAmount']) {	
+						if ($allowed_methods[$module_name]['maximumAmount']) {
 							$maximumAmount = $allowed_methods[$module_name]['maximumAmount']->value;
 							$payment_method['maximumAmount'] = sprintf($this->language->get('text_standard_total'), $currency . ' ' . $maximumAmount);
 							$payment_method['total_maximum'] = $maximumAmount;
@@ -1370,7 +1372,7 @@ class ControllerPaymentMollieBase extends Controller {
 							$payment_method['total_maximum'] = '';
 						}
 					}
-				}	
+				}
 
 				$data['store_data'][$store['store_id'] . '_' . $code . '_payment_methods'][$module_name] = $payment_method;
 			}
@@ -1387,7 +1389,7 @@ class ControllerPaymentMollieBase extends Controller {
 			} else {
 				$data['stores'][$store['store_id']]['error_api_key'] = '';
 			}
-			
+
 		}
 
 		$data['mollie_version'] = $this->config->get($code . '_version');
@@ -1436,7 +1438,7 @@ class ControllerPaymentMollieBase extends Controller {
 			$data['header'] = $this->load->controller('common/header');
 			$data['column_left'] = $this->load->controller('common/column_left');
 			$data['footer'] = $this->load->controller('common/footer');
-			
+
 			if (version_compare(VERSION, '3', '>=')) {
 				$this->config->set('template_engine', 'template');
 				$this->response->setOutput($this->load->view('payment/mollie', $data));
@@ -1451,7 +1453,7 @@ class ControllerPaymentMollieBase extends Controller {
 				'common/header',
 				'common/footer'
 			);
-      
+
 			$this->response->setOutput($this->render());
 		}
 	}
@@ -1516,7 +1518,7 @@ class ControllerPaymentMollieBase extends Controller {
 		if (!$this->request->post[$store . '_' . $this->mollieHelper->getModuleCode() . '_api_key']) {
 			$this->error[$store]['api_key'] = $this->language->get("error_api_key");
 		}
-		
+
 		return (count($this->error) == 0);
 	}
 
@@ -1547,7 +1549,7 @@ class ControllerPaymentMollieBase extends Controller {
 		} catch (Mollie\Api\Exceptions\ApiException_IncompatiblePlatform $e) {
 			return '<span style="color:red">' . $e->getMessage() . ' ' . $this->language->get('error_api_help') . '</span>';
 		} catch (Mollie\Api\Exceptions\ApiException $e) {
-			return '<span style="color:red">' . sprintf($this->language->get('error_comm_failed'), htmlspecialchars($e->getMessage()), (isset($client) ? htmlspecialchars($client->getApiEndpoint()) : 'Mollie')) . '</span>';				
+			return '<span style="color:red">' . sprintf($this->language->get('error_comm_failed'), htmlspecialchars($e->getMessage()), (isset($client) ? htmlspecialchars($client->getApiEndpoint()) : 'Mollie')) . '</span>';
 		}
 	}
 
@@ -1579,7 +1581,7 @@ class ControllerPaymentMollieBase extends Controller {
 
 		$data = $this->model_setting_setting->getSetting($code, $store_id);
 		$data[$code.'_api_key'] = $_POST['api_key'];
-		
+
 		$this->model_setting_setting->editSetting($code, $data, $store_id);
 		return true;
 	}
@@ -1594,19 +1596,19 @@ class ControllerPaymentMollieBase extends Controller {
             } else {
                 $tag_name = ["oc3", $info["tag_name"]]; // Old tag_name = release version
             }
-    
+
             if (isset($tag_name[0]) && ($tag_name[0] == 'oc3')) {
                 if (isset($tag_name[1]) && ($tag_name[1] != MOLLIE_VERSION) && version_compare(MOLLIE_VERSION, $tag_name[1], "<")) {
                     $updateUrl = array(
                         "updateUrl" => $this->url->link("payment/mollie_" . static::MODULE_NAME . "/update", $this->token, 'SSL'),
                         "updateVersion" => $tag_name[1]
                     );
-        
+
                     return $updateUrl;
                 }
             }
         }
-        
+
         return false;
     }
 
@@ -1629,7 +1631,7 @@ class ControllerPaymentMollieBase extends Controller {
         //save tmp file
         $temp_file = MOLLIE_TMP . "/mollieUpdate.zip";
         $handle = fopen($temp_file, "w+");
-        
+
         $browser_download_url = '';
         if (!empty($info["assets"])) {
             foreach($info["assets"] as $asset) {
@@ -1652,7 +1654,7 @@ class ControllerPaymentMollieBase extends Controller {
 				$this->redirect($this->url->link('payment/mollie_' . static::MODULE_NAME, $this->token, 'SSL'));
 			}
         }
-		
+
         fwrite($handle, $content);
         fclose($handle);
 
@@ -1713,13 +1715,13 @@ class ControllerPaymentMollieBase extends Controller {
 
                 rename(DIR_SYSTEM.'../vqmod/xml/mollie.xml_', DIR_SYSTEM.'../vqmod/xml/mollie.xml');
             }
-			
+
 			// Delete the modification files to avoid errors
 			if (version_compare(VERSION, '2.0', '>=')) {
 				if (is_dir(DIR_MODIFICATION . 'admin')) {
 					$this->delTree(DIR_MODIFICATION . 'admin');
 				}
-			}		
+			}
 			// Delete mods.cache
 			if (is_file(DIR_SYSTEM.'../vqmod/mods.cache')) {
 				unlink(DIR_SYSTEM.'../vqmod/mods.cache');
@@ -1808,7 +1810,7 @@ class ControllerPaymentMollieBase extends Controller {
 			}
 		}
 	}
-	
+
 	public function clear() {
 		if (version_compare(VERSION, '2.3', '>=')) {
 	      $this->load->language('extension/payment/mollie_' . static::MODULE_NAME);
@@ -1867,7 +1869,7 @@ class ControllerPaymentMollieBase extends Controller {
 				$enquiry .= "<br>Opencart version : " . VERSION;
 				if(version_compare(VERSION, '2', '<')) {
 					$enquiry .= "<br>VQMod version : " . VQ_VERSION;
-				}				
+				}
 				$enquiry .= "<br>Mollie version : " . MOLLIE_VERSION;
 
 				$mail = new Mail();
@@ -1878,7 +1880,7 @@ class ControllerPaymentMollieBase extends Controller {
 				$mail->smtp_password = html_entity_decode($this->config->get('config_mail_smtp_password'), ENT_QUOTES, 'UTF-8');
 				$mail->smtp_port = $this->config->get('config_mail_smtp_port');
 				$mail->smtp_timeout = $this->config->get('config_mail_smtp_timeout');
-	
+
 				$mail->setTo('support.mollie@qualityworks.eu');
 				$mail->setFrom($email);
 				$mail->setSender(html_entity_decode($name, ENT_QUOTES, 'UTF-8'));
@@ -1911,8 +1913,8 @@ class ControllerPaymentMollieBase extends Controller {
             $formattedAmount = number_format((float)$amount, 2, '.', '');
         } else {
             $formattedAmount = number_format($amount, 0);
-        }   
-        return $formattedAmount;    
+        }
+        return $formattedAmount;
     }
 
 	public function save() {
@@ -1960,16 +1962,16 @@ class ControllerPaymentMollieBase extends Controller {
 		} else {
 			$q = $this->db->query("SELECT * FROM " . DB_PREFIX . "setting WHERE `group` = '" . $code2 . "'  AND `key` = '" . $code2 . "_charge'");
 		}
-		
+
 		if (!$q->num_rows) {
 			if (version_compare(VERSION, '2.0', '>=')) {
 				$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "setting WHERE code = '" . $code . "'");
 			} else {
 				$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "setting WHERE `group` = '" . $code . "'");
 			}
-	
+
 			$results = $query->rows;
-	
+
 			$paymentFee = array();
 			foreach ($this->mollieHelper->MODULE_NAMES as $module_name) {
 				$key = $code . '_' . $module_name . '_payment_fee';
@@ -1980,7 +1982,7 @@ class ControllerPaymentMollieBase extends Controller {
 						} else {
 							$fee_setting = unserialize($result['value']);
 						}
-	
+
 						if (!empty($fee_setting['amount'])) {
 							$paymentFee[] = array(
 								"description" => $fee_setting['description'],
@@ -1991,12 +1993,12 @@ class ControllerPaymentMollieBase extends Controller {
 								"priority" => '',
 							);
 						}
-	
-						
+
+
 					}
 				}
 			}
-			
+
 			if (!empty($paymentFee)) {
 				if (version_compare(VERSION, '2.1', '>=')) {
 					$this->db->query("INSERT INTO " . DB_PREFIX . "setting SET store_id = '0', code = '" . $this->db->escape($code2) . "', `key` = '" . $this->db->escape($code2 . '_charge') . "', `value` = '" . $this->db->escape(json_encode($paymentFee, true)) . "', serialized = '1'");
@@ -2031,7 +2033,7 @@ class ControllerPaymentMollieBase extends Controller {
         $log = new Log('Mollie.log');
 
         $moduleCode = $this->mollieHelper->getModuleCode();
-        
+
         $order_id = $this->request->get['order_id'];
         $order = $this->model_sale_order->getOrder($order_id);
 
@@ -2123,7 +2125,7 @@ class ControllerPaymentMollieBase extends Controller {
         $log = new Log('Mollie.log');
 
         $moduleCode = $this->mollieHelper->getModuleCode();
-        
+
         $order_id = $this->request->get['order_id'];
         $order = $this->model_sale_order->getOrder($order_id);
 
@@ -2197,7 +2199,7 @@ class ControllerPaymentMollieBase extends Controller {
                             }
 
                             $molliePayment = $this->getAPIClient($order['store_id'])->payments->get($molliePaymentDetails['transaction_id']);
-                            
+
                             $refundObject = $molliePayment->refund([
                                 "amount" => ["currency" => $order['currency_code'], "value" => (string)$amount],
                                 "metadata" => array("order_id" => $order_id, "order_product_id" => json_encode($lines), "transaction_id" => $molliePaymentDetails['transaction_id'])
@@ -2221,7 +2223,7 @@ class ControllerPaymentMollieBase extends Controller {
                     $molliePayment = $this->getAPIClient($order['store_id'])->payments->get($molliePaymentDetails['transaction_id']);
 
                     $amount = $this->numberFormat($this->request->post['refund_amount'], $order['currency_code']);
-                            
+
                     $refundObject = $molliePayment->refund([
                         "amount" => ["currency" => $order['currency_code'], "value" => (string)$amount],
                         "metadata" => array("order_id" => $order_id, "transaction_id" => $molliePaymentDetails['transaction_id'])
@@ -2231,7 +2233,7 @@ class ControllerPaymentMollieBase extends Controller {
                     $json['error'] = $this->language->get('text_no_refund');
                 }
             }
-            
+
             if (!$json['error']) {
                 if($refundObject->id) {
                     $amount = $refundObject->amount->value .' '. $refundObject->amount->currency;
