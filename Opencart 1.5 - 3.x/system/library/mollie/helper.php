@@ -4,7 +4,7 @@ use Mollie\Api\MollieApiClient;
 
 class MollieHelper {
 
-	const PLUGIN_VERSION = "14.0.1";
+	const PLUGIN_VERSION = "14.1.0";
 
 	const OUTH_URL = 'https://api.mollie.com/oauth2';
 
@@ -44,6 +44,7 @@ class MollieHelper {
 	const MODULE_NAME_MBWAY   	 	    = "mbway";
 	const MODULE_NAME_PAYBYBANK	 	    = "paybybank";
 	const MODULE_NAME_SWISH 	 	    = "swish";
+	const MODULE_NAME_WERO 	 	        = "wero";
 
 
 	// List of all available module names.
@@ -79,7 +80,8 @@ class MollieHelper {
 		self::MODULE_NAME_BIZUM,
 		self::MODULE_NAME_MBWAY,
 		self::MODULE_NAME_PAYBYBANK,
-		self::MODULE_NAME_SWISH
+		self::MODULE_NAME_SWISH,
+		self::MODULE_NAME_WERO
 	);
 
 	protected $api_client;
@@ -244,7 +246,7 @@ class MollieHelper {
 		if (isset($result->row['value'])) {
 			return $result->row['value'];
 		} else {
-			return null;	
+			return null;
 		}
 	}
 

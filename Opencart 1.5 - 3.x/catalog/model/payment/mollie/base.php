@@ -354,9 +354,19 @@ class ModelPaymentMollieBase extends Model
 	public function getPaymentID($order_id)
 	{
 		if (!empty($order_id)) {
-			$results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `order_id` = '" . $order_id . "'");
+			$results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `order_id` = '" . $order_id . "' ORDER BY payment_attempt DESC LIMIT 1");
 			if($results->num_rows == 0) return FALSE;
 			return $results->row['transaction_id'];
+		}
+		return FALSE;
+	}
+
+    public function getOrderID($order_id)
+	{
+		if (!empty($order_id)) {
+			$results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `order_id` = '" . $order_id . "' ORDER BY payment_attempt DESC LIMIT 1");
+			if($results->num_rows == 0) return FALSE;
+			return isset($results->row['mollie_order_id']) ? $results->row['mollie_order_id'] : '';
 		}
 		return FALSE;
 	}
