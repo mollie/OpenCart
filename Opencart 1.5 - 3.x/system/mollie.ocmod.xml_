@@ -27,7 +27,9 @@
                 if(version_compare(VERSION, '2.2', '<')) {
                     $orderdata = array("0" => $order_id, "1" => $this->request->post['order_status_id']);
                     $route = null;
-                    require(DIR_APPLICATION . "controller/payment/mollie/base.php");
+                    if (!class_exists('ControllerPaymentMollieBase', false)) {
+                        require(DIR_APPLICATION . "controller/payment/mollie/base.php");
+                    }
                     $controller = new ControllerPaymentMollieBase($this->registry);
                     $controller->createShipment($route, $orderdata, "", "");
                 } ]]></add>
@@ -335,14 +337,14 @@ $('.alert').remove();
       }
 
       if(typeof token !== 'undefined') {
-        var order_history_url = '<?php echo isset($store_url) ? $store_url : $catalog; ?>index.php?route=api/order/history&token=' + token + '&store_id=<?php echo $store_id; ?>&order_id=<?php echo $order_id; ?>';
-
-        var credit_order_url = '<?php echo isset($store_url) ? $store_url : $catalog; ?>index.php?route=payment/mollie_applepay/creditOrder&token=' + token + '&store_id=<?php echo $store_id; ?>&order_id=<?php echo $order_id; ?>';
+        var order_history_url = '<?php echo str_replace('httpss://', 'https://', isset($store_url) ? $store_url : $catalog); ?>index.php?route=api/order/history&token=' + token + '&store_id=<?php echo $store_id; ?>&order_id=<?php echo $order_id; ?>';
       } else {
         var order_history_url = 'index.php?route=sale/order/api&token=<?php echo $token; ?>&api=api/order/history&order_id=<?php echo $order_id; ?>';
-
-        var credit_order_url = 'index.php?route=sale/order/api&token=<?php echo $token; ?>&api=payment/mollie_applepay/creditOrder&order_id=<?php echo $order_id; ?>';
       }
+
+      // Runs entirely on the admin side now (no cross-store/cross-domain call needed),
+      // same as the refund/partialRefund calls above.
+      var credit_order_url = 'index.php?route=payment/mollie_applepay/creditOrder&token=<?php echo $token; ?>&order_id=<?php echo $order_id; ?>';
 
       if (json['success']) {
         // Create Credit Order
@@ -352,9 +354,20 @@ $('.alert').remove();
                 type: 'post',
                 dataType: 'json',
                 data: '',
-                success: function(json) {
-                    if (json['success']) {
-                        // Success
+                success: function(credit_json) {
+                    if (credit_json['success'] && credit_json['credit_order_id']) {
+                        // Set the new credit order's status the same way core's own "Add History"
+                        // does, instead of the admin action setting it directly - keeps the
+                        // notification/stock/event side effects on the one official path.
+                        $.ajax({
+                            url: order_history_url.replace('order_id=<?php echo $order_id; ?>', 'order_id=' + credit_json['credit_order_id']),
+                            type: 'post',
+                            dataType: 'json',
+                            data: 'order_status_id=' + encodeURIComponent(credit_json['order_status_id']) + '&notify=0&override=0&append=1&comment=' + encodeURIComponent('Credit order created'),
+                            error: function(xhr, ajaxOptions, thrownError) {
+                                alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+                            }
+                        });
                     }
                 },
                 error: function(xhr, ajaxOptions, thrownError) {
@@ -428,14 +441,14 @@ $('.alert').remove();
       }
 
       if(typeof token !== 'undefined') {
-        var order_history_url = '<?php echo isset($store_url) ? $store_url : $catalog; ?>index.php?route=api/order/history&token=' + token + '&store_id=<?php echo $store_id; ?>&order_id=<?php echo $order_id; ?>';
-
-        var credit_order_url = '<?php echo isset($store_url) ? $store_url : $catalog; ?>index.php?route=payment/mollie_applepay/creditOrder&token=' + token + '&store_id=<?php echo $store_id; ?>&order_id=<?php echo $order_id; ?>';
+        var order_history_url = '<?php echo str_replace('httpss://', 'https://', isset($store_url) ? $store_url : $catalog); ?>index.php?route=api/order/history&token=' + token + '&store_id=<?php echo $store_id; ?>&order_id=<?php echo $order_id; ?>';
       } else {
         var order_history_url = 'index.php?route=sale/order/api&token=<?php echo $token; ?>&api=api/order/history&order_id=<?php echo $order_id; ?>';
-
-        var credit_order_url = 'index.php?route=sale/order/api&token=<?php echo $token; ?>&api=payment/mollie_applepay/creditOrder&order_id=<?php echo $order_id; ?>';
       }
+
+      // Runs entirely on the admin side now (no cross-store/cross-domain call needed),
+      // same as the refund/partialRefund calls above.
+      var credit_order_url = 'index.php?route=payment/mollie_applepay/creditOrder&token=<?php echo $token; ?>&order_id=<?php echo $order_id; ?>';
 
       if (json['success']) {
         // Create Credit Order
@@ -445,9 +458,17 @@ $('.alert').remove();
                 type: 'post',
                 dataType: 'json',
                 data: $('#refundModal input[type=\'text\'], #refundModal input[type=\'hidden\'], #refundModal select, #refundModal input[type=\'checkbox\']:checked'),
-                success: function(json) {
-                    if (json['success']) {
-                        // Success
+                success: function(credit_json) {
+                    if (credit_json['success'] && credit_json['credit_order_id']) {
+                        $.ajax({
+                            url: order_history_url.replace('order_id=<?php echo $order_id; ?>', 'order_id=' + credit_json['credit_order_id']),
+                            type: 'post',
+                            dataType: 'json',
+                            data: 'order_status_id=' + encodeURIComponent(credit_json['order_status_id']) + '&notify=0&override=0&append=1&comment=' + encodeURIComponent('Credit order created'),
+                            error: function(xhr, ajaxOptions, thrownError) {
+                                alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+                            }
+                        });
                     }
                 },
                 error: function(xhr, ajaxOptions, thrownError) {
@@ -686,13 +707,21 @@ if (!confirm('{{ text_confirm_refund }}')) {
         // Create Credit Order
         if (json['partial_credit_order']) {
             $.ajax({
-                url: '{{ catalog }}index.php?route=payment/mollie_applepay/creditOrder&api_token={{ api_token }}&store_id={{ store_id }}&order_id={{ order_id }}',
+                url: 'index.php?route=payment/mollie_applepay/creditOrder&user_token={{ user_token }}&order_id={{ order_id }}',
                 type: 'post',
                 dataType: 'json',
                 data: '',
-                success: function(json) {
-                    if (json['success']) {
-                        // Success
+                success: function(credit_json) {
+                    if (credit_json['success'] && credit_json['credit_order_id']) {
+                        $.ajax({
+                            url: '{{ catalog }}index.php?route=api/order/history&api_token={{ api_token }}&store_id={{ store_id }}&order_id=' + credit_json['credit_order_id'],
+                            type: 'post',
+                            dataType: 'json',
+                            data: 'order_status_id=' + encodeURIComponent(credit_json['order_status_id']) + '&notify=0&override=0&append=1&comment=' + encodeURIComponent('Credit order created'),
+                            error: function(xhr, ajaxOptions, thrownError) {
+                                alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+                            }
+                        });
                     }
                 },
                 error: function(xhr, ajaxOptions, thrownError) {
@@ -769,13 +798,21 @@ $('#button-partial-refund').on('click', function() {
         // Create Credit Order
         if (json['partial_credit_order']) {
             $.ajax({
-                url: '{{ catalog }}index.php?route=payment/mollie_applepay/creditOrder&api_token={{ api_token }}&store_id={{ store_id }}&order_id={{ order_id }}',
+                url: 'index.php?route=payment/mollie_applepay/creditOrder&user_token={{ user_token }}&order_id={{ order_id }}',
                 type: 'post',
                 dataType: 'json',
                 data: $('#refundModal input[type=\'text\'], #refundModal input[type=\'hidden\'], #refundModal select, #refundModal input[type=\'checkbox\']:checked'),
-                success: function(json) {
-                    if (json['success']) {
-                        // Success
+                success: function(credit_json) {
+                    if (credit_json['success'] && credit_json['credit_order_id']) {
+                        $.ajax({
+                            url: '{{ catalog }}index.php?route=api/order/history&api_token={{ api_token }}&store_id={{ store_id }}&order_id=' + credit_json['credit_order_id'],
+                            type: 'post',
+                            dataType: 'json',
+                            data: 'order_status_id=' + encodeURIComponent(credit_json['order_status_id']) + '&notify=0&override=0&append=1&comment=' + encodeURIComponent('Credit order created'),
+                            error: function(xhr, ajaxOptions, thrownError) {
+                                alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+                            }
+                        });
                     }
                 },
                 error: function(xhr, ajaxOptions, thrownError) {

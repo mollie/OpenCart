@@ -433,7 +433,19 @@ class Mollie extends \Opencart\System\Engine\Controller {
         }
 
         $model = $this->getModuleModel();
-        $order_id = $this->getOrderID();
+
+        // Unlike callback() (which legitimately needs order_id from the Mollie redirect
+        // URL), payment() creates a live Mollie payment, so it must only ever act on the
+        // order the current session's checkout actually produced - never an order_id
+        // supplied by the request.
+        $order_id = $this->session->data['order_id'] ?? false;
+
+        if ($order_id === false) {
+            $this->showErrorPage($this->language->get('msg_failed'));
+            $this->writeToMollieLog("Creating payment failed, no order id in session.");
+            return;
+        }
+
         $order = $this->getOpenCartOrder($order_id);
 
         if (empty($order)) {
@@ -900,14 +912,24 @@ class Mollie extends \Opencart\System\Engine\Controller {
                 $payment_address = $this->config->get('config_checkout_address');
             }
 
+            $combine_address = $this->config->get($this->mollieHelper->getModuleCode() . "_combine_address");
+
             if ($payment_address) {
+                if ($combine_address) {
+                    $streetAndNumber = $this->formatText($order['payment_address_1'] . ' ' . $order['payment_address_2']);
+                    $streetAdditional = '';
+                } else {
+                    $streetAndNumber = $this->formatText($order['payment_address_1']);
+                    $streetAdditional = $this->formatText($order['payment_address_2']);
+                }
+
                 $data["billingAddress"] = [
                     "givenName"             => (string)$this->formatText($order['payment_firstname'] ?? ''),
                     "familyName"            => (string)$this->formatText($order['payment_lastname'] ?? ''),
                     "organizationName"      => (string)$this->formatText($order['payment_company'] ?? ''),
                     "email"                 => (string)$this->formatText($order['email'] ?? ''),
-                    "streetAndNumber"       => (string)$this->formatText($order['payment_address_1'] ?? ''),
-                    "streetAdditional"      => (string)$this->formatText($order['payment_address_2'] ?? ''),
+                    "streetAndNumber"       => (string)trim($streetAndNumber),
+                    "streetAdditional"      => (string)$streetAdditional,
                     "city"                  => (string)$this->formatText($order['payment_city'] ?? ''),
                     "region"                => (string)$this->formatText($order['payment_zone'] ?? ''),
                     "postalCode"            => (string)$this->formatText($order['payment_postcode'] ?? ''),
@@ -917,12 +939,20 @@ class Mollie extends \Opencart\System\Engine\Controller {
 
             if (isset($this->session->data['shipping_address'])) {
                 if (!empty($order['shipping_firstname']) || !empty($order['shipping_lastname'])) {
+                    if ($combine_address) {
+                        $streetAndNumber = $this->formatText($order['shipping_address_1'] . ' ' . $order['shipping_address_2']);
+                        $streetAdditional = '';
+                    } else {
+                        $streetAndNumber = $this->formatText($order['shipping_address_1']);
+                        $streetAdditional = $this->formatText($order['shipping_address_2']);
+                    }
+
                     $data["shippingAddress"] = [
                         "givenName"             => (string)$this->formatText($order['shipping_firstname'] ?? ''),
                         "familyName"            => (string)$this->formatText($order['shipping_lastname'] ?? ''),
                         "email"                 => (string)$this->formatText($order['email'] ?? ''),
-                        "streetAndNumber"       => (string)$this->formatText($order['shipping_address_1'] ?? ''),
-                        "streetAdditional"      => (string)$this->formatText($order['shipping_address_2'] ?? ''),
+                        "streetAndNumber"       => (string)trim($streetAndNumber),
+                        "streetAdditional"      => (string)$streetAdditional,
                         "city"                  => (string)$this->formatText($order['shipping_city'] ?? ''),
                         "region"                => (string)$this->formatText($order['shipping_zone'] ?? ''),
                         "postalCode"            => (string)$this->formatText($order['shipping_postcode'] ?? ''),
@@ -1129,6 +1159,17 @@ class Mollie extends \Opencart\System\Engine\Controller {
         if (!empty($order)) {
             $order_id = $order['order_id'];
 
+            // Defense in depth: the order was already matched via metadata->order_id (set
+            // by us at payment creation), so this can't change the outcome - it's a visibility
+            // check so a mismatch doesn't go unnoticed, not a gate on processing the payment.
+            if (isset($molliePayment->amount->currency, $molliePayment->amount->value) && !empty($order['currency_code']) && !empty($order['currency_value'])) {
+                $expectedAmount = round((float)$order['total'] * (float)$order['currency_value'], 2);
+
+                if (((string)$molliePayment->amount->currency != $order['currency_code']) || (abs((float)$molliePayment->amount->value - $expectedAmount) > 0.01)) {
+                    $this->writeToMollieLog("Webhook for payment: WARNING amount/currency mismatch for order {$order_id}, {$payment_id}. Mollie reports {$molliePayment->amount->value} {$molliePayment->amount->currency}, order total is {$expectedAmount} {$order['currency_code']}.");
+                }
+            }
+
             // Set transaction ID
             $data = [
                 'payment_id' => $payment_id,
@@ -1204,15 +1245,20 @@ class Mollie extends \Opencart\System\Engine\Controller {
                 $status = 'expired';
                 $response = $this->language->get("response_expired");
                 $notify_customer = ($this->config->get($moduleCode . "_ideal_expired_status_notify")) ? true : false;
-            } else {
+            } elseif ($molliePayment->isFailed()) {
                 $new_status_id = $failed_status_id;
                 $status = 'failed';
                 $response = $this->language->get("response_unknown");
                 $notify_customer = ($this->config->get($moduleCode . "_ideal_failed_status_notify")) ? true : false;
+            } else {
+                // Still open or pending: there is no final result yet, so the order is left as it is.
+                $this->writeToMollieLog("Webhook for payment: Payment status: {$molliePayment->status}. The order {$order_id} has not been changed yet.");
             }
 
             if (!$new_status_id) {
-                $this->writeToMollieLog("Webhook for payment: Payment status: {$status}, No '{$status}' status ID is configured, so the order status for order {$order_id} could not be updated.");
+                if ($status) {
+                    $this->writeToMollieLog("Webhook for payment: Payment status: {$status}, No '{$status}' status ID is configured, so the order status for order {$order_id} could not be updated.");
+                }
             } else {
                 $this->writeToMollieLog("Webhook for payment: Payment status: {$status}. The order {$order_id} has been moved to the '{$status}' status (new status ID: {$new_status_id}).");
                 $this->addOrderHistory($order, $new_status_id, $response, $notify_customer);
@@ -1235,11 +1281,17 @@ class Mollie extends \Opencart\System\Engine\Controller {
                         )
                     );
 
-                    $this->writeToMollieLog("Capture created for order - {$order_id}, {$payment_id}, {$captureObject->id}");
+                    $this->writeToMollieLog("Webhook for payment: Capture created for order - {$order_id}, {$payment_id}, {$captureObject->id}");
 
-                    $notify_customer = ($this->config->get($moduleCode . "_ideal_shipping_status_notify")) ? true : false;
+                    $capture_status_id = (int)$this->config->get($moduleCode . "_ideal_capture_status_id");
 
-                    $this->addOrderHistory($order, $shipping_status_id, $this->language->get("capture_success"), $notify_customer);
+                    if (!empty($capture_status_id)) {
+                        $notify_customer = ($this->config->get($moduleCode . "_ideal_capture_status_notify")) ? true : false;
+
+                        $this->addOrderHistory($order, $capture_status_id, $this->language->get("capture_success"), $notify_customer);
+
+                        $this->writeToMollieLog("Webhook for payment: Payment captured status ID: {$capture_status_id}.");
+                    }
                 } catch (\Mollie\Api\Exceptions\ApiException $e) {
                     $this->writeToMollieLog("Webhook for payment: Capture could not be created for order - {$order_id}, {$payment_id}; " . htmlspecialchars($e->getMessage()));
                 }
@@ -1261,7 +1313,8 @@ class Mollie extends \Opencart\System\Engine\Controller {
             $this->session->data['mollie_issuer'] = null;
         }
 
-        echo (string)$this->session->data['mollie_issuer'];
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode(['issuer' => $this->session->data['mollie_issuer']]));
     }
 
     /**
@@ -1349,6 +1402,16 @@ class Mollie extends \Opencart\System\Engine\Controller {
                         );
 
                         $this->writeToMollieLog("Capture created for order - {$order_id}, {$mollie_payment_id}, {$captureObject->id}");
+
+                        $capture_status_id = (int)$this->config->get($moduleCode . "_ideal_capture_status_id");
+
+                        if (!empty($capture_status_id)) {
+                            $notify_customer = ($this->config->get($moduleCode . "_ideal_capture_status_notify")) ? true : false;
+
+                            $this->addOrderHistory($order, $capture_status_id, $this->language->get("capture_success"), $notify_customer);
+
+                            $this->writeToMollieLog("Payment captured status ID: {$capture_status_id}.");
+                        }
                     }
                 }
             } catch (\Mollie\Api\Exceptions\ApiException $e) {
@@ -1474,9 +1537,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
         if ($this->config->get($moduleCode . "_debug_mode")) {
             $this->writeToMollieDebugLog("===== DEBUG: RETURNED FROM MOLLIE (CALLBACK) =====");
             $this->writeToMollieDebugLog("CURRENT SESSION ID: " . $this->session->getId());
-            $this->writeToMollieDebugLog("RECEIVED COOKIES: " . print_r($this->request->cookie, true));
             $this->writeToMollieDebugLog("RECEIVED GET URL VARS: " . print_r($this->request->get, true));
-            $this->writeToMollieDebugLog("CURRENT SESSION DATA: " . print_r($this->session->data, true));
             $this->writeToMollieDebugLog("==================================================");
         }
 
@@ -1532,8 +1593,27 @@ class Mollie extends \Opencart\System\Engine\Controller {
             // Create subscriptions if any
             $this->createSubscription($order, $paymentDetails);
 
-            if ($paymentDetails->isPaid() || $paymentDetails->isAuthorized() || $paymentDetails->isPending()) {
+            if ($paymentDetails->isPaid() || $paymentDetails->isAuthorized()) {
                 $success_redirect = true;
+            } elseif ($paymentDetails->isPending()) {
+                $maxAttempts = 5;
+                $delay = 500000;
+
+                for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+                    $this->writeToMollieLog("Callback: Payment status 'pending'. Status check attempt: {$attempt}");
+
+                    usleep($delay);
+
+                    $paymentDetails = $this->getAPIClient()->payments->get($mollie_payment_id);
+
+                    if (!$paymentDetails->isPending()) {
+                        break;
+                    }
+                }
+
+                if ($paymentDetails->isPaid() || $paymentDetails->isAuthorized()) {
+                    $success_redirect = true;
+                }
             }
         }
 
@@ -1753,7 +1833,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
 
     public function reportError(): void {
         $json = [];
-        if (($this->request->server['REQUEST_METHOD'] == 'POST') && !empty($this->request->post['mollie_error'])) {
+        if (isset($this->session->data['admin_login']) && ($this->request->server['REQUEST_METHOD'] == 'POST') && !empty($this->request->post['mollie_error'])) {
             $this->load->language("extension/mollie/payment/mollie");
 
             $name = (string)$this->config->get('config_name');
@@ -1876,9 +1956,22 @@ class Mollie extends \Opencart\System\Engine\Controller {
     }
 
     // Credit Order
+    //
+    // Only reachable via the admin's call() action (admin/controller/mollie.php), which
+    // dispatches here in-process after its own hasPermission('modify', 'sale/order') check
+    // and stamps mollie_admin_call into the session it builds for that dispatch. A direct
+    // public request to this catalog route has no way to set that flag in its own session,
+    // since nothing else in this codebase ever sets it.
     public function creditOrder(): void {
         $json = [];
         $no_stock_mutation = [];
+
+        if (empty($this->session->data['mollie_admin_call'])) {
+            $this->response->addHeader('Content-Type: application/json');
+            $this->response->setOutput(json_encode(['error' => 'Permission denied.']));
+
+            return;
+        }
 
         $this->load->model('checkout/order');
         $order_id = (int)($this->request->get['order_id'] ?? 0);
@@ -2012,11 +2105,12 @@ class Mollie extends \Opencart\System\Engine\Controller {
         $subscription_id = (int)($this->request->get['subscription_id'] ?? 0);
 
         $subscription_info = $this->model_account_subscription->getSubscription($subscription_id);
-        if ($subscription_info) {
-            $order_id = $subscription_info['order_id'];
-        } else {
+
+        if (!$subscription_info || ((int)($subscription_info['customer_id'] ?? 0) !== (int)$this->customer->getId())) {
             return;
         }
+
+        $order_id = $subscription_info['order_id'];
 
         $mollie_payment = $model->getPayment($order_id);
         $mollie_subscription_id = $mollie_payment['mollie_subscription_id'] ?? '';
@@ -2302,7 +2396,10 @@ class Mollie extends \Opencart\System\Engine\Controller {
         $complete_statuses = (array)$this->config->get('config_complete_status');
         $active_statuses = array_merge($processing_statuses, $complete_statuses);
 
-        $old_status = (int)$order_info['order_status_id'];
+        // This is an after event, so the order holds the new status already. The previous status is the history row before the last one.
+        $previous = $this->db->query("SELECT `order_status_id` FROM `" . DB_PREFIX . "order_history` WHERE `order_id` = '" . $order_id . "' ORDER BY `order_history_id` DESC LIMIT 1, 1");
+
+        $old_status = $previous->num_rows ? (int)$previous->row['order_status_id'] : 0;
         $new_status = $order_status_id;
 
         $was_active = in_array($old_status, $active_statuses);

@@ -36,116 +36,116 @@
  */
 
 // Text
-$_['heading_title']                     = 'Pagamento da Mollie';
-$_['ideal_title']                       = 'Il tuo pagamento';
-$_['text_title']                        = 'Paga online';
-$_['text_redirected']                   = 'Il cliente è stato indirizzato alla schermata di pagamento';
-$_['text_issuer_giftcard']              = 'Seleziona la tua carta regalo';
-$_['text_issuer_ideal']                 = 'Seleziona la tua banca';
-$_['text_issuer_kbc']                   = 'Seleziona il tuo pulsante di pagamento.';
-$_['text_issuer_voucher']               = 'Seleziona il tuo marchio.';
-$_['text_card_details']                 = 'Inserisci i dettagli della tua carta di credito.';
-$_['text_mollie_payments']              = 'Pagamenti sicuri forniti da %s';
-$_['text_subscription_desc']            = 'Ordina %s, %s - %s, Ogni %s per %s';
-$_['text_subscription']                 = '%s ogni %s %s';
-$_['text_length']                       = 'per %s pagamenti';
-$_['text_trial']                        = '%s ogni %s %s per %s pagamenti poi ';
-$_['text_error_report_success']         = 'L\'errore è stato segnalato con successo!';
-$_['text_payment_link_title']	        = 'Collegamento di pagamento Mollie';
-$_['text_payment_link_email_subject']	= 'Payment Link';
-$_['text_payment_link_email_text']	    = "Dear customer, <br /><br /> Click on the link below to complete your payment of {amount} for the order {order_id}.<br /><br /> {payment_link}<br /><br /><br /><br />Regards,<br /><br />{store_name}";
-$_['text_link']                         = 'Per visualizzare il tuo ordine clicca sul link qui sotto:';
-$_['text_footer']                       = 'Per qualsiasi domanda, rispondi a questa email.';
-$_['text_payment_link_full_title']	    = 'Collegamento di pagamento Mollie - Importo complessivo';
-$_['text_payment_link_open_title']	    = 'Collegamento di pagamento Mollie - Importo aperto';
-$_['text_cancelled']                    = 'Il pagamento ricorrente è stato annullato';
-$_['text_subscription_cancel_confirm']  = 'Vuoi annullare l\'abbonamento?';
-$_['text_mollie_open_payment'] 			= 'C\'è ancora un pagamento in sospeso di <strong>%s</strong> per questo ordine.';
+$_['heading_title']                             = 'Pagamento da Mollie';
+$_['ideal_title']                               = 'Il tuo pagamento';
+$_['text_title']                                = 'Paga online';
+$_['text_redirected']                           = 'Il cliente è stato indirizzato alla schermata di pagamento';
+$_['text_issuer_giftcard']                      = 'Seleziona la tua carta regalo';
+$_['text_issuer_ideal']                         = 'Seleziona la tua banca';
+$_['text_issuer_kbc']                           = 'Seleziona il tuo pulsante di pagamento.';
+$_['text_issuer_voucher']                       = 'Seleziona il tuo marchio.';
+$_['text_card_details']                         = 'Inserisci i dettagli della tua carta di credito.';
+$_['text_mollie_payments']                      = 'Pagamenti sicuri forniti da %s';
+$_['text_subscription_desc']                    = 'Ordina %s, %s - %s, Ogni %s per %s';
+$_['text_subscription']                         = '%s ogni %s %s';
+$_['text_length']                               = 'per %s pagamenti';
+$_['text_trial']                                = '%s ogni %s %s per %s pagamenti poi ';
+$_['text_error_report_success']                 = 'L\'errore è stato segnalato con successo!';
+$_['text_payment_link_title']	                = 'Collegamento di pagamento Mollie';
+$_['text_payment_link_email_subject']	        = 'Payment Link';
+$_['text_payment_link_email_text']	            = "Dear customer, <br /><br /> Click on the link below to complete your payment of {amount} for the order {order_id}.<br /><br /> {payment_link}<br /><br /><br /><br />Regards,<br /><br />{store_name}";
+$_['text_link']                                 = 'Per visualizzare il tuo ordine clicca sul link qui sotto:';
+$_['text_footer']                               = 'Per qualsiasi domanda, rispondi a questa email.';
+$_['text_payment_link_full_title']	            = 'Collegamento di pagamento Mollie - Importo complessivo';
+$_['text_payment_link_open_title']	            = 'Collegamento di pagamento Mollie - Importo aperto';
+$_['text_cancelled']                            = 'Il pagamento ricorrente è stato annullato';
+$_['text_subscription_cancel_confirm']          = 'Vuoi annullare l\'abbonamento?';
+$_['text_mollie_open_payment'] 			        = 'C\'è ancora un pagamento in sospeso di <strong>%s</strong> per questo ordine.';
 
 // Button
-$_['button_retry']  = 'Torna alla pagina di pagamento';
-$_['button_report'] = 'Segnala errore';
-$_['button_submit'] = 'Invia';
-$_['button_subscription_cancel'] = 'Annulla abbonamento';
-$_['button_mollie_pay_now']    = 'Paga ora';
+$_['button_retry']                              = 'Torna alla pagina di pagamento';
+$_['button_report']                             = 'Segnala errore';
+$_['button_submit']                             = 'Invia';
+$_['button_subscription_cancel']                = 'Annulla abbonamento';
+$_['button_mollie_pay_now']                     = 'Paga ora';
 
 // Entry
-$_['entry_card_holder'] = 'Nome titolare della carta';
-$_['entry_card_number'] = 'Numero carta';
-$_['entry_expiry_date'] = 'Data di scadenza';
-$_['entry_verification_code'] = 'CVV';
+$_['entry_card_holder']                         = 'Nome titolare della carta';
+$_['entry_card_number']                         = 'Numero carta';
+$_['entry_expiry_date']                         = 'Data di scadenza';
+$_['entry_verification_code']                   = 'CVV';
 
 // Error
-$_['error_card']            = 'Verifica i dettagli della tua carta.';
-$_['error_missing_field']   = 'Informazioni richieste mancanti. Si prega di verificare se sono stati forniti i dettagli dell\'indirizzo di base.';
-$_['error_not_cancelled']   = 'Errore: %s';
+$_['error_card']                                = 'Verifica i dettagli della tua carta.';
+$_['error_missing_field']                       = 'Informazioni richieste mancanti. Si prega di verificare se sono stati forniti i dettagli dell\'indirizzo di base.';
+$_['error_not_cancelled']                       = 'Errore: %s';
 
 // Status page: payment failed (e.g. cancelled).
-$_['heading_failed']    = 'Il tuo pagamento non è stato completato';
-$_['msg_failed']        = 'Purtroppo il tuo pagamento non è andato a buon fine. Fare clic sul pulsante in basso per tornare alla pagina di pagamento e riprovare a impostare un pagamento.';
+$_['heading_failed']                            = 'Il tuo pagamento non è stato completato';
+$_['msg_failed']                                = 'Purtroppo il tuo pagamento non è andato a buon fine. Fare clic sul pulsante in basso per tornare alla pagina di pagamento e riprovare a impostare un pagamento.';
 
 // Status page: payment pending.
-$_['heading_unknown']   = 'Il tuo pagamento è in sospeso';
-$_['msg_unknown']       = 'Il tuo pagamento non è stato ancora ricevuto. Ti invieremo un\'e-mail di conferma nel momento in cui il pagamento sarà ricevuto.';
+$_['heading_unknown']                           = 'Il tuo pagamento è in sospeso';
+$_['msg_unknown']                               = 'Il tuo pagamento non è stato ancora ricevuto. Ti invieremo un\'e-mail di conferma nel momento in cui il pagamento sarà ricevuto.';
 
 // Status page: API failure.
-$_['heading_error'] = 'Si è verificato un errore durante l\'impostazione del pagamento';
-$_['text_error']    = 'Si è verificato un errore durante l\'impostazione del pagamento con Mollie. Fare clic sul pulsante in basso per tornare alla pagina di pagamento.';
+$_['heading_error']                             = 'Si è verificato un errore durante l\'impostazione del pagamento';
+$_['text_error']                                = 'Si è verificato un errore durante l\'impostazione del pagamento con Mollie. Fare clic sul pulsante in basso per tornare alla pagina di pagamento.';
 
 // Payment link
-$_['heading_payment_success'] = 'Il pagamento è stato ricevuto';
-$_['text_payment_success'] = 'Il tuo pagamento è stato completato con successo. Grazie!';
-$_['heading_payment_failed'] = 'Il pagamento è sconosciuto';
-$_['text_payment_failed'] = 'Il tuo pagamento non è stato ancora ricevuto o lo stato del pagamento è sconosciuto. Ti faremo sapere nel momento in cui il pagamento viene ricevuto.';
+$_['heading_payment_success']                   = 'Il pagamento è stato ricevuto';
+$_['text_payment_success']                      = 'Il tuo pagamento è stato completato con successo. Grazie!';
+$_['heading_payment_failed']                    = 'Il pagamento è sconosciuto';
+$_['text_payment_failed']                       = 'Il tuo pagamento non è stato ancora ricevuto o lo stato del pagamento è sconosciuto. Ti faremo sapere nel momento in cui il pagamento viene ricevuto.';
 
 // Response
-$_['response_success']      = 'Il pagamento è stato ricevuto';
-$_['response_none']         = 'Il pagamento non è stato ancora ricevuto';
-$_['response_cancelled']    = 'Il cliente ha annullato il pagamento';
-$_['response_failed']       = 'Purtroppo qualcosa è andato storto. Si prega di riprovare il pagamento.';
-$_['response_expired']      = 'Il pagamento è scaduto';
-$_['response_unknown']      = 'Si è verificato un errore sconosciuto';
-$_['capture_success']       = 'Il pagamento è stato acquisito.';
-$_['refund_cancelled']      = 'Il rimborso è stato annullato.';
-$_['refund_success']        = 'Il rimborso è stato elaborato con successo!';
+$_['response_success']                          = 'Il pagamento è stato ricevuto';
+$_['response_none']                             = 'Il pagamento non è stato ancora ricevuto';
+$_['response_cancelled']                        = 'Il cliente ha annullato il pagamento';
+$_['response_failed']                           = 'Purtroppo qualcosa è andato storto. Si prega di riprovare il pagamento.';
+$_['response_expired']                          = 'Il pagamento è scaduto';
+$_['response_unknown']                          = 'Si è verificato un errore sconosciuto';
+$_['capture_success']                           = 'Il pagamento è stato acquisito.';
+$_['refund_cancelled']                          = 'Il rimborso è stato annullato.';
+$_['refund_success']                            = 'Il rimborso è stato elaborato con successo!';
 
 // Methods
-$_['method_ideal']          = 'iDEAL | Wero';
-$_['method_creditcard']     = 'Carta di credito';
-$_['method_bancontact']     = 'Contatto ban';
-$_['method_banktransfer']   = 'Trasferimento bancario';
-$_['method_belfius']        = 'Belfius Direct Net';
-$_['method_kbc']            = 'Pulsante di pagamento KBC/CBC';
-$_['method_paypal']         = 'PayPal';
-$_['method_giftcard']       = 'Buono regalo';
-$_['method_eps']            = 'EPS';
-$_['method_klarnapaylater'] = 'Klarna paga più tardi';
-$_['method_klarnapaynow']   = 'Klarna paga ora';
-$_['method_klarnasliceit']  = 'Klarna affettalo';
-$_['method_przelewy24']     = 'P24';
-$_['method_applepay']       = 'Apple Pay';
-$_['method_voucher']        = 'Buono';
-$_['method_in3']            = 'iDEAL | Wero in3';
-$_['method_mybank']         = 'MyBank';
-$_['method_billie']         = 'Billie';
-$_['method_klarna']         = 'Paga con Klarna';
-$_['method_twint']          = 'Twint';
-$_['method_blik']           = 'Blik';
-$_['method_bancomatpay']    = 'Bancomat Pay';
-$_['method_trustly']        = 'Trustly';
-$_['method_alma']           = 'Alma';
-$_['method_riverty']        = 'Riverty';
-$_['method_payconiq']       = 'Payconiq';
-$_['method_satispay']       = 'Satispay';
-$_['method_multibanco']     = "Multibanco";
-$_['method_bizum']          = "Bizum";
-$_['method_mbway']          = "MB Way";
-$_['method_paybybank']      = "Paga tramite banca";
-$_['method_swish']          = "Swish";
-$_['method_wero']           = "Wero";
+$_['method_ideal']                              = 'iDEAL | Wero';
+$_['method_creditcard']                         = 'Carta di credito';
+$_['method_bancontact']                         = 'Contatto ban';
+$_['method_banktransfer']                       = 'Trasferimento bancario';
+$_['method_belfius']                            = 'Belfius Direct Net';
+$_['method_kbc']                                = 'Pulsante di pagamento KBC/CBC';
+$_['method_paypal']                             = 'PayPal';
+$_['method_giftcard']                           = 'Buono regalo';
+$_['method_eps']                                = 'EPS';
+$_['method_klarnapaylater']                     = 'Klarna paga più tardi';
+$_['method_klarnapaynow']                       = 'Klarna paga ora';
+$_['method_klarnasliceit']                      = 'Klarna affettalo';
+$_['method_przelewy24']                         = 'P24';
+$_['method_applepay']                           = 'Apple Pay';
+$_['method_voucher']                            = 'Buono';
+$_['method_in3']                                = 'iDEAL | Wero in3';
+$_['method_mybank']                             = 'MyBank';
+$_['method_billie']                             = 'Billie';
+$_['method_klarna']                             = 'Paga con Klarna';
+$_['method_twint']                              = 'Twint';
+$_['method_blik']                               = 'Blik';
+$_['method_bancomatpay']                        = 'Bancomat Pay';
+$_['method_trustly']                            = 'Trustly';
+$_['method_alma']                               = 'Alma';
+$_['method_riverty']                            = 'Riverty';
+$_['method_payconiq']                           = 'Payconiq';
+$_['method_satispay']                           = 'Satispay';
+$_['method_multibanco']                         = "Multibanco";
+$_['method_bizum']                              = "Bizum";
+$_['method_mbway']                              = "MB Way";
+$_['method_paybybank']                          = "Paga tramite banca";
+$_['method_swish']                              = "Swish";
+$_['method_wero']                               = "Wero";
 
 //Round Off Description
-$_['roundoff_description'] = 'Differenza di arrotondamento dovuta alla conversione di valuta';
+$_['roundoff_description']                      = 'Differenza di arrotondamento dovuta alla conversione di valuta';
 
 //Warning
-$_['warning_secure_connection'] = 'Assicurati di utilizzare una connessione sicura.';
+$_['warning_secure_connection']                 = 'Assicurati di utilizzare una connessione sicura.';

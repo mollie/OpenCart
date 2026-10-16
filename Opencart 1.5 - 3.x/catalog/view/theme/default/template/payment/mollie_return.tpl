@@ -58,7 +58,7 @@ $(document).ready(function(){
     $.ajax({
       type: "POST",
       url: 'index.php?route=payment/mollie/base/reportError',
-      data: "mollie_error=" + error,
+      data: "mollie_error=" + encodeURIComponent(error),
       beforeSend: function() {
         $('#report-error').button('loading');
       },

@@ -12,8 +12,7 @@ class MollieBankTransfer extends \Opencart\Catalog\Controller\Extension\Mollie\M
 	 *
 	 * @return bool
 	 */
-	protected function startAsPending ()
-	{
-		return TRUE;
+	protected function startAsPending(): bool {
+		return true;
 	}
 }

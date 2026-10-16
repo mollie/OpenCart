@@ -228,7 +228,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
             7 => [
                 "code" => "mollie_product_model_add",
                 "description" => "Mollie Payment - Add mollie data to product model (Add)",
-                "trigger" => "admin/model/catalog/product.addProduct/after",
+                "trigger" => version_compare(VERSION, '4.1.0.0', '>=') ? "admin/model/catalog/product.addProduct/after" : "admin/model/catalog/product/addProduct/after",
                 "action" => 'extension/mollie/payment/mollie_ideal' . $this->getMethodSeparator() . 'productModelAddProductAfter',
                 "status" => 1,
                 "sort_order" => 0
@@ -236,7 +236,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
             8 => [
                 "code" => "mollie_product_model_edit",
                 "description" => "Mollie Payment - Add mollie data to product model (Edit)",
-                "trigger" => "admin/model/catalog/product.editProduct/after",
+                "trigger" => version_compare(VERSION, '4.1.0.0', '>=') ? "admin/model/catalog/product.editProduct/after" : "admin/model/catalog/product/editProduct/after",
                 "action" => 'extension/mollie/payment/mollie_ideal' . $this->getMethodSeparator() . 'productModelEditProductAfter',
                 "status" => 1,
                 "sort_order" => 0
@@ -260,7 +260,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
             11 => [
                 "code" => "mollie_mail_order_controller",
                 "description" => "Mollie Payment - Add payment link to order mail controller",
-                "trigger" => "catalog/view/mail/order_add/before",
+                "trigger" => version_compare(VERSION, '4.1.0.0', '>=') ? "catalog/view/mail/order_add/before" : "catalog/view/mail/order_invoice/before", // OpenCart 4.0.2.x sends the new order mail with the order_invoice template
                 "action" => 'extension/mollie/payment/mollie_ideal' . $this->getMethodSeparator() . 'mailOrderController',
                 "status" => 1,
                 "sort_order" => 0
@@ -268,7 +268,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
             12 => [
                 "code" => "mollie_mail_order_template",
                 "description" => "Mollie Payment - Add payment link to order mail template",
-                "trigger" => "catalog/view/mail/order_add/before",
+                "trigger" => version_compare(VERSION, '4.1.0.0', '>=') ? "catalog/view/mail/order_add/before" : "catalog/view/mail/order_invoice/before", // OpenCart 4.0.2.x sends the new order mail with the order_invoice template
                 "action" => 'extension/mollie/payment/mollie_ideal' . $this->getMethodSeparator() . 'mailOrderTemplate',
                 "status" => 1,
                 "sort_order" => 0
@@ -292,7 +292,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
             15 => [
                 "code" => "mollie_get_methods_after",
                 "description" => "Mollie Payment",
-                "trigger" => "catalog/model/checkout/payment_method.getMethods/after",
+                "trigger" => version_compare(VERSION, '4.1.0.0', '>=') ? "catalog/model/checkout/payment_method.getMethods/after" : "catalog/model/checkout/payment_method/getMethods/after",
                 "action" => 'extension/mollie/payment/mollie_ideal' . $this->getMethodSeparator() . 'getPaymentMethodsAfter',
                 "status" => 1,
                 "sort_order" => 0
@@ -300,7 +300,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
             16 => [
                 "code" => "mollie_add_order_after",
                 "description" => "Mollie Payment",
-                "trigger" => "catalog/model/checkout/order.addOrder/after",
+                "trigger" => version_compare(VERSION, '4.1.0.0', '>=') ? "catalog/model/checkout/order.addOrder/after" : "catalog/model/checkout/order/addOrder/after",
                 "action" => 'extension/mollie/payment/mollie_ideal' . $this->getMethodSeparator() . 'addOrderAfter',
                 "status" => 1,
                 "sort_order" => 0
@@ -308,7 +308,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
             17 => [ // the trigger can also be: admin/model/sale/order.editOrder/after
                 "code" => "mollie_edit_order_after",
                 "description" => "Mollie Payment",
-                "trigger" => "catalog/model/checkout/order.editOrder/after",
+                "trigger" => version_compare(VERSION, '4.1.0.0', '>=') ? "catalog/model/checkout/order.editOrder/after" : "catalog/model/checkout/order/editOrder/after",
                 "action" => 'extension/mollie/payment/mollie_ideal' . $this->getMethodSeparator() . 'editOrderAfter',
                 "status" => 1,
                 "sort_order" => 0
@@ -316,7 +316,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
             18 => [
                 "code" => "mollie_add_history_after",
                 "description" => "Mollie Payment",
-                "trigger" => "catalog/model/checkout/order.addHistory/after",
+                "trigger" => version_compare(VERSION, '4.1.0.0', '>=') ? "catalog/model/checkout/order.addHistory/after" : "catalog/model/checkout/order/addHistory/after",
                 "action" => 'extension/mollie/payment/mollie_ideal' . $this->getMethodSeparator() . 'addHistoryAfter',
                 "status" => 1,
                 "sort_order" => 0
@@ -538,6 +538,10 @@ class Mollie extends \Opencart\System\Engine\Controller {
      * * @return void
      */
 	public function clearData(): void {
+		if (!$this->user->hasPermission('modify', 'extension/mollie/payment/mollie_' . static::MODULE_NAME)) {
+			return;
+		}
+
 		foreach (DEPRECATED_METHODS as $method) {
             // PHP 8.1 Safe DB Escaping for security
             $escaped_method = $this->db->escape($method);
@@ -758,7 +762,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
         $data['module_update']      = false;
 
         if ($update_url_data) {
-            if (version_compare(phpversion(), \MollieHelper::NEXT_PHP_VERSION, "<") && ((int)$update_url_data['updateVersion'] > (int)MOLLIE_VERSION)) {
+            if (version_compare(phpversion(), \MollieHelper::NEXT_PHP_VERSION, "<") && version_compare($update_url_data['updateVersion'], MOLLIE_VERSION, ">")) {
                 $data['text_update'] = $update_url_data ? sprintf($this->language->get('text_update_message_warning'), \MollieHelper::NEXT_PHP_VERSION, $update_url_data['updateVersion'], $update_url_data['updateVersion']) : '';
             } else {
                 $data['text_update'] = $update_url_data ? sprintf($this->language->get('text_update_message'), $update_url_data['updateVersion'], $data['update_url'], $update_url_data['updateVersion']) : '';
@@ -814,6 +818,8 @@ class Mollie extends \Opencart\System\Engine\Controller {
 			$code . "_create_shipment_status_id"  				=> 3,
 			$code . "_ideal_refund_status_id"  					=> 11,
 			$code . "_ideal_refund_status_notify"  				=> FALSE,
+            $code . "_ideal_capture_status_id"  			    => 0,
+            $code . "_ideal_capture_status_notify" 			    => FALSE,
 			$code . "_ideal_partial_refund_status_id"  			=> 11,
 			$code . "_ideal_partial_refund_status_notify"  		=> FALSE,
 			$code . "_create_shipment"  		  				=> 3,
@@ -824,6 +830,7 @@ class Mollie extends \Opencart\System\Engine\Controller {
 			$code . "_mollie_component"  		  				=> FALSE,
 			$code . "_single_click_payment"  		  			=> FALSE,
 			$code . "_partial_credit_order"  		  			=> FALSE,
+            $code . "_combine_address"        		  			=> TRUE,
 			$code . "_order_expiry_days"  		  			    => 25,
 			$code . "_payment_link"  		  			        => 0,
 			$code . "_payment_link_email"  		  				=> [],
@@ -1083,12 +1090,22 @@ class Mollie extends \Opencart\System\Engine\Controller {
 			'message' => '',
 		];
 
-		if (empty($this->request->get['key'])) {
+		if (!$this->user->hasPermission('modify', 'extension/mollie/payment/mollie_' . static::MODULE_NAME)) {
+			$json['error'] = true;
+			$json['message'] = $this->language->get('error_permission');
+
+			$this->response->addHeader('Content-Type: application/json');
+			$this->response->setOutput(json_encode($json));
+
+			return;
+		}
+
+		if (empty($this->request->post['key'])) {
 			$json['invalid'] = true;
 			$json['message'] = $this->language->get('error_no_api_client');
 		} else {
 			try {
-				$client = $this->mollieHelper->getAPIClientForKey((string)$this->request->get['key']);
+				$client = $this->mollieHelper->getAPIClientForKey((string)$this->request->post['key']);
 
 				if (!$client) {
 					$json['invalid'] = true;
@@ -1162,6 +1179,10 @@ class Mollie extends \Opencart\System\Engine\Controller {
 	}
 
 	public function saveAPIKey(): bool {
+		if (!$this->user->hasPermission('modify', 'extension/mollie/payment/mollie_' . static::MODULE_NAME)) {
+			return false;
+		}
+
 		$this->load->model('setting/setting');
 		$store_id = (int)($this->request->post['store_id'] ?? 0);
 		$code = $this->mollieHelper->getModuleCode();
@@ -1174,8 +1195,17 @@ class Mollie extends \Opencart\System\Engine\Controller {
 	}
 
 	private function getUpdateUrl(): array|bool {
-        $client = new mollieHttpClient();
-        $info = $client->get(MOLLIE_VERSION_URL);
+        $cacheFile = MOLLIE_TMP . '/mollie_update_check.json';
+        $cacheTtl = 3600; // Avoid hitting GitHub on every settings page render.
+
+        if (is_file($cacheFile) && (filemtime($cacheFile) > (time() - $cacheTtl))) {
+            $info = json_decode((string)file_get_contents($cacheFile), true);
+        } else {
+            $client = new mollieHttpClient();
+            $info = $client->get(MOLLIE_VERSION_URL);
+
+            file_put_contents($cacheFile, json_encode($info));
+        }
 
         if (isset($info["tag_name"])) {
             if (str_contains((string)$info["tag_name"], 'oc4')) {
@@ -1217,7 +1247,9 @@ class Mollie extends \Opencart\System\Engine\Controller {
 	}
 
     public function update(): void {
-        if (!$this->getUpdateUrl() || (version_compare(phpversion(), \MollieHelper::NEXT_PHP_VERSION, "<") && ((int)$this->getUpdateUrl()['updateVersion'] > (int)MOLLIE_VERSION))) {
+        $updateUrlData = $this->getUpdateUrl();
+
+        if (!$this->user->hasPermission('modify', 'extension/mollie/payment/mollie_' . static::MODULE_NAME) || !$updateUrlData || (version_compare(phpversion(), \MollieHelper::NEXT_PHP_VERSION, "<") && version_compare($updateUrlData['updateVersion'], MOLLIE_VERSION, ">"))) {
 			$this->response->redirect($this->url->link('extension/mollie/payment/mollie_' . static::MODULE_NAME, $this->token));
             return;
 		}
@@ -1256,6 +1288,44 @@ class Mollie extends \Opencart\System\Engine\Controller {
             $zip->close();
         } else {
             shell_exec("unzip " . escapeshellarg($temp_file) . " -d " . escapeshellarg($temp_dir));
+        }
+
+        // The release asset holds the installer package (mollie.ocmod.zip), which has the layout of the extension folder.
+        $package = $temp_dir . "/mollie.ocmod.zip";
+
+        if (is_file($package)) {
+            $package_dir = $temp_dir . "/mollie_package";
+
+            if (class_exists("ZipArchive")) {
+                $zip = new \ZipArchive;
+                $zip->open($package);
+                $zip->extractTo($package_dir);
+                $zip->close();
+            } else {
+                shell_exec("unzip " . escapeshellarg($package) . " -d " . escapeshellarg($package_dir));
+            }
+
+            if (!is_dir(DIR_EXTENSION . 'mollie')) {
+                mkdir(DIR_EXTENSION . 'mollie');
+            }
+
+            foreach (scandir($package_dir) as $file) {
+                if ($file == "." || $file == "..") {
+                    continue;
+                }
+
+                if ($file == "image") {
+                    $this->cpy($package_dir . "/" . $file, DIR_IMAGE);
+                } elseif (is_dir($package_dir . "/" . $file)) {
+                    if (!is_dir(DIR_EXTENSION . 'mollie/' . $file)) {
+                        mkdir(DIR_EXTENSION . 'mollie/' . $file);
+                    }
+
+                    $this->cpy($package_dir . "/" . $file, DIR_EXTENSION . 'mollie/' . $file);
+                } else {
+                    copy($package_dir . "/" . $file, DIR_EXTENSION . 'mollie/' . $file);
+                }
+            }
         }
 
         $handle_dir = opendir($temp_dir);
@@ -1331,6 +1401,12 @@ class Mollie extends \Opencart\System\Engine\Controller {
 
 	public function download(): void {
 		$this->load->language('extension/mollie/payment/mollie');
+
+		if (!$this->user->hasPermission('modify', 'extension/mollie/payment/mollie_' . static::MODULE_NAME)) {
+			$this->session->data['error'] = $this->language->get('error_permission');
+			$this->response->redirect($this->url->link('extension/mollie/payment/mollie_' . static::MODULE_NAME, $this->token));
+			return;
+		}
 
 		$filename = 'Mollie.log';
 		$file = DIR_LOGS . $filename;
@@ -1474,6 +1550,15 @@ class Mollie extends \Opencart\System\Engine\Controller {
         $json = [];
         $json['error'] = false;
 
+        if (!$this->user->hasPermission('modify', 'extension/mollie/payment/mollie_' . static::MODULE_NAME)) {
+            $json['error'] = $this->language->get('error_permission');
+
+            $this->response->addHeader('Content-Type: application/json');
+            $this->response->setOutput(json_encode($json));
+
+            return;
+        }
+
         $log = new \Opencart\System\Library\Log('Mollie.log');
         $mollieHelper = new \MollieHelper($this->registry);
         $moduleCode = $mollieHelper->getModuleCode();
@@ -1578,6 +1663,15 @@ class Mollie extends \Opencart\System\Engine\Controller {
         $json = [];
         $json['error'] = false;
 
+        if (!$this->user->hasPermission('modify', 'extension/mollie/payment/mollie_' . static::MODULE_NAME)) {
+            $json['error'] = $this->language->get('error_permission');
+
+            $this->response->addHeader('Content-Type: application/json');
+            $this->response->setOutput(json_encode($json));
+
+            return;
+        }
+
         $log = new \Opencart\System\Library\Log('Mollie.log');
         $mollieHelper = new \MollieHelper($this->registry);
         $moduleCode = $mollieHelper->getModuleCode();
@@ -1658,31 +1752,70 @@ class Mollie extends \Opencart\System\Engine\Controller {
                 if (!empty($lines)) {
                     if (!empty($molliePaymentDetails['transaction_id'])) {
                         try {
-                            $amount = 0;
+                            $molliePayment = $this->getAPIClient($order['store_id'])->payments->get($molliePaymentDetails['transaction_id'], ["embed" => "refunds"]);
+                            $refundedQuantities = $this->model_extension_mollie_payment_mollie->getRefundedQuantities($molliePayment);
+
+                            $ordered_quantities = [];
                             foreach ($order_products as $product) {
-                                if (in_array($product['order_product_id'], $orderProductIDs)) {
-                                    $amount += $this->currency->format($product['total'] + ($this->config->get('config_tax') ? ($product['tax'] * $product['quantity']) : 0), $order['currency_code'], false, false);
-                                }
+                                $ordered_quantities[$product['order_product_id']] = (int)$product['quantity'];
                             }
 
-                            $refundObject = $this->getAPIClient($order['store_id'])->send(
-                                new CreatePaymentRefundRequest(
-                                    paymentId: $molliePaymentDetails['transaction_id'],
-                                    description: "Partial refund for order - $order_id",
-                                    amount: new Money(currency: $order['currency_code'], value: (string)$this->numberFormat($amount, $order['currency_code'])),
-                                    metadata: [
-                                        "order_id" => $order_id,
-                                        "order_product_id" => json_encode($lines),
-                                        "transaction_id" => $molliePaymentDetails['transaction_id']
-                                    ]
-                                )
-                            );
+                            // Never refund more of a line than is still left after earlier refunds
+                            $refund_quantities = [];
+                            foreach ($lines as $key => $line) {
+                                $ordered = $ordered_quantities[$line['order_product_id']] ?? 0;
+                                $already = $refundedQuantities[$line['order_product_id']] ?? 0;
+                                $quantity = max(0, min((int)$line['quantity'], $ordered - $already));
 
-                            if ($this->config->get($moduleCode . "_partial_credit_order")) {
-                                $json['partial_credit_order'] = true;
+                                if ($quantity > 0) {
+                                    $lines[$key]['quantity'] = $quantity;
+                                    $refund_quantities[$line['order_product_id']] = $quantity;
+                                } else {
+                                    unset($lines[$key]);
+                                }
+                            }
+                            $lines = array_values($lines);
+
+                            if (empty($refund_quantities)) {
+                                $log->write("Creating refund failed: no refundable quantity left for order_id - $order_id");
+                                $json['error'] = $this->language->get('text_no_refund');
                             } else {
-                                if (!empty($stock_mutation_data)) {
-                                    $this->model_extension_mollie_payment_mollie->stockMutation($order_id, $stock_mutation_data);
+                                $amount = 0;
+                                foreach ($order_products as $product) {
+                                    if (isset($refund_quantities[$product['order_product_id']])) {
+                                        $unit_price = $product['price'] + ($this->config->get('config_tax') ? $product['tax'] : 0);
+                                        $amount += $this->currency->format($unit_price * $refund_quantities[$product['order_product_id']], $order['currency_code'], false, false);
+                                    }
+                                }
+
+                                $refundObject = $this->getAPIClient($order['store_id'])->send(
+                                    new CreatePaymentRefundRequest(
+                                        paymentId: $molliePaymentDetails['transaction_id'],
+                                        description: "Partial refund for order - $order_id",
+                                        amount: new Money(currency: $order['currency_code'], value: (string)$this->numberFormat($amount, $order['currency_code'])),
+                                        metadata: [
+                                            "order_id" => $order_id,
+                                            "order_product_id" => json_encode($lines),
+                                            "transaction_id" => $molliePaymentDetails['transaction_id']
+                                        ]
+                                    )
+                                );
+
+                                if ($this->config->get($moduleCode . "_partial_credit_order")) {
+                                    $json['partial_credit_order'] = true;
+                                } else {
+                                    // Restock only what was actually refunded
+                                    foreach ($stock_mutation_data as $key => $stock_line) {
+                                        if (isset($refund_quantities[$stock_line['order_product_id']])) {
+                                            $stock_mutation_data[$key]['quantity'] = $refund_quantities[$stock_line['order_product_id']];
+                                        } else {
+                                            unset($stock_mutation_data[$key]);
+                                        }
+                                    }
+
+                                    if (!empty($stock_mutation_data)) {
+                                        $this->model_extension_mollie_payment_mollie->stockMutation($order_id, $stock_mutation_data);
+                                    }
                                 }
                             }
                         } catch (\Mollie\Api\Exceptions\ApiException $e) {
@@ -1734,6 +1867,9 @@ class Mollie extends \Opencart\System\Engine\Controller {
                 ];
                 $this->model_extension_mollie_payment_mollie->addMollieRefund($data);
 
+                // Moving the order to the partial refund status must not restock the whole order
+                $this->model_extension_mollie_payment_mollie->disableStockMutation($order_id);
+
             } elseif (!$json['error']) {
                 $log->write('Partial Refund can not be processed for order_id - ' . $order_id . ' and transaction_id - ' . ($molliePaymentDetails['transaction_id'] ?? 'unknown'));
                 $json['error'] = $this->language->get('text_no_refund');
@@ -1767,6 +1903,13 @@ class Mollie extends \Opencart\System\Engine\Controller {
             $payment_code = (string)($order_info['payment_method']['code'] ?? $order_info['payment_code'] ?? '');
             $moduleCode = $this->mollieHelper->getModuleCode();
             $data['mollie_pending_status_id'] = (int)$this->config->get($moduleCode . '_ideal_pending_status_id');
+
+            // OpenCart 4.1 replaced the action parameter of sale/order.call by a call parameter
+            if (version_compare(VERSION, '4.1.0.0', '>=')) {
+                $data['mollie_history_url'] = 'index.php?route=sale/order.call&' . $this->token . '&call=history_add&store_id=' . (int)$order_info['store_id'];
+            } else {
+                $data['mollie_history_url'] = 'index.php?route=sale/order|call&' . $this->token . '&action=sale/order|addHistory';
+            }
 
             $molliePaymentDetails = $this->model_extension_mollie_payment_mollie->getMolliePayment($order_id);
             $mollie_payments = $this->model_extension_mollie_payment_mollie->getMolliePayments($order_id);
@@ -1839,29 +1982,16 @@ class Mollie extends \Opencart\System\Engine\Controller {
                         $order_products = $this->model_sale_order->getProducts($order_id);
                         $molliePayment = $this->getAPIClient($order_info['store_id'])->payments->get($molliePaymentDetails['transaction_id'], ["embed" => "refunds"]);
 
-                        $refundedLines = [];
-                        if(!empty($molliePayment->_embedded->refunds)) {
-                            foreach ($molliePayment->_embedded->refunds as $refund) {
-                                $order_product_ids = [];
-
-                                if (isset($refund->metadata) && isset($refund->metadata->order_product_id)) {
-                                    $order_product_ids = json_decode($refund->metadata->order_product_id, true);
-                                }
-
-                                if (is_array($order_product_ids)) {
-                                    foreach ($order_product_ids as $order_product) {
-                                        $refundedLines[] = $order_product['order_product_id'];
-                                    }
-                                }
-                            }
-                        }
+                        $refundedQuantities = $this->model_extension_mollie_payment_mollie->getRefundedQuantities($molliePayment);
 
                         foreach ($order_products as $_product) {
-                            if (!in_array($_product['order_product_id'], $refundedLines)) {
-                                $productlines[] = array(
+                            $remaining = (int)$_product['quantity'] - ($refundedQuantities[$_product['order_product_id']] ?? 0);
+
+                            if ($remaining > 0) {
+                                $data['productlines'][] = array(
                                     "name" => $_product['name'],
                                     "option" => $this->model_sale_order->getOptions($order_id, $_product['order_product_id']),
-                                    "quantity" => $_product['quantity'],
+                                    "quantity" => $remaining,
                                     "order_product_id" => $_product['order_product_id']
                                 );
                             }
@@ -2192,6 +2322,11 @@ class Mollie extends \Opencart\System\Engine\Controller {
 		if (!$json) {
 			$this->load->model('setting/store');
 			$store = $this->model_setting_store->createStoreInstance($store_id, $language, $session_id);
+
+			// Marks this in-process dispatch as coming from an admin request that already
+			// passed the hasPermission() check above, so actions that must never be reachable
+			// via a direct public catalog request (e.g. creditOrder()) can require it.
+			$store->session->data['mollie_admin_call'] = true;
 
 			$store->request->get = $this->request->get;
 			$store->request->post = $this->request->post;

@@ -19,7 +19,8 @@ class Mollie extends \Opencart\System\Engine\Model {
             `subscription_end` DATETIME,
             `date_modified` DATETIME NOT NULL,
             `payment_attempt` INT(11) NOT NULL,
-            PRIMARY KEY (`transaction_id`)
+            PRIMARY KEY (`transaction_id`),
+            INDEX `idx_order_id` (`order_id`)
         ) DEFAULT CHARSET=utf8");
 
         // Create mollie customers table
@@ -29,7 +30,8 @@ class Mollie extends \Opencart\System\Engine\Model {
             `customer_id` INT(11) NOT NULL,
             `email` VARCHAR(96) NOT NULL,
             `date_created` DATETIME NOT NULL,
-            PRIMARY KEY (`id`)
+            PRIMARY KEY (`id`),
+            INDEX `idx_email` (`email`)
         ) DEFAULT CHARSET=utf8");
 
         // Create mollie subscription payments table
@@ -56,7 +58,8 @@ class Mollie extends \Opencart\System\Engine\Model {
             `currency_code` VARCHAR(32),
             `status` VARCHAR(20),
             `date_created` DATETIME NOT NULL,
-            PRIMARY KEY (`id`)
+            PRIMARY KEY (`id`),
+            INDEX `idx_order_id` (`order_id`)
         ) DEFAULT CHARSET=utf8");
 
         // Create mollie payment link table
@@ -69,7 +72,8 @@ class Mollie extends \Opencart\System\Engine\Model {
             `currency_code` VARCHAR(32),
             `date_created` DATETIME NOT NULL,
             `date_payment` DATETIME,
-            PRIMARY KEY (`id`)
+            PRIMARY KEY (`id`),
+            INDEX `idx_order_id` (`order_id`)
         ) DEFAULT CHARSET=utf8");
 
         $this->db->query("ALTER TABLE `" . DB_PREFIX . "order` MODIFY `payment_method` VARCHAR(255) NOT NULL;");
@@ -90,6 +94,24 @@ class Mollie extends \Opencart\System\Engine\Model {
 
         if ($this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "mollie_payments` LIKE 'subscription_id'")->num_rows) {
             $this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_payments` CHANGE `subscription_id` `mollie_subscription_id` VARCHAR(32)");
+        }
+
+        // Add lookup indexes for existing installations upgrading from a version without
+        // them (fresh installs already get these via CREATE TABLE above).
+        if (!$this->db->query("SHOW INDEX FROM `" . DB_PREFIX . "mollie_payments` WHERE Key_name = 'idx_order_id'")->num_rows) {
+            $this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_payments` ADD INDEX `idx_order_id` (`order_id`)");
+        }
+
+        if (!$this->db->query("SHOW INDEX FROM `" . DB_PREFIX . "mollie_customers` WHERE Key_name = 'idx_email'")->num_rows) {
+            $this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_customers` ADD INDEX `idx_email` (`email`)");
+        }
+
+        if (!$this->db->query("SHOW INDEX FROM `" . DB_PREFIX . "mollie_refund` WHERE Key_name = 'idx_order_id'")->num_rows) {
+            $this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_refund` ADD INDEX `idx_order_id` (`order_id`)");
+        }
+
+        if (!$this->db->query("SHOW INDEX FROM `" . DB_PREFIX . "mollie_payment_link` WHERE Key_name = 'idx_order_id'")->num_rows) {
+            $this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_payment_link` ADD INDEX `idx_order_id` (`order_id`)");
         }
     }
 
@@ -139,6 +161,43 @@ class Mollie extends \Opencart\System\Engine\Model {
 
     public function addMollieRefund(array $data): void {
         $this->db->query("INSERT INTO `" . DB_PREFIX . "mollie_refund` SET refund_id = '" . $this->db->escape($data['refund_id']) . "', order_id = '" . (int)$data['order_id'] . "', transaction_id = '" . $this->db->escape($data['transaction_id']) . "', amount = '" . (float)$data['amount'] . "', currency_code = '" . $this->db->escape($data['currency_code']) . "', status = '" . $this->db->escape($data['status']) . "', date_created = NOW()");
+    }
+
+    /**
+     * Stop OpenCart from restocking the lines of this order a second time when the order status changes
+     * (the refunded products were restocked already, see addHistoryAfter in the catalog controller).
+     */
+    public function disableStockMutation(int $order_id): void {
+        $this->db->query("UPDATE `" . DB_PREFIX . "order_product` SET `stock_mutation` = '0' WHERE `order_id` = '" . (int)$order_id . "'");
+    }
+
+    /**
+     * Quantity per order_product_id that was refunded already, read from the refund metadata
+     * of a payment fetched with the refunds embedded.
+     */
+    public function getRefundedQuantities(object $molliePayment): array {
+        $refundedQuantities = [];
+
+        foreach (($molliePayment->_embedded->refunds ?? []) as $refund) {
+            if (isset($refund->status) && in_array($refund->status, ['failed', 'canceled'])) {
+                continue;
+            }
+
+            $order_products = [];
+
+            if (isset($refund->metadata) && isset($refund->metadata->order_product_id)) {
+                $order_products = json_decode($refund->metadata->order_product_id, true);
+            }
+
+            if (is_array($order_products)) {
+                foreach ($order_products as $order_product) {
+                    $id = $order_product['order_product_id'];
+                    $refundedQuantities[$id] = ($refundedQuantities[$id] ?? 0) + (int)$order_product['quantity'];
+                }
+            }
+        }
+
+        return $refundedQuantities;
     }
 
     public function stockMutation(int $order_id, array $data = []): void {

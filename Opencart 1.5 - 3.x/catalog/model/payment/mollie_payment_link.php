@@ -52,7 +52,8 @@ class ModelPaymentMolliePaymentLink extends Model {
 
 		$data = array();
 
-		if (version_compare(VERSION, '2.3', '>')) {
+		// Same rule as MollieHelper::getModuleCode(): the 'payment_' prefix is only used from OC 3.0 (2.3.0.x also stores 'mollie_*')
+		if (version_compare(VERSION, '3.0', '>=')) {
 			$moduleCode = 'payment_mollie';
 		} else {
 			$moduleCode = 'mollie';
@@ -157,13 +158,20 @@ class ModelPaymentMolliePaymentLink extends Model {
 			$data['payment_link'] = str_replace(array("\r\n", "\r", "\n"), '<br />', preg_replace(array("/\s\s+/", "/\r\r+/", "/\n\n+/"), '<br />', trim(str_replace($find, $replace, $payment_link_text))));
 			
 			if (!$this->config->get($moduleCode . '_payment_link')) {
-				$from = $this->model_setting_setting->getSettingValue('config_email', $order_info['store_id']);
+				// getSettingValue() only exists on the catalog setting model from OC 3.0
+				if (version_compare(VERSION, '3.0', '>=')) {
+					$from = $this->model_setting_setting->getSettingValue('config_email', $order_info['store_id']);
+				} else {
+					$store_settings = $this->model_setting_setting->getSetting('config', $order_info['store_id']);
+					$from = isset($store_settings['config_email']) ? $store_settings['config_email'] : '';
+				}
 			
 				if (!$from) {
 					$from = $this->config->get('config_email');
 				}
 				
-				if (version_compare(VERSION, '2.3', '>')) {
+				// The Mail adaptor (config_mail_engine) only exists from OC 3.0, OC 2.x still uses the protocol property
+				if (version_compare(VERSION, '3.0', '>=')) {
 					$mail = new Mail($this->config->get('config_mail_engine'));
 				} else {
 					$mail = new Mail();

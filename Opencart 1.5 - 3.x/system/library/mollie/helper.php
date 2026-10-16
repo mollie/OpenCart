@@ -4,9 +4,7 @@ use Mollie\Api\MollieApiClient;
 
 class MollieHelper {
 
-	const PLUGIN_VERSION = "14.1.0";
-
-	const OUTH_URL = 'https://api.mollie.com/oauth2';
+	const PLUGIN_VERSION = "14.1.2";
 
 	const MIN_PHP_VERSION = "7.2.0";
 	const NEXT_PHP_VERSION = "8.2.0";
@@ -212,36 +210,8 @@ class MollieHelper {
 		return version_compare(VERSION, '2.0', '>=');
 	}
 
-	/*public function generateAccessToken($store_id = 0) {
-
-		$client_id = $this->getSettingValue($this->getModuleCode() . '_client_id', $store_id);
-		$client_secret = $this->getSettingValue($this->getModuleCode() . '_client_secret', $store_id);
-		$refresh_token = $this->getSettingValue($this->getModuleCode() . '_refresh_token', $store_id);
-		if(version_compare(VERSION, '2.3.0.2', '>=') == true) {
-			$redirect_uri = HTTPS_SERVER . 'index.php?route=extension/payment/mollie_bancontact/mollieConnectCallback';
-		} else {
-			$redirect_uri = HTTPS_SERVER . 'index.php?route=payment/mollie_bancontact/mollieConnectCallback';
-		}
-
-		if(!empty($client_id) && !empty($client_secret) && !empty($refresh_token)) {
-			$data = array(
-				'client_id' => $client_id,
-	            'client_secret' => $client_secret,
-	            'refresh_token' => $refresh_token,
-				'grant_type' => 'refresh_token',
-				'redirect_uri'		=> $redirect_uri
-			);
-
-			$result = $this->curlRequest('tokens', $data);
-
-			return isset($result->access_token) ? $result->access_token : null;
-		} else {
-			return null;
-		}
-	}*/
-
 	public function getSettingValue($key, $store_id = 0) {
-		$result = $this->db->query("SELECT value FROM " . DB_PREFIX . "setting WHERE store_id = '" . (int)$store_id . "' AND `key` = '" . $key . "'");
+		$result = $this->db->query("SELECT value FROM " . DB_PREFIX . "setting WHERE store_id = '" . (int)$store_id . "' AND `key` = '" . $this->db->escape($key) . "'");
 
 		if (isset($result->row['value'])) {
 			return $result->row['value'];
@@ -249,35 +219,4 @@ class MollieHelper {
 			return null;
 		}
 	}
-
-	public function curlRequest($resource, $data) {
-        // clean up the url
-        $url = rtrim(self::OUTH_URL, '/ ');
-
-        if ( !function_exists('curl_init') ) die('CURL not supported. (introduced in PHP 4.0.2)');
-
-        // define a final API request
-        $api = $url . '/' . $resource;
-
-        $ch = curl_init();
-
-		curl_setopt($ch, CURLOPT_URL, $api);
-		curl_setopt($ch, CURLOPT_POST, TRUE);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-		$response = curl_exec($ch);
-
-		curl_close ($ch);
-
-        if ( !$response ) {
-            die('Nothing was returned.');
-        }
-
-        // This line takes the response and breaks it into an array using:
-        // JSON decoder
-        $result = json_decode($response);
-
-        return $result;
-    }
 }

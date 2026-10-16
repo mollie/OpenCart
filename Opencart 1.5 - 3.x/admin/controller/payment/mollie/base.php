@@ -44,8 +44,9 @@
  */
 
 //Check if VQMod is installed
+// OCMOD is only supported from OC 2.0.2.0, older versions have to use VQMod
 $vqversion = '';
-if(version_compare(VERSION, '2.0', '<')) {
+if(version_compare(VERSION, '2.0.2.0', '<')) {
 	if (!class_exists('VQMod')) {
 	     die('<div class="alert alert-warning"><i class="fa fa-exclamation-circle"></i> This extension requires VQMod. Please download and install it on your shop. You can find the latest release <a href="https://github.com/vqmod/vqmod/releases" target="_blank">here</a>!    <button type="button" class="close" data-dismiss="alert">×</button></div>');
 	} else {
@@ -83,8 +84,6 @@ if (!defined("MOLLIE_TMP")) {
 }
 
 class ControllerPaymentMollieBase extends Controller {
-	const OUTH_URL = 'https://api.mollie.com/oauth2';
-
 	// Initialize var(s)
 	protected $error = array();
 
@@ -159,7 +158,8 @@ class ControllerPaymentMollieBase extends Controller {
 			`customer_id` INT(11) NOT NULL,
 			`email` VARCHAR(96) NOT NULL,
 			`date_created` DATETIME NOT NULL,
-			PRIMARY KEY (`id`)
+			PRIMARY KEY (`id`),
+			INDEX `idx_email` (`email`)
 		) DEFAULT CHARSET=utf8");
 
 		// Create mollie recurring payments table
@@ -184,7 +184,8 @@ class ControllerPaymentMollieBase extends Controller {
 			`amount` decimal(15,4),
 			`currency_code` VARCHAR(32),
 			`date_created` DATETIME NOT NULL,
-			PRIMARY KEY (`id`)
+			PRIMARY KEY (`id`),
+			INDEX `idx_order_id` (`order_id`)
 		) DEFAULT CHARSET=utf8");
 
 		// Create mollie payment link table
@@ -197,7 +198,8 @@ class ControllerPaymentMollieBase extends Controller {
 			`currency_code` VARCHAR(32),
 			`date_created` DATETIME NOT NULL,
 			`date_payment` DATETIME,
-			PRIMARY KEY (`id`)
+			PRIMARY KEY (`id`),
+			INDEX `idx_order_id` (`order_id`)
 		) DEFAULT CHARSET=utf8");
 
 		$this->db->query("ALTER TABLE `" . DB_PREFIX . "order` MODIFY `payment_method` VARCHAR(255) NOT NULL;");
@@ -236,6 +238,26 @@ class ControllerPaymentMollieBase extends Controller {
 			}
 		}
 
+		// Re-add the lookup index (the block above drops every non-primary index,
+		// including this one, so it must be (re)created after it on every run).
+		if (!$this->db->query("SHOW INDEX FROM `" . DB_PREFIX . "mollie_payments` WHERE Key_name = 'idx_order_id'")->row) {
+			$this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_payments` ADD INDEX `idx_order_id` (`order_id`)");
+		}
+
+		// Add lookup indexes for existing installations upgrading from a version
+		// without them (fresh installs already get these via CREATE TABLE above).
+		if (!$this->db->query("SHOW INDEX FROM `" . DB_PREFIX . "mollie_customers` WHERE Key_name = 'idx_email'")->row) {
+			$this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_customers` ADD INDEX `idx_email` (`email`)");
+		}
+
+		if (!$this->db->query("SHOW INDEX FROM `" . DB_PREFIX . "mollie_refund` WHERE Key_name = 'idx_order_id'")->row) {
+			$this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_refund` ADD INDEX `idx_order_id` (`order_id`)");
+		}
+
+		if (!$this->db->query("SHOW INDEX FROM `" . DB_PREFIX . "mollie_payment_link` WHERE Key_name = 'idx_order_id'")->row) {
+			$this->db->query("ALTER TABLE `" . DB_PREFIX . "mollie_payment_link` ADD INDEX `idx_order_id` (`order_id`)");
+		}
+
 		// Add voucher category field
 		if(!$this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "product` LIKE 'voucher_category'")->row) {
 			$this->db->query("ALTER TABLE `" . DB_PREFIX . "product` ADD `voucher_category` VARCHAR(20) NULL");
@@ -259,7 +281,30 @@ class ControllerPaymentMollieBase extends Controller {
 		}
 	}
 
+	// OCMOD is only supported from OC 2.0.2.0. OC 1.5 has no OCMOD at all, OC 2.0.0.0 doesn't load
+	// system/*.ocmod.xml files (added in 2.0.1.0) and the OCMOD engine of 2.0.0.0 - 2.0.1.x
+	// misplaces repeated 'after' operations (fixed in 2.0.2.0). Those versions use VQMod.
+	private function isOcmodSupported() {
+		return version_compare(VERSION, '2.0.2.0', '>=');
+	}
+
+	// The setting table names this column `code` in OC 2.1+ but `group` in OC 1.5 and 2.0.x
+	private function saveModFileSetting($code, $value) {
+		$column = $this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "setting` LIKE 'code'")->num_rows ? '`code`' : '`group`';
+		$key = $this->db->escape($code . '_mod_file');
+
+		$this->db->query("DELETE FROM `" . DB_PREFIX . "setting` WHERE store_id = '0' AND `key` = '" . $key . "'");
+		$this->db->query("INSERT INTO `" . DB_PREFIX . "setting` SET store_id = '0', " . $column . " = '" . $this->db->escape($code) . "', `key` = '" . $key . "', `value` = '" . $this->db->escape($value) . "'");
+	}
+
 	public function enableModFile($keep = '') {
+		// No OCMOD support on this version, VQMod is the only option
+		$vqmodOnly = !$this->isOcmodSupported();
+
+		if ($vqmodOnly && $keep != '') {
+			$keep = 'vqmod';
+		}
+
 		if ($keep != '') {
 			if ($keep == 'vqmod') {
 				if (is_file(DIR_SYSTEM.'../vqmod/xml/mollie.xml_')) {
@@ -275,19 +320,23 @@ class ControllerPaymentMollieBase extends Controller {
 		$code = $this->mollieHelper->getModuleCode();
 
 		$file = isset($this->request->get['file_name']) ? $this->request->get['file_name'] : '';
+		if ($vqmodOnly && $file != '') {
+			$file = 'vqmod';
+		}
+
 		if ($file != '') {
 			if ($file == 'vqmod') {
 				if (is_file(DIR_SYSTEM.'../vqmod/xml/mollie.xml_')) {
 					rename(DIR_SYSTEM.'../vqmod/xml/mollie.xml_', DIR_SYSTEM.'../vqmod/xml/mollie.xml');
 				}
 
-				$this->db->query("INSERT INTO " . DB_PREFIX . "setting SET store_id = '0', `code` = '" . $this->db->escape($code) . "', `key` = '" . $this->db->escape($code . '_mod_file') . "', `value` = 'vqmod'");
+				$this->saveModFileSetting($code, 'vqmod');
 			} else {
 				if (is_file(DIR_SYSTEM.'../system/mollie.ocmod.xml_')) {
 					rename(DIR_SYSTEM.'../system/mollie.ocmod.xml_', DIR_SYSTEM.'../system/mollie.ocmod.xml');
 				}
 
-				$this->db->query("INSERT INTO " . DB_PREFIX . "setting SET store_id = '0', `code` = '" . $this->db->escape($code) . "', `key` = '" . $this->db->escape($code . '_mod_file') . "', `value` = 'ocmod'");
+				$this->saveModFileSetting($code, 'ocmod');
 			}
 		}
 
@@ -303,18 +352,24 @@ class ControllerPaymentMollieBase extends Controller {
 			unlink(DIR_SYSTEM.'../vqmod/mods.cache');
 		}
 
-		if (version_compare(VERSION, '3', '>=')) {
+		if ($vqmodOnly) {
+			$url = $this->url->link('payment/mollie_' . static::MODULE_NAME, $this->token, 'SSL');
+
+			if (version_compare(VERSION, '2.0', '<')) {
+				$this->redirect($url);
+			} else {
+				$this->response->redirect($url);
+			}
+		} elseif (version_compare(VERSION, '3', '>=')) {
 			$this->load->controller('marketplace/modification/refresh');
-		} elseif (version_compare(VERSION, '2', '>=')) {
-			$this->load->controller('extension/modification/refresh');
 		} else {
-			$this->redirect($this->url->link('payment/mollie_' . static::MODULE_NAME, $this->token, 'SSL'));
+			$this->load->controller('extension/modification/refresh');
 		}
 	}
 
 	public function checkModFiles() {
-		if (version_compare(VERSION, '2.0', '<')) {
-			// For OC versions 1.5.x, no ocmod is needed.
+		if (!$this->isOcmodSupported()) {
+			// OC versions below 2.0.2.0 don't use ocmod, only the VQMod file is needed.
 			if (is_file(DIR_SYSTEM.'../vqmod/xml/mollie.xml_')) {
 				rename(DIR_SYSTEM.'../vqmod/xml/mollie.xml_', DIR_SYSTEM.'../vqmod/xml/mollie.xml');
 			}
@@ -334,6 +389,27 @@ class ControllerPaymentMollieBase extends Controller {
 				return '<div class="alert alert-warning"><div style="text-align: center;padding: 20px;background-color: red;color: #fff;font-size: 28px;"><span><i class="fa fa-exclamation-circle"></i> Please choose VQMOD or OCMOD to finalise installation</span></div><div style="display: flex;margin-top: 20px;margin-bottom: 40px;"><div style="width: 50%;text-align: right;margin-right: 10px;"><a href="' . $this->url->link('payment/mollie_' . static::MODULE_NAME . '/enableModFile', 'file_name=ocmod&' . $this->token, 'SSL') . '" class="btn btn-primary" style="padding: 20px;font-size: 18px;">Click Here To Use OCMOD Version</a></div><div style="width: 50%;text-align: left;margin-left: 10px;"><a href="' . $this->url->link('payment/mollie_' . static::MODULE_NAME . '/enableModFile', 'file_name=vqmod&' . $this->token, 'SSL') . '" class="btn btn-primary"  style="padding: 20px;font-size: 18px;">Click Here To Use VQMOD Version</a></div></div>- OCMOD is recommended for opencart versions 2.x and later<br/>- You will be redirected to modification page to refresh modifications<br/>- In case of error please delete the files/folders inside "storage/modification" folder. And refresh again.</div>';
 			}
 		} elseif (is_file(DIR_SYSTEM.'../vqmod/xml/mollie.xml') && is_file(DIR_SYSTEM.'../system/mollie.ocmod.xml')) {
+			// Both files are active (older versions did this when updating): keep the one that was chosen before.
+			$chosen = $this->config->get($this->mollieHelper->getModuleCode() . '_mod_file');
+
+			if (in_array($chosen, array('vqmod', 'ocmod'))) {
+				if ($chosen == 'vqmod') {
+					rename(DIR_SYSTEM.'../system/mollie.ocmod.xml', DIR_SYSTEM.'../system/mollie.ocmod.xml_');
+				} else {
+					rename(DIR_SYSTEM.'../vqmod/xml/mollie.xml', DIR_SYSTEM.'../vqmod/xml/mollie.xml_');
+				}
+
+				if (version_compare(VERSION, '2.0', '>=') && is_dir(DIR_MODIFICATION . 'admin')) {
+					$this->delTree(DIR_MODIFICATION . 'admin');
+				}
+
+				if (is_file(DIR_SYSTEM.'../vqmod/mods.cache')) {
+					unlink(DIR_SYSTEM.'../vqmod/mods.cache');
+				}
+
+				return 'true';
+			}
+
 			return '<div class="alert alert-warning"><div style="text-align: center;padding: 20px;background-color: red;color: #fff;font-size: 28px;margin-bottom:20px;"><span><i class="fa fa-exclamation-circle"></i> Please choose VQMOD or OCMOD to finalise installation</span></div>- Delete vqmod file if you want to use OCMOD version<br/>- Or delete ocmod file if you want to use VQMOD version<br/>- OCMOD is recommended for opencart versions 2.x and later<br/>- In case of error please delete the files/folders inside "storage/modification" folder. And refresh again.</div>';
 		}
 
@@ -716,6 +792,10 @@ class ControllerPaymentMollieBase extends Controller {
 
 	//Delete deprecated method data from setting
 	public function clearData() {
+		if (!$this->hasModifyPermission()) {
+			return;
+		}
+
 		foreach (DEPRECATED_METHODS as $method) {
 			$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "setting WHERE `key` LIKE '%$method%'");
 			if ($query->num_rows > 0) {
@@ -1024,6 +1104,7 @@ class ControllerPaymentMollieBase extends Controller {
 		$data['entry_expired_status'] 						= $this->language->get('entry_expired_status');
 		$data['entry_processing_status'] 					= $this->language->get('entry_processing_status');
 		$data['entry_refund_status'] 						= $this->language->get('entry_refund_status');
+		$data['entry_capture_status'] 						= $this->language->get('entry_capture_status');
 		$data['entry_shipping_status'] 						= $this->language->get('entry_shipping_status');
 		$data['entry_shipment'] 							= $this->language->get('entry_shipment');
 		$data['entry_create_shipment_status'] 				= $this->language->get('entry_create_shipment_status');
@@ -1043,6 +1124,7 @@ class ControllerPaymentMollieBase extends Controller {
 		$data['entry_payment_link_ord_email'] 				= $this->language->get('entry_payment_link_ord_email');
 		$data['entry_partial_credit_order'] 				= $this->language->get('entry_partial_credit_order');
 		$data['entry_notify'] 				                = $this->language->get('entry_notify');
+		$data['entry_combine_address'] 				        = $this->language->get('entry_combine_address');
 
 		$data['error_order_expiry_days'] 					= $this->language->get('error_order_expiry_days');
 
@@ -1060,6 +1142,7 @@ class ControllerPaymentMollieBase extends Controller {
 		$data['help_single_click_payment'] 					= $this->language->get('help_single_click_payment');
 		$data['help_total'] 								= $this->language->get('help_total');
 		$data['help_payment_link'] 							= $this->language->get('help_payment_link');
+		$data['help_combine_address'] 					    = $this->language->get('help_combine_address');
 
 		$data['button_save'] 								= $this->language->get('button_save');
 		$data['button_cancel'] 								= $this->language->get('button_cancel');
@@ -1105,7 +1188,7 @@ class ControllerPaymentMollieBase extends Controller {
 		}
 
 		if ($update_url_data) {
-			if (version_compare(phpversion(), MollieHelper::NEXT_PHP_VERSION, "<") && ((int)$update_url_data['updateVersion'] > (int)MOLLIE_VERSION)) {
+			if (version_compare(phpversion(), MollieHelper::NEXT_PHP_VERSION, "<") && version_compare($update_url_data['updateVersion'], MOLLIE_VERSION, ">")) {
 				$data['text_update'] = sprintf($this->language->get('text_update_message_warning'), $update_url_data['updateVersion'], MollieHelper::NEXT_PHP_VERSION, $update_url_data['updateVersion']);
 			} else {
 				$data['text_update'] = sprintf($this->language->get('text_update_message'), $update_url_data['updateVersion'], $data['update_url'], $update_url_data['updateVersion']);
@@ -1188,6 +1271,8 @@ class ControllerPaymentMollieBase extends Controller {
 			$code . "_create_shipment_status_id"  				=> 3,
 			$code . "_ideal_refund_status_id"  					=> 11,
 			$code . "_ideal_refund_status_notify"  				=> FALSE,
+            $code . "_ideal_capture_status_id"  			    => 0,
+            $code . "_ideal_capture_status_notify" 			    => FALSE,
 			$code . "_ideal_partial_refund_status_id"  			=> 11,
 			$code . "_ideal_partial_refund_status_notify"  		=> FALSE,
 			$code . "_create_shipment"  		  				=> 3,
@@ -1198,6 +1283,7 @@ class ControllerPaymentMollieBase extends Controller {
 			$code . "_mollie_component"  		  				=> FALSE,
 			$code . "_single_click_payment"  		  			=> FALSE,
 			$code . "_partial_credit_order"  		  			=> FALSE,
+			$code . "_combine_address"        		  			=> TRUE,
 			$code . "_order_expiry_days"  		  			    => 25,
 			$code . "_payment_link"  		  			        => 0,
 			$code . "_payment_link_email"  		  				=> array(),
@@ -1474,12 +1560,22 @@ class ControllerPaymentMollieBase extends Controller {
 			'message' => '',
 		);
 
-		if (empty($this->request->get['key'])) {
+		if (!$this->hasModifyPermission()) {
+			$json['error'] = true;
+			$json['message'] = $this->language->get("error_permission");
+
+			$this->response->addHeader('Content-Type: application/json');
+			$this->response->setOutput(json_encode($json));
+
+			return;
+		}
+
+		if (empty($this->request->post['key'])) {
 			$json['invalid'] = true;
 			$json['message'] = $this->language->get('error_no_api_client');
 		} else {
 			try {
-				$client = $this->mollieHelper->getAPIClientForKey($this->request->get['key']);
+				$client = $this->mollieHelper->getAPIClientForKey($this->request->post['key']);
 
 				if (!$client) {
 					$json['invalid'] = true;
@@ -1509,9 +1605,14 @@ class ControllerPaymentMollieBase extends Controller {
 	 * @param int $store The store id
 	 * @return bool
 	 */
-	private function validate ($store = 0) {
+	private function hasModifyPermission() {
 		$route = (version_compare(VERSION, '2.3', '>=')) ? 'extension/payment/mollie_' . static::MODULE_NAME : 'payment/mollie_' . static::MODULE_NAME;
-		if (!$this->user->hasPermission("modify", $route)) {
+
+		return $this->user->hasPermission("modify", $route);
+	}
+
+	private function validate ($store = 0) {
+		if (!$this->hasModifyPermission()) {
 			$this->error['warning'] = $this->language->get("error_permission");
 		}
 
@@ -1575,20 +1676,33 @@ class ControllerPaymentMollieBase extends Controller {
 	}
 
 	public function saveAPIKey() {
+		if (!$this->hasModifyPermission()) {
+			return false;
+		}
+
 		$this->load->model('setting/setting');
-		$store_id = $_POST['store_id'];
+		$store_id = (int)$this->request->post['store_id'];
 		$code = $this->mollieHelper->getModuleCode();
 
 		$data = $this->model_setting_setting->getSetting($code, $store_id);
-		$data[$code.'_api_key'] = $_POST['api_key'];
+		$data[$code.'_api_key'] = $this->request->post['api_key'];
 
 		$this->model_setting_setting->editSetting($code, $data, $store_id);
 		return true;
 	}
 
 	private function getUpdateUrl() {
-        $client = new mollieHttpClient();
-        $info = $client->get(MOLLIE_VERSION_URL);
+        $cacheFile = MOLLIE_TMP . '/mollie_update_check.json';
+        $cacheTtl = 3600; // Avoid hitting GitHub on every settings page render.
+
+        if (is_file($cacheFile) && (filemtime($cacheFile) > (time() - $cacheTtl))) {
+            $info = json_decode(file_get_contents($cacheFile), true);
+        } else {
+            $client = new mollieHttpClient();
+            $info = $client->get(MOLLIE_VERSION_URL);
+
+            file_put_contents($cacheFile, json_encode($info));
+        }
 
         if (isset($info["tag_name"])) {
             if(strpos($info["tag_name"], 'oc3') !== false) {
@@ -1613,8 +1727,10 @@ class ControllerPaymentMollieBase extends Controller {
     }
 
     public function update() {
-		// Check for PHP version
-        if (!$this->getUpdateUrl() || (version_compare(phpversion(), MollieHelper::NEXT_PHP_VERSION, "<") && ((int)$this->getUpdateUrl()['updateVersion'] > (int)MOLLIE_VERSION))) {
+        $updateUrlData = $this->getUpdateUrl();
+
+		// Check for permission and PHP version
+        if (!$this->hasModifyPermission() || !$updateUrlData || (version_compare(phpversion(), MollieHelper::NEXT_PHP_VERSION, "<") && version_compare($updateUrlData['updateVersion'], MOLLIE_VERSION, ">"))) {
 			if (version_compare(VERSION, '2.3', '>=')) {
 				$this->response->redirect($this->url->link('extension/payment/mollie_' . static::MODULE_NAME, $this->token, true));
 			} elseif (version_compare(VERSION, '2', '>=')) {
@@ -1623,6 +1739,10 @@ class ControllerPaymentMollieBase extends Controller {
 				$this->redirect($this->url->link('payment/mollie_' . static::MODULE_NAME, $this->token, 'SSL'));
 			}
 		}
+
+        // Remember which modification file was in use, the update only brings the disabled (underscore) versions
+        $ocmod_active = is_file(DIR_SYSTEM.'../system/mollie.ocmod.xml');
+        $vqmod_active = is_file(DIR_SYSTEM.'../vqmod/xml/mollie.xml');
 
         //get info
         $client = new mollieHttpClient();
@@ -1700,7 +1820,9 @@ class ControllerPaymentMollieBase extends Controller {
 
         //cleanup
         if (is_file(DIR_SYSTEM.'../vqmod/xml/mollie.xml_') || is_file(DIR_SYSTEM.'../system/mollie.ocmod.xml_')) {
-            if (is_file(DIR_SYSTEM.'../system/mollie.ocmod.xml_')) {
+            // Replace the file that was in use by the new version. A file that was not in use stays disabled,
+            // so the module still asks to choose between OCMOD and VQMod when nothing was chosen yet.
+            if ($this->isOcmodSupported() && $ocmod_active && is_file(DIR_SYSTEM.'../system/mollie.ocmod.xml_')) {
                 if (file_exists(DIR_SYSTEM.'../system/mollie.ocmod.xml')) {
                     unlink(DIR_SYSTEM.'../system/mollie.ocmod.xml');
                 }
@@ -1708,7 +1830,7 @@ class ControllerPaymentMollieBase extends Controller {
                 rename(DIR_SYSTEM.'../system/mollie.ocmod.xml_', DIR_SYSTEM.'../system/mollie.ocmod.xml');
             }
 
-            if (is_file(DIR_SYSTEM.'../vqmod/xml/mollie.xml_')) {
+            if ((!$this->isOcmodSupported() || $vqmod_active) && is_file(DIR_SYSTEM.'../vqmod/xml/mollie.xml_')) {
                 if (file_exists(DIR_SYSTEM.'../vqmod/xml/mollie.xml')) {
                     unlink(DIR_SYSTEM.'../vqmod/xml/mollie.xml');
                 }
@@ -1716,17 +1838,18 @@ class ControllerPaymentMollieBase extends Controller {
                 rename(DIR_SYSTEM.'../vqmod/xml/mollie.xml_', DIR_SYSTEM.'../vqmod/xml/mollie.xml');
             }
 
-			// Delete the modification files to avoid errors
-			if (version_compare(VERSION, '2.0', '>=')) {
-				if (is_dir(DIR_MODIFICATION . 'admin')) {
-					$this->delTree(DIR_MODIFICATION . 'admin');
-				}
-			}
-			// Delete mods.cache
-			if (is_file(DIR_SYSTEM.'../vqmod/mods.cache')) {
-				unlink(DIR_SYSTEM.'../vqmod/mods.cache');
-			}
-		}
+            // Delete the modification files to avoid errors
+            if (version_compare(VERSION, '2.0', '>=')) {
+                if (is_dir(DIR_MODIFICATION . 'admin')) {
+                    $this->delTree(DIR_MODIFICATION . 'admin');
+                }
+            }
+
+            // Delete mods.cache
+            if (is_file(DIR_SYSTEM.'../vqmod/mods.cache')) {
+                unlink(DIR_SYSTEM.'../vqmod/mods.cache');
+            }
+        }
 
         unlink($temp_file);
         $this->rmDirRecursive($temp_dir);
@@ -1787,6 +1910,20 @@ class ControllerPaymentMollieBase extends Controller {
 	      $this->load->language('payment/mollie_' . static::MODULE_NAME);
 	    }
 
+		if (!$this->hasModifyPermission()) {
+			$this->session->data['warning'] = $this->language->get("error_permission");
+
+			if (version_compare(VERSION, '2.3', '>=')) {
+				$this->response->redirect($this->url->link('extension/payment/mollie_' . static::MODULE_NAME, $this->token, true));
+			} elseif (version_compare(VERSION, '2', '>=')) {
+				$this->response->redirect($this->url->link('payment/mollie_' . static::MODULE_NAME, $this->token, 'SSL'));
+			} else {
+				$this->redirect($this->url->link('payment/mollie_' . static::MODULE_NAME, $this->token, 'SSL'));
+			}
+
+			return;
+		}
+
 		$file = DIR_LOGS . 'Mollie.log';
 
 		if (file_exists($file) && filesize($file) > 0) {
@@ -1817,6 +1954,20 @@ class ControllerPaymentMollieBase extends Controller {
 	    } else {
 	      $this->load->language('payment/mollie_' . static::MODULE_NAME);
 	    }
+
+		if (!$this->hasModifyPermission()) {
+			$this->session->data['warning'] = $this->language->get("error_permission");
+
+			if (version_compare(VERSION, '2.3', '>=')) {
+				$this->response->redirect($this->url->link('extension/payment/mollie_' . static::MODULE_NAME, $this->token, true));
+			} elseif (version_compare(VERSION, '2', '>=')) {
+				$this->response->redirect($this->url->link('payment/mollie_' . static::MODULE_NAME, $this->token, 'SSL'));
+			} else {
+				$this->redirect($this->url->link('payment/mollie_' . static::MODULE_NAME, $this->token, 'SSL'));
+			}
+
+			return;
+		}
 
 		$file = DIR_LOGS . 'Mollie.log';
 
@@ -2024,11 +2175,21 @@ class ControllerPaymentMollieBase extends Controller {
 	    } else {
 	      $this->load->language('payment/mollie_ideal');
 	    }
-        $this->load->model('payment/mollie');
-        $this->load->model('sale/order');
 
         $json = array();
         $json['error'] = false;
+
+        if (!$this->hasModifyPermission()) {
+            $json['error'] = $this->language->get("error_permission");
+
+            $this->response->addHeader('Content-Type: application/json');
+            $this->response->setOutput(json_encode($json));
+
+            return;
+        }
+
+        $this->load->model('payment/mollie');
+        $this->load->model('sale/order');
 
         $log = new Log('Mollie.log');
 
@@ -2095,6 +2256,11 @@ class ControllerPaymentMollieBase extends Controller {
                         );
                         $this->model_payment_mollie->addMollieRefund($data);
 
+                        if (version_compare(VERSION, '2.0', '<')) {
+                            // OpenCart 1.5 does not restock on a refund order status
+                            $this->model_payment_mollie->stockMutation($order_id, $stock_mutation_data);
+                        }
+
                     } else {
                         $log->write("Refund process can not be processed for order_id - $order_id.");
                         $json['error'] = $this->language->get('text_no_refund');
@@ -2116,10 +2282,20 @@ class ControllerPaymentMollieBase extends Controller {
 	    } else {
 	      $this->load->language('payment/mollie_ideal');
 	    }
-        $this->load->model('payment/mollie');
-        $this->load->model('sale/order');
 
         $json = array();
+
+        if (!$this->hasModifyPermission()) {
+            $json['error'] = $this->language->get("error_permission");
+
+            $this->response->addHeader('Content-Type: application/json');
+            $this->response->setOutput(json_encode($json));
+
+            return;
+        }
+
+        $this->load->model('payment/mollie');
+        $this->load->model('sale/order');
         $json['error'] = false;
 
         $log = new Log('Mollie.log');
@@ -2191,25 +2367,63 @@ class ControllerPaymentMollieBase extends Controller {
                 if (!empty($lines)) {
                     if (!empty($molliePaymentDetails['transaction_id'])) {
                         try {
-                            $amount = 0;
+                            $molliePayment = $this->getAPIClient($order['store_id'])->payments->get($molliePaymentDetails['transaction_id']);
+                            $refundedQuantities = $this->model_payment_mollie->getRefundedQuantities($molliePayment);
+
+                            $ordered_quantities = array();
                             foreach ($order_products as $product) {
-                                if (in_array($product['order_product_id'], $orderProductIDs)) {
-                                    $amount += $this->currency->format($product['total'] + ($this->config->get('config_tax') ? ($product['tax'] * $product['quantity']) : 0), $order['currency_code'], false, false);
-                                }
+                                $ordered_quantities[$product['order_product_id']] = (int)$product['quantity'];
                             }
 
-                            $molliePayment = $this->getAPIClient($order['store_id'])->payments->get($molliePaymentDetails['transaction_id']);
+                            // Never refund more of a line than is still left after earlier refunds
+                            $refund_quantities = array();
+                            foreach ($lines as $key => $line) {
+                                $ordered = isset($ordered_quantities[$line['order_product_id']]) ? $ordered_quantities[$line['order_product_id']] : 0;
+                                $already = isset($refundedQuantities[$line['order_product_id']]) ? $refundedQuantities[$line['order_product_id']] : 0;
+                                $quantity = max(0, min((int)$line['quantity'], $ordered - $already));
 
-                            $refundObject = $molliePayment->refund([
-                                "amount" => ["currency" => $order['currency_code'], "value" => (string)$amount],
-                                "metadata" => array("order_id" => $order_id, "order_product_id" => json_encode($lines), "transaction_id" => $molliePaymentDetails['transaction_id'])
-                            ]);
+                                if ($quantity > 0) {
+                                    $lines[$key]['quantity'] = $quantity;
+                                    $refund_quantities[$line['order_product_id']] = $quantity;
+                                } else {
+                                    unset($lines[$key]);
+                                }
+                            }
+                            $lines = array_values($lines);
 
-                            if ($this->config->get($moduleCode . "_partial_credit_order")) {
-                                $json['partial_credit_order'] = true;
+                            if (empty($refund_quantities)) {
+                                $log->write("Creating refund failed: no refundable quantity left for order_id - $order_id");
+                                $json['error'] = $this->language->get('text_no_refund');
                             } else {
-                                if (!empty($stock_mutation_data)) {
-                                    $this->model_payment_mollie->stockMutation($order_id, $stock_mutation_data);
+                                $amount = 0;
+                                foreach ($order_products as $product) {
+                                    if (isset($refund_quantities[$product['order_product_id']])) {
+                                        $unit_price = $product['price'] + ($this->config->get('config_tax') ? $product['tax'] : 0);
+                                        $amount += $this->currency->format($unit_price * $refund_quantities[$product['order_product_id']], $order['currency_code'], false, false);
+                                    }
+                                }
+                                $amount = $this->numberFormat($amount, $order['currency_code']);
+
+                                $refundObject = $molliePayment->refund([
+                                    "amount" => ["currency" => $order['currency_code'], "value" => (string)$amount],
+                                    "metadata" => array("order_id" => $order_id, "order_product_id" => json_encode($lines), "transaction_id" => $molliePaymentDetails['transaction_id'])
+                                ]);
+
+                                if ($this->config->get($moduleCode . "_partial_credit_order")) {
+                                    $json['partial_credit_order'] = true;
+                                } else {
+                                    // Restock only what was actually refunded
+                                    foreach ($stock_mutation_data as $key => $stock_line) {
+                                        if (isset($refund_quantities[$stock_line['order_product_id']])) {
+                                            $stock_mutation_data[$key]['quantity'] = $refund_quantities[$stock_line['order_product_id']];
+                                        } else {
+                                            unset($stock_mutation_data[$key]);
+                                        }
+                                    }
+
+                                    if (!empty($stock_mutation_data)) {
+                                        $this->model_payment_mollie->stockMutation($order_id, $stock_mutation_data);
+                                    }
                                 }
                             }
                         } catch (\Mollie\Api\Exceptions\ApiException $e) {
@@ -2257,6 +2471,9 @@ class ControllerPaymentMollieBase extends Controller {
                     );
                     $this->model_payment_mollie->addMollieRefund($data);
 
+                    // Moving the order to the partial refund status must not restock the whole order
+                    $this->model_payment_mollie->disableStockMutation($order_id);
+
                 } else {
                     $log->write('Partial Refund can not be processed for order_id - ' . $order_id . ' and transaction_id - ' . $molliePaymentDetails['transaction_id']);
                     $json['error'] = $this->language->get('text_no_refund');
@@ -2268,11 +2485,102 @@ class ControllerPaymentMollieBase extends Controller {
         $this->response->setOutput(json_encode($json));
     }
 
+    /**
+     * @return \ModelCheckoutOrder
+     */
+    protected function getCheckoutOrderModel() {
+        $file = DIR_CATALOG . 'model/checkout/order.php';
+
+        // We're loading a catalog-side model directly rather than through Loader::model()
+        // (not available for a catalog path from an admin controller), so resolve vqmod/ocmod
+        // modifications to this file ourselves - core's own modification() helper in
+        // startup.php can't be reused here, since it assumes $filename is under whichever
+        // side (DIR_APPLICATION) is currently running, which is admin's path, not catalog's.
+        if (class_exists('VQMod')) {
+            $file = \VQMod::modCheck($file);
+        }
+
+        if (defined('DIR_MODIFICATION') && is_file(DIR_MODIFICATION . 'catalog/model/checkout/order.php')) {
+            $file = DIR_MODIFICATION . 'catalog/model/checkout/order.php';
+        }
+
+        require_once($file);
+
+        // The catalog addOrder() of OC 2.x/3.x loads the voucher total model through
+        // $this->load->model(), which the admin loader can't resolve (the model only exists on
+        // the catalog side), so it throws a fatal error after the order row has been written.
+        // Register the catalog model up front so the admin loader finds it already loaded.
+        foreach (array('extension/total/voucher' => 'ModelExtensionTotalVoucher', 'total/voucher' => 'ModelTotalVoucher') as $route => $class) {
+            $registryKey = 'model_' . str_replace('/', '_', $route);
+            $voucherFile = DIR_CATALOG . 'model/' . $route . '.php';
+
+            if (!$this->registry->has($registryKey) && is_file($voucherFile)) {
+                if (defined('DIR_MODIFICATION') && is_file(DIR_MODIFICATION . 'catalog/model/' . $route . '.php')) {
+                    $voucherFile = DIR_MODIFICATION . 'catalog/model/' . $route . '.php';
+                }
+
+                require_once($voucherFile);
+
+                if (class_exists($class)) {
+                    $this->registry->set($registryKey, new $class($this->registry));
+                }
+            }
+        }
+
+        // The loader of OC 2.0 - 2.2 always looks for a model in the current (admin) application
+        // directory and ignores models that are already registered, so the catalog order model
+        // can't load the catalog models it needs (e.g. total/voucher). Give it a copy of the
+        // registry whose loader knows about the catalog model directory.
+        if (version_compare(VERSION, '2.0', '>=') && version_compare(VERSION, '2.3', '<')) {
+            require_once(DIR_SYSTEM . "library/mollie/mollieCatalogLoader.php");
+
+            $registry = clone $this->registry;
+            $registry->set('load', new MollieCatalogLoader($registry));
+
+            return new \ModelCheckoutOrder($registry);
+        }
+
+        return new \ModelCheckoutOrder($this->registry);
+    }
+    // Creates a credit (negative) order for a refunded order. Runs entirely within the
+    // admin's own authenticated request (gated by hasModifyPermission(), same as every
+    // other admin action here) - no cross-domain/cross-store call needed, because it uses
+    // catalog/model/checkout/order.php directly for getOrder()/addOrder() (available on the full
+    // 1.5-3.x range) rather than admin/model/sale/order.php, which lost its own
+    // addOrder()/addOrderHistory() as of OpenCart 2.0. The order lines, options and totals are
+    // read from the catalog model on OC 3, where it has getOrderProducts()/getOrderOptions()/
+    // getOrderTotals(), and from the admin order model before that, where only the admin model
+    // has them. Only creates the order itself - the resulting order's status is set
+    // by the admin JS calling sale/order/history afterwards (see credit_order_id/
+    // order_status_id in the response below), the same way core's own "Add History" does,
+    // rather than us calling addOrderHistory() directly here.
     public function creditOrder() {
-        $this->load->model('payment/mollie');
-        $this->load->model('sale/order');
+        if (version_compare(VERSION, '2.3', '>=')) {
+	      $this->load->language('extension/payment/mollie_ideal');
+	    } else {
+	      $this->load->language('payment/mollie_ideal');
+	    }
 
         $json = array();
+
+        if (!$this->hasModifyPermission()) {
+            $json['error'] = $this->language->get("error_permission");
+
+            $this->response->addHeader('Content-Type: application/json');
+            $this->response->setOutput(json_encode($json));
+
+            return;
+        }
+
+        $orderModel = $this->getCheckoutOrderModel();
+
+        if (version_compare(VERSION, '3', '>=')) {
+            $readModel = $orderModel;
+        } else {
+            $this->load->model('sale/order');
+            $readModel = $this->model_sale_order;
+        }
+
         $no_stock_mutation = array();
 
         if (isset($this->request->get['order_id'])) {
@@ -2281,11 +2589,14 @@ class ControllerPaymentMollieBase extends Controller {
             $order_id = 0;
         }
 
-        $order_info = $this->model_sale_order->getOrder($order_id);
+        $order_info = $orderModel->getOrder($order_id);
         if ($order_info) {
             $creditData = $order_info;
-
             $creditData['products'] = array();
+            $creditData['vouchers'] = array();
+            // OC 1.5 does not return these, but its addOrder() expects them
+            $creditData['affiliate_id'] = isset($order_info['affiliate_id']) ? $order_info['affiliate_id'] : 0;
+            $creditData['commission'] = isset($order_info['commission']) ? $order_info['commission'] : 0;
 
             $credit_product = array();
 
@@ -2306,98 +2617,102 @@ class ControllerPaymentMollieBase extends Controller {
 
             $order_sub_total = 0;
             $order_tax = 0;
-            $order_total = 0;
 
-            $order_products = $this->model_sale_order->getOrderProducts($order_id);
+            $order_products = $readModel->getOrderProducts($order_id);
             foreach ($order_products as $product) {
                 if (!empty($credit_product)) {
-                    if (array_key_exists($product['order_product_id'], $credit_product)) {
-                        $quantity = $credit_product[$product['order_product_id']]['quantity'];
-                        $price = $product['price'];
-                        $tax = $product['tax'];
-
-                        $order_sub_total += $price * $quantity;
-                        $order_tax += $tax * $quantity;
-
-                        $stock_mutation = true;
-                        if (in_array($product['order_product_id'], $no_stock_mutation)) {
-                            $stock_mutation = false;
-                        }
-
-                        $creditData['products'][] = array(
-                            'product_id' => $product['product_id'],
-                            'name'       => $product['name'],
-                            'model'      => $product['model'],
-                            'option'     => $this->model_sale_order->getOrderOptions($order_id, $product['order_product_id']),
-                            'quantity'   => -$quantity,
-                            'price'      => $price,
-                            'total'      => -($price * $quantity),
-                            'tax'        => $tax,
-                            'stock_mutation' => $stock_mutation,
-                            'reward'     => -$product['reward']
-                        );
+                    if (!array_key_exists($product['order_product_id'], $credit_product)) {
+                        continue;
                     }
+
+                    $quantity = $credit_product[$product['order_product_id']]['quantity'];
                 } else {
                     $quantity = $product['quantity'];
-                    $price = $product['price'];
-                    $tax = $product['tax'];
-
-                    $order_sub_total += $price * $quantity;
-                    $order_tax += $tax * $quantity;
-
-                    $stock_mutation = true;
-
-                    $creditData['products'][] = array(
-                        'product_id' => $product['product_id'],
-                        'name'       => $product['name'],
-                        'model'      => $product['model'],
-                        'option'     => $this->model_sale_order->getOrderOptions($order_id, $product['order_product_id']),
-                        'quantity'   => -$quantity,
-                        'price'      => $price,
-                        'total'      => -($price * $quantity),
-                        'tax'        => $tax,
-                        'stock_mutation' => $stock_mutation,
-                        'reward'     => -$product['reward']
-                    );
                 }
+
+                $price = $product['price'];
+                $tax = $product['tax'];
+
+                $order_sub_total += $price * $quantity;
+                $order_tax += $tax * $quantity;
+
+                $stock_mutation = !in_array($product['order_product_id'], $no_stock_mutation);
+
+                $creditData['products'][] = array(
+                    'product_id'     => $product['product_id'],
+                    'name'           => $product['name'],
+                    'model'          => $product['model'],
+                    'option'         => $readModel->getOrderOptions($order_id, $product['order_product_id']),
+                    'download'       => array(),
+                    'quantity'       => -$quantity,
+                    'price'          => $price,
+                    'total'          => -($price * $quantity),
+                    'tax'            => $tax,
+                    'stock_mutation' => $stock_mutation,
+                    'reward'         => -$product['reward']
+                );
             }
 
             $order_total = $order_sub_total + $order_tax;
 
             $creditData['total'] = -$order_total;
 
-            $creditData['order_total'] = array();
-            $order_totals = $this->model_sale_order->getOrderTotals($order_id);
+            $creditData['totals'] = array();
+            $order_totals = $readModel->getOrderTotals($order_id);
             foreach ($order_totals as $_order_total) {
                 if ($_order_total['code'] == 'sub_total') {
-                    $creditData['order_total'][] = array(
-                        "code" => $_order_total['code'],
-                        "title" => $_order_total['title'],
-                        "value" => -$order_sub_total,
+                    $creditData['totals'][] = array(
+                        "code"       => $_order_total['code'],
+                        "title"      => $_order_total['title'],
+                        "value"      => -$order_sub_total,
+                        "text"       => $this->currency->format(-$order_sub_total, $order_info['currency_code'], $order_info['currency_value']),
                         "sort_order" => $_order_total['sort_order']
                     );
                 } elseif ($_order_total['code'] == 'tax') {
-                    $creditData['order_total'][] = array(
-                        "code" => $_order_total['code'],
-                        "title" => $_order_total['title'],
-                        "value" => -$order_tax,
+                    $creditData['totals'][] = array(
+                        "code"       => $_order_total['code'],
+                        "title"      => $_order_total['title'],
+                        "value"      => -$order_tax,
+                        "text"       => $this->currency->format(-$order_tax, $order_info['currency_code'], $order_info['currency_value']),
                         "sort_order" => $_order_total['sort_order']
                     );
                 } elseif ($_order_total['code'] == 'total') {
-                    $creditData['order_total'][] = array(
-                        "code" => $_order_total['code'],
-                        "title" => $_order_total['title'],
-                        "value" => -$order_total,
+                    $creditData['totals'][] = array(
+                        "code"       => $_order_total['code'],
+                        "title"      => $_order_total['title'],
+                        "value"      => -$order_total,
+                        "text"       => $this->currency->format(-$order_total, $order_info['currency_code'], $order_info['currency_value']),
                         "sort_order" => $_order_total['sort_order']
                     );
                 }
             }
 
-            $credit_order_id = $this->model_sale_order->addOrder($creditData);
+            // Fire the same before/after events Loader::model() would normally wrap this call
+            // with, since loading the model directly (see getCheckoutOrderModel()) bypasses that.
+            // The model events only exist from OC 2.2 (OC 1.5 has no event system at all).
+            $addOrderArgs = array($creditData);
+            $useEvents = version_compare(VERSION, '2.2', '>=') && $this->registry->has('event');
+            if ($useEvents) {
+                $beforeArgs = array(&$addOrderArgs);
+                $this->event->trigger('model/checkout/order/addOrder/before', $beforeArgs);
+            }
+            $credit_order_id = $orderModel->addOrder($addOrderArgs[0]);
+            if ($useEvents) {
+                $afterArgs = array(&$addOrderArgs, &$credit_order_id);
+                $this->event->trigger('model/checkout/order/addOrder/after', $afterArgs);
+            }
 
+            // The credit order's status is set by the admin JS calling sale/order/history
+            // itself (same endpoint/pattern core's own "Add History" button uses) rather than
+            // us calling addOrderHistory() directly here - that keeps the notification/stock/
+            // event side effects of a status change on the one official, always-correct path.
+            $json['credit_order_id'] = $credit_order_id;
+            $json['order_status_id'] = (int)$this->config->get('config_order_status_id');
             $json['success'] = true;
         }
 
+        $this->response->addHeader('Content-Type: application/json');
         $this->response->setOutput(json_encode($json));
     }
+
 }

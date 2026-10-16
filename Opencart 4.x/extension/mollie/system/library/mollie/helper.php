@@ -4,8 +4,7 @@ use Mollie\Api\MollieApiClient;
 
 class MollieHelper {
 
-	const PLUGIN_VERSION = "14.1.0";
-	const OUTH_URL = 'https://api.mollie.com/oauth2';
+	const PLUGIN_VERSION = "14.1.2";
 
 	const MIN_PHP_VERSION = "8.0.0";
 	const NEXT_PHP_VERSION = "8.2.0"; // Maybe used in future
@@ -207,40 +206,4 @@ class MollieHelper {
 
 		return $result->row['value'] ?? null;
 	}
-
-	/**
-	 * Execute a CURL request to Mollie's OAuth endpoint
-	 * * @param string $resource
-	 * @param mixed $data
-	 * @return mixed
-	 * @throws \RuntimeException
-	 */
-	public function curlRequest(string $resource, mixed $data): mixed {
-        // Clean up the url
-        $url = rtrim(self::OUTH_URL, '/ ');
-
-        if (!function_exists('curl_init')) {
-			throw new \RuntimeException('Mollie Helper Error: CURL extension is not loaded in PHP.');
-		}
-
-        // Define a final API request
-        $api = $url . '/' . $resource;
-
-        $ch = curl_init();
-
-		curl_setopt($ch, CURLOPT_URL, $api);
-		curl_setopt($ch, CURLOPT_POST, true);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-		$response = curl_exec($ch);
-		$error = curl_error($ch);
-
-        if (!$response) {
-            throw new \RuntimeException('Mollie Helper Error: Nothing was returned from CURL request. Error: ' . $error);
-        }
-
-        // This line takes the response and breaks it into an array using JSON decoder
-        return json_decode($response);
-    }
 }

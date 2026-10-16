@@ -103,7 +103,7 @@ if (!confirm('{{ text_confirm_refund }}')) {
         }
 
         $.ajax({
-            url: 'index.php?route=sale/order|call&user_token={{ user_token }}&action=sale/order|addHistory&order_id=' + $('#input-order-id').val(),
+            url: '{{ mollie_history_url }}&order_id=' + $('#input-order-id').val(),
             type: 'post',
             dataType: 'json',
             data: 'order_status_id=' + encodeURIComponent(json['order_status_id']) + '&notify=' + encodeURIComponent(json['notify_customer']) + '&override=0&append=1&comment=' + encodeURIComponent(json['comment']) + '&order_id=' + encodeURIComponent(json['order_id']),
@@ -186,7 +186,7 @@ $('#button-partial-refund').on('click', function() {
         }
 
         $.ajax({
-            url: 'index.php?route=sale/order|call&user_token={{ user_token }}&action=sale/order|addHistory&order_id=' + $('#input-order-id').val(),
+            url: '{{ mollie_history_url }}&order_id=' + $('#input-order-id').val(),
             type: 'post',
             dataType: 'json',
             data: 'order_status_id=' + encodeURIComponent(json['order_status_id']) + '&notify=' + encodeURIComponent(json['notify_customer']) + '&override=0&append=1&comment=' + encodeURIComponent(json['comment']) + '&order_id=' + encodeURIComponent(json['order_id']),

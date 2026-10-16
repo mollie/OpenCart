@@ -14,7 +14,10 @@ class mollieHttpClient
         $ch = curl_init();
 
         $encoded=json_encode($data);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $encoded);
@@ -47,7 +50,10 @@ class mollieHttpClient
     {
         global $is_in_debug;
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch,CURLOPT_USERAGENT,"Mozilla/5.0");
@@ -56,6 +62,7 @@ class mollieHttpClient
             curl_setopt($ch, CURLOPT_HTTPHEADER, ["token:" . $token]);
         };
         curl_setopt($ch,CURLOPT_FOLLOWLOCATION,true);
+        curl_setopt($ch, CURLOPT_MAXREDIRS, 5);
 
         $server_output = curl_exec($ch);
         curl_close($ch);
