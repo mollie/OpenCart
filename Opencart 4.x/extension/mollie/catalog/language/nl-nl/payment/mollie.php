@@ -36,116 +36,116 @@
  */
 
 // Text
-$_['heading_title']             = 'Betaling via Mollie';
-$_['ideal_title']               = 'Uw betaling';
-$_['text_title']                = 'Online betalen';
-$_['text_redirected']           = 'De klant is doorgestuurd naar het betaalscherm';
-$_['text_issuer_ideal']         = 'Kies uw bank';
-$_['text_issuer_giftcard']      = 'Kies uw giftcard';
-$_['text_issuer_kbc']           = 'Kies uw betaalknop';
-$_['text_issuer_voucher']       = 'Kies uw merk';
-$_['text_card_details']         = 'Voer uw creditcardgegevens in.';
-$_['text_mollie_payments']      = 'Veilige betalingen geleverd door %s';
-$_['text_subscription_desc']    = 'Bestelling %s, %s - %s, elke %s voor %s';
-$_['text_subscription']		    = '%s elke %s %s';
-$_['text_length']			    = ' voor %s betalingen';
-$_['text_trial']			    = '%s elke %s %s voor %s betalingen dan ';
-$_['text_error_report_success']	= 'De fout is met succes gerapporteerd!';
-$_['text_payment_link_title']	= 'Mollie Betaallink';
-$_['text_payment_link_email_subject']	= 'Payment Link';
-$_['text_payment_link_email_text']	= "Dear customer, <br /><br /> Click on the link below to complete your payment of {amount} for the order {order_id}.<br /><br /> {payment_link}<br /><br /><br /><br />Regards,<br /><br />{store_name}";
-$_['text_link']             = 'Klik op onderstaande link om uw bestelling te bekijken:';
-$_['text_footer']           = 'Beantwoord deze e-mail als u vragen heeft.';
-$_['text_payment_link_full_title']	    = 'Mollie Betaallink - Volledige bedrag';
-$_['text_payment_link_open_title']	    = 'Mollie Betaallink - Open hoeveelheid';
-$_['text_cancelled']                    = 'Terugkerende betaling is geannuleerd';
-$_['text_subscription_cancel_confirm']  = 'Wilt u het abonnement opzeggen?';
-$_['text_mollie_open_payment'] 	= 'Er staat nog een betaling open van <strong>%s</strong> voor deze bestelling.';
+$_['heading_title']                             = 'Betaling via Mollie';
+$_['ideal_title']                               = 'Uw betaling';
+$_['text_title']                                = 'Online betalen';
+$_['text_redirected']                           = 'De klant is doorgestuurd naar het betaalscherm';
+$_['text_issuer_ideal']                         = 'Kies uw bank';
+$_['text_issuer_giftcard']                      = 'Kies uw giftcard';
+$_['text_issuer_kbc']                           = 'Kies uw betaalknop';
+$_['text_issuer_voucher']                       = 'Kies uw merk';
+$_['text_card_details']                         = 'Voer uw creditcardgegevens in.';
+$_['text_mollie_payments']                      = 'Veilige betalingen geleverd door %s';
+$_['text_subscription_desc']                    = 'Bestelling %s, %s - %s, elke %s voor %s';
+$_['text_subscription']		                    = '%s elke %s %s';
+$_['text_length']			                    = ' voor %s betalingen';
+$_['text_trial']			                    = '%s elke %s %s voor %s betalingen dan ';
+$_['text_error_report_success']	                = 'De fout is met succes gerapporteerd!';
+$_['text_payment_link_title']	                = 'Mollie Betaallink';
+$_['text_payment_link_email_subject']	        = 'Payment Link';
+$_['text_payment_link_email_text']	            = "Dear customer, <br /><br /> Click on the link below to complete your payment of {amount} for the order {order_id}.<br /><br /> {payment_link}<br /><br /><br /><br />Regards,<br /><br />{store_name}";
+$_['text_link']                                 = 'Klik op onderstaande link om uw bestelling te bekijken:';
+$_['text_footer']                               = 'Beantwoord deze e-mail als u vragen heeft.';
+$_['text_payment_link_full_title']	            = 'Mollie Betaallink - Volledige bedrag';
+$_['text_payment_link_open_title']	            = 'Mollie Betaallink - Open hoeveelheid';
+$_['text_cancelled']                            = 'Terugkerende betaling is geannuleerd';
+$_['text_subscription_cancel_confirm']          = 'Wilt u het abonnement opzeggen?';
+$_['text_mollie_open_payment'] 	                = 'Er staat nog een betaling open van <strong>%s</strong> voor deze bestelling.';
 
 // Button
-$_['button_retry']          = 'Opnieuw proberen af te rekenen';
-$_['button_report']         = 'Report Error';
-$_['button_submit']         = 'Verzenden';
-$_['button_subscription_cancel'] = 'Abonnement opzeggen';
-$_['button_mollie_pay_now'] = 'Betaal nu';
+$_['button_retry']                              = 'Opnieuw proberen af te rekenen';
+$_['button_report']                             = 'Report Error';
+$_['button_submit']                             = 'Verzenden';
+$_['button_subscription_cancel']                = 'Abonnement opzeggen';
+$_['button_mollie_pay_now']                     = 'Betaal nu';
 
 // Entry
-$_['entry_card_holder']     	= 'Kaarthouder naam';
-$_['entry_card_number']     	= 'Kaartnummer';
-$_['entry_expiry_date']     	= 'Vervaldatum';
-$_['entry_verification_code']	= 'CVV';
+$_['entry_card_holder']     	                = 'Kaarthouder naam';
+$_['entry_card_number']     	                = 'Kaartnummer';
+$_['entry_expiry_date']     	                = 'Vervaldatum';
+$_['entry_verification_code']	                = 'CVV';
 
 // Error
-$_['error_card']				= 'Controleer uw kaartgegevens.';
-$_['error_missing_field']	    = 'Vereiste informatie ontbreekt. Controleer of er basisadresgegevens zijn verstrekt.';
-$_['error_not_cancelled']       = 'Fout: %s';
+$_['error_card']				                = 'Controleer uw kaartgegevens.';
+$_['error_missing_field']	                    = 'Vereiste informatie ontbreekt. Controleer of er basisadresgegevens zijn verstrekt.';
+$_['error_not_cancelled']                       = 'Fout: %s';
 
 // Status page: payment failed (e.g. cancelled).
-$_['heading_failed']     = 'Uw betaling is niet voltooid';
-$_['msg_failed']         = 'Helaas is de betaling mislukt. Klik op onderstaande knop om terug te keren naar het afrekenscherm.';
+$_['heading_failed']                            = 'Uw betaling is niet voltooid';
+$_['msg_failed']                                = 'Helaas is de betaling mislukt. Klik op onderstaande knop om terug te keren naar het afrekenscherm.';
 
 // Status page: payment pending.
-$_['heading_unknown']    = 'We wachten nog op uw betaling';
-$_['msg_unknown']        = 'We hebben uw betaling nog niet ontvangen. Wij zullen een bevestigingsmail versturen op het moment dat de betaling binnen is.';
+$_['heading_unknown']                           = 'We wachten nog op uw betaling';
+$_['msg_unknown']                               = 'We hebben uw betaling nog niet ontvangen. Wij zullen een bevestigingsmail versturen op het moment dat de betaling binnen is.';
 
 // Status page: API failure.
-$_['heading_error']      = 'Er is een fout opgetreden bij het opzetten van de betaling';
-$_['text_error']         = 'Er is een fout opgetreden bij het opzetten van de betaling bij Mollie. Klik op onderstaande knop om terug te keren naar het afrekenscherm.';
+$_['heading_error']                             = 'Er is een fout opgetreden bij het opzetten van de betaling';
+$_['text_error']                                = 'Er is een fout opgetreden bij het opzetten van de betaling bij Mollie. Klik op onderstaande knop om terug te keren naar het afrekenscherm.';
 
 // Payment link
-$_['heading_payment_success'] = 'De betaling is ontvangen';
-$_['text_payment_success'] = 'Uw betaling is succesvol afgerond. Bedankt!';
-$_['heading_payment_failed'] = 'De betaling is onbekend';
-$_['text_payment_failed'] = 'Uw betaling is nog niet ontvangen of de betalingsstatus is onbekend. We laten het je weten zodra de betaling is ontvangen.';
+$_['heading_payment_success']                   = 'De betaling is ontvangen';
+$_['text_payment_success']                      = 'Uw betaling is succesvol afgerond. Bedankt!';
+$_['heading_payment_failed']                    = 'De betaling is onbekend';
+$_['text_payment_failed']                       = 'Uw betaling is nog niet ontvangen of de betalingsstatus is onbekend. We laten het je weten zodra de betaling is ontvangen.';
 
 // Response
-$_['response_success']   = 'De betaling is ontvangen';
-$_['response_none']      = 'We wachten nog op de betaling. U krijgt een email zodra de status van de betaling bij ons bekend is.';
-$_['response_cancelled'] = 'De klant heeft de betaling geannuleerd';
-$_['response_failed']    = 'De betaling is helaas mislukt. Probeer het alstublieft opnieuw.';
-$_['response_expired']   = 'De betaling is verlopen';
-$_['response_unknown']   = 'Er is een onbekende fout opgetreden';
-$_['capture_success']    = 'De betaling is geïnd.';
-$_['refund_cancelled']   = 'Restitutie is geannuleerd.';
-$_['refund_success'] 	 = 'Terugbetaling is succesvol verwerkt!';
+$_['response_success']                          = 'De betaling is ontvangen';
+$_['response_none']                             = 'We wachten nog op de betaling. U krijgt een email zodra de status van de betaling bij ons bekend is.';
+$_['response_cancelled']                        = 'De klant heeft de betaling geannuleerd';
+$_['response_failed']                           = 'De betaling is helaas mislukt. Probeer het alstublieft opnieuw.';
+$_['response_expired']                          = 'De betaling is verlopen';
+$_['response_unknown']                          = 'Er is een onbekende fout opgetreden';
+$_['capture_success']                           = 'De betaling is geïnd.';
+$_['refund_cancelled']                          = 'Restitutie is geannuleerd.';
+$_['refund_success'] 	                        = 'Terugbetaling is succesvol verwerkt!';
 
 // Methods
-$_['method_ideal']          = 'iDEAL | Wero';
-$_['method_creditcard']     = 'Creditcard';
-$_['method_bancontact']     = 'Bancontact';
-$_['method_banktransfer']   = 'Overboeking';
-$_['method_belfius']        = 'Belfius Direct Net';
-$_['method_kbc']            = 'KBC/CBC-Betaalknop';
-$_['method_paypal']         = 'PayPal';
-$_['method_giftcard']       = 'Giftcard';
-$_['method_eps']            = 'EPS';
-$_['method_klarnapaylater'] = 'Klarna Pay Later';
-$_['method_klarnapaynow']   = 'Klarna Pay Now';
-$_['method_klarnasliceit']  = 'Klarna Betaal in 3 delen';
-$_['method_przelewy24']  	= 'P24';
-$_['method_applepay']    	= 'Apple Pay';
-$_['method_voucher']    	= 'Voucher';
-$_['method_in3']    	    = 'iDEAL | Wero in3';
-$_['method_mybank']         = 'MyBank';
-$_['method_billie']         = 'Billie';
-$_['method_klarna']         = 'Betaal met Klarna';
-$_['method_twint']          = 'Twint';
-$_['method_blik']           = 'Blik';
-$_['method_bancomatpay']    = 'Bancomat Pay';
-$_['method_trustly']        = 'Trustly';
-$_['method_alma']           = 'Alma';
-$_['method_riverty']        = 'Riverty';
-$_['method_payconiq']       = 'Payconiq';
-$_['method_satispay']       = 'Satispay';
-$_['method_multibanco']     = "Multibanco";
-$_['method_bizum']          = "Bizum";
-$_['method_mbway']          = "MB Way";
-$_['method_paybybank']      = "Betalen via bank";
-$_['method_swish']          = "Swish";
-$_['method_wero']           = "Wero";
+$_['method_ideal']                              = 'iDEAL | Wero';
+$_['method_creditcard']                         = 'Creditcard';
+$_['method_bancontact']                         = 'Bancontact';
+$_['method_banktransfer']                       = 'Overboeking';
+$_['method_belfius']                            = 'Belfius Direct Net';
+$_['method_kbc']                                = 'KBC/CBC-Betaalknop';
+$_['method_paypal']                             = 'PayPal';
+$_['method_giftcard']                           = 'Giftcard';
+$_['method_eps']                                = 'EPS';
+$_['method_klarnapaylater']                     = 'Klarna Pay Later';
+$_['method_klarnapaynow']                       = 'Klarna Pay Now';
+$_['method_klarnasliceit']                      = 'Klarna Betaal in 3 delen';
+$_['method_przelewy24']  	                    = 'P24';
+$_['method_applepay']    	                    = 'Apple Pay';
+$_['method_voucher']    	                    = 'Voucher';
+$_['method_in3']    	                        = 'iDEAL | Wero in3';
+$_['method_mybank']                             = 'MyBank';
+$_['method_billie']                             = 'Billie';
+$_['method_klarna']                             = 'Betaal met Klarna';
+$_['method_twint']                              = 'Twint';
+$_['method_blik']                               = 'Blik';
+$_['method_bancomatpay']                        = 'Bancomat Pay';
+$_['method_trustly']                            = 'Trustly';
+$_['method_alma']                               = 'Alma';
+$_['method_riverty']                            = 'Riverty';
+$_['method_payconiq']                           = 'Payconiq';
+$_['method_satispay']                           = 'Satispay';
+$_['method_multibanco']                         = "Multibanco";
+$_['method_bizum']                              = "Bizum";
+$_['method_mbway']                              = "MB Way";
+$_['method_paybybank']                          = "Betalen via bank";
+$_['method_swish']                              = "Swish";
+$_['method_wero']                               = "Wero";
 
 //Round Off Description
-$_['roundoff_description']  = 'Afrondingsverschil door valutaomrekening';
+$_['roundoff_description']                      = 'Afrondingsverschil door valutaomrekening';
 
 //Warning
-$_['warning_secure_connection']  = 'Zorg ervoor dat u een veilige verbinding gebruikt.';
+$_['warning_secure_connection']                 = 'Zorg ervoor dat u een veilige verbinding gebruikt.';

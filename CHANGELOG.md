@@ -2,6 +2,29 @@
 
 # Changelog #
 
+#### Changes in release 14.1.2
+  + Security fixes and improvements
+  + Partial refunds: only the quantity that is left per product line can be refunded, the refunded amount is based on the refunded quantity, and stock is no longer restocked twice
+  + Refund dialog (OpenCart 4): product lines are shown again, with the remaining quantity
+  + Order status is now updated after a refund on OpenCart 4.1
+  + Full refund restocks the products on OpenCart 1.5
+  + Bank transfer works again on PHP 8 (OpenCart 4)
+  + Payment links: valid redirect and webhook URLs, and the payment link option is available for admin orders on OpenCart 4.0.2.x
+  + A payment that is still open or pending no longer changes the order status to failed
+  + Subscriptions: no duplicate subscriptions at Mollie, and cancelling a subscription works for its owner
+  + Updates: the OpenCart 3 updater keeps the chosen OCMOD or VQMod file and asks to choose when none was chosen yet, and the OpenCart 4 updater installs the package inside the release file
+  + OCMOD is supported from OpenCart 2.0.2.0, older versions always use VQMod
+  + Bugfixes and improvements
+
+#### Changes in release 14.1.1
+  + Option to choose order status for payment capture
+  + Bugfixes and improvements
+
+#### Changes in release 14.1.0
+  + New Payment Method - Wero
+  + Added shipment creation back to OC3 module to support orders created with Orders API (Note: This may be removed in future releases.)
+  + Bugfixes and improvements
+
 #### Changes in release 14.0.1
   + Fixed "Shopping cart not cleared after PayByBank" issue
   + Fixed "getMethods is not taking into accounts coupons" in OpenCart 4 version

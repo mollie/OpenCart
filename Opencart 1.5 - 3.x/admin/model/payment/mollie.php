@@ -49,10 +49,21 @@ class ModelPaymentMollie extends Model {
 
     public function getPaymentID($order_id) {
 		if (!empty($order_id)) {
-			$results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `order_id` = '" . $order_id . "'");
+			$results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `order_id` = '" . (int)$order_id . "'");
 			if($results->num_rows == 0) return FALSE;
 
 			return $results->row['transaction_id'];
+		}
+
+		return FALSE;
+	}
+
+    public function getOrderID($order_id) {
+		if (!empty($order_id)) {
+			$results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `order_id` = '" . (int)$order_id . "' ORDER BY payment_attempt DESC LIMIT 1");
+			if($results->num_rows == 0) return FALSE;
+
+			return isset($results->row['mollie_order_id']) ? $results->row['mollie_order_id'] : '';
 		}
 
 		return FALSE;
@@ -95,11 +106,11 @@ class ModelPaymentMollie extends Model {
     }
 
     public function updateMolliePaymentForPaymentAPI($mollie_payment_id, $refund_id, $payment_status) {
-        $this->db->query("UPDATE `" . DB_PREFIX . "mollie_payments` SET refund_id = '" . $this->db->escape($refund_id) . "', bank_status = '" . $this->db->escape($payment_status) . "' WHERE transaction_id = '" . $mollie_payment_id . "'");
+        $this->db->query("UPDATE `" . DB_PREFIX . "mollie_payments` SET refund_id = '" . $this->db->escape($refund_id) . "', bank_status = '" . $this->db->escape($payment_status) . "' WHERE transaction_id = '" . $this->db->escape($mollie_payment_id) . "'");
     }
 
     public function updateMollieRefundStatus($refund_id, $transaction_id, $status) {
-        $this->db->query("UPDATE `" . DB_PREFIX . "mollie_refund` SET status = '" . $this->db->escape($status) . "' WHERE refund_id = '" . $refund_id . "' AND transaction_id = '" . $transaction_id . "'");
+        $this->db->query("UPDATE `" . DB_PREFIX . "mollie_refund` SET status = '" . $this->db->escape($status) . "' WHERE refund_id = '" . $this->db->escape($refund_id) . "' AND transaction_id = '" . $this->db->escape($transaction_id) . "'");
     }
 
     public function addMollieRefund($data) {
@@ -236,6 +247,54 @@ class ModelPaymentMollie extends Model {
         ];
     }
 
+    /**
+     * Quantity per order_product_id that has already been refunded (product line refunds only).
+     * Refunds that failed or were canceled at Mollie don't count.
+     *
+     * @param \Mollie\Api\Resources\Payment $molliePayment
+     * @return array order_product_id => refunded quantity
+     */
+    public function getRefundedQuantities($molliePayment) {
+        $refundedQuantities = array();
+
+        if (!empty($molliePayment->refunds())) {
+            foreach ($molliePayment->refunds() as $refund) {
+                if (isset($refund->status) && in_array($refund->status, array('failed', 'canceled'))) {
+                    continue;
+                }
+
+                $order_products = array();
+
+                if (isset($refund->metadata) && isset($refund->metadata->order_product_id)) {
+                    $order_products = json_decode($refund->metadata->order_product_id, true);
+                }
+
+                if (is_array($order_products)) {
+                    foreach ($order_products as $order_product) {
+                        $id = $order_product['order_product_id'];
+                        $refundedQuantities[$id] = (isset($refundedQuantities[$id]) ? $refundedQuantities[$id] : 0) + (int)$order_product['quantity'];
+                    }
+                }
+            }
+        }
+
+        return $refundedQuantities;
+    }
+
+    /**
+     * Stop OpenCart from restocking (or re-subtracting) these order lines when the order status
+     * changes. After a partial refund the order is moved to the partial refund status, and
+     * OpenCart would otherwise restock the whole original order on top of the stock the refund
+     * itself already handled (credit order or manual stock mutation).
+     */
+    public function disableStockMutation($order_id) {
+        $column = $this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . "order_product` LIKE 'stock_mutation'");
+
+        if ($column->num_rows) {
+            $this->db->query("UPDATE `" . DB_PREFIX . "order_product` SET `stock_mutation` = '0' WHERE order_id = '" . (int)$order_id . "'");
+        }
+    }
+
     public function getProductLines($order_info, $products) {
         $productlines = array();
 
@@ -246,29 +305,18 @@ class ModelPaymentMollie extends Model {
                 try {
                     $molliePayment = $this->getAPIClient($order_info['store_id'])->payments->get($molliePayment['transaction_id']);
 
-                    $refundedLines = array();
-                    if(!empty($molliePayment->refunds())) {                       
-                        foreach ($molliePayment->refunds() as $refund) {
-                            $order_product_ids = [];
-
-                            if (isset($refund->metadata) && isset($refund->metadata->order_product_id)) {
-                                $order_product_ids = json_decode($refund->metadata->order_product_id, true);
-                            }
-
-                            if (is_array($order_product_ids)) {
-                                foreach ($order_product_ids as $order_product) {
-                                    $refundedLines[] = $order_product['order_product_id'];
-                                }
-                            }
-                        }
-                    }
+                    $refundedQuantities = $this->getRefundedQuantities($molliePayment);
 
                     foreach ($products as $_product) {
-                        if (!in_array($_product['order_product_id'], $refundedLines)) {
+                        $refunded = isset($refundedQuantities[$_product['order_product_id']]) ? $refundedQuantities[$_product['order_product_id']] : 0;
+                        $remaining = (int)$_product['quantity'] - $refunded;
+
+                        // A line stays refundable until its whole quantity has been refunded
+                        if ($remaining > 0) {
                             $productlines[] = array(
                                 "name" => $_product['name'],
                                 "option" => $_product['option'],
-                                "quantity" => $_product['quantity'],
+                                "quantity" => $remaining,
                                 "order_product_id" => $_product['order_product_id']
                             );
                         }

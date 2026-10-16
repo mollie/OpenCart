@@ -60,7 +60,7 @@ $(document).ready(function(){
     $.ajax({
       type: "POST",
       url: 'index.php?route=extension/mollie/payment/mollie_ideal{{ method_separator }}reportError',
-      data: "mollie_error=" + error,
+      data: "mollie_error=" + encodeURIComponent(error),
       beforeSend: function() {
         $('#report-error').prop('disabled', true).addClass('loading');
       },

@@ -32,117 +32,120 @@
  */
 
 /**
- * English language file for iDEAL by Mollie
+ * Swedish language file for iDEAL | Wero by Mollie
  */
 
 // Text
-$_['heading_title']                     = 'Betalning av Mollie';
-$_['ideal_title']                       = 'Din betalning';
-$_['text_title']                        = 'Betala online';
-$_['text_redirected']                   = 'Klienten har hänvisats till betalningsskärmen';
-$_['text_issuer_giftcard']              = 'Välj ditt presentkort';
-$_['text_issuer_kbc']                   = 'Välj din betalningsknapp.';
-$_['text_issuer_voucher']               = 'Välj ditt varumärke.';
-$_['text_card_details']                 = 'Ange dina kreditkortsuppgifter.';
-$_['text_mollie_payments']              = 'Säker betalning från %s';
-$_['text_subscription_desc']            = 'Beställ %s, %s - %s, varje %s för %s';
-$_['text_subscription']                 = '%s varje %s %s';
-$_['text_length']                       = ' för %s betalningar';
-$_['text_trial']                        = '%s varje %s %s för %s betalningar sedan ';
-$_['text_error_report_success']         = 'Fel har rapporterats framgångsrikt!';
-$_['text_payment_link_title']	        = 'Mollie betalningslänk';
-$_['text_payment_link_email_subject']	= 'Payment Link';
-$_['text_payment_link_email_text']	    = "Dear customer, <br /><br /> Click on the link below to complete your payment of {amount} for the order {order_id}.<br /><br /> {payment_link}<br /><br /><br /><br />Regards,<br /><br />{store_name}";
-$_['text_link']                         = 'För att se din beställning klicka på länken nedan:';
-$_['text_footer']                       = 'Vänligen svara på det här e-postmeddelandet om du har några frågor.';
-$_['text_payment_link_full_title']	    = 'Mollie betalningslänk - Hela beloppet';
-$_['text_payment_link_open_title']	    = 'Mollie betalningslänk - Öppet belopp';
-$_['text_cancelled']                    = 'Återkommande betalning har avbrutits';
-$_['text_subscription_cancel_confirm']  = 'Vill du säga upp prenumerationen?';
+$_['heading_title']                             = 'Betalning av Mollie';
+$_['ideal_title']                               = 'Din betalning';
+$_['text_title']                                = 'Betala online';
+$_['text_redirected']                           = 'Klienten har hänvisats till betalningsskärmen';
+$_['text_issuer_giftcard']                      = 'Välj ditt presentkort';
+$_['text_issuer_ideal']                         = 'Välj din bank';
+$_['text_issuer_kbc']                           = 'Välj din betalningsknap.';
+$_['text_issuer_voucher']                       = 'Välj ditt varumärke.';
+$_['text_card_details']                         = 'Ange dina kreditkortsuppgifter.';
+$_['text_mollie_payments']                      = 'Säker betalning från %s';
+$_['text_subscription_desc']                    = 'Beställ %s, %s - %s, varje %s för %s';
+$_['text_subscription']                         = '%s varje %s %s';
+$_['text_length']                               = ' för %s betalningar';
+$_['text_trial']                                = '%s varje %s %s för %s betalningar sedan ';
+$_['text_error_report_success']                 = 'Fel har rapporterats framgångsrikt!';
+$_['text_payment_link_title']	                = 'Mollie betalningslänk';
+$_['text_payment_link_email_subject']	        = 'Payment Link';
+$_['text_payment_link_email_text']	            = "Dear customer, <br /><br /> Click on the link below to complete your payment of {amount} for the order {order_id}.<br /><br /> {payment_link}<br /><br /><br /><br />Regards,<br /><br />{store_name}";
+$_['text_link']                                 = 'För att se din beställning klicka på länken nedan:';
+$_['text_footer']                               = 'Vänligen svara på det här e-postmeddelandet om du har några frågor.';
+$_['text_payment_link_full_title']	            = 'Mollie betalningslänk - Hela beloppet';
+$_['text_payment_link_open_title']	            = 'Mollie betalningslänk - Öppet belopp';
+$_['text_cancelled']                            = 'Återkommande betalning har avbrutits';
+$_['text_subscription_cancel_confirm']          = 'Vill du säga upp prenumerationen?';
+$_['text_mollie_open_payment'] 			        = 'Det finns fortfarande en öppen betalning på <strong>%s</strong> för denna beställning.';
 
 // Button
-$_['button_retry']  = 'Återgå till kassasidan';
-$_['button_report'] = 'Rapportera fel';
-$_['button_submit'] = 'Skicka';
-$_['button_subscription_cancel'] = 'Avsluta prenumeration';
+$_['button_retry']                              = 'Återgå till kassasidan';
+$_['button_report']                             = 'Rapportera fel';
+$_['button_submit']                             = 'Skicka';
+$_['button_subscription_cancel']                = 'Avsluta prenumeration';
+$_['button_mollie_pay_now']                     = 'Betala nu';
 
 // Entry
-$_['entry_card_holder']         = 'Kortinnehavarens namn';
-$_['entry_card_number']         = 'Kortnummer';
-$_['entry_expiry_date']         = 'Utgångsdatum';
-$_['entry_verification_code']   = 'CVV';
+$_['entry_card_holder']                         = 'Kortinnehavarens namn';
+$_['entry_card_number']                         = 'Kortnummer';
+$_['entry_expiry_date']                         = 'Utgångsdatum';
+$_['entry_verification_code']                   = 'CVV';
 
 // Error
-$_['error_card']            = 'Kontrollera dina kortuppgifter.';
-$_['error_missing_field']   = 'Nödvändig information saknas. Kontrollera om grundläggande adressuppgifter finns.';
-$_['error_not_cancelled']   = 'Fel: %s';
+$_['error_card']                                = 'Kontrollera dina kortuppgifter.';
+$_['error_missing_field']                       = 'Nödvändig information saknas. Kontrollera om grundläggande adressuppgifter finns.';
+$_['error_not_cancelled']                       = 'Fel: %s';
 
 // Status page: payment failed (e.g. cancelled).
-$_['heading_failed'] = 'Din betalning har inte slutförts';
-$_['msg_failed']     = 'Tyvärr har din betalning misslyckats. Vänligen klicka på knappen nedan för att gå tillbaka till kassasidan och försöka göra en betalning igen.';
+$_['heading_failed']                            = 'Din betalning har inte slutförts';
+$_['msg_failed']                                = 'Tyvärr har din betalning misslyckats. Vänligen klicka på knappen nedan för att gå tillbaka till kassasidan och försöka göra en betalning igen.';
 
 // Status page: payment pending.
-$_['heading_unknown']   = 'Din betalning väntar';
-$_['msg_unknown']       = 'Din betalning har inte tagits emot ännu. Vi kommer att skicka ett bekräftelsemail till dig när betalningen tas emot.';
+$_['heading_unknown']                           = 'Din betalning väntar';
+$_['msg_unknown']                               = 'Din betalning har inte tagits emot ännu. Vi kommer att skicka ett bekräftelsemail till dig när betalningen tas emot.';
 
 // Status page: API failure.
-$_['heading_error'] = 'Ett fel uppstod när betalningen gjordes';
-$_['text_error']    = 'Ett fel uppstod när du ställde in betalningen med Mollie. Klicka på knappen nedan för att återgå till kassasidan.';
+$_['heading_error']                             = 'Ett fel uppstod när betalningen gjordes';
+$_['text_error']                                = 'Ett fel uppstod när du ställde in betalningen med Mollie. Klicka på knappen nedan för att återgå till kassasidan.';
 
 // Payment link
-$_['heading_payment_success'] = 'Betalningen har tagits emot';
-$_['text_payment_success'] = 'Din betalning har slutförts. Tack!';
-$_['heading_payment_failed'] = 'Betalningen är okänd';
-$_['text_payment_failed'] = 'Din betalning har inte tagits emot ännu eller betalningsstatusen är okänd. Vi kommer att meddela dig när betalningen tas emot.';
+$_['heading_payment_success']                   = 'Betalningen har tagits emot';
+$_['text_payment_success']                      = 'Din betalning har slutförts. Tack!';
+$_['heading_payment_failed']                    = 'Betalningen är okänd';
+$_['text_payment_failed']                       = 'Din betalning har inte tagits emot ännu eller betalningsstatusen är okänd. Vi kommer att meddela dig när betalningen tas emot.';
 
 // Response
-$_['response_success']      = 'Betalningen har tagits emot';
-$_['response_none']         = 'Betalningen har inte tagits emot ännu';
-$_['response_cancelled']    = 'Klienten har avbrutit betalningen';
-$_['response_failed']       = 'Tyvärr gick något fel. Försök betalningen igen.';
-$_['response_expired']      = 'Betalningen har gått ut';
-$_['response_unknown']      = 'Ett okänt fel inträffade';
-$_['capture_success']       = 'Betalningen är insamlad.';
-$_['refund_cancelled']      = 'Återbetalning har avbrutits.';
-$_['refund_success']        = 'Återbetalning har behandlats framgångsrikt!';
+$_['response_success']                          = 'Betalningen har tagits emot';
+$_['response_none']                             = 'Betalningen har inte tagits emot ännu';
+$_['response_cancelled']                        = 'Klienten har avbrutit betalningen';
+$_['response_failed']                           = 'Tyvärr gick något fel. Försök betalningen igen.';
+$_['response_expired']                          = 'Betalningen har gått ut';
+$_['response_unknown']                          = 'Ett okänt fel inträffade';
+$_['capture_success']                           = 'Betalningen är insamlad.';
+$_['refund_cancelled']                          = 'Återbetalning har avbrutits.';
+$_['refund_success']                            = 'Återbetalning har behandlats framgångsrikt!';
 
 // Methods
-$_['method_ideal']          = 'iDEAL | Wero';
-$_['method_creditcard']     = 'Kreditkort';
-$_['method_bancontact']     = 'Bankontakt';
-$_['method_banktransfer']   = 'Banköverföring';
-$_['method_belfius']        = 'Belfius direktnät';
-$_['method_kbc']            = 'KBC/CBC-betalningsknapp';
-$_['method_paypal']         = 'PayPal';
-$_['method_giftcard']       = 'Presentkort';
-$_['method_eps']            = 'EPS';
-$_['method_klarnapaylater'] = 'Klarna betala senare';
-$_['method_klarnapaynow']   = 'Klarna betala nu';
-$_['method_klarnasliceit']  = 'Klarna Slice It';
-$_['method_przelewy24']     = 'P24';
-$_['method_applepay']       = 'Apple Pay';
-$_['method_voucher']        = 'Kupong';
-$_['method_in3']            = 'iDEAL | Wero in3';
-$_['method_mybank']         = 'MyBank';
-$_['method_billie']         = 'Billie';
-$_['method_klarna']         = 'Betala med Klarna';
-$_['method_twint']          = 'Twint';
-$_['method_blik']           = 'Blik';
-$_['method_bancomatpay']    = 'Bancomat Pay';
-$_['method_trustly']        = 'Trustly';
-$_['method_alma']           = 'Alma';
-$_['method_riverty']        = 'Riverty';
-$_['method_payconiq']       = 'Payconiq';
-$_['method_satispay']       = 'Satispay';
-$_['method_multibanco']     = "Multibanco";
-$_['method_bizum']          = "Bizum";
-$_['method_mbway']          = "MB Way";
-$_['method_paybybank']      = "Betala via bank";
-$_['method_swish']          = "Swish";
-$_['method_wero']           = "Wero";
+$_['method_ideal']                              = 'iDEAL | Wero';
+$_['method_creditcard']                         = 'Kreditkort';
+$_['method_bancontact']                         = 'Bankontakt';
+$_['method_banktransfer']                       = 'Banköverföring';
+$_['method_belfius']                            = 'Belfius direktnät';
+$_['method_kbc']                                = 'KBC/CBC-betalningsknapp';
+$_['method_paypal']                             = 'PayPal';
+$_['method_giftcard']                           = 'Presentkort';
+$_['method_eps']                                = 'EPS';
+$_['method_klarnapaylater']                     = 'Klarna betala senare';
+$_['method_klarnapaynow']                       = 'Klarna betala nu';
+$_['method_klarnasliceit']                      = 'Klarna Slice It';
+$_['method_przelewy24']                         = 'P24';
+$_['method_applepay']                           = 'Apple Pay';
+$_['method_voucher']                            = 'Kupong';
+$_['method_in3']                                = 'iDEAL | Wero in3';
+$_['method_mybank']                             = 'MyBank';
+$_['method_billie']                             = 'Billie';
+$_['method_klarna']                             = 'Betala med Klarna';
+$_['method_twint']                              = 'Twint';
+$_['method_blik']                               = 'Blik';
+$_['method_bancomatpay']                        = 'Bancomat Pay';
+$_['method_trustly']                            = 'Trustly';
+$_['method_alma']                               = 'Alma';
+$_['method_riverty']                            = 'Riverty';
+$_['method_payconiq']                           = 'Payconiq';
+$_['method_satispay']                           = 'Satispay';
+$_['method_multibanco']                         = "Multibanco";
+$_['method_bizum']                              = "Bizum";
+$_['method_mbway']                              = "MB Way";
+$_['method_paybybank']                          = "Betala via bank";
+$_['method_swish']                              = "Swish";
+$_['method_wero']                               = "Wero";
 
 //Round Off Description
-$_['roundoff_description'] = 'Avrundningsskillnad på grund av valutaomvandling';
+$_['roundoff_description']                      = 'Avrundningsskillnad på grund av valutaomvandling';
 
 //Warning
-$_['warning_secure_connection'] = 'Se till att du använder en säker anslutning.';
+$_['warning_secure_connection']                 = 'Se till att du använder en säker anslutning.';

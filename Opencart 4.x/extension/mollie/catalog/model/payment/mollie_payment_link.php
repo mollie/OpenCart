@@ -88,11 +88,14 @@ class MolliePaymentLink extends \Opencart\System\Engine\Model {
 
         $formattedAmount = $this->numberFormat($order_total, $order_info['currency_code']);
 		
+		// The pipe separator of older OpenCart 4 versions is not a valid character in a redirect url
+		$separator = version_compare(VERSION, '4.0.2.0', '>=') ? '.' : '|';
+
 		$linkData = array(
 			"description" => $description,
 			"amount" => ["currency" => $order_info['currency_code'], "value" => (string)$formattedAmount],
-			"redirectUrl" => str_replace('admin/', '', $order_info['store_url']) . 'index.php?route=extension/mollie/payment/mollie_payment_link|payLinkCallback&language=' . $this->config->get('config_language') . '&order_id=' . $order_info['order_id'],
-			"webhookUrl" => $order_info['store_url'] . 'index.php?route=extension/mollie/payment/mollie_payment_link|webhook'
+			"redirectUrl" => str_replace('admin/', '', $order_info['store_url']) . 'index.php?route=extension/mollie/payment/mollie_payment_link' . $separator . 'payLinkCallback&language=' . $this->config->get('config_language') . '&order_id=' . $order_info['order_id'],
+			"webhookUrl" => $order_info['store_url'] . 'index.php?route=extension/mollie/payment/mollie_payment_link' . $separator . 'webhook'
 		);
 
 		try {

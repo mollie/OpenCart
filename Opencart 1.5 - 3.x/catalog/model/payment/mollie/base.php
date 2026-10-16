@@ -315,7 +315,7 @@ class ModelPaymentMollieBase extends Model
 	public function setPaymentForPaymentAPI($order_id, $mollie_payment_id, $method)
 	{
 		$payment_attempt = 1;
-		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `order_id` = '" . $order_id . "' ORDER BY payment_attempt DESC LIMIT 1");		
+		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `order_id` = '" . (int)$order_id . "' ORDER BY payment_attempt DESC LIMIT 1");
 		if($query->num_rows > 0) {
 			$payment_attempt += $query->row['payment_attempt'];
 		}
@@ -354,7 +354,7 @@ class ModelPaymentMollieBase extends Model
 	public function getPaymentID($order_id)
 	{
 		if (!empty($order_id)) {
-			$results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `order_id` = '" . $order_id . "' ORDER BY payment_attempt DESC LIMIT 1");
+			$results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `order_id` = '" . (int)$order_id . "' ORDER BY payment_attempt DESC LIMIT 1");
 			if($results->num_rows == 0) return FALSE;
 			return $results->row['transaction_id'];
 		}
@@ -364,7 +364,7 @@ class ModelPaymentMollieBase extends Model
     public function getOrderID($order_id)
 	{
 		if (!empty($order_id)) {
-			$results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `order_id` = '" . $order_id . "' ORDER BY payment_attempt DESC LIMIT 1");
+			$results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `order_id` = '" . (int)$order_id . "' ORDER BY payment_attempt DESC LIMIT 1");
 			if($results->num_rows == 0) return FALSE;
 			return isset($results->row['mollie_order_id']) ? $results->row['mollie_order_id'] : '';
 		}
@@ -401,7 +401,7 @@ class ModelPaymentMollieBase extends Model
 	public function getPayment($order_id)
 	{
 		if (!empty($order_id)) {
-			$results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `order_id` = '" . $order_id . "'");
+			$results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `order_id` = '" . (int)$order_id . "'");
 			if($results->num_rows == 0) return FALSE;
 			return $results->row;
 		}
@@ -426,7 +426,7 @@ class ModelPaymentMollieBase extends Model
 	}
 
 	public function getOrderStatuses($order_id) {
-		$results = $this->db->query("SELECT DISTINCT order_status_id FROM `" . DB_PREFIX . "order_history` WHERE `order_id` = '" . $order_id . "'");
+		$results = $this->db->query("SELECT DISTINCT order_status_id FROM `" . DB_PREFIX . "order_history` WHERE `order_id` = '" . (int)$order_id . "'");
 		
 		$orderStatuses = array();
 		if(!empty($results->rows)) {
@@ -444,7 +444,7 @@ class ModelPaymentMollieBase extends Model
 
 	public function getMollieCustomer($email) {
 		if (!empty($email)) {
-			$results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_customers` WHERE `email` = '" . $email . "'");
+			$results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_customers` WHERE `email` = '" . $this->db->escape($email) . "'");
 			if($results->num_rows == 0) return '';
 			return $results->row['mollie_customer_id'];
 		}
@@ -563,7 +563,7 @@ class ModelPaymentMollieBase extends Model
 	public function getPaymentBySubscriptionID($subscription_id)
 	{
 		if (!empty($subscription_id)) {
-			$results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `subscription_id` = '" . $subscription_id . "'");
+			$results = $this->db->query("SELECT * FROM `" . DB_PREFIX . "mollie_payments` WHERE `subscription_id` = '" . $this->db->escape($subscription_id) . "'");
 			if($results->num_rows == 0) return '';
 			return $results->row;
 		}
@@ -594,7 +594,7 @@ class ModelPaymentMollieBase extends Model
 			$next_payment = date_format($next_payment, 'Y-m-d H:i:s');
 
 			if($subscription_end > $today || $subscription_end == $unlimited) {
-				$this->db->query("UPDATE `" . DB_PREFIX . "mollie_payments` SET `next_payment` = '" . $this->db->escape($next_payment) . "' WHERE `subscription_id` = '" . $data['subscription_id'] . "'");
+				$this->db->query("UPDATE `" . DB_PREFIX . "mollie_payments` SET `next_payment` = '" . $this->db->escape($next_payment) . "' WHERE `subscription_id` = '" . $this->db->escape($data['subscription_id']) . "'");
 
 				// Send mail to the customer
 				$subject = $this->config->get($this->mollieHelper->getModuleCode() . "_recurring_email")[$this->config->get('config_language_id')]['subject'];
@@ -624,7 +624,8 @@ class ModelPaymentMollieBase extends Model
 	}
 
 	public function getProfile($order_recurring_id) {
-		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "order_recurring WHERE order_recurring_id = " . (int)$order_recurring_id);
+		// order_recurring has no customer_id, the customer is stored on the order
+		$query = $this->db->query("SELECT orr.*, o.customer_id FROM " . DB_PREFIX . "order_recurring orr LEFT JOIN `" . DB_PREFIX . "order` o ON (o.order_id = orr.order_id) WHERE orr.order_recurring_id = " . (int)$order_recurring_id);
 
 		return $query->row;
 	}

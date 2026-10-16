@@ -364,6 +364,28 @@
                                     </div>
                                 </div>
 							</div>
+
+                            div class="form-group">
+								<label class="col-sm-2 control-label" for="<?php echo $store['store_id']; ?><?php echo $code; ?>_ideal_capture_status_id"><?php echo $entry_capture_status; ?></label>
+								<div class="col-sm-4">
+									<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_ideal_capture_status_id" id="<?php echo $store['store_id']; ?><?php echo $code; ?>_ideal_capture_status_id" class="form-control">
+                                        <option value="0"><?php echo $text_none; ?></option>
+                                        <?php foreach ($order_statuses as $order_status) { ?>
+											<?php if ($order_status['order_status_id'] == $store[$code . '_ideal_capture_status_id']) { ?>
+											<option value="<?php echo $order_status['order_status_id']; ?>" selected="selected"><?php echo $order_status['name']; ?></option>
+											<?php } else { ?>
+											<option value="<?php echo $order_status['order_status_id']; ?>"><?php echo $order_status['name']; ?></option>
+											<?php } ?>
+										<?php } ?>
+									</select>
+								</div>
+                                <label class="col-sm-2 control-label"><?php echo $entry_notify; ?></label>
+                                <div class="col-sm-4">
+                                    <div class="checkbox">
+                                        <input type="checkbox" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_ideal_capture_status_notify" value="1" <?php if (isset($store[$code . '_ideal_capture_status_notify']) && $store[$code . '_ideal_capture_status_notify']) { ?>checked="checked"<?php } ?>/>
+                                    </div>
+                                </div>
+							</div>
 						</div>
 
 						<div id="mollie-options-<?php echo $store['store_id']; ?>" class="active vtabs-content">
@@ -441,15 +463,24 @@
 								<div class="form-group">
 									<label class="col-sm-2 control-label"><?php echo $entry_show_order_canceled_page; ?><br /><span class="help"><?php echo $help_show_order_canceled_page; ?></span></label>
 									<div class="col-sm-10">
-										<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_show_order_canceled_page" class="form-control">
-											<?php if ($store[$code . '_show_order_canceled_page']) { ?>
-											<option value="1" selected="selected"><?php echo $text_yes; ?></option>
-											<option value="0"><?php echo $text_no; ?></option>
-											<?php } else { ?>
-											<option value="1"><?php echo $text_yes; ?></option>
-											<option value="0" selected="selected"><?php echo $text_no; ?></option>
-											<?php } ?>
-										</select>
+                                        <label class="radio-inline">
+                                            <?php if ($store[$code . '_show_order_canceled_page']) { ?>
+                                            <input type="radio" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_show_order_canceled_page" value="1" checked="checked" />
+                                            <?php echo $text_yes; ?>
+                                            <?php } else { ?>
+                                            <input type="radio" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_show_order_canceled_page" value="1" />
+                                            <?php echo $text_yes; ?>
+                                            <?php } ?>
+                                            </label>
+                                            <label class="radio-inline">
+                                            <?php if (!$store[$code . '_show_order_canceled_page']) { ?>
+                                            <input type="radio" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_show_order_canceled_page" value="0" checked="checked" />
+                                            <?php echo $text_no; ?>
+                                            <?php } else { ?>
+                                            <input type="radio" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_show_order_canceled_page" value="0" />
+                                            <?php echo $text_no; ?>
+                                            <?php } ?>
+                                        </label>
 									</div>
 								</div>
 								<div class="form-group">
@@ -553,37 +584,69 @@
 											<label class="col-sm-2 control-label"><?php echo $entry_payment_link; ?><br /><span class="help"><?php echo $help_payment_link; ?></span></label>
 											<div class="col-sm-10">
 												<label class="radio-inline">
-												<?php if ($store[$code . '_payment_link']) { ?>
-												<input type="radio" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_payment_link" value="1" checked="checked" />
-												<?php echo $entry_payment_link_ord_email; ?>
-												<?php } else { ?>
-												<input type="radio" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_payment_link" value="1" />
-												<?php echo $entry_payment_link_ord_email; ?>
-												<?php } ?>
-												</label>
-												<label class="radio-inline">
-												<?php if (!$store[$code . '_payment_link']) { ?>
-												<input type="radio" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_payment_link" value="0" checked="checked" />
-												<?php echo $entry_payment_link_sep_email; ?>
-												<?php } else { ?>
-												<input type="radio" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_payment_link" value="0" />
-												<?php echo $entry_payment_link_sep_email; ?>
-												<?php } ?>
+                                                    <?php if ($store[$code . '_payment_link']) { ?>
+                                                    <input type="radio" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_payment_link" value="1" checked="checked" />
+                                                    <?php echo $entry_payment_link_ord_email; ?>
+                                                    <?php } else { ?>
+                                                    <input type="radio" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_payment_link" value="1" />
+                                                    <?php echo $entry_payment_link_ord_email; ?>
+                                                    <?php } ?>
+                                                    </label>
+                                                    <label class="radio-inline">
+                                                    <?php if (!$store[$code . '_payment_link']) { ?>
+                                                    <input type="radio" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_payment_link" value="0" checked="checked" />
+                                                    <?php echo $entry_payment_link_sep_email; ?>
+                                                    <?php } else { ?>
+                                                    <input type="radio" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_payment_link" value="0" />
+                                                    <?php echo $entry_payment_link_sep_email; ?>
+                                                    <?php } ?>
 												</label>
 											</div>
 										</div>
 										<div class="form-group">
 											<label class="col-sm-2 control-label"><?php echo $entry_partial_credit_order; ?></label>
 											<div class="col-sm-10">
-												<select name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_partial_credit_order" class="form-control">
-													<?php if ($store[$code . '_partial_credit_order']) { ?>
-													<option value="1" selected="selected"><?php echo $text_yes; ?></option>
-													<option value="0"><?php echo $text_no; ?></option>
-													<?php } else { ?>
-													<option value="1"><?php echo $text_yes; ?></option>
-													<option value="0" selected="selected"><?php echo $text_no; ?></option>
-													<?php } ?>
-												</select>
+                                                <label class="radio-inline">
+                                                    <?php if ($store[$code . '_partial_credit_order']) { ?>
+                                                    <input type="radio" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_partial_credit_order" value="1" checked="checked" />
+                                                    <?php echo $text_yes; ?>
+                                                    <?php } else { ?>
+                                                    <input type="radio" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_partial_credit_order" value="1" />
+                                                    <?php echo $text_yes; ?>
+                                                    <?php } ?>
+                                                    </label>
+                                                    <label class="radio-inline">
+                                                    <?php if (!$store[$code . '_partial_credit_order']) { ?>
+                                                    <input type="radio" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_partial_credit_order" value="0" checked="checked" />
+                                                    <?php echo $text_no; ?>
+                                                    <?php } else { ?>
+                                                    <input type="radio" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_partial_credit_order" value="0" />
+                                                    <?php echo $text_no; ?>
+                                                    <?php } ?>
+												</label>
+											</div>
+										</div>
+                                        <div class="form-group">
+											<label class="col-sm-2 control-label"><?php echo $entry_combine_address; ?><br /><span class="help"><?php echo $help_combine_address; ?></span></label>
+											<div class="col-sm-10">
+												<label class="radio-inline">
+                                                    <?php if ($store[$code . '_combine_address']) { ?>
+                                                    <input type="radio" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_combine_address" value="1" checked="checked" />
+                                                    <?php echo $text_yes; ?>
+                                                    <?php } else { ?>
+                                                    <input type="radio" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_combine_address" value="1" />
+                                                    <?php echo $text_yes; ?>
+                                                    <?php } ?>
+                                                    </label>
+                                                    <label class="radio-inline">
+                                                    <?php if (!$store[$code . '_combine_address']) { ?>
+                                                    <input type="radio" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_combine_address" value="0" checked="checked" />
+                                                    <?php echo $text_no; ?>
+                                                    <?php } else { ?>
+                                                    <input type="radio" name="<?php echo $store['store_id']; ?>_<?php echo $code; ?>_combine_address" value="0" />
+                                                    <?php echo $text_no; ?>
+                                                    <?php } ?>
+												</label>
 											</div>
 										</div>
 										<div class="form-group">
@@ -921,7 +984,7 @@
 		function checkIfAPIKeyIsValid(key) {
 			if (xhr) xhr.abort();
 
-			xhr = $.get(api_check_url + '&key=' + key);
+			xhr = $.post(api_check_url, {key: key});
 
 			return xhr;
 		}
