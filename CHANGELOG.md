@@ -2,6 +2,9 @@
 
 # Changelog #
 
+#### Changes in release 14.1.3
+  + Updated bundled CA certificate bundle
+
 #### Changes in release 14.1.2
   + Security fixes and improvements
   + Partial refunds: only the quantity that is left per product line can be refunded, the refunded amount is based on the refunded quantity, and stock is no longer restocked twice
