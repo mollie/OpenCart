@@ -4,7 +4,7 @@ use Mollie\Api\MollieApiClient;
 
 class MollieHelper {
 
-	const PLUGIN_VERSION = "14.1.2";
+	const PLUGIN_VERSION = "14.1.3";
 
 	const MIN_PHP_VERSION = "7.2.0";
 	const NEXT_PHP_VERSION = "8.2.0";
